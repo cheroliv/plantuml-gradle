@@ -1,13 +1,22 @@
-# Ignore Gradle project-specific cache directory
-.gradle
-
-# Ignore Gradle build output directory
-build
-
-# Ignore Kotlin plugin data
-.kotlin
-
-plantuml-context.yml
-.project
 .idea
-.settings
+build
+site.yml
+slides-context.yml
+.gradle
+*.iml
+*.ipr
+*.iws
+local.properties
+_msg_.txt
+workspace-engine.tar
+workspace-engine
+postgresql.yml
+.kotlin
+#*.md
+!AGENTS.md
+#*.adoc
+!README.adoc
+!README_fr.adoc
+!README_truth.adoc
+!README_truth_fr.adoc
+readme-truth.yml
