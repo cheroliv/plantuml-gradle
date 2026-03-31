@@ -9,5 +9,5 @@ pluginManagement.repositories {
 
 plugins { id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0" }
 
-rootProject.name = "slider-plugin"
+rootProject.name = "plantuml-plugin"
 include("slider")
