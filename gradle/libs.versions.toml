@@ -1,0 +1,41 @@
+[versions]
+plantuml = "1.2026.0"
+langchain4j = "1.12.1"
+jackson = "2.21.1"
+kotlin = "2.3.20"
+gradle = "9.4.0"
+assertj = "3.27.7"
+plugin-publish = "2.1.0"
+cucumber = "7.34.3"
+junit-platform = "1.14.3"
+
+[libraries]
+plantuml = { module = "net.sourceforge.plantuml:plantuml", version.ref = "plantuml" }
+langchain4j = { module = "dev.langchain4j:langchain4j", version.ref = "langchain4j" }
+langchain4j-ollama = { module = "dev.langchain4j:langchain4j-ollama", version.ref = "langchain4j" }
+langchain4j-open-ai = { module = "dev.langchain4j:langchain4j-open-ai", version.ref = "langchain4j" }
+langchain4j-gemini = { module = "dev.langchain4j:langchain4j-google-ai-gemini", version.ref = "langchain4j" }
+langchain4j-mistral = { module = "dev.langchain4j:langchain4j-mistral-ai", version.ref = "langchain4j" }
+jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
+jackson-dataformat-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson" }
+kotlin-stdlib-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8" }
+kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5", version.ref = "kotlin" }
+assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
+cucumber-java = { module = "io.cucumber:cucumber-java", version.ref = "cucumber" }
+cucumber-junit-platform-engine = { module = "io.cucumber:cucumber-junit-platform-engine", version.ref = "cucumber" }
+cucumber-picocontainer = { module = "io.cucumber:cucumber-picocontainer", version.ref = "cucumber" }
+junit-platform-suite = { module = "org.junit.platform:junit-platform-suite", version.ref = "junit-platform" }
+
+[plugins]
+plantuml = { id = "com.cheroliv.plantuml", version = "0.0.1" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+publish = { id = "com.gradle.plugin-publish", version.ref = "plugin-publish" }
+
+[bundles]
+plantuml-langchain = [
+    "langchain4j",
+    "langchain4j-ollama",
+    "langchain4j-open-ai",
+    "langchain4j-gemini",
+    "langchain4j-mistral"
+]

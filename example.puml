@@ -1,0 +1,15 @@
+@startuml
+class Car {
+  - String brand
+  - String model
+  + void start()
+  + void stop()
+}
+
+class Engine {
+  - int cylinders
+  + void start()
+}
+
+Car -- Engine
+@enduml
