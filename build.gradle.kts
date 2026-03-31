@@ -1,7 +1,11 @@
 plugins {
-    alias(libs.plugins.plantuml)
+    alias(libs.plugins.slider)
+    alias(libs.plugins.readme)
 }
 
-plantuml {
-    configPath = file("plantuml-context.yml").absolutePath
+slider {
+    configPath = "slides-context.yml"
+        .run(::file)
+        .absolutePath
 }
+
