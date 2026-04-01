@@ -75,7 +75,6 @@ logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-slider = { id = "com.cheroliv.slider", version.ref = "slider" }
 publish = { id = "com.gradle.plugin-publish", version.ref = "plugin-publish" }
 
 [bundles]
