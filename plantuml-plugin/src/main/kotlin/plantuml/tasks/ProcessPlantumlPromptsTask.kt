@@ -68,11 +68,11 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
         val diagramProcessor = DiagramProcessor(plantumlService)
 
         promptFiles.forEach { promptFile ->
-            processSinglePrompt(promptFile, config, diagramProcessor)
+            processSinglePrompt(promptFile, config, diagramProcessor, plantumlService)
         }
     }
 
-    private fun processSinglePrompt(promptFile: File, config: plantuml.PlantumlConfig, diagramProcessor: DiagramProcessor) {
+    private fun processSinglePrompt(promptFile: File, config: plantuml.PlantumlConfig, diagramProcessor: DiagramProcessor, plantumlService: PlantumlService) {
         logger.lifecycle("Processing prompt: ${promptFile.name}")
         
         // Read the prompt content
@@ -85,17 +85,17 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
         val diagram = diagramProcessor.processPrompt(promptContent, maxIterations)
         
         if (diagram != null) {
-        // Validate PlantUML syntax
-        logger.lifecycle("  → Validating PlantUML syntax...")
-        val validationResult = plantumlService.validateSyntax(diagram.plantuml.code)
-        
-        if (validationResult is PlantumlService.SyntaxValidationResult.Invalid) {
-            logger.lifecycle("    Validation errors found:")
-            logger.lifecycle("      ${validationResult.errorMessage}")
-            logger.lifecycle("      ${validationResult.stackTrace}")
-            // In a real implementation, we would send this back to LLM for correction
-            // For now, we'll continue with the processing
-        }
+            // Validate PlantUML syntax
+            logger.lifecycle("  → Validating PlantUML syntax...")
+            val validationResult = plantumlService.validateSyntax(diagram.plantuml.code)
+            
+            if (validationResult is PlantumlService.SyntaxValidationResult.Invalid) {
+                logger.lifecycle("    Validation errors found:")
+                logger.lifecycle("      ${validationResult.errorMessage}")
+                logger.lifecycle("      ${validationResult.stackTrace}")
+                // In a real implementation, we would send this back to LLM for correction
+                // For now, we'll continue with the processing
+            }
             
             // Generate image from valid diagrams
             logger.lifecycle("  → Generating diagram image...")

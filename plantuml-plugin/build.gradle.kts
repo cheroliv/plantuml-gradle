@@ -35,7 +35,7 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(gradleApi())
     implementation(gradleKotlinDsl())
-    
+
     // PlantUML dependency
     implementation("net.sourceforge.plantuml:plantuml:1.2026.0")
     
@@ -59,7 +59,7 @@ dependencies {
     testImplementation(kotlin("test-junit5"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.7.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.assertj:assertj-core:3.21.0")
+    testImplementation("org.assertj:assertj-core:3.27.7")
     testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
     testImplementation("org.mockito:mockito-junit-jupiter:4.6.1")
     
@@ -67,7 +67,7 @@ dependencies {
     add(functionalTest.implementationConfigurationName, gradleTestKit())
     add(functionalTest.implementationConfigurationName, kotlin("stdlib-jdk8"))
     add(functionalTest.implementationConfigurationName, kotlin("test-junit5"))
-    add(functionalTest.implementationConfigurationName, "org.assertj:assertj-core:3.21.0")
+    add(functionalTest.implementationConfigurationName, "org.assertj:assertj-core:3.27.7")
     
     // Cucumber dependencies for BDD testing
     testImplementation("io.cucumber:cucumber-java:7.34.3")
@@ -79,8 +79,21 @@ dependencies {
     add(scenarios.implementationConfigurationName, "io.cucumber:cucumber-java:7.34.3")
     add(scenarios.implementationConfigurationName, "io.cucumber:cucumber-junit-platform-engine:7.34.3")
     add(scenarios.implementationConfigurationName, "io.cucumber:cucumber-picocontainer:7.34.3")
+    add(scenarios.implementationConfigurationName, "org.assertj:assertj-core:3.27.7")
+    
+    // Ajout des dépendances Gradle et Kotlin nécessaires
+    add(scenarios.implementationConfigurationName, gradleApi())
+    add(scenarios.implementationConfigurationName, gradleTestKit())
+    add(scenarios.implementationConfigurationName, kotlin("test-junit5"))
+    
+    // Ajout de kotlinx-coroutines pour PlantumlWorld
+    add(scenarios.implementationConfigurationName, "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+    
+    // Ajout de slf4j pour PlantumlWorld
+    add(scenarios.implementationConfigurationName, "org.slf4j:slf4j-api:2.0.16")
+    
+    // Ajout de JUnit Suite pour CucumberTestRunner
     add(scenarios.implementationConfigurationName, "org.junit.platform:junit-platform-suite:1.14.3")
-    add(scenarios.implementationConfigurationName, "org.assertj:assertj-core:3.21.0")
 }
 
 tasks.withType<Test> {
