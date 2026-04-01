@@ -12,11 +12,4 @@ workspace-engine.tar
 workspace-engine
 postgresql.yml
 .kotlin
-#*.md
-!AGENTS.md
-#*.adoc
-!README.adoc
-!README_fr.adoc
-!README_truth.adoc
-!README_truth_fr.adoc
 readme-truth.yml
