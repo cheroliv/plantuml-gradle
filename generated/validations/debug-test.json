@@ -1,0 +1,6 @@
+{
+  "prompt": "debug-test.prompt",
+  "score": 8,
+  "feedback": "Good diagram structure with clear relationships. The component layout is logical.",
+  "recommendations": ["Add more detailed component descriptions", "Include data flow annotations", "Consider adding boundary boxes for subsystems"]
+}
