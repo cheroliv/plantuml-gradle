@@ -68,7 +68,7 @@ tasks.named<Test>("test") {
         // Exclure les classes dans le package 'plantuml.scenarios' (tests Cucumber)
         excludeTestsMatching("plantuml.scenarios.**")
         // Exclure également les classes de functionalTest
-        excludeTestsMatching("plantuml.PlantumlPluginFunctionalTests")
+        excludeTestsMatching("plantuml.PlantUmlPluginFunctionalTests")
     }
 }
 
@@ -199,7 +199,7 @@ gradlePlugin {
         create("plantuml") {
             id = libs.plugins.plantuml.plugin.get().pluginId
             implementationClass = "${libs.plugins.plantuml.plugin.get().pluginId}.PlantumlPlugin"
-            displayName = "plantuml Plugin"
+            displayName = "Plantuml Plugin"
             description = "Gradle plugin for plantuml generation."
             listOf(
                 "revealjs",
