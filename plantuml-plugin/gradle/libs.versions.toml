@@ -1,5 +1,4 @@
 [versions]
-slider = "0.0.5"
 asciidoctor-gradle = "5.0.0-alpha.1"
 node-gradle = "7.1.0"
 commons-io = "2.13.0"
@@ -78,24 +77,6 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 publish = { id = "com.gradle.plugin-publish", version.ref = "plugin-publish" }
 
 [bundles]
-slider = [
-    "asciidoctorj-diagram",
-    "asciidoctorj-diagram-plantuml",
-    "jackson-module-kotlin",
-    "jackson-dataformat-yaml",
-    "arrow-core",
-    "arrow-coroutines",
-    "arrow-jackson",
-    "langchain4j",
-    "langchain4j-ollama",
-    "langchain4j-open-ai",
-    "langchain4j-gemini",
-    "langchain4j-mistral",
-    "langchain4j-pgvector",
-    "langchain4j-minilm",
-    "docker-java",
-    "docker-java-transport-httpclient5"
-]
 jgit = [
     "jgit-core",
     "jgit-ssh",

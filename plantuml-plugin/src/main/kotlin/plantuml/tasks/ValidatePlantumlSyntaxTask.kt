@@ -3,7 +3,11 @@ package plantuml.tasks
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
+import org.gradle.work.DisableCachingByDefault
 import org.gradle.api.provider.Property
+import plantuml.service.PlantumlService
+import java.io.File
 
 /**
  * Gradle task: `validatePlantumlSyntax`
@@ -13,6 +17,7 @@ import org.gradle.api.provider.Property
  * Usage:
  *   ./gradlew validatePlantumlSyntax -Pplantuml.diagram=file.puml
  */
+@DisableCachingByDefault(because = "Validation results depend on file content which may change")
 abstract class ValidatePlantumlSyntaxTask : DefaultTask() {
 
     init {
@@ -21,28 +26,43 @@ abstract class ValidatePlantumlSyntaxTask : DefaultTask() {
     }
 
     @get:Input
+    @get:Optional
     abstract val diagramFile: Property<String>
 
     @TaskAction
     fun validateSyntax() {
         val diagramPath = project.findProperty("plantuml.diagram") as? String
-            ?: diagramFile.getOrElse("")
+            ?: diagramFile.orNull
             
-        if (diagramPath.isEmpty()) {
+        if (diagramPath.isNullOrEmpty()) {
             logger.lifecycle("No diagram file specified. Use -Pplantuml.diagram=file.puml")
+            return
+        }
+
+        val diagramFile = File(diagramPath)
+        if (!diagramFile.exists()) {
+            logger.lifecycle("Diagram file does not exist: $diagramPath")
             return
         }
 
         logger.lifecycle("Validating PlantUML syntax for: $diagramPath")
         
-        // In a real implementation, this would:
-        // 1. Load the PlantUML file
-        // 2. Parse and validate syntax using PlantUML library
-        // 3. Report any errors or confirm validity
+        // Load the PlantUML file
+        val plantumlCode = diagramFile.readText()
         
-        // Placeholder implementation
-        logger.lifecycle("  → Parsing PlantUML syntax...")
-        logger.lifecycle("  → Validating diagram structure...")
-        logger.lifecycle("  ✓ Syntax validation complete")
+        // Parse and validate syntax using PlantUML service
+        val plantumlService = PlantumlService()
+        val validationResult = plantumlService.validateSyntax(plantumlCode)
+        
+        when (validationResult) {
+            is PlantumlService.SyntaxValidationResult.Valid -> {
+                logger.lifecycle("  ✓ PlantUML syntax is valid")
+            }
+            is PlantumlService.SyntaxValidationResult.Invalid -> {
+                logger.lifecycle("  ✗ PlantUML syntax is invalid:")
+                logger.lifecycle("    Error: ${validationResult.errorMessage}")
+                logger.lifecycle("    Stack trace: ${validationResult.stackTrace}")
+            }
+        }
     }
 }

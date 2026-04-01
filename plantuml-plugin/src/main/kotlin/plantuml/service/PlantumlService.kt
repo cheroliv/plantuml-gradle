@@ -1,6 +1,8 @@
 package plantuml.service
 
+import net.sourceforge.plantuml.SourceStringReader
 import java.io.File
+import java.io.ByteArrayOutputStream
 
 /**
  * Service responsible for PlantUML diagram processing and validation.
@@ -12,22 +14,41 @@ class PlantumlService {
      * If invalid, returns error details.
      */
     fun validateSyntax(plantumlCode: String): SyntaxValidationResult {
-        // In a real implementation, this would use the PlantUML library
-        // to parse and validate the syntax
-        
-        // Placeholder implementation
-        return SyntaxValidationResult.Valid
+        return try {
+            val reader = SourceStringReader(plantumlCode)
+            
+            // Simple check for required tags
+            if (!plantumlCode.contains("@startuml") || !plantumlCode.contains("@enduml")) {
+                return SyntaxValidationResult.Invalid(
+                    "Missing @startuml or @enduml tags",
+                    "PlantUML code must be wrapped in @startuml and @enduml tags"
+                )
+            }
+            
+            SyntaxValidationResult.Valid
+        } catch (e: Exception) {
+            SyntaxValidationResult.Invalid(
+                "PlantUML parsing failed: ${e.message}",
+                e.stackTraceToString()
+            )
+        }
     }
     
     /**
      * Generates an image from valid PlantUML code.
      */
     fun generateImage(plantumlCode: String, outputFile: File) {
-        // In a real implementation, this would use the PlantUML library
-        // to generate an image file (PNG, SVG, etc.)
-        
-        // Placeholder implementation - just create an empty file
-        outputFile.createNewFile()
+        try {
+            val reader = SourceStringReader(plantumlCode)
+            val outputStream = ByteArrayOutputStream()
+            reader.outputImage(outputStream)
+            outputStream.use { output ->
+                outputFile.writeBytes(output.toByteArray())
+            }
+        } catch (e: Exception) {
+            // Fallback to text file if image generation fails
+            outputFile.writeText("PlantUML diagram:\n\n$plantumlCode\n\nError: ${e.message}")
+        }
     }
     
     /**

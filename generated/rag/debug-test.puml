@@ -1,0 +1,7 @@
+@startuml
+title Title: Debug Test Diagram
+actor User
+rectangle "System" {
+  User --> (Feature)
+}
+@enduml

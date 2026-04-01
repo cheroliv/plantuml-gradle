@@ -1,0 +1,7 @@
+@startuml
+title Title: Test Architecture Diagram
+actor User
+rectangle "System" {
+  User --> (Feature)
+}
+@enduml
