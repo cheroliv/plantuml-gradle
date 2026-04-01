@@ -5,13 +5,15 @@ plugins {
     `java-library`
     `maven-publish`
     `java-gradle-plugin`
-    alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.publish)
+    id("org.jetbrains.kotlin.jvm") version "2.3.20"
+    id("com.gradle.plugin-publish") version "2.1.0"
 }
 
 group = "com.cheroliv"
 version = "0.0.1"
-kotlin.jvmToolchain(VERSION_11.ordinal)
+kotlin {
+    jvmToolchain(11)
+}
 
 repositories {
     mavenCentral()
