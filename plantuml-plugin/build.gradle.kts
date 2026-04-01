@@ -20,6 +20,17 @@ repositories {
     gradlePluginPortal()
 }
 
+// Configuration des sources sets pour les différents types de tests
+val functionalTest: SourceSet by sourceSets.creating {
+    java.srcDirs("src/functionalTest/kotlin")
+    resources.srcDirs("src/functionalTest/resources")
+}
+
+val scenarios: SourceSet by sourceSets.creating {
+    java.srcDirs("src/scenarios/kotlin")
+    resources.srcDirs("src/scenarios/resources")
+}
+
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(gradleApi())
@@ -49,12 +60,27 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:5.7.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.assertj:assertj-core:3.21.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:4.6.1")
+    
+    // Functional test dependencies
+    add(functionalTest.implementationConfigurationName, gradleTestKit())
+    add(functionalTest.implementationConfigurationName, kotlin("stdlib-jdk8"))
+    add(functionalTest.implementationConfigurationName, kotlin("test-junit5"))
+    add(functionalTest.implementationConfigurationName, "org.assertj:assertj-core:3.21.0")
     
     // Cucumber dependencies for BDD testing
     testImplementation("io.cucumber:cucumber-java:7.34.3")
     testImplementation("io.cucumber:cucumber-junit-platform-engine:7.34.3")
     testImplementation("io.cucumber:cucumber-picocontainer:7.34.3")
     testImplementation("org.junit.platform:junit-platform-suite:1.14.3")
+    
+    // Cucumber dependencies for scenarios
+    add(scenarios.implementationConfigurationName, "io.cucumber:cucumber-java:7.34.3")
+    add(scenarios.implementationConfigurationName, "io.cucumber:cucumber-junit-platform-engine:7.34.3")
+    add(scenarios.implementationConfigurationName, "io.cucumber:cucumber-picocontainer:7.34.3")
+    add(scenarios.implementationConfigurationName, "org.junit.platform:junit-platform-suite:1.14.3")
+    add(scenarios.implementationConfigurationName, "org.assertj:assertj-core:3.21.0")
 }
 
 tasks.withType<Test> {
@@ -64,6 +90,47 @@ tasks.withType<Test> {
         showStandardStreams = true
         exceptionFormat = FULL
     }
+}
+
+// Configuration des tâches de test
+val functionalTestTask = tasks.register<Test>("functionalTest") {
+    description = "Runs functional tests."
+    group = "verification"
+    testClassesDirs = functionalTest.output.classesDirs
+    classpath = configurations[functionalTest.runtimeClasspathConfigurationName] + functionalTest.output
+    useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+        showStandardStreams = true
+    }
+    failOnNoDiscoveredTests = false
+}
+
+val cucumberTest = tasks.register<Test>("cucumberTest") {
+    description = "Runs Cucumber BDD tests"
+    group = "verification"
+    testClassesDirs = sourceSets.test.get().output.classesDirs
+    classpath = configurations.testRuntimeClasspath.get() +
+            sourceSets.test.get().output +
+            scenarios.output
+    useJUnitPlatform {
+        excludeEngines("junit-jupiter")
+    }
+    systemProperty("cucumber.junit-platform.naming-strategy", "long")
+    testLogging {
+        events("passed", "skipped", "failed")
+        showStandardStreams = true
+        exceptionFormat = FULL
+    }
+    outputs.upToDateWhen { false }
+    // S'assurer que functionalTest et main sont compilés avant
+    dependsOn(functionalTest.classesTaskName)
+    dependsOn(tasks.classes)
+}
+
+tasks.check {
+    dependsOn(functionalTestTask)
+    dependsOn(cucumberTest)
 }
 
 gradlePlugin {
