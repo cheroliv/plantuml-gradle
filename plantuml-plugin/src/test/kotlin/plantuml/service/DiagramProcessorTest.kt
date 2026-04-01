@@ -33,7 +33,7 @@ class DiagramProcessorTest {
 
         // Then
         assertNotNull(result)
-        assertEquals("Processed prompt: $prompt", result!!.conversation.first())
+        assertEquals("Processed prompt: $prompt", result.conversation.first())
     }
 
     @Test

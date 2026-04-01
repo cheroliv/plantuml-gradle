@@ -1,4 +1,7 @@
 [versions]
+plantuml-plugin = "0.0.0"
+plantuml = "1.2026.0"
+readme = "0.0.1"
 asciidoctor-gradle = "5.0.0-alpha.1"
 node-gradle = "7.1.0"
 commons-io = "2.13.0"
@@ -27,6 +30,7 @@ testcontainers-pg = "1.21.4"
 logback = "1.5.32"
 
 [libraries]
+plantuml = { module = "net.sourceforge.plantuml:plantuml", version.ref = "plantuml" }
 asciidoctor-gradle-jvm-slides = { module = "org.asciidoctor:asciidoctor-gradle-jvm-slides", version.ref = "asciidoctor-gradle" }
 asciidoctor-gradle-jvm-gems = { module = "org.asciidoctor:asciidoctor-gradle-jvm-gems", version.ref = "asciidoctor-gradle" }
 asciidoctor-gradle-jvm = { module = "org.asciidoctor:asciidoctor-gradle-jvm", version.ref = "asciidoctor-gradle" }
@@ -73,8 +77,11 @@ slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 
 [plugins]
+#readme = { id = "com.cheroliv.readme", version.ref = "readme" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 publish = { id = "com.gradle.plugin-publish", version.ref = "plugin-publish" }
+plantuml-plugin = { id = "com.cheroliv.plantuml", version.ref = "plantuml-plugin" }
+
 
 [bundles]
 jgit = [
@@ -99,4 +106,23 @@ asciidoctor = [
     "asciidoctor-gradle-jvm-slides",
     "asciidoctor-gradle-jvm-gems",
     "asciidoctor-gradle-jvm"
+]
+plantuml-ai = [
+    "langchain4j",
+    "langchain4j-ollama",
+    "langchain4j-open-ai",
+    "langchain4j-gemini",
+    "langchain4j-mistral",
+    "langchain4j-pgvector",
+    "langchain4j-minilm",
+]
+plantuml = [
+    "plantuml",
+    "jackson-module-kotlin",
+    "jackson-dataformat-yaml",
+    "arrow-core",
+    "arrow-coroutines",
+    "arrow-jackson",
+    "docker-java",
+    "docker-java-transport-httpclient5"
 ]

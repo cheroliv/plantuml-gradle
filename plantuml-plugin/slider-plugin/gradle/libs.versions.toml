@@ -1,4 +1,5 @@
 [versions]
+plantuml-plugin = "0.0.0"
 slider = "0.0.5"
 asciidoctor-gradle = "5.0.0-alpha.1"
 node-gradle = "7.1.0"

@@ -24,6 +24,7 @@ class PlantumlPluginFunctionalTest {
             .withProjectDir(testProjectDir)
             .withArguments("tasks")
             .withPluginClasspath()
+            .withGradleVersion("9.4.0") // Spécifier explicitement la version de Gradle
             .build()
 
         // Then
@@ -41,6 +42,7 @@ class PlantumlPluginFunctionalTest {
             .withProjectDir(testProjectDir)
             .withArguments("tasks", "--all")
             .withPluginClasspath()
+            .withGradleVersion("9.4.0") // Spécifier explicitement la version de Gradle
             .build()
 
         // Then
@@ -68,6 +70,7 @@ class PlantumlPluginFunctionalTest {
             .withProjectDir(testProjectDir)
             .withArguments("tasks")
             .withPluginClasspath()
+            .withGradleVersion("9.4.0") // Spécifier explicitement la version de Gradle
             .build()
 
         // Then

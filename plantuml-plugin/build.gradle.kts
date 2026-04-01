@@ -1,111 +1,108 @@
-import org.gradle.api.JavaVersion.VERSION_11
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+import org.gradle.plugin.compatibility.compatibility
 
 plugins {
     `java-library`
+    signing
     `maven-publish`
     `java-gradle-plugin`
-    id("org.jetbrains.kotlin.jvm") version "2.3.20"
-    id("com.gradle.plugin-publish") version "2.1.0"
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.publish)
 }
 
 group = "com.cheroliv"
-version = "0.0.1"
-kotlin {
-    jvmToolchain(11)
-}
+version = libs.plugins.plantuml.plugin.get().version
+kotlin.jvmToolchain(JavaVersion.VERSION_24.ordinal)
 
 repositories {
     mavenCentral()
     gradlePluginPortal()
-}
-
-// Configuration des sources sets pour les différents types de tests
-val functionalTest: SourceSet by sourceSets.creating {
-    java.srcDirs("src/functionalTest/kotlin")
-    resources.srcDirs("src/functionalTest/resources")
-}
-
-val scenarios: SourceSet by sourceSets.creating {
-    java.srcDirs("src/scenarios/kotlin")
-    resources.srcDirs("src/scenarios/resources")
+    listOf(
+        "https://repo.gradle.org/gradle/libs-releases/",
+        "https://plugins.gradle.org/m2/",
+//        "https://maven.xillio.com/artifactory/libs-release/",
+        "https://mvnrepository.com/repos/springio-plugins-release",
+        "https://archiva-repository.apache.org/archiva/repository/public/"
+    ).forEach(::maven)
 }
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
+
     implementation(gradleApi())
     implementation(gradleKotlinDsl())
+    implementation(libs.bundles.asciidoctor)
+    implementation(libs.node.gradle)
 
-    // PlantUML dependency
-    implementation("net.sourceforge.plantuml:plantuml:1.2026.0")
-    
-    // LangChain4j dependencies for AI integration
-    implementation("dev.langchain4j:langchain4j:1.12.1")
-    implementation("dev.langchain4j:langchain4j-ollama:1.12.1")
-    implementation("dev.langchain4j:langchain4j-google-ai-gemini:1.12.1")
-    implementation("dev.langchain4j:langchain4j-mistral-ai:1.12.1")
-    implementation("dev.langchain4j:langchain4j-pgvector:1.12.2-beta22")
-    implementation("dev.langchain4j:langchain4j-embeddings-all-minilm-l6-v2:1.12.2-beta22")
-    
-    // YAML processing
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.21.1")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.21.1")
-    
-    // Docker Java for container management
-    implementation("com.github.docker-java:docker-java-core:3.7.0")
-    implementation("com.github.docker-java:docker-java-transport-httpclient5:3.7.0")
-    
-    // Unit test dependencies
+    api(libs.bundles.plantuml)
+    api(libs.bundles.jgit)
+    api(libs.commons.io)
+
+    // Coroutines - IMPORTANT for the asynchronous tests
+    testImplementation(libs.bundles.coroutines)
+
     testImplementation(kotlin("test-junit5"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.7.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.assertj:assertj-core:3.27.7")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:4.6.1")
-    
-    // Functional test dependencies
-    add(functionalTest.implementationConfigurationName, gradleTestKit())
-    add(functionalTest.implementationConfigurationName, kotlin("stdlib-jdk8"))
-    add(functionalTest.implementationConfigurationName, kotlin("test-junit5"))
-    add(functionalTest.implementationConfigurationName, "org.assertj:assertj-core:3.27.7")
-    
-    // Cucumber dependencies for BDD testing
-    testImplementation("io.cucumber:cucumber-java:7.34.3")
-    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.34.3")
-    testImplementation("io.cucumber:cucumber-picocontainer:7.34.3")
-    testImplementation("org.junit.platform:junit-platform-suite:1.14.3")
-    
-    // Cucumber dependencies for scenarios
-    add(scenarios.implementationConfigurationName, "io.cucumber:cucumber-java:7.34.3")
-    add(scenarios.implementationConfigurationName, "io.cucumber:cucumber-junit-platform-engine:7.34.3")
-    add(scenarios.implementationConfigurationName, "io.cucumber:cucumber-picocontainer:7.34.3")
-    add(scenarios.implementationConfigurationName, "org.assertj:assertj-core:3.27.7")
-    
-    // Ajout des dépendances Gradle et Kotlin nécessaires
-    add(scenarios.implementationConfigurationName, gradleApi())
-    add(scenarios.implementationConfigurationName, gradleTestKit())
-    add(scenarios.implementationConfigurationName, kotlin("test-junit5"))
-    
-    // Ajout de kotlinx-coroutines pour PlantumlWorld
-    add(scenarios.implementationConfigurationName, "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
-    
-    // Ajout de slf4j pour PlantumlWorld
-    add(scenarios.implementationConfigurationName, "org.slf4j:slf4j-api:2.0.16")
-    
-    // Ajout de JUnit Suite pour CucumberTestRunner
-    add(scenarios.implementationConfigurationName, "org.junit.platform:junit-platform-suite:1.14.3")
+    testImplementation(libs.slf4j)
+    testRuntimeOnly(libs.logback)
+
+    testImplementation(libs.assertj.core)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.mockito.junit.jupiter)
+
+    // Cucumber dependencies
+    testImplementation(libs.bundles.cucumber)
 }
+
 
 tasks.withType<Test> {
     useJUnitPlatform()
     testLogging {
         events("passed", "skipped", "failed")
         showStandardStreams = true
-        exceptionFormat = FULL
     }
 }
 
-// Configuration des tâches de test
+tasks.named<Test>("test") {
+    filter {
+        // Exclure les classes dans le package 'plantuml.scenarios' (tests Cucumber)
+        excludeTestsMatching("plantuml.scenarios.**")
+        // Exclure également les classes de functionalTest
+        excludeTestsMatching("plantuml.PlantumlPluginFunctionalTests")
+    }
+}
+
+
+// 1. Créer le SourceSet functionalTest
+val functionalTest: SourceSet by sourceSets.creating {
+    java.srcDirs("src/functionalTest/kotlin")
+    resources.srcDirs("src/functionalTest/resources")
+}
+
+// 2. Ajouter GradleTestKit à functionalTest (SANS hériter de testImplementation)
+dependencies {
+    add(functionalTest.implementationConfigurationName, gradleTestKit())
+    add(functionalTest.implementationConfigurationName, kotlin("stdlib-jdk8"))
+    add(functionalTest.implementationConfigurationName, kotlin("test-junit5"))
+
+    // Ajouter les dépendances nécessaires explicitement
+    add(functionalTest.implementationConfigurationName, "org.slf4j:slf4j-api:2.0.17")
+    add(functionalTest.runtimeOnlyConfigurationName, "ch.qos.logback:logback-classic:1.5.26")
+    add(functionalTest.runtimeOnlyConfigurationName, "org.junit.platform:junit-platform-launcher")
+
+    // CORRECTION: Ajouter AssertJ pour les assertions
+    add(functionalTest.implementationConfigurationName, libs.assertj.core)
+
+    // Ajouter Mockito si nécessaire
+    add(functionalTest.implementationConfigurationName, libs.mockito.kotlin)
+    add(functionalTest.implementationConfigurationName, libs.mockito.junit.jupiter)
+
+    libs.bundles.coroutines.get().forEach { dep ->
+        add(functionalTest.implementationConfigurationName, dep)
+    }
+}
+
+// 3. Tâche pour les tests fonctionnels
 val functionalTestTask = tasks.register<Test>("functionalTest") {
     description = "Runs functional tests."
     group = "verification"
@@ -119,14 +116,58 @@ val functionalTestTask = tasks.register<Test>("functionalTest") {
     failOnNoDiscoveredTests = false
 }
 
+// CORRECTION: Gérer les duplications de ressources pour functionalTest
+tasks.named<ProcessResources>(functionalTest.processResourcesTaskName) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+// 4. Configurer les sources sets pour Cucumber (test standard)
+sourceSets.test {
+    resources.srcDir("src/test/features")
+    java.srcDir("src/test/scenarios")  // Steps dans scenarios/
+}
+
+
+// 5. Faire hériter testImplementation de functionalTest (pas l'inverse !)
+configurations.named("testImplementation").configure {
+    extendsFrom(configurations.named(functionalTest.implementationConfigurationName).get())
+}
+
+configurations.named("testRuntimeOnly").configure {
+    extendsFrom(configurations.named(functionalTest.runtimeOnlyConfigurationName).get())
+}
+
+// 6. Ajouter les classes compilées de functionalTest au classpath de test
+dependencies {
+    testImplementation(functionalTest.output)
+}
+
+configurations {
+    // Exclure logback-classic du classpath de test
+    named("testRuntimeClasspath") {
+        exclude(group = "ch.qos.logback", module = "logback-classic")
+    }
+    named("testImplementation") {
+        exclude(group = "ch.qos.logback", module = "logback-classic")
+    }
+    // Exclure logback-classic du classpath de functionalTest
+    named(functionalTest.runtimeClasspathConfigurationName) {
+        exclude(group = "ch.qos.logback", module = "logback-classic")
+    }
+}
+
+// 7. Tâche dédiée aux tests Cucumber
 val cucumberTest = tasks.register<Test>("cucumberTest") {
     description = "Runs Cucumber BDD tests"
     group = "verification"
     testClassesDirs = sourceSets.test.get().output.classesDirs
     classpath = configurations.testRuntimeClasspath.get() +
             sourceSets.test.get().output +
-            scenarios.output
+            functionalTest.output +
+            sourceSets.main.get().output
     useJUnitPlatform {
+        // CORRECTION: Ne pas filtrer par tag ici, ça filtre les engines JUnit
+        // Le filtrage des scénarios Cucumber se fait dans le runner via FILTER_TAGS_PROPERTY_NAME
         excludeEngines("junit-jupiter")
     }
     systemProperty("cucumber.junit-platform.naming-strategy", "long")
@@ -141,37 +182,51 @@ val cucumberTest = tasks.register<Test>("cucumberTest") {
     dependsOn(tasks.classes)
 }
 
+tasks.withType<Test>().configureEach {
+    // Permet de masquer l'avertissement relatif au chargement dynamique d'agents
+    jvmArgs("-XX:+EnableDynamicAgentLoading")
+}
+
 tasks.check {
     dependsOn(functionalTestTask)
     dependsOn(cucumberTest)
 }
 
 gradlePlugin {
-    website.set("https://github.com/cheroliv/plantuml-gradle/")
-    vcsUrl.set("https://github.com/cheroliv/plantuml-gradle.git")
-
     plugins {
+        vcsUrl = "https://github.com/cheroliv/plantuml-gradle.git"
+        website = "https://cheroliv.com"
         create("plantuml") {
-            id = "com.cheroliv.plantuml"
-            implementationClass = "plantuml.PlantumlPlugin"
-            displayName = "PlantUML Generator Plugin"
-            description = """
-                Generates PlantUML diagrams from natural language prompts using LangChain4j.
-                Processes prompts from a directory, validates syntax, generates images,
-                and collects validated diagrams for RAG training.
-            """.trimIndent()
-            tags.set(
-                listOf(
-                    "plantuml",
-                    "diagram",
-                    "llm",
-                    "langchain4j",
-                    "ai",
-                    "prompt"
-                )
-            )
+            id = libs.plugins.plantuml.plugin.get().pluginId
+            implementationClass = "${libs.plugins.plantuml.plugin.get().pluginId}.PlantumlPlugin"
+            displayName = "plantuml Plugin"
+            description = "Gradle plugin for plantuml generation."
+            listOf(
+                "revealjs",
+                "slide-generator",
+                "slide",
+                "jgit",
+                "asciidoc",
+                "langchain4j",
+                "ollama",
+                "mistal-ai",
+                "huggingface",
+                "gemini",
+                "kotlin-DSL"
+            ).run(tags::set)
+
+            @Suppress("UnstableApiUsage")
+            compatibility {
+                features {
+                    // asciidoctorRevealJs runs OUT_OF_PROCESS via JRuby — not compatible
+                    // with Configuration Cache. Will be revisited when asciidoctor-gradle
+                    // stabilises beyond 5.0.0-alpha.1.
+                    configurationCache = false
+                }
+            }
         }
     }
+    testSourceSets(functionalTest)
 }
 
 java {
@@ -209,4 +264,23 @@ publishing {
             }
         }
     }
+    repositories {
+        maven {
+            name = "sonatype"
+            url = (if (version.toString().endsWith("-SNAPSHOT"))
+                uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+            else uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"))
+            credentials {
+                username = project.findProperty("ossrhUsername") as? String
+                password = project.findProperty("ossrhPassword") as? String
+            }
+        }
+        mavenCentral()
+    }
+}
+
+signing {
+    val isReleaseVersion = !version.toString().endsWith("-SNAPSHOT")
+    if (isReleaseVersion) sign(publishing.publications)
+    useGpgCmd()
 }
