@@ -1,0 +1,7 @@
+Title: System Architecture Diagram
+Description: Create a diagram showing the architecture of our web application
+Requirements:
+- Include frontend, backend, and database components
+- Show API interactions between components
+- Label all major services and data flows
+- Use component diagram style
