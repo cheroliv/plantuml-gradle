@@ -1,0 +1,35 @@
+name: PlantUML Processing
+
+on:
+  push:
+    paths:
+      - 'prompts/**'
+    branches:
+      - main
+      - develop
+
+jobs:
+  process-diagrams:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          
+      - name: Set up Gradle
+        uses: gradle/gradle-build-action@v2
+        
+      - name: Process PlantUML Prompts
+        run: ./gradlew processPlantumlPrompts
+        
+      - name: Commit and push results
+        run: |
+          git config --global user.name '${{ secrets.GIT_USER_NAME }}'
+          git config --global user.email '${{ secrets.GIT_USER_EMAIL }}'
+          git add generated/
+          git commit -m "Process PlantUML prompts and generate diagrams" || exit 0
+          git push
