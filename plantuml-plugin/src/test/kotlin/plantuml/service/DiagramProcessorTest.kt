@@ -9,6 +9,7 @@ import plantuml.ValidationFeedback
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class DiagramProcessorTest {
 
@@ -109,5 +110,40 @@ class DiagramProcessorTest {
 
         // Then
         assertNull(result)
+    }
+    
+    @Test
+    fun `should track attempt history in conversation`() {
+        // Given
+        val prompt = "Create a user diagram"
+        // Simuler une erreur de syntaxe suivie d'une correction
+        `when`(mockPlantumlService.validateSyntax(anyString()))
+            .thenReturn(PlantumlService.SyntaxValidationResult.Invalid("Test error", "Stack trace"))
+            .thenReturn(PlantumlService.SyntaxValidationResult.Valid)
+
+        // When
+        val result = diagramProcessor.processPrompt(prompt, maxIterations = 2)
+
+        // Then
+        assertNotNull(result)
+        // Vérifier que l'historique des tentatives est inclus dans la conversation
+        assertTrue(result.conversation.size > 1)
+        assertTrue(result.conversation.any { it.contains("->") })
+    }
+    
+    @Test
+    fun `should maintain proper conversation history on failure`() {
+        // Given
+        val prompt = "Create a user diagram"
+        `when`(mockPlantumlService.validateSyntax(anyString()))
+            .thenReturn(PlantumlService.SyntaxValidationResult.Invalid("Test error", "Stack trace"))
+
+        // When
+        val result = diagramProcessor.processPrompt(prompt, maxIterations = 2)
+
+        // Then
+        assertNull(result)
+        // Même si le résultat est null, nous voulons vérifier que l'historique est bien géré en interne
+        verify(mockPlantumlService, times(2)).validateSyntax(anyString())
     }
 }

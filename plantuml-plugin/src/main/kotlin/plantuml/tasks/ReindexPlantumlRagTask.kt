@@ -52,12 +52,22 @@ abstract class ReindexPlantumlRagTask : DefaultTask() {
             file.extension == "puml"
         } ?: emptyArray()
 
-        if (diagramFiles.isEmpty()) {
-            logger.lifecycle("  → No PlantUML diagrams found in RAG directory")
+        // Also load attempt history files for training data
+        val trainingDir = File("generated/training")
+        val historyFiles = if (trainingDir.exists()) {
+            trainingDir.listFiles { file ->
+                file.extension == "json" && file.name.startsWith("attempt-history")
+            } ?: emptyArray()
+        } else {
+            emptyArray()
+        }
+
+        if (diagramFiles.isEmpty() && historyFiles.isEmpty()) {
+            logger.lifecycle("  → No PlantUML diagrams or training data found in RAG directory")
             return
         }
 
-        logger.lifecycle("  → Found ${diagramFiles.size} PlantUML diagrams for indexing")
+        logger.lifecycle("  → Found ${diagramFiles.size} PlantUML diagrams and ${historyFiles.size} training histories for indexing")
 
         // Initialize embedding model
         val embeddingModel: EmbeddingModel = AllMiniLmL6V2EmbeddingModel()
@@ -98,6 +108,7 @@ abstract class ReindexPlantumlRagTask : DefaultTask() {
                         content,
                         metadata("source", file.name)
                             .put("type", "plantuml")
+                            .put("contentType", "diagram")
                     )
 
                     // Split document into segments
@@ -112,22 +123,50 @@ abstract class ReindexPlantumlRagTask : DefaultTask() {
                     }
                 }
 
-                logger.lifecycle("  ✓ RAG reindexing complete with ${diagramFiles.size} diagrams")
+                // Process each history file
+                historyFiles.forEach { file ->
+                    logger.lifecycle("    Indexing training history: ${file.name}")
+
+                    // Read the history file
+                    val content = file.readText()
+
+                    // Create document
+                    val document = document(
+                        content,
+                        metadata("source", file.name)
+                            .put("type", "training")
+                            .put("contentType", "history")
+                    )
+
+                    // Split document into segments
+                    val segments = documentSplitter.split(document)
+                    logger.lifecycle("      Split into ${segments.size} segments")
+
+                    // Generate embeddings and store them
+                    segments.forEach { segment ->
+                        val embedding: Embedding = embeddingModel.embed(segment.text()).content()
+                        embeddingStore.add(embedding, segment)
+                        logger.lifecycle("        Stored embedding for segment: ${segment.text().take(50)}...")
+                    }
+                }
+
+                logger.lifecycle("  ✓ RAG reindexing complete with ${diagramFiles.size} diagrams and ${historyFiles.size} histories")
                 logger.lifecycle("  → Embeddings stored in PostgreSQL database")
             } catch (e: Exception) {
                 logger.lifecycle("  ✗ Error connecting to database: ${e.message}")
                 logger.lifecycle("  → Falling back to simulation mode")
-                simulateIndexing(diagramFiles, embeddingModel, documentSplitter)
+                simulateIndexing(diagramFiles, historyFiles, embeddingModel, documentSplitter)
             }
         } else {
             logger.lifecycle("  → Database configuration not provided or incomplete")
             logger.lifecycle("  → Running in simulation mode")
-            simulateIndexing(diagramFiles, embeddingModel, documentSplitter)
+            simulateIndexing(diagramFiles, historyFiles, embeddingModel, documentSplitter)
         }
     }
 
     private fun simulateIndexing(
         diagramFiles: Array<File>,
+        historyFiles: Array<File>,
         embeddingModel: EmbeddingModel,
         documentSplitter: DocumentSplitter
     ) {
@@ -142,7 +181,7 @@ abstract class ReindexPlantumlRagTask : DefaultTask() {
             // Create document
             val document = document(
                 content,
-                metadata("source", file.name).put("type", "plantuml")
+                metadata("source", file.name).put("type", "plantuml").put("contentType", "diagram")
             )
 
 
@@ -157,7 +196,31 @@ abstract class ReindexPlantumlRagTask : DefaultTask() {
             }
         }
 
-        logger.lifecycle("  ✓ RAG reindexing complete with ${diagramFiles.size} diagrams")
+        // Process each history file
+        historyFiles.forEach { file ->
+            logger.lifecycle("    Indexing training history: ${file.name}")
+
+            // Read the history file
+            val content = file.readText()
+
+            // Create document
+            val document = document(
+                content,
+                metadata("source", file.name).put("type", "training").put("contentType", "history")
+            )
+
+            // Split document into segments
+            val segments = documentSplitter.split(document)
+            logger.lifecycle("      Split into ${segments.size} segments")
+
+            // Generate embeddings (in a real implementation, we would store these)
+            segments.forEach { segment ->
+                val embedding: Embedding = embeddingModel.embed(segment.text()).content()
+                logger.lifecycle("        Generated embedding for segment: ${segment.text().take(50)}...")
+            }
+        }
+
+        logger.lifecycle("  ✓ RAG reindexing complete with ${diagramFiles.size} diagrams and ${historyFiles.size} histories")
         logger.lifecycle("  → Note: In a production implementation, embeddings would be stored in a vector database")
         logger.lifecycle("  → To enable actual vector storage, configure PostgreSQL with pgvector extension")
         logger.lifecycle("  → Set database connection properties in plantuml-context.yml")
