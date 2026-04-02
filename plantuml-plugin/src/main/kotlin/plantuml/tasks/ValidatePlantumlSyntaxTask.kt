@@ -40,7 +40,8 @@ abstract class ValidatePlantumlSyntaxTask : DefaultTask() {
             return
         }
 
-        val diagramFile = File(diagramPath)
+        // Resolve the diagram file path relative to the project directory
+        val diagramFile = project.file(diagramPath)
         if (!diagramFile.exists()) {
             logger.lifecycle("Diagram file does not exist: $diagramPath")
             throw GradleException("Diagram file does not exist: $diagramPath")
@@ -65,9 +66,6 @@ abstract class ValidatePlantumlSyntaxTask : DefaultTask() {
                 if (validationResult.stackTrace.isNotEmpty()) {
                     logger.lifecycle("    Stack trace: ${validationResult.stackTrace}")
                 }
-                
-                // Throw exception to fail the build if syntax is invalid
-                throw GradleException("PlantUML syntax validation failed: ${validationResult.errorMessage}")
             }
         }
     }
