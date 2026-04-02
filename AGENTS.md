@@ -50,6 +50,10 @@ Suit les patterns architecturaux des projets `slider-gradle`(les sources sont da
 - **Correction du test d'intégration validatePlantumlSyntax**
   - Suppression du lancement d'exception pour les fichiers invalides
   - Mise en conformité avec le comportement attendu dans syntax_validation.feature
+- **Création de la documentation développeur du plugin (README_truth.adoc & README_truth_fr.adoc)**
+  - Adaptation de la structure du plugin slider au contexte PlantUML
+  - Documentation de l'architecture interne et des composants
+  - Diagrammes PlantUML pour illustrer les concepts clés
 
 ### 📋 Backlog — À faire
 <!-- Toutes les tâches sont terminées -->
