@@ -44,7 +44,8 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
         logger.lifecycle("DEBUG: promptsDir from property: ${project.findProperty("plantuml.prompts.dir")}")
         logger.lifecycle("DEBUG: final promptsDir: $promptsDir")
         
-        val promptsDirectory = File(promptsDir)
+        // Resolve prompts directory relative to project directory
+        val promptsDirectory = project.file(promptsDir)
         logger.lifecycle("DEBUG: promptsDirectory absolute path: ${promptsDirectory.absolutePath}")
         logger.lifecycle("DEBUG: promptsDirectory exists: ${promptsDirectory.exists()}")
         
@@ -102,7 +103,7 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
             
             // Generate image from valid diagrams
             logger.lifecycle("  → Generating diagram image...")
-            val imagesDir = File(config.output.images)
+            val imagesDir = project.file(config.output.images)
             imagesDir.mkdirs()
             val imageFile = File(imagesDir, "${promptFile.nameWithoutExtension}.${config.output.format}")
             
@@ -115,7 +116,7 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
                 val validation = diagramProcessor.validateDiagram(diagram)
                 
                 // Save validation feedback
-                val validationsDir = File(config.output.validations)
+                val validationsDir = project.file(config.output.validations)
                 validationsDir.mkdirs()
                 val validationFile = File(validationsDir, "${promptFile.nameWithoutExtension}.json")
                 validationFile.writeText("""
@@ -130,7 +131,7 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
             
             // Save valid diagrams for RAG training
             logger.lifecycle("  → Collecting for RAG training...")
-            val ragDir = File(config.output.rag)
+            val ragDir = project.file(config.output.rag)
             ragDir.mkdirs()
             val diagramFile = File(ragDir, "${promptFile.nameWithoutExtension}.puml")
             diagramFile.writeText(diagram.plantuml.code)
