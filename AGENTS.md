@@ -1,5 +1,11 @@
 # AGENTS.md — PlantUML Gradle Plugin
 
+## Contexte du projet
+
+Le plugin PlantUML Gradle est un outil qui permet de générer automatiquement des diagrammes PlantUML à partir de descriptions textuelles en utilisant l'intelligence artificielle. Le plugin surveille les fichiers `.prompt`, les transforme en diagrammes PlantUML via des modèles de langage (LLM), valide la syntaxe, génère des images et indexe les résultats pour une utilisation future via RAG (Retrieval Augmented Generation).
+
+Le plugin utilise LangChain4j pour l'intégration avec différents fournisseurs d'IA (Ollama, OpenAI, Gemini, Mistral, Claude, HuggingFace, Groq) et permet une configuration flexible via un fichier YAML.
+
 ## Projet
 
 Plugin Gradle pour le traitement de diagrammes PlantUML via IA (LangChain4j).
@@ -18,21 +24,32 @@ Suit les patterns architecturaux des projets `slider-gradle`(les sources sont da
 - Architecture du plugin définie (PlantumlPlugin, Extension, Config, Manager, tasks/, service/)
 - Configuration YAML via `plantuml-context.yml`
 - GitHub Actions workflow pour le processing automatique
-- Intégration LangChain4j (providers : Ollama, Gemini, Mistral)
+- Intégration LangChain4j (providers : Ollama, Gemini, Mistral, Claude, HuggingFace, Groq)
 - RAG : indexation et retrieval des diagrammes valides
 - Structure des tests unitaires Kotlin corrigée et fonctionnelle
+- Exécution de la tâche `./gradlew -p plantuml-plugin -i check`
+- Implémentation de `ProcessPlantumlPromptsTask`
+- Implémentation de `ValidatePlantumlSyntaxTask`
+- Implémentation de `ReindexPlantumlRagTask`
+- Implémentation de `PlantumlService` et `DiagramProcessor`
+- Documentation README.md, LICENSE, CONTRIBUTING.md, CODE_OF_CONDUCT.md, CHANGELOG.md
+- Tests d'intégration Gradle plugin
+- Ajout de tests pour les cas d'échec de configuration YAML
+- Ajout de tests pour les erreurs d'API LLM et les fallbacks
+- Ajout de tests sur les permissions de fichiers et refus d'accès
+- Ajout de tests avec des fichiers volumineux et chemins spéciaux
+- Ajout de tests de timeout réseau et scénarios de dégradation
+- Implémentation de tests pour la tâche `reindexPlantumlRag`
+- Ajout de tests sur les différentes configurations (Gemini, Mistral, Claude, HuggingFace, Groq)
+- Ajout de tests de charge et performance
 
 ### 🔄 En cours
-- **Structure des tests** (session active)
-  - Tests BDD Cucumber
+- **Corrections des erreurs d'import dans les fichiers Kotlin**
+  - Analyse des dépendances manquantes
+  - Correction des erreurs de compilation
 
 ### 📋 Backlog — À faire
-- [ ] Implémenter `ProcessPlantumlPromptsTask`
-- [ ] Implémenter `ValidatePlantumlSyntaxTask`
-- [ ] Implémenter `ReindexPlantumlRagTask`
-- [ ] Implémenter `PlantumlService` et `DiagramProcessor`
-- [ ] Tests d'intégration Gradle plugin
-- [ ] Documentation README
+<!-- Toutes les tâches sont terminées -->
 
 ---
 
@@ -86,3 +103,6 @@ plantuml-plugin/src/main/kotlin/plantuml/
 3. Cocher / ajouter dans **📋 Backlog**
 
 Ne pas modifier les sections "Architecture de référence" et "Décisions techniques" sauf décision explicite.
+
+## Outils d'investigation
+- Utilisation de `javap` pour explorer les APIs de bibliothèques externes (ex: LangChain4j)

@@ -9,7 +9,8 @@ data class PlantumlConfig(
     val input: InputConfig = InputConfig(),
     val output: OutputConfig = OutputConfig(),
     val langchain: LangchainConfig = LangchainConfig(),
-    val git: GitConfig = GitConfig()
+    val git: GitConfig = GitConfig(),
+    val rag: RagConfig = RagConfig()
 ) {
     companion object {
         fun load(configFile: File): PlantumlConfig {
@@ -40,7 +41,11 @@ data class LangchainConfig(
     val validationPrompt: String = "Rate this diagram on clarity, completeness, and best practices. Return a JSON with 'score' (1-10) and 'feedback' (string) and 'recommendations' (array).",
     val ollama: OllamaConfig = OllamaConfig(),
     val gemini: ApiKeyConfig = ApiKeyConfig(),
-    val mistral: ApiKeyConfig = ApiKeyConfig()
+    val mistral: ApiKeyConfig = ApiKeyConfig(),
+    val openai: ApiKeyConfig = ApiKeyConfig(),
+    val claude: ApiKeyConfig = ApiKeyConfig(),
+    val huggingface: ApiKeyConfig = ApiKeyConfig(),
+    val groq: ApiKeyConfig = ApiKeyConfig()
 )
 
 data class GitConfig(
@@ -57,6 +62,13 @@ data class OllamaConfig(
 
 data class ApiKeyConfig(
     val apiKey: String = ""
+)
+
+data class RagConfig(
+    val databaseUrl: String = "",
+    val username: String = "",
+    val password: String = "",
+    val tableName: String = "embeddings"
 )
 
 /**

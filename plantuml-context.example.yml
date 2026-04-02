@@ -1,0 +1,56 @@
+# Example plantuml-context.yml configuration file
+# Rename this file to plantuml-context.yml and customize as needed
+
+input:
+  prompts: "prompts"
+  defaultLang: "en"
+
+output:
+  diagrams: "generated/diagrams"
+  images: "generated/images"
+  validations: "generated/validations"
+  rag: "generated/rag"
+  format: "png"
+  theme: "default"
+
+langchain:
+  maxIterations: 5
+  model: "ollama"  # Can be: ollama, gemini, mistral, openai, claude, huggingface, groq
+  validation: true
+  validationPrompt: "Rate this diagram on clarity, completeness, and best practices. Return a JSON with 'score' (1-10) and 'feedback' (string) and 'recommendations' (array)."
+  
+  ollama:
+    baseUrl: "http://localhost:11434"
+    modelName: "smollm:135m"
+  
+  gemini:
+    apiKey: "your-gemini-api-key-here"
+    
+  mistral:
+    apiKey: "your-mistral-api-key-here"
+    
+  openai:
+    apiKey: "your-openai-api-key-here"
+    
+  claude:
+    apiKey: "your-claude-api-key-here"
+    
+  huggingface:
+    apiKey: "your-huggingface-api-key-here"
+    
+  groq:
+    apiKey: "your-groq-api-key-here"
+
+git:
+  userName: "github-actions[bot]"
+  userEmail: "github-actions[bot]@users.noreply.github.com"
+  commitMessage: "chore: update PlantUML diagrams [skip ci]"
+  watchedBranches: 
+    - "main"
+    - "develop"
+
+rag:
+  databaseUrl: "jdbc:postgresql://localhost:5432/plantuml_rag"
+  username: "plantuml_user"
+  password: "plantuml_password"
+  tableName: "plantuml_embeddings"

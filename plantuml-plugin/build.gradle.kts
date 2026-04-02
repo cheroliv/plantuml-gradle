@@ -30,6 +30,7 @@ dependencies {
     api(libs.bundles.plantuml)
     api(libs.bundles.jgit)
     api(libs.commons.io)
+    api(libs.bundles.plantuml.ai)
 
     // Coroutines - IMPORTANT for the asynchronous tests
     testImplementation(libs.bundles.coroutines)

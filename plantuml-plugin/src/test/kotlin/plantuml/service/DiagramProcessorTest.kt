@@ -18,7 +18,8 @@ class DiagramProcessorTest {
     @BeforeEach
     fun setUp() {
         mockPlantumlService = mock(PlantumlService::class.java)
-        diagramProcessor = DiagramProcessor(mockPlantumlService)
+        // Pour les tests, nous utilisons l'implémentation simulée qui ne nécessite pas de ChatModel
+        diagramProcessor = DiagramProcessor(mockPlantumlService, null, null)
     }
 
     @Test

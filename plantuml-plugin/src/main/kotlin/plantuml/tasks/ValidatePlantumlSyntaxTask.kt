@@ -1,6 +1,7 @@
 package plantuml.tasks
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -42,7 +43,7 @@ abstract class ValidatePlantumlSyntaxTask : DefaultTask() {
         val diagramFile = File(diagramPath)
         if (!diagramFile.exists()) {
             logger.lifecycle("Diagram file does not exist: $diagramPath")
-            return
+            throw GradleException("Diagram file does not exist: $diagramPath")
         }
 
         logger.lifecycle("Validating PlantUML syntax for: $diagramPath")
@@ -61,7 +62,12 @@ abstract class ValidatePlantumlSyntaxTask : DefaultTask() {
             is PlantumlService.SyntaxValidationResult.Invalid -> {
                 logger.lifecycle("  ✗ PlantUML syntax is invalid:")
                 logger.lifecycle("    Error: ${validationResult.errorMessage}")
-                logger.lifecycle("    Stack trace: ${validationResult.stackTrace}")
+                if (validationResult.stackTrace.isNotEmpty()) {
+                    logger.lifecycle("    Stack trace: ${validationResult.stackTrace}")
+                }
+                
+                // Throw exception to fail the build if syntax is invalid
+                throw GradleException("PlantUML syntax validation failed: ${validationResult.errorMessage}")
             }
         }
     }

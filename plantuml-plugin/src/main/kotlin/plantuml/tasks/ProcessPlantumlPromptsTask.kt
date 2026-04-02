@@ -5,6 +5,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 import plantuml.PlantumlManager
 import plantuml.service.DiagramProcessor
+import plantuml.service.LlmService
 import plantuml.service.PlantumlService
 import java.io.File
 
@@ -65,14 +66,16 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
 
         // Initialize services
         val plantumlService = PlantumlService()
-        val diagramProcessor = DiagramProcessor(plantumlService)
+        val llmService = LlmService(config)
+        val chatModel = llmService.createChatModel()
+        val diagramProcessor = DiagramProcessor(plantumlService, chatModel, config)
 
         promptFiles.forEach { promptFile ->
-            processSinglePrompt(promptFile, config, diagramProcessor, plantumlService)
+            processSinglePrompt(promptFile, config, diagramProcessor)
         }
     }
 
-    private fun processSinglePrompt(promptFile: File, config: plantuml.PlantumlConfig, diagramProcessor: DiagramProcessor, plantumlService: PlantumlService) {
+    private fun processSinglePrompt(promptFile: File, config: plantuml.PlantumlConfig, diagramProcessor: DiagramProcessor) {
         logger.lifecycle("Processing prompt: ${promptFile.name}")
         
         // Read the prompt content
@@ -87,7 +90,7 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
         if (diagram != null) {
             // Validate PlantUML syntax
             logger.lifecycle("  → Validating PlantUML syntax...")
-            val validationResult = plantumlService.validateSyntax(diagram.plantuml.code)
+            val validationResult = diagramProcessor.plantumlService.validateSyntax(diagram.plantuml.code)
             
             if (validationResult is PlantumlService.SyntaxValidationResult.Invalid) {
                 logger.lifecycle("    Validation errors found:")
@@ -104,7 +107,7 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
             val imageFile = File(imagesDir, "${promptFile.nameWithoutExtension}.${config.output.format}")
             
             // Generate actual PlantUML image
-            plantumlService.generateImage(diagram.plantuml.code, imageFile)
+            diagramProcessor.plantumlService.generateImage(diagram.plantuml.code, imageFile)
             
             // Request LLM validation with scoring
             if (config.langchain.validation) {
