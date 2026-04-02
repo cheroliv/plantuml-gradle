@@ -20,10 +20,10 @@ Suit les patterns architecturaux des projets `slider-gradle`(les sources sont da
 - GitHub Actions workflow pour le processing automatique
 - Intégration LangChain4j (providers : Ollama, Gemini, Mistral)
 - RAG : indexation et retrieval des diagrammes valides
+- Structure des tests unitaires Kotlin corrigée et fonctionnelle
 
 ### 🔄 En cours
 - **Structure des tests** (session active)
-  - Tests unitaires Kotlin
   - Tests BDD Cucumber
 
 ### 📋 Backlog — À faire

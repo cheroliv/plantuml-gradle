@@ -1,0 +1,18 @@
+# PlantUML Test Configuration
+# This file is used for local testing and should never be committed
+# Credentials here are for testing purposes only
+
+langchain:
+  ollama:
+    baseUrl: "http://localhost:11434"
+    modelName: "smollm:135m"
+  gemini:
+    apiKey: "TEST_API_KEY_PLACEHOLDER"
+  mistral:
+    apiKey: "TEST_API_KEY_PLACEHOLDER"
+
+# Test-specific settings
+test:
+  mockServer:
+    enabled: true
+    port: 8080

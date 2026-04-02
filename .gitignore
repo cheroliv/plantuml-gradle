@@ -12,5 +12,5 @@ workspace-engine.tar
 workspace-engine
 postgresql.yml
 .kotlin
-readme-truth.yml
-plantuml-test-config.yml
+#readme-truth.yml
+#plantuml-test-config.yml

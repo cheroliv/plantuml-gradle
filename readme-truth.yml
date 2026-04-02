@@ -1,0 +1,25 @@
+# ─────────────────────────────────────────────────────────────────
+# readme-plantuml.yml — Plugin configuration
+#
+# DO NOT commit this file with a real token.
+# Store the full content of this file (token included) in the
+# GitHub secret README_GRADLE_PLUGIN :
+#   GitHub → Settings → Secrets and variables → Actions
+#                     → New repository secret
+# ─────────────────────────────────────────────────────────────────
+
+source:
+  dir: "."
+  defaultLang: "en"
+
+output:
+  imgDir: ".github/workflows/readmes/images"
+
+git:
+  userName: "github-actions[bot]"
+  userEmail: "github-actions[bot]@users.noreply.github.com"
+  commitMessage: "chore: generate readme [skip ci]"
+  token: "<YOUR_GITHUB_PAT>"
+  repoUrl: "https://github.com/cheroliv/slider-gradle.git"
+  watchedBranches:
+    - "main"

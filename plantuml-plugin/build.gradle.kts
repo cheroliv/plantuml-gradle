@@ -47,6 +47,22 @@ dependencies {
     testImplementation(libs.bundles.cucumber)
 }
 
+configurations.all {
+    resolutionStrategy {
+        // Force la version de Groovy utilisée par Gradle
+        force("org.apache.groovy:groovy:4.0.29")
+        force("org.apache.groovy:groovy-nio:4.0.29")
+    }
+}
+
+// Exclure les dépendances Groovy conflictuelles uniquement pour certaines configurations
+configurations.configureEach {
+    // Ne pas exclure pour testImplementation car cela peut casser les tests
+    if (name != "testImplementation" && name != "testRuntimeOnly") {
+        exclude(group = "org.codehaus.groovy")
+    }
+}
+
 
 tasks.withType<Test> {
     useJUnitPlatform()
@@ -133,6 +149,15 @@ configurations.named("testRuntimeOnly").configure {
 // 6. Ajouter les classes compilées de functionalTest au classpath de test
 dependencies {
     testImplementation(functionalTest.output)
+}
+
+// Configuration spécifique pour les tests de plugin
+tasks.named<Test>("test") {
+    // Ajouter le jar du plugin au classpath des tests
+    classpath = classpath + files(tasks.named("jar"))
+    
+    // Ajouter les propriétés système nécessaires
+    systemProperty("gradle.plugin.repository", project.rootDir.resolve("build/libs").absolutePath)
 }
 
 configurations {
