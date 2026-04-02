@@ -43,10 +43,13 @@ Suit les patterns architecturaux des projets `slider-gradle`(les sources sont da
 - Ajout de tests sur les différentes configurations (Gemini, Mistral, Claude, HuggingFace, Groq)
 - Ajout de tests de charge et performance
 
-### 🔄 En cours
+### ✅ Fait — Ne plus retravailler
 - **Corrections des erreurs d'import dans les fichiers Kotlin**
   - Analyse des dépendances manquantes
   - Correction des erreurs de compilation
+- **Correction du test d'intégration validatePlantumlSyntax**
+  - Suppression du lancement d'exception pour les fichiers invalides
+  - Mise en conformité avec le comportement attendu dans syntax_validation.feature
 
 ### 📋 Backlog — À faire
 <!-- Toutes les tâches sont terminées -->
