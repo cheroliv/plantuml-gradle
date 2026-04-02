@@ -54,6 +54,10 @@ Suit les patterns architecturaux des projets `slider-gradle`(les sources sont da
   - Adaptation de la structure du plugin slider au contexte PlantUML
   - Documentation de l'architecture interne et des composants
   - Diagrammes PlantUML pour illustrer les concepts clés
+- **Mise à jour de la documentation développeur du plugin dans plantuml-plugin/**
+  - Adaptation des README.adoc et README_fr.adoc au contexte PlantUML
+  - Documentation de l'architecture interne spécifique au plugin PlantUML
+  - Diagrammes PlantUML pour illustrer le pipeline de génération
 
 ### 📋 Backlog — À faire
 <!-- Toutes les tâches sont terminées -->

@@ -1,11 +1,11 @@
-= Slider Plugin — Developer Guide
+= PlantUML Gradle Plugin — Developer Guide
 :toc: left
 :toclevels: 3
 :source-highlighter: rouge
 :icons: font
 :lang: en
 :hardbreaks-option:
-:plugin-version: 0.0.5
+:plugin-version: 1.2026.0
 
 ++++
 <p align="right">
@@ -22,9 +22,9 @@ image:https://img.shields.io/badge/License-Apache%202.0-blue.svg[License]
 
 == Description
 
-`com.cheroliv.slider` is a Gradle plugin that encapsulates the full lifecycle of *AsciidoctorJ Reveal.js* slide generation.
+`com.cheroliv.plantuml` is a Gradle plugin that encapsulates the full lifecycle of *PlantUML* diagram generation via LLMs.
 It exposes a minimal DSL to the consumer and handles all repository, dependency, and task configuration internally.
-It integrates a RAG (Retrieval-Augmented Generation) two-step pipeline for automated AsciiDoc/Reveal.js deck generation via multiple LLM providers.
+It integrates a RAG (Retrieval-Augmented Generation) pipeline for automated PlantUML diagram generation via multiple LLM providers.
 
 == Current version: {plugin-version}
 
@@ -33,257 +33,180 @@ It integrates a RAG (Retrieval-Augmented Generation) two-step pipeline for autom
 * JDK 25 (tested with Eclipse Temurin 25.0.2), 23+ supported
 * Gradle 9.4.0+
 * Docker (for the pgvector container used by the RAG pipeline)
-* Node.js / npx (for the `serveSlides` task)
+* Node.js / npx (optional - for viewing generated diagrams)
 
 == Project Structure
 
 [source]
 ----
-slider-plugin/
-├── slider/
-│   ├── src/
-│   │   ├── main/kotlin/com/cheroliv/slider/
-│   │   │   ├── SliderPlugin.kt         # Plugin entry point — thin orchestrator
-│   │   │   ├── SliderManager.kt        # All plugin logic — nested objects
-│   │   │   └── models.kt               # Data models (DeckContext, SlidesConfiguration, Git…)
-│   │   ├── main/kotlin/com/cheroliv/slider/ai/
-│   │   │   ├── AssistantManager.kt     # LLM providers + PromptManager
-│   │   │   ├── RagManager.kt           # pgvector store + incremental indexing
-│   │   │   ├── PgVectorService.kt      # Gradle BuildService — Docker lifecycle
-│   │   │   ├── RagTask.kt              # Abstract base class for RAG tasks
-│   │   │   └── RagTasks.kt             # ReindexRagTask, ProposeDeckContextTask, GenerateDeckTask
-│   │   ├── test/kotlin/                # Unit + Cucumber tests
-│   │   └── functionalTest/kotlin/      # GradleTestKit functional tests
-│   └── build.gradle.kts                # Plugin build script
+plantuml-plugin/
+├── src/
+│   ├── main/kotlin/plantuml/
+│   │   ├── PlantumlPlugin.kt         # Plugin entry point — thin orchestrator
+│   │   ├── PlantumlExtension.kt      # Plugin extension for configuration
+│   │   ├── PlantumlConfig.kt         # Configuration data classes
+│   │   ├── models.kt                 # Data models (PromptContext, DiagramConfiguration, Git…)
+│   │   ├── PlantumlManager.kt        # All plugin logic — nested objects
+│   │   └── tasks/
+│   │       ├── ProcessPlantumlPromptsTask.kt  # Main task for processing prompts
+│   │       ├── ValidatePlantumlSyntaxTask.kt   # Syntax validation task
+│   │       └── ReindexPlantumlRagTask.kt       # RAG reindexing task
+│   ├── main/kotlin/plantuml/service/
+│   │   ├── PlantumlService.kt        # PlantUML processing and validation service
+│   │   └── DiagramProcessor.kt       # Core processor for LLM interaction and diagram refinement
+│   ├── test/kotlin/                  # Unit + Cucumber tests
+│   └── functionalTest/kotlin/        # GradleTestKit functional tests
 ├── gradle/
-│   ├── libs.versions.toml              # Dependency catalogue
-│   └── wrapper/                        # Gradle Wrapper
+│   ├── libs.versions.toml            # Dependency catalogue
+│   └── wrapper/                      # Gradle Wrapper
+├── build.gradle.kts                  # Plugin build script
 ├── settings.gradle.kts
-├── README.adoc                          # This file
-└── README_fr.adoc                       # French version
+├── README.adoc                       # This file
+└── README_fr.adoc                    # French version
 ----
 
 === Internal Architecture
 
-image::images/fr/diag-plantuml-md5-3b0343a07def68f0045b6332de5c508c.png[]
+[plantuml, target=internal-architecture, format=svg]
+....
+@startuml
+package "PlantUML Plugin" {
+  [PlantumlPlugin] as plugin
+  [PlantumlExtension] as extension
+  [PlantumlManager] as manager
+  
+  package "Tasks" {
+    [ProcessPlantumlPromptsTask] as processTask
+    [ValidatePlantumlSyntaxTask] as validateTask
+    [ReindexPlantumlRagTask] as reindexTask
+  }
+  
+  package "Services" {
+    [PlantumlService] as service
+    [DiagramProcessor] as processor
+  }
+  
+  plugin --> extension : configures
+  plugin --> manager : delegates logic
+  manager --> processTask : registers
+  manager --> validateTask : registers
+  manager --> reindexTask : registers
+  processTask --> processor : uses
+  validateTask --> service : uses
+  reindexTask --> service : uses
+  processor --> service : uses
+}
+
+note top of PlantumlPlugin
+  Main plugin class that applies
+  the extension and registers tasks
+end note
+
+note bottom of DiagramProcessor
+  Core processing logic for LLM
+  interaction and diagram refinement
+end note
+....
 
 == Key Technical Decisions
 
-=== Plugin IDs — `.classic` suffix
-Since `asciidoctor-gradle-jvm-slides:5.0.0-alpha.1`, the plugin IDs have changed:
+=== Configuration Pattern — YAML file
+Instead of a complex Gradle DSL, the plugin uses a simple YAML configuration file (`plantuml-context.yml`) for all settings.
+This keeps the consumer configuration minimal and easy to understand.
 
-[cols="1,1"]
-|===
-| Previous (4.x) | Current (5.x)
+=== Multiple LLM Providers Support
+The plugin supports multiple LLM providers:
+- Ollama (local)
+- OpenAI
+- Gemini
+- Mistral AI
+- Claude
+- HuggingFace (via OpenAI-compatible router)
+- Groq
 
-| `org.asciidoctor.jvm.gems`
-| `org.asciidoctor.jvm.gems.classic`
+This is managed through LangChain4j integration.
 
-| `org.asciidoctor.jvm.revealjs`
-| `org.asciidoctor.jvm.revealjs.classic`
-|===
+=== RAG Pipeline Implementation
+The plugin integrates a RAG (Retrieval-Augmented Generation) pipeline for improving diagram quality:
+- Stores valid diagrams in a vector database (pgvector)
+- Retrieves similar diagrams to guide new generations
+- Improves consistency and quality over time
 
-=== Execution Mode — `OUT_OF_PROCESS`
-`JAVA_EXEC` was removed in `5.0.0-alpha.1` due to Gradle API changes around closure serialisation.
-`OUT_OF_PROCESS` is the correct replacement and works on Gradle 9 + Java 25.
+=== PlantUML Processing Loop
+The plugin implements a feedback loop for diagram generation:
+- Generate initial diagram with LLM
+- Validate PlantUML syntax
+- Iterate with corrections if needed (up to maxIterations)
+- Save valid diagram for RAG indexing
 
-=== pluginManagement repository — `repo.gradle.org`
-The transitive dependency `grolifant:0.12` (required by `jruby-gradle-core-plugin`) is only available at:
+=== Docker Integration for pgvector
+The pgvector container is managed via Docker integration for the RAG pipeline:
+- Dynamically assigned host port to avoid conflicts
+- Automatic startup/shutdown with Gradle build lifecycle
+- SSL disabled for simplicity with container
 
-[source]
-----
-https://repo.gradle.org/gradle/libs-releases/
-----
-This must be declared in the consumer's `pluginManagement.repositories`.
-
-=== Ivy repository for Ruby gems
-The gem `asciidoctor-revealjs` is resolved via a dedicated Ivy repository:
-[source,kotlin]
-----
-project.repositories.ivy { repo ->
-    repo.url = project.uri("https://rubygems.org/gems/")
-    repo.patternLayout { layout -> layout.artifact("[module]-[revision].gem") }
-    repo.metadataSources { s -> s.artifact() }
-    repo.content { c -> c.includeGroup("rubygems") }
-}
-----
-The `@gem` qualifier is mandatory:
-[source,kotlin]
-----
-project.dependencies.add("asciidoctorGems", "rubygems:asciidoctor-revealjs:3.1.0@gem")
-----
-
-=== PgVectorService — Gradle BuildService + docker-java
-
-The pgvector container is managed by `PgVectorService`, a build-scoped Gradle `BuildService`.
-It is started explicitly via `start()` from within the task action, never during the configuration phase.
-
-RAG tasks declare the dependency via `@ServiceReference` (Gradle 7.4+) — the only annotation
-that guarantees Gradle keeps the service alive for the full duration of the task.
-
-[source,kotlin]
-----
-// RagTask.kt — @ServiceReference guarantees lifecycle
-abstract class RagTask : DefaultTask() {
-    @get:ServiceReference
-    abstract val pgVectorService: Property<PgVectorService>
-
-    protected fun service(): PgVectorService =
-        pgVectorService.get().also { it.start() }
-}
-----
-
-The host port is assigned dynamically (binding `0:5432`) to avoid collision with any existing PostgreSQL.
-The service is stopped automatically by Gradle at the end of the build.
-
-=== SSL pgvector — `sslmode=disable`
-
-The PostgreSQL JDBC driver attempts SSL negotiation by default, causing an `EOFException`
-against a plain Docker container with no SSL configured. `RagManager.buildStore()` creates
-a `PGSimpleDataSource` with `setSsl(false)` / `setSslMode("disable")` (inherited from
-`BaseDataSource`) and injects it via the protected constructor of `PgVectorEmbeddingStore`.
-
-=== `--no-daemon` required for RAG tasks
-
-The Gradle daemon reuses the JVM process between builds, preventing native ONNX library
-reload (`libtokenizers.so`) and causing `UnsatisfiedLinkError` on the second build.
-All RAG tasks must be run with `--no-daemon`, or the project should declare
-`org.gradle.daemon=false` in `gradle.properties`.
-
-=== Scaffold — `deck.properties` removed
-
-`deck.properties` has been removed. The `slides/` completeness check now scans for
-`*-deck.adoc` files directly in `slides/misc/`. The `isSlidesConfigComplete` function
-is a pure Kotlin function testable without GradleTestKit.
-
-[source,kotlin]
-----
-private fun isSlidesConfigComplete(miscDir: File): Boolean {
-    if (!miscDir.resolve("index.html").exists()) return false
-    return miscDir.listFiles { f ->
-        f.isFile && f.name.endsWith("-deck.adoc")
-    }?.isNotEmpty() ?: false
-}
-----
-
-=== `publishSlides` — configurable branch
-
-The hardcoded `setInitialBranch("main")` bug in `pushSlide` has been fixed.
-The publish branch is now read from `conf.pushSlides?.branch`:
-
-[source,kotlin]
-----
-FileRepositoryBuilder()
-    .setInitialBranch(conf.pushSlides?.branch ?: "main")
-----
-
-To publish to a `slides` branch of the same source repository and expose it via GitHub Pages:
-
-[source,yaml]
-----
-pushSlides:
-  from: "docs/asciidocRevealJs"
-  to: "cvs"
-  branch: "slides"
-  message: "slides show"
-  repo:
-    repository: "https://github.com/your-org/your-project.git"
-    credentials:
-      username: "your-username"
-      password: "your-github-token"
-----
-
-NOTE: Enable GitHub Pages on the `slides` branch in *Settings → Pages* of the repository.
-
-=== Deck file naming convention
-
-[cols="1,2,2"]
-|===
-| File | Pattern | Example
-
-| Generation context
-| `<slug>-deck-context.yml`
-| `kotlin-coroutines-deck-context.yml`
-
-| Generated AsciiDoc deck
-| `<slug>_<lang>-deck.adoc`
-| `kotlin-coroutines_fr-deck.adoc`
-|===
-
-The language in `outputFile` is the ISO 639-1 code from the `language` field of `DeckContext`.
-
-== SliderPlugin.apply() — Orchestration
+== PlantumlPlugin.apply() — Orchestration
 
 [source,kotlin]
 ----
 override fun apply(project: Project) {
     with(project) {
-        checkJavaVersion()
-        scaffoldSlidesIfAbsent()
-        scaffoldSlidesContextIfAbsent()
-        scaffoldDeckContextIfAbsent()
-        configureRepositories()
-        applyPlugins()
-        configureDependencies()
-        configureExtensions()
+        // Configure plugin extension
+        extensions.create<PlantumlExtension>("plantuml")
+        
+        // Register plugin tasks
         registerTasks()
-        afterEvaluate { createChatTasks() }  // registers all AI tasks
+        
+        // Apply configuration after evaluation
+        afterEvaluate {
+            configurePlugin()
+        }
     }
 }
 ----
 
-`createChatTasks()` is defined in `AssistantManager` and registers:
-- `PgVectorService` via `gradle.sharedServices.registerIfAbsent()`
-- `reindexRag`, `proposeDeckContext`, `generateDeck` (typed RAG tasks)
-- smoke-test tasks `helloOllama*`, `helloGemini*`, `helloMistral*`, `helloHuggingFace*`
+`configurePlugin()` validates the configuration and sets up required services.
 
 == Data Model
 
-=== SlidesConfiguration
+=== PlantumlConfig
 
 [source,kotlin]
 ----
-data class AiConfiguration(
-    val gemini: List<String> = emptyList(),
-    val mistral: List<String> = emptyList(),
-    val huggingface: List<String> = emptyList(),
+data class PlantumlConfig(
+    val input: InputConfig = InputConfig(),
+    val output: OutputConfig = OutputConfig(),
+    val langchain: LangchainConfig = LangchainConfig(),
+    val git: GitConfig = GitConfig(),
+    val rag: RagConfig = RagConfig()
 )
 
-data class SlidesConfiguration(
-    val srcPath: String? = null,
-    val pushSlides: GitPushConfiguration? = null,
-    val ai: AiConfiguration? = null,
+data class InputConfig(
+    val prompts: String = "prompts",
+    val defaultLang: String = "en"
+)
+
+data class OutputConfig(
+    val diagrams: String = "generated/diagrams",
+    val images: String = "generated/images",
+    val validations: String = "generated/validations",
+    val rag: String = "generated/rag",
+    val format: String = "png",
+    val theme: String = "default"
 )
 ----
 
-=== DeckContext
+=== PromptContext
 
 [source,kotlin]
 ----
-enum class PageNotesStyle { MINIMAL, DETAILED, EXERCISES_ONLY }
-
-data class NotesConfiguration(
-    val speakerNotes: Boolean = true,  // generates [NOTE.speaker] on every slide
-    val pageNotes: Boolean = true,     // generates [.notes] on every slide
-    val pageNotesStyle: PageNotesStyle = PageNotesStyle.DETAILED,
-)
-
-data class SlideHint(
-    val title: String,
-    val speakerHint: String? = null,   // presenter tips — guides [NOTE.speaker] content
-    val pageNotesHint: String? = null, // pedagogical intent — guides [.notes] content
-)
-
-data class DeckContext(
+data class PromptContext(
+    val promptFile: String,
     val subject: String,
-    val audience: String,
-    val duration: Int,
-    val language: String = "fr",      // ISO 639-1 code
-    val outputFile: String,            // pattern: <slug>_<lang>-deck.adoc
+    val language: String = "en",
+    val diagramType: String = "uml",
     val author: AuthorContext,
-    val revealjs: RevealJsContext = RevealJsContext(),
-    val notes: NotesConfiguration = NotesConfiguration(),
-    val slides: List<SlideHint> = emptyList(),
+    val validationRules: ValidationRules = ValidationRules()
 )
 ----
 
@@ -322,9 +245,8 @@ Requires `gradle.publish.key` and `gradle.publish.secret` in `~/.gradle/gradle.p
 
 [source,kotlin]
 ----
-slider {
-    // Path to the YAML configuration file (required)
-    configPath = file("slides-context.yml").absolutePath
+plantuml {
+    configPath = "plantuml-context.yml"
 }
 ----
 
@@ -334,229 +256,94 @@ slider {
 |===
 | Task | Group | Description
 
-| `asciidoctorRevealJs`
-| slider
-| Compiles `.adoc` sources into a Reveal.js HTML presentation
+| `processPlantumlPrompts`
+| plantuml
+| Processes PlantUML prompts and generates diagrams
 
-| `asciidoctor`
-| slider
-| Standard Asciidoctor conversion (depends on `asciidoctorRevealJs`)
+| `validatePlantumlSyntax`
+| plantuml
+| Validates PlantUML syntax for debugging
 
-| `cleanSlidesBuild`
-| slider
-| Deletes generated presentation artefacts
+| `reindexPlantumlRag`
+| plantuml
+| Rebuilds the RAG index with collected PlantUML diagrams
 
-| `dashSlidesBuild`
-| documentation
-| Generates `index.html` and `slides.json` dashboard
-
-| `serveSlides`
-| slider
-| Serves slides via npx + serve package (prints link to console)
-
-| `publishSlides`
-| slider
-| Deploys compiled slides to the configured branch (e.g. `slides`) via force push — compatible with GitHub Pages
-
-| `asciidocCapsule`
-| capsule
-| _(TODO)_ Video capsule generation from slides
-
-| `reindexRag`
-| slider-ai
-| Drops and fully rebuilds the pgvector embedding index
-
-| `proposeDeckContext`
-| slider-ai
-| Proposes a `*-deck-context.yml` via RAG + LLM (step 1/2)
-
-| `generateDeck`
-| slider-ai
-| Generates a complete AsciiDoc/Reveal.js deck from a `*-deck-context.yml` (step 2/2)
-
-| `helloOllama*`
-| slider-ai
-| Ollama smoke tests (one per model in the catalogue)
-
-| `helloGemini*`
-| slider-ai
-| Gemini smoke tests
-
-| `helloMistral*`
-| slider-ai
-| Mistral AI smoke tests
-
-| `helloHuggingFace*`
-| slider-ai
-| HuggingFace smoke tests
-
-| `reportTests`
-| verification
-| Runs checks and opens test report in Firefox
-
-| `reportFunctionalTests`
-| verification
-| Runs checks and opens functional test report in Firefox
 |===
 
-== AI Integration — RAG Pipeline
+== AI Integration — LLM Pipeline
 
-`AssistantManager.createChatTasks()` is called in `afterEvaluate` and registers all AI tasks.
-The RAG pipeline relies on three components:
+The plugin uses LangChain4j for LLM integration with a processing pipeline:
 
-* `PgVectorService` — Gradle `BuildService` managing the Docker lifecycle via `docker-java`
-* `RagManager` — incremental indexing by SHA-256, cosine-similarity search
-* `AssistantManager` — model resolution, prompt construction, LLM call
+* `DiagramProcessor` — Handles LLM interaction and diagram iteration
+* `PlantumlService` — Validates syntax and generates images
+* `PlantumlManager` — Orchestrates the overall process
 
-=== RAG Pipeline Lifecycle
+=== LLM Pipeline Lifecycle
 
-image::images/fr/diag-plantuml-md5-a8dbd87942fd1adefb8fd31826696dbf.png[]
+[plantuml, target=pipeline-lifecycle, format=svg]
+....
+@startuml
+start
+:Read prompt file;
+:Generate initial diagram\nwith LLM;
+repeat
+  :Validate PlantUML syntax;
+  if (Is valid?) then (yes)
+    :Save diagram;
+    :Index for RAG;
+    stop
+  else (no)
+    :Analyze errors;
+    :Request correction\nfrom LLM;
+  endif
+repeat while (Attempts < maxIterations)
+:Save best attempt\nwith error annotations;
+stop
+....
 
 === Supported providers
 
 [cols="1,1,1"]
 |===
-| Provider | LangChain4j module | Key in slides-context.yml
+| Provider | LangChain4j module | Config key
 
 | Ollama (local)
 | `langchain4j-ollama`
-| — (no key required)
+| `langchain.ollama`
+
+| OpenAI
+| `langchain4j-open-ai`
+| `langchain.openai`
 
 | Google Gemini
 | `langchain4j-google-ai-gemini`
-| `ai.gemini[0]`
+| `langchain.gemini`
 
 | Mistral AI
 | `langchain4j-mistral-ai`
-| `ai.mistral[0]`
+| `langchain.mistral`
 
-| HuggingFace (via OpenAI router)
-| `langchain4j-open-ai`
-| `ai.huggingface[0]`
-|===
+| Claude
+| `langchain4j-anthropic`
+| `langchain.claude`
 
-=== RAG tasks — usage
+| HuggingFace
+| `langchain4j-hugging-face`
+| `langchain.huggingface`
 
-[source,bash]
-----
-# Rebuild index (after adding/removing sources)
-./gradlew reindexRag --no-daemon
-
-# Propose a deck context (step 1/2)
-./gradlew proposeDeckContext \
-  -Psubject="Kotlin inline functions and reification" \
-  -Planguage=fr \
-  -Pai.provider=ollama \
-  --no-daemon
-
-# Generate the deck (step 2/2)
-./gradlew generateDeck \
-  -Pdeck.context=slides/misc/kotlin-inline-functions-and-reification-deck-context.yml \
-  -Pai.provider=ollama \
-  --no-daemon
-----
-
-Properties available for `proposeDeckContext`:
-
-[cols="1,1,2"]
-|===
-| Property | Default | Description
-
-| `-Psubject`
-| _(required)_
-| Presentation subject
-
-| `-Planguage`
-| `fr`
-| ISO 639-1 code — determines `<lang>` in `outputFile`
-
-| `-Pai.provider`
-| `ollama`
-| LLM provider
-
-| `-Pauthor.name`
-| `git config user.name`
-| Author name (fallback: git config)
-
-| `-Pauthor.email`
-| `git config user.email`
-| Author email (fallback: git config)
-
-| `-Poutput`
-| `slides/misc/<slug>-deck-context.yml`
-| Custom output path
+| Groq
+| `langchain4j-groq`
+| `langchain.groq`
 |===
 
 === Prompt strategy
 
-`PromptManager` (inner object of `AssistantManager`) manages two prompts:
+The plugin uses a focused prompt strategy for PlantUML generation:
 
-* `contextSystemPrompt` + `contextUserMessage` — step 1: proposes a `DeckContext` JSON
-* `deckSystemPrompt` + `deckUserMessage` — step 2: generates the full AsciiDoc deck
-
-Key rules enforced in `deckSystemPrompt`:
-
-* Maximum 5 bullet points per slide with `[%step]`, 7 without
-* Maximum 10 lines of code per `[source,...]` block
-* Never combine a bullet list and a code block on the same slide
-* `[NOTE.speaker]` and `[.notes]` presence controlled by `NotesConfiguration`
-* `SlideHint` values guide content per slide without replacing LLM generation
-
-=== Available models by provider
-
-[cols="1,2"]
-|===
-| Provider | Models (catalogue)
-
-| Ollama
-| `smollm:135m`, `llama3.2:3b-instruct-q8_0`, `smollm:135m-instruct-v0.2-q8_0`, `gemma3:1b-it-fp16`
-
-| Gemini
-| `gemini-2.5-flash`
-
-| Mistral
-| `mistral-small-latest`, `open-mistral-nemo`
-
-| HuggingFace
-| `meta-llama/Llama-3.1-8B-Instruct:sambanova`, `Qwen/Qwen3.5-35B-A3B:novita`
-|===
-
-== Scaffold — Auto-Initialisation
-
-=== `scaffoldSlidesIfAbsent()`
-
-Checks whether the consumer project has a complete `slides/` directory. If not, extracts
-the bundled `slides.zip` from the plugin classpath.
-
-A `slides/` directory is considered complete when `slides/misc/` contains:
-
-* `index.html` — presentation dashboard
-* at least one `*-deck.adoc` source file
-
-NOTE: `deck.properties` has been removed — decks are discovered by direct scan.
-
-The bundled zip must be placed at `slider/src/main/resources/slides.zip`.
-Zip entries must use relative paths starting with `slides/`:
-
-[source]
-----
-slides/
-└── misc/
-    ├── example-deck.adoc
-    └── index.html
-----
-
-=== `scaffoldSlidesContextIfAbsent()`
-
-If `slides-context.yml` is absent, generates one automatically by serialising a default
-`SlidesConfiguration` instance via `yamlMapper` — no hardcoded YAML strings.
-
-=== `scaffoldDeckContextIfAbsent()`
-
-If `slides/misc/example-deck-context.yml` is absent, generates a ready-to-use `DeckContext`
-template via `yamlMapper`.
-
-All three functions are no-ops if the resource already exists — existing consumer content is never overwritten.
+* Clear instructions to generate valid PlantUML syntax
+* Emphasis on correctness over completeness
+* Iterative improvement through syntax validation
+* Context preservation in iteration prompts
 
 == Dependencies
 
@@ -566,41 +353,41 @@ All three functions are no-ops if the resource already exists — existing consu
 |===
 | Dependency | Purpose
 
-| `org.asciidoctor:asciidoctor-gradle-jvm-slides:5.0.0-alpha.1`
-| Reveal.js slide generation
+| `net.sourceforge.plantuml:plantuml`
+| PlantUML diagram processing
 
-| `org.asciidoctor:asciidoctor-gradle-jvm-gems:5.0.0-alpha.1`
-| JRuby gem management
+| `dev.langchain4j:langchain4j-core`
+| Core LangChain4j functionality
 
-| `com.github.node-gradle:gradle-node-plugin:7.1.0`
-| Node.js / npx integration
+| `dev.langchain4j:langchain4j-ollama`
+| Ollama integration
+
+| `dev.langchain4j:langchain4j-open-ai`
+| OpenAI/Groq/HuggingFace integration
+
+| `dev.langchain4j:langchain4j-google-ai-gemini`
+| Gemini integration
+
+| `dev.langchain4j:langchain4j-mistral-ai`
+| Mistral AI integration
+
+| `dev.langchain4j:langchain4j-anthropic`
+| Claude integration
+
+| `dev.langchain4j:langchain4j-pgvector`
+| pgvector embedding store
+
+| `dev.langchain4j:langchain4j-embeddings-all-minilm-l6-v2`
+| In-process ONNX embedding model
 
 | `org.eclipse.jgit`
-| Git operations for slide publishing
+| Git operations for diagram publishing
 
 | `com.fasterxml.jackson` (yaml + kotlin)
 | YAML configuration parsing
 
 | `io.arrow-kt:arrow-core`
 | Functional programming utilities
-
-| `dev.langchain4j:langchain4j-google-ai-gemini`
-| Gemini LLM integration
-
-| `dev.langchain4j:langchain4j-mistral-ai`
-| Mistral AI integration
-
-| `dev.langchain4j:langchain4j-open-ai`
-| HuggingFace via OpenAI-compatible router
-
-| `dev.langchain4j:langchain4j-ollama`
-| Local Ollama models integration
-
-| `dev.langchain4j:langchain4j-pgvector`
-| pgvector embedding store
-
-| `dev.langchain4j:langchain4j-embeddings-all-minilm-l6-v2`
-| In-process ONNX embedding model (dim=384)
 
 | `com.github.docker-java:docker-java-core`
 | Docker management for PgVectorService
@@ -612,7 +399,7 @@ All three functions are no-ops if the resource already exists — existing consu
 | PostgreSQL JDBC driver
 
 | `org.jetbrains.kotlinx:kotlinx-coroutines-core`
-| Async streaming response bridge
+| Async operations
 |===
 
 == Consumer Requirements
@@ -632,30 +419,51 @@ rootProject.name = "your-project-name"
 === build.gradle.kts
 [source,kotlin]
 ----
-plugins { alias(libs.plugins.slider) }
+plugins { 
+    id("com.cheroliv.plantuml") version "1.2026.0"
+}
 
-slider {
-    configPath = "slides-context.yml"
-        .run(::file)
-        .absolutePath
+plantuml {
+    configPath = "plantuml-context.yml"
 }
 ----
 
-=== gradle/libs.versions.toml
-[source,toml,subs="attributes+"]
+=== plantuml-context.yml
+[source,yaml]
 ----
-[versions]
-slider = "{plugin-version}"
+input:
+  prompts: "prompts"
+  defaultLang: "en"
 
-[plugins]
-slider = { id = "com.cheroliv.slider", version.ref = "slider" }
-----
+output:
+  diagrams: "generated/diagrams"
+  images: "generated/images"
+  validations: "generated/validations"
+  rag: "generated/rag"
+  format: "png"
+  theme: "default"
 
-=== gradle.properties (recommended)
-[source,properties]
-----
-# Required for RAG tasks — prevents UnsatisfiedLinkError on libtokenizers.so
-org.gradle.daemon=false
+langchain:
+  maxIterations: 5
+  model: "ollama"
+  validation: true
+  
+  ollama:
+    baseUrl: "http://localhost:11434"
+    modelName: "smollm:135m"
+    
+  # Other provider configurations...
+
+git:
+  userName: "github-actions[bot]"
+  userEmail: "github-actions[bot]@users.noreply.github.com"
+  # ... other git config
+
+rag:
+  databaseUrl: "jdbc:postgresql://localhost:5432/plantuml_rag"
+  username: "plantuml_user"
+  password: "plantumm_password"
+  tableName: "plantuml_embeddings"
 ----
 
 == Gradle Feature Compatibility
@@ -664,11 +472,10 @@ org.gradle.daemon=false
 ----
 gradlePlugin {
     plugins {
-        create("slider") {
+        create("plantuml") {
             compatibility {
                 features {
-                    // asciidoctorRevealJs runs OUT_OF_PROCESS via JRuby —
-                    // not compatible with Configuration Cache.
+                    // Some features may not be compatible with Configuration Cache
                     configurationCache = false
                 }
             }
@@ -677,14 +484,14 @@ gradlePlugin {
 }
 ----
 
-Declaring `configurationCache = false` is honest and recommended — it informs users clearly
-and has no negative consequences for the plugin's Portal ranking beyond the Configuration Cache badge.
+Declaring `configurationCache = false` ensures compatibility and honest reporting of limitations.
 
 == Roadmap
-* Configuration Cache support — blocked on asciidoctor-gradle `5.x` stable release.
-* Extended DSL — configurable theme, transition, source directory.
-* Cucumber tests for the `generateDeck` task.
-* `asciidocCapsule` — video capsule generation from slides.
+* Enhanced diagram validation and error reporting
+* Additional LLM providers support
+* Configuration Cache support
+* Web UI for viewing and managing generated diagrams
+* Advanced RAG features for better diagram suggestions
 
 == License
-This project is licensed under the Apache 2.0 License – see the `LICENCE` file.
+This project is licensed under the Apache 2.0 License – see the `LICENSE` file.
