@@ -7,4 +7,3 @@ pluginManagement {
 }
 
 rootProject.name = "plantuml-gradle"
-include(":plantuml-plugin")

@@ -11,19 +11,12 @@ plugins {
 }
 
 group = "com.cheroliv"
-version = libs.plugins.plantuml.plugin.get().version
+version = libs.plugins.plantuml.get().version
 kotlin.jvmToolchain(JavaVersion.VERSION_24.ordinal)
 
 repositories {
     mavenCentral()
     gradlePluginPortal()
-    listOf(
-        "https://repo.gradle.org/gradle/libs-releases/",
-        "https://plugins.gradle.org/m2/",
-//        "https://maven.xillio.com/artifactory/libs-release/",
-        "https://mvnrepository.com/repos/springio-plugins-release",
-        "https://archiva-repository.apache.org/archiva/repository/public/"
-    ).forEach(::maven)
 }
 
 dependencies {
@@ -197,21 +190,15 @@ gradlePlugin {
         vcsUrl = "https://github.com/cheroliv/plantuml-gradle.git"
         website = "https://cheroliv.com"
         create("plantuml") {
-            id = libs.plugins.plantuml.plugin.get().pluginId
-            implementationClass = "${libs.plugins.plantuml.plugin.get().pluginId}.PlantumlPlugin"
+            id = libs.plugins.plantuml.get().pluginId
+            implementationClass = "plantuml.PlantumlPlugin"
             displayName = "Plantuml Plugin"
             description = "Gradle plugin for plantuml generation."
             listOf(
-                "revealjs",
-                "slide-generator",
-                "slide",
+                "plantuml",
                 "jgit",
-                "asciidoc",
                 "langchain4j",
                 "ollama",
-                "mistal-ai",
-                "huggingface",
-                "gemini",
                 "kotlin-DSL"
             ).run(tags::set)
 
