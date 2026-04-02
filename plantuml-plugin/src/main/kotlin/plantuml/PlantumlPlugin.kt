@@ -41,3 +41,4 @@ class PlantumlPlugin : Plugin<Project> {
         val configPath: Property<String> = objects.property(String::class.java)
     }
 }
+
