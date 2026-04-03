@@ -52,8 +52,8 @@ dependencies {
 configurations.all {
     resolutionStrategy {
         // Force la version de Groovy utilisée par Gradle
-        force("org.apache.groovy:groovy:4.0.29")
-        force("org.apache.groovy:groovy-nio:4.0.29")
+        force(libs.groovy)
+        force(libs.groovy.nio)
     }
 }
 
@@ -157,7 +157,7 @@ dependencies {
 tasks.named<Test>("test") {
     // Ajouter le jar du plugin au classpath des tests
     classpath += files(tasks.named("jar"))
-    
+
     // Ajouter les propriétés système nécessaires
     systemProperty("gradle.plugin.repository", project.rootDir.resolve("build/libs").absolutePath)
 }

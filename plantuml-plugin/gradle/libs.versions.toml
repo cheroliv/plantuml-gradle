@@ -29,8 +29,13 @@ langchain4j-beta = "1.12.2-beta22"
 docker-java = "3.7.0"
 testcontainers-pg = "1.21.4"
 logback = "1.5.32"
+groovy = "4.0.29"
+groovy-nio = "4.0.29"
 
 [libraries]
+
+groovy = { module = "org.apache.groovy:groovy", version.ref = "groovy" }
+groovy-nio = { module = "org.apache.groovy:groovy-nio", version.ref = "groovy-nio" }
 plantuml-engine = { module = "net.sourceforge.plantuml:plantuml", version.ref = "plantuml-engine" }
 asciidoctor-gradle-jvm-slides = { module = "org.asciidoctor:asciidoctor-gradle-jvm-slides", version.ref = "asciidoctor-gradle" }
 asciidoctor-gradle-jvm-gems = { module = "org.asciidoctor:asciidoctor-gradle-jvm-gems", version.ref = "asciidoctor-gradle" }
@@ -53,7 +58,7 @@ cucumber-java = { module = "io.cucumber:cucumber-java", version.ref = "cucumber"
 cucumber-junit-platform-engine = { module = "io.cucumber:cucumber-junit-platform-engine", version.ref = "cucumber" }
 cucumber-picocontainer = { module = "io.cucumber:cucumber-picocontainer", version.ref = "cucumber" }
 junit-platform-suite = { module = "org.junit.platform:junit-platform-suite", version.ref = "junit_platform" }
-junit-platform-params = {module ="org.junit.jupiter:junit-jupiter-params",version.ref = "junit-platform-params"}
+junit-platform-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit-platform-params" }
 jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 jackson-dataformat-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson" }
 #TODO: migrate to tools.jackson
