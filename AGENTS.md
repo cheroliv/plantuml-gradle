@@ -20,7 +20,7 @@ Suit les patterns architecturaux des projets `slider-gradle`(les sources sont da
 ## État actuel
 
 ### ✅ Fait — Ne plus retravailler
-<!-- L'agent met à jour cette section en fin de session -->
+&lt;!-- L'agent met à jour cette section en fin de session --&gt;
 - Architecture du plugin définie (PlantumlPlugin, Extension, Config, Manager, tasks/, service/)
 - Configuration YAML via `plantuml-context.yml`
 - GitHub Actions workflow pour le processing automatique
@@ -81,6 +81,10 @@ Suit les patterns architecturaux des projets `slider-gradle`(les sources sont da
     - Refactorisation de LlmServiceErrorTest.kt avec des tests paramétrés
     - Refactorisation de ReindexPlantumlRagTaskTest.kt avec des tests paramétrés
     - Refactorisation de PerformanceTest.kt avec des tests consolidés
+- **Créer un dossier dédié pour les fichiers générés par IA lors des tests, séparé du dossier de build et à côté du dossier prévu pour le RAG**
+  - Configuration du plugin pour enregistrer les fichiers de test dans `generated/diagrams` lors de l'exécution en mode test (`-Dplantuml.test.mode=true`)
+  - Suppression du champ redondant `aiTestOutput` de la configuration YAML
+  - Mise à jour du code dans `DiagramProcessor.kt` et `ReindexPlantumlRagTask.kt` pour utiliser le même répertoire configuré
 
 ### 📋 Backlog — À faire
 &lt;!-- Liste des tests unitaires à corriger par ordre de priorité --&gt;

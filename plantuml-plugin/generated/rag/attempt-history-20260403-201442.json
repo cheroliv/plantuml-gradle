@@ -1,0 +1,464 @@
+        {
+            "entries": [
+                            {
+                "iteration": 0,
+                "prompt": "Create a complex diagram",
+                "response": "Here is a sample PlantUML diagram to get you started:
+```
++---------------+
+|  **Plant UML Diagram**|
+|  |  |  |  |  |
+|  |  |  |  |  |  |
+| --- | --- | --- | --- | --- | --- |
+|  |  |  |  |  |  |  |
+| --- | --- | --- | --- | --- | --- |
++---------------+
+```",
+                "isValid": false,
+                "errorMessage": "null",
+                "timestamp": "2026-04-03T20:13:52.681493412"
+            },
+            {
+                "iteration": 1,
+                "prompt": "Correction attempt #1",
+                "response": "Here is a Python function that implements this approach:
+
+```python
+def plant_uml(node_type=\"plant\", node_type_pattern=\"{{{}}}}\") -> bool:
+    \"\"\"
+    A Python function that implements the PlantUML algorithm. The function takes in three arguments:
+    - `node_type`: a string representing a species or cultivar, e.g., \"vegetative\" or \"herbarium\".
+    - `node_type_pattern`: a string representing a pattern for species or cultivars, e.g., \"{{{{prefix}}}}\" for \"genus\", \"species\", \"variety\".
+    - `node_type` (optional): optional string indicating the type of node to be processed: 'vegetative', 'herbarium', 'hybrid'.
+    \"\"\"
+    def is_species(node_type, node_type_pattern):
+        return node_type in [\"vegetative\", \"herbarium\"] and node_type_pattern == \"{{{}}}\".format(node_type)
+
+    def is_genus(node_type, node_type_pattern):
+        return node_type == node_type_pattern
+    def is_hybrid(node_type, node_type_pattern):
+        return node_type != node_type_pattern
+
+    def is_species(node_type, node_type_pattern):
+        return node_type in [\"vegetative\", \"herbarium\"] and node_type_pattern == \"{{{}}}\".format(node_type)
+    def is_genus(node_type, node_type_pattern):
+        return node_type != node_type_pattern
+
+    def is_hybrid(node_type, node_type_pattern):
+        return node_type != node_type_pattern
+
+    if is_species(\"vegetative\"):
+        return \"vegetative\"
+    elif is_herbarium:
+        return \"herbarium\"
+    else:
+        raise ValueError(\"Invalid species type\")
+```",
+                "isValid": false,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-03T20:13:56.719429896"
+            },
+            {
+                "iteration": 2,
+                "prompt": "Correction attempt #2",
+                "response": "Here is a Python function that implements this approach:
+
+```python
+import re
+from typing import Union, Optional, List
+
+def plant_uml(node_type=\"plant\", node_type_pattern=\"{{{}}}}\") -> bool:
+    \"\"\"
+    A Python function that implements the PlantUML algorithm. The function takes in three arguments:
+    - `node_type`: a string representing a species or cultivar, e.g., \"vegetative\" or \"herbarium\".
+    - `node_type_pattern`: a string representing a pattern for species or cultivars, e.g., \"{{{{prefix}}}}\" for \"genus\", \"{{{{prefix}}}}\" for \"variety\".
+    \"\"\"
+    def is_species(node_type, node_type_pattern):
+        return node_type == node_type_pattern
+
+    def is_genus(node_type, node_type_pattern):
+        return node_type != node_type_pattern
+
+    def is_hybrid(node_type, node_type_pattern):
+        return node_type != node_type_pattern
+
+    def is_species(\"vegetative\"):
+        for node_type in [\"vegetative\", \"herbarium\"]:
+            if not is_species(node_type) or not is_genus(node_type):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"herbarium\"):
+        if not is_species(\"herbarium\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"vegetative\", \"herbarium\"]:
+            if not is_species(node_type):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"plantumixed\"):
+        if not is_species(\"plantumixed\") or is_genus(\"plantumixed\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"vegetative\", \"herbarium\"]:
+            if not is_species(node_type):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"herbarial\"):
+        if not is_species(\"herbarial\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"plantumixed\"):
+        for node_type in [\"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"vegetative\", \"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"plantumixed\"):
+        if not is_species(\"plantumixed\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"vegetative\", \"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"herbarial\"):
+        if not is_species(\"herbarial\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"vegetative\", \"herbarium\"]:
+            if not is_species(node_type):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"plantumixed\"):
+        if not is_species(\"plantumixed\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"herbarial\"):
+        if not is_species(\"herbarial\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"plantumixed\"):
+        if not is_species(\"plantumixed\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"herbarial\"):
+        if not is_species(\"herbarium\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"plantumixed\"):
+        if not is_species(\"plantumixed\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"herbarial\"):
+        if not is_species(\"herbarium\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"plantumixed\"):
+        if not is_species(\"plantumixed\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"herbarial\"):
+        if not is_species(\"herbarium\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"plantumixed\"):
+        if not is_species(\"plantumixed\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"herbarial\"):
+        if not is_species(\"herbarium\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"herbarial\"):
+        if not is_species(\"herbarium\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"plantumixed\"):
+        if not is_species(\"plantumixed\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"herbarial\"):
+        if not is_species(\"herbarium\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"plantumixed\"):
+        if not is_species(\"plantumixed\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"herbarial\"):
+        if not is_species(\"herbarium\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"plantumixed\"):
+        if not is_species(\"plantumixed\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"herbarial\"):
+        if not is_species(\"herbarium\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"herbarial\"):
+        if not is_species(\"herbarium\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"plantumixed\"):
+        if not is_species(\"plantumixed\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"herbarial\"):
+        if not is_species(\"herbarium\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"herbarial\"):
+        if not is_species(\"herbarium\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"herbarial\"):
+        if not is_species(\"herbarium\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"plantumixed\"):
+        if not is_species(\"plantumixed\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+
+    def is_hybrid(\"herbarial\"):
+        if not is_species(\"herbarium\"):
+            raise ValueError(\"Invalid species type\")
+
+        for node_type in [\"herbarium\"]:
+            if not is_species(\"herbarium\"):
+                raise ValueError(\"Invalid species type\")
+
+        return False
+```",
+                "isValid": false,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-03T20:14:28.281842337"
+            },
+            {
+                "iteration": 3,
+                "prompt": "Correction attempt #3",
+                "response": "Here's an example of how to implement this function:
+
+```python
+import re
+
+def is_plantumixed(node_type):
+    pattern = '@[^> ]* (\w+)\s+($)'
+
+    return re.match(pattern, node_type) is not None and 'is' in node_type or 'not' in node_type
+```",
+                "isValid": false,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-03T20:14:37.820985341"
+            },
+            {
+                "iteration": 4,
+                "prompt": "Correction attempt #4",
+                "response": "Here is a sample of what the Python function `is_plantumixed` might look like:
+```python
+import re
+
+def plantumixed(node_type):
+    pattern = '@[^> ]* (\w+)\s+($)'
+
+    return re.match(pattern, node_type) is not None and 'is' in node_type or 'not' in node_type
+```",
+                "isValid": false,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-03T20:14:38.981822997"
+            },
+            {
+                "iteration": 5,
+                "prompt": "Correction attempt #5",
+                "response": "This Python function implements an approach called \"plantumixed\" that takes a species name as input and returns the same species type, but with some additional rules applied:
+
+1. If the species name is not valid (e.g., `'a'` instead of `'a'`) it skips over the tag `@enduml`.
+2. It checks if the species name starts with a letter or digit and matches the regular expression `\w+`:
+```python
+def plantumixed(node_type):
+    pattern = '@[^> ]* (\w+)\s+($)'
+
+    return re.match(pattern, node_type) is not None and 'is' in node_type or 'not' in node_type
+```
+3. It checks if the species name starts with a letter and matches the regular expression `\w+`:
+```python
+def plantumixed(node_type):
+    pattern = '@[^> ]* (\w+)\s+($)'
+
+    return re.match(pattern, node_type) is not None and 'is' in node_type or 'not' in node_type
+```
+4. It checks if the species name starts with a letter:
+```python
+def plantumixed(node_type):
+    pattern = '@[^> ]* (\w+)\s+($)'
+
+    return re.match(pattern, node_type) is not None and 'is' in node_type or 'not' in node_type
+```",
+                "isValid": false,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-03T20:14:42.231283578"
+            }
+            ],
+            "totalAttempts": 6,
+            "timestamp": "2026-04-03T20:14:42.232183301"
+        }

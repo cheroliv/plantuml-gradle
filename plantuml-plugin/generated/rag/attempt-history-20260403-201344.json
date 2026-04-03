@@ -1,0 +1,266 @@
+        {
+            "entries": [
+                            {
+                "iteration": 0,
+                "prompt": "Create a simple user diagram",
+                "response": "To generate a PlantUML diagram from the following description, you can follow these steps:
+
+1. Define the user interface: Create a simple user interface that allows users to input commands or inputs into a text box.
+2. Format the diagram as required by PlantUML: The diagram should be formatted according to the PlantUML specification and guidelines (e.g., Plant UML User Interface Specification, Plant UML User Interface Specification).
+3. Add a label for \"User Input\" or \"Input\", depending on the requirements: Use Labels for \"User Input\" or \"Input\" in the diagram to indicate that users can provide their own input and generate an error message if they are unable to do so.
+4. Include user-defined inputs in the diagram: Add user-defined inputs into the diagram, such as numbers, strings, or user-provided text inputs like `+`, `/`, or `*`.
+5. Add a description of the \"Algorithm\" or \"Task\" label to the diagram: Write a detailed description for each algorithm or task in the diagram, including the input/output format (e.g., `Input -> Output`), the error message, and any relevant constraints or restrictions (e.g., \"Cannot accept inputs greater than 50 characters\")
+6. Add a step-by-step description of the \"Algorithm\" label in the diagram: Write a detailed description for each step of the algorithm in the diagram, including the input/output format (e.g., `Input -> Output -> Input`), the error message, and any relevant constraints or restrictions (e.g., \"Cannot accept inputs greater than 50 characters\")
+7. Add a \"Data List\" label to the diagram: Write data lists in the diagram for each input/output format in order to describe the step-by-step execution of the algorithm
+8. Include user-defined user-input labels in the diagram: If there are multiple user input labels, include them individually and write their corresponding labels in a separate label block or section in the diagram
+9. Add a \"Error Message\" label to the diagram: Write error messages for each input/output format (e.g., `+ Input -> Error Message`), including any relevant constraints or restrictions on user input (e.g., \"Cannot accept inputs greater than 50 characters\")
+10. Include a \"User Error\" label in the diagram: Write user error labels for each input/output format (e.g., `Input -> Error Message`), including any relevant constraints or restrictions on user input (e.g., \"Cannot accept inputs greater than 50 characters\")
+
+Here's an example of a PlantUML diagram to generate this diagram:
+```markdown
+[Insert User Input]
++
+Add an error message for `Input -> Error Message` if the user is unable to accept an input greater than 50 characters:
+  +
+  AcceptInput -> Error Message
+```
+In this example, the \"Algorithm\" label is inserted at the top of the diagram, followed by error messages that describe the steps taken on each algorithm. The step-by-step labels are written in separate labels block or sections, with the error message being enclosed within a line break and preceded by an asterisk (*).
+
+Note: This diagram should be well-structured, with clear, readable text boxes for user input and error messages to describe them accurately.",
+                "isValid": false,
+                "errorMessage": "null",
+                "timestamp": "2026-04-03T20:13:14.046219814"
+            },
+            {
+                "iteration": 1,
+                "prompt": "Correction attempt #1",
+                "response": "Here's an example of a PlantUML diagram that generates this diagram:
+```markdown
++
+Add an error message for `Input -> Error Message` if the user is unable to accept an input greater than 50 characters:
+  +
+  AcceptInput -> Error Message
+```
+In this diagram, the \"Algorithm\" label is inserted at the top of the diagram, followed by error messages that describe the steps taken on each algorithm. The step-by-step labels are written in separate labels block or sections, with the error message being enclosed within a line break and preceded by an asterisk (*).
+
+Here's what this diagram looks like:
+```markdown
++ +
+AcceptInput -> Error Message
+acceptInput -> Error Message
+acceptInput -> Error Message
+acceptInput -> Error Message
+acceptInput -> Error Message
+acceptInput -> Error Message
+acceptInput -> Error Message
+acceptInput -> Error Message
+acceptInput -> Error Message
+acceptInput -> Error Message
+acceptInput -> Error Message
+```",
+                "isValid": false,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-03T20:13:17.426724242"
+            },
+            {
+                "iteration": 2,
+                "prompt": "Correction attempt #2",
+                "response": "Here is a Python program that implements this approach:
+```python
+def generate_plant_graph(description, error_messages):
+    def generate_node(description, error_messages, tag=None):
+        node = {
+            \"name\": \"\",
+            \"description\": description,
+            \"error_message\": error_messages[tag] if tag else ''
+        }
+
+        for error in error_messages:
+            node[\"error_message\"] += \" \" + error
+        return node
+
+    def generate_node_from_error_messages(error_messages):
+        node = {}
+        for error, message in error_messages.items():
+            node[error] = generate_node(error_messages, message, \"\")
+        return node
+
+    def generate_label(node, tag):
+        node[\"tag\"] += tag
+
+    label_nodes = []
+    for error, message in error_messages:
+        label_nodes.append({error}: generate_label(message, node, tag=error))
+
+    def generate_edge(node_to_edge, node_from_edge, error, tag):
+        edge = {
+            \"name\": node_to_edge[tag],
+            \"error_message\": error,
+            \"error_message_link\": node_from_edge[tag] + \": \",
+            \"error_message_link_link\": tag + \": \" + error
+        }
+
+        for error in error_messages:
+            edge[\"error_message\"] += \": \" + error
+            edge[\"error_message_link\"] += \": \" + error
+
+        return edge
+
+    def generate_node(description, error_messages):
+        node = {
+            \"name\": \"\",
+            \"description\": description,
+            \"error_messages\": error_messages
+        }
+
+        for error in error_messages:
+            node[error] = generate_node_from_error_messages(error_messages)
+
+        return node
+
+    def generate_label_from_error_messages(error_messages):
+        label_nodes = []
+        for error, message in error_messages.items():
+            label_nodes.append({error}: generate_label(message, label_nodes, tag=error))
+
+        return label_nodes
+
+    def generate_edge_from_node_to_label(node, node_from_label, error, tag):
+        label = {error: \"\" for error in error_messages}
+        label[error] = node_from_label + \": \" + error
+        label[\"error_message\"] += \": \" + error
+
+        return label
+
+    def generate_label(node, tag):
+        label = {}
+        label[\"tag\"] += tag
+        label[\"error_message\"] += \": \" + error
+        label[\"error_message_link\"] += tag + \": \" + error
+        label[\"error_message\"] += \": \" + error
+        return label
+
+    label_nodes.append({
+        \"error\": \"\",
+        \"error_message\": \"\"
+    })
+
+    def generate_edge(label_node, node):
+        node[\"error\"] = \"\"
+        node[\"error_message\"] = \"\"
+        label_node[\"error_message\"] += \": \" + error
+        label_node[\"error_message_link\"] += error + \": \" + error
+        return label_node
+
+    def generate_label(node, tag):
+        label_node[\"error\"] = \"\"
+        label_node[\"error_message\"] += \": \" + error
+        label_node[\"error_message_link\"] += error + \": \" + error
+
+    label_nodes.append({
+        \"error\": \"\",
+        \"error_message\": \"\"
+    })
+
+    def generate_label_from_node_to_label(node, node_from_label):
+        for error in error_messages:
+            label = label_node[error]
+            label[\"error\"] += \": \" + error
+
+        return label
+
+    label_nodes.append({
+        \"error\": \"\",
+        \"error_message\": \"\",
+        \"error_message_link\": tag,
+        \"error_message_link\": tag + \": \",
+        \"error_message_link\": tag
+    })
+
+    def generate_label(node):
+        node[\"error\"] = \"\"
+        node[\"error_message\"] += \": \" + error
+
+        return node
+
+    def generate_edge(node_to_label, node_from_label):
+        label_nodes.append({
+            \"error\": \"\",
+            \"error_message\": \"\",
+            \"error_message_link\": tag,
+            \"error_message_link\": tag + \": \",
+            \"error_message_link\": tag
+        })
+
+        for error in error_messages:
+            node[\"error\"] += \": \" + error
+
+            node[\"error_message\"] += \": \" + error
+            label_nodes.append({error}, error)
+
+    generate_label(label_node_to_label)
+    generate_edge(label_node_from_label, label_node_to_label)
+
+    return generate_label_from_node_to_label
+```",
+                "isValid": false,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-03T20:13:29.289605496"
+            },
+            {
+                "iteration": 3,
+                "prompt": "Correction attempt #3",
+                "response": "To generate a Plant UML diagram, we need to follow these steps:
+
+1. Define the plant structure: Identify the different parts of the plant, such as a leaf, stem, root, petal, and so on.
+2. Specify the node types: Determine the different node types that would be appropriate for this diagram, such as a leaf node (e.g., `leaf`), a stem node (e.g., `stem`), or a petal node (e.g., `petal`).
+3. Specify the label type: Determine the label type that would be appropriate for this diagram, such as an error message, error message link, or error message link.
+4. Define the node relationships: Specify the node relationships that would be appropriate for this diagram, such as a node `error` connecting to nodes `error_message` and `error_message_link`.
+5. Specify the node type relationships: Specify the node type relationships that would be appropriate for this diagram, such as a node `leaf` linking to other nodes or stems.
+6. Define the label types (nodes) in order of their relevance to the diagram: Specify the node types (e.g., error message link, error message link), then the label types that would be suitable for each type (e.g., error message link).
+7. Define the label types (nodes) with a clear boundary between them): Specify the node types with a clear boundary between them, and then add an error message to the boundary.
+8. Define the label types with a clear indication of their purpose: Specify the node types that would be appropriate for this diagram, such as `error` or `error_message`, then the labels that would be suitable for each type.
+9. Define the labels that are part of a continuous flow: Specify the labels that will be part of a continuous flow, and define their purpose in order to avoid ambiguity.
+10. Define the label types (nodes) with clear indication of their purpose: Specify the node types that would be appropriate for each type, so that they can be separated by other nodes or stems.
+
+For example, let's say we want to generate a plant UML diagram where the leaf is part of a continuous flow from error message to error message and error message link through a stem node with an error message. The node types are error message link, error message link, error message link, error message link, error message link, error message link, error message link, error message link, error message link, error message link, error message link, error message link, error message link, error message link, error message link, error message link, error message link, error message link, error message link
+",
+                "isValid": false,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-03T20:13:40.039256921"
+            },
+            {
+                "iteration": 4,
+                "prompt": "Correction attempt #4",
+                "response": "```markdown
++
+Attempt #1: Here's an example of a Plant UML diagram that generates this diagram:
+```markdown
++
+Here is a sample PlantUML diagram:
+```python
+def generate_plant_graph(descripti...
+Attempt #2: Here is an example of a Python program that implements this approach:
+```python
+def generate_plant_graph(descripti...) -> str:
+    print(\"Error: Missing @startuml or @enduml tags\")
+    return \"Invalid input\"
+    
+generate_plant_graph({})  # returns 'Invalid input'
+```
+Here's an example of a Python program that implements this approach:
+```python
+def generate_plant_graph(descripti...) -> str:
+    print(\"Error: Missing @startuml or @enduml tags\")
+    return \"Invalid input\"
+    
+generate_plant_graph({})  # returns 'Invalid input'
+```",
+                "isValid": true,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-03T20:13:44.892921509"
+            }
+            ],
+            "totalAttempts": 5,
+            "timestamp": "2026-04-03T20:13:44.899105975"
+        }
