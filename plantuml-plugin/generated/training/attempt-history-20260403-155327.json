@@ -1,0 +1,88 @@
+        {
+            "entries": [
+                            {
+                "iteration": 0,
+                "prompt": "Create diagram 8",
+                "response": "Here is a sample PlantUML diagram that matches the description:
+```
++-----+
+  |                                         |
++---------------+
+           |
+             |
+           v
+          |  ______    |
+            |
+            v
+          +---------------+
+      +---------------------------------------+
+       /|   |
+           |       |
+           |
+           v
+          |  ______    |
+          |       |
+           v
+          +---------------------------------------+
+   +---------------------------------------+
+  /|\   |
+    |       |
+    |       |
+     /|\   |
+```",
+                "isValid": false,
+                "errorMessage": "null",
+                "timestamp": "2026-04-03T15:53:22.738226018"
+            },
+            {
+                "iteration": 1,
+                "prompt": "Correction attempt #1",
+                "response": "Here is a Python function that implements the desired behavior:
+
+```python
+import re
+import ast
+import inspect
+
+def plant_uml(description):
+    \"\"\"
+    Recursively parses the PlantUML code and returns the first valid PlantUML code surrounded by @startuml or @enduml tags.
+    \"\"\"
+    def is_valid(code, tag):
+        return '@startuml' in code
+        code = code.strip() if code else code
+
+    def parse(code, tag):
+        if is_valid(code, tag):
+            return ast.parse(code)
+        else:
+            raise ValueError('Invalid PlantUML code')
+
+    def next_attempt():
+        valid = parse(parse(parse(parse(parse(parse(astend))))), '@startuml')
+        for line in next_attempt():
+            if is_valid(line, '@startuml'):
+                return parse(parse(parse(parse(parse(parse(astend))))), '@startuml')
+
+    def handle_exception(code, exception):
+        try:
+            code = ast.simplify(code)
+        except Exception as e:
+            raise ValueError('Invalid PlantUML code', e)
+
+        if handle_exception(code, '@startuml'):
+            return parse(parse(parse(parse(astend))))
+
+    def handle_error():
+        raise ValueError('Invalid PlantUML code')
+
+    return next_attempt()
+```",
+                "isValid": true,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-03T15:53:27.719218928"
+            }
+            ],
+            "totalAttempts": 2,
+            "timestamp": "2026-04-03T15:53:27.720050547"
+        }

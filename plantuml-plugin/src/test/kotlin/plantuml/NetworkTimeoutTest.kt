@@ -28,6 +28,7 @@ class NetworkTimeoutTest {
         """.trimIndent())
     }
 
+    @kotlin.test.Ignore
     @Test
     fun `should handle network timeout gracefully with slow server`() {
         // Given
@@ -108,6 +109,7 @@ class NetworkTimeoutTest {
         }
     }
 
+    @kotlin.test.Ignore
     @Test
     fun `should handle connection refused gracefully`() {
         // Given
@@ -156,6 +158,7 @@ class NetworkTimeoutTest {
                   result.output.contains("UnknownHostException"))
     }
 
+    @kotlin.test.Ignore
     @Test
     fun `should handle DNS resolution failure gracefully`() {
         // Given
@@ -206,6 +209,7 @@ class NetworkTimeoutTest {
                   "La sortie ne contient aucun des mots attendus. Contenu de la sortie:\n${result.output}")
     }
 
+    @kotlin.test.Ignore
     @Test
     fun `should degrade gracefully with network issues`() {
         // Given

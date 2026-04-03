@@ -1,0 +1,110 @@
+        {
+            "entries": [
+                            {
+                "iteration": 0,
+                "prompt": "Create diagram 12",
+                "response": "Here is a CodeFlow Diagram for a PlantUML model:
+```
++---------------+
+|    Plant UML Model  |
++---------------+
+                  |
+                  |
+                  vh1    vh2     vh3
++---------------+
+|  Label    |
++---------------+
+                  |
+                  |
+                  vh1   vh2     vh3
+                  +---------------+
+|  Label  |
++---------------+
+                  |
+                  |
+                  vh1       vh2       vh3
++---------------+
+|  Label  |
++---------------+
+                  |
+                  |
+                  vh1     vh2     vh3
++---------------+
+|  Label  |
++---------------+
+                  |
+                  |
+                  vh1       vh2     vh3
++---------------+
+|  Label  |
++---------------+
+                  |
+                  |
+                  vh1       vh2     vh3
++---------------+
+|  Label  |
++---------------+
+                  |
+                  |
+                  vh1       vh2     vh3
++---------------+
+|  Label  |
++---------------+
+                  |
+                  |
+                  vh1       vh2     vh3
++---------------+
+|  Label  |
++---------------+
+                  |
+                  |
+                  vh1       vh2     vh3
++---------------+
+```",
+                "isValid": false,
+                "errorMessage": "null",
+                "timestamp": "2026-04-03T15:55:00.660402988"
+            },
+            {
+                "iteration": 1,
+                "prompt": "Correction attempt #1",
+                "response": "Here is a sample Python program that implements this approach:
+```python
+import re  # Import regular expression module
+import sys
+
+def parse_plant(line):
+    try:
+        match = re.search('@startuml/@enduml/([^:]*)(\w+)', line)
+        if match is not None:
+            return match.group()
+        else:
+            raise ValueError('Invalid line: missing @startuml or @enduml tags')
+    except Exception as e:
+        raise ValueError(f'Error parsing line: {line}')
+```
+The `parse_plant` function takes a line in Python and returns the parsed plant code. It uses regular expression modules to match the `@startuml/@enduml/` tag on the line and extract the parts of the text that need to be processed. The function then checks if the line is valid (i.e., it matches @startuml/@enduml tags) using the regular expression module. If the line does not match @startuml or @enduml tags, a `ValueError` exception is raised with an appropriate message and error message. The function then extracts the parts of the text that need to be processed from the line and returns them as a tuple of strings.
+Here is the complete program:
+```python
+# Parse PlantUML model 
+def parse_plant(line):
+    match = re.search('@startuml/@enduml/([^:]*)(\w+)', line)
+    if match is not None:
+        return match.group()
+
+    try:
+        match = re.search('@startuml/@enduml/([^:]*)(\w+)', line)
+        if match is not None and match.group().startswith('[') or match.group().endswith(']') and match.group().startswith(']') and match.group().startswith(']'):
+            raise ValueError('Invalid line: missing @startuml/@enduml tags')
+    except Exception as e:
+        raise ValueError(f'Error parsing line: {line}')
+```
+The `parse_plant` function takes a line in Python and returns the parsed plant code. It uses regular expression modules to match the `@startuml/@enduml/` tag on the line and extract the parts of the text that need to be processed from the line and returns them as a tuple of strings.",
+                "isValid": true,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-03T15:55:19.971096787"
+            }
+            ],
+            "totalAttempts": 2,
+            "timestamp": "2026-04-03T15:55:19.975586777"
+        }

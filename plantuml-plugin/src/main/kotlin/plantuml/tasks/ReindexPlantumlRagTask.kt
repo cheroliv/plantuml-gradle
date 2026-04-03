@@ -79,7 +79,12 @@ abstract class ReindexPlantumlRagTask : DefaultTask() {
         }
 
         // Also load attempt history files for training data
-        val trainingDir = File("generated/training")
+        val trainingDirPath = if (System.getProperty("plantuml.test.mode") == "true") {
+            config.output.diagrams
+        } else {
+            config.output.rag
+        }
+        val trainingDir = File(trainingDirPath)
         val historyFiles = if (trainingDir.exists()) {
             try {
                 trainingDir.listFiles { file ->

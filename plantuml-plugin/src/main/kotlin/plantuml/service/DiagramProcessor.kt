@@ -172,15 +172,21 @@ class DiagramProcessor(
     /**
      * Archives attempt history for RAG training
      */
-    private fun archiveAttemptHistory(history: List<AttemptEntry>) {
+    private fun archiveAttemptHistory(history: List&lt;AttemptEntry&gt;) {
         // Only archive if there were multiple attempts (indicating corrections were needed)
-        if (history.size > 1) {
+        if (history.size &gt; 1) {
             try {
-                // Determine the output directory based on environment
+                // Determine the output directory based on configuration
                 val baseDir = if (System.getProperty("plantuml.test.mode") == "true") {
-                    "test-output/training"
+                    config?.output?.diagrams ?: "generated/diagrams"
                 } else {
-                    "generated/training"
+                    config?.output?.rag ?: "generated/rag"
+                }
+                
+                // In a real implementation, this would save the history to a training data directory
+                val ragTrainingDir = File(baseDir)
+                if (!ragTrainingDir.exists()) {
+                    ragTrainingDir.mkdirs()
                 }
                 
                 // In a real implementation, this would save the history to a training data directory

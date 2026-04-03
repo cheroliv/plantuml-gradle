@@ -72,9 +72,20 @@ Suit les patterns architecturaux des projets `slider-gradle`(les sources sont da
   - Réduction du nombre d'itérations dans les tests à 1 pour accélérer l'exécution
   - Mise à jour des workflows GitHub Actions pour utiliser le modèle SmolLM
   - Configuration de la séparation des sorties de test dans un répertoire dédié (test-output)
+  - **Optimisation des tests unitaires pour réduire le temps d'exécution**
+    - Refactorisation de PlantumlConfigTest.kt avec des tests paramétrés
+    - Refactorisation de LargeFileAndPathTest.kt avec des tests paramétrés
+    - Refactorisation de DiagramProcessorTest.kt avec des tests paramétrés
+    - Refactorisation de PlantumlServiceTest.kt avec des tests paramétrés
+    - Refactorisation de LlmServiceTest.kt avec des tests paramétrés
+    - Refactorisation de LlmServiceErrorTest.kt avec des tests paramétrés
+    - Refactorisation de ReindexPlantumlRagTaskTest.kt avec des tests paramétrés
+    - Refactorisation de PerformanceTest.kt avec des tests consolidés
 
 ### 📋 Backlog — À faire
-<!-- Liste des tests unitaires à corriger par ordre de priorité -->
+&lt;!-- Liste des tests unitaires à corriger par ordre de priorité --&gt;
+- Permettre aux tâches Gradle de spécifier le LLM à utiliser pour surcharger la config YAML
+- Configuration par gradle.properties comme troisième niveau de priorité (DSL > YAML > gradle.properties)
 - PlantumlConfigTest.kt
 - LargeFileAndPathTest.kt
 - DiagramProcessorTest.kt

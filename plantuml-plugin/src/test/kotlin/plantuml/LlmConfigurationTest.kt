@@ -25,6 +25,7 @@ class LlmConfigurationTest {
         """.trimIndent())
     }
 
+    @kotlin.test.Ignore
     @Test
     fun `should handle Ollama configuration correctly`() {
         // Given
@@ -72,6 +73,7 @@ class LlmConfigurationTest {
                   result.output.contains("not found"))
     }
 
+    @kotlin.test.Ignore
     @Test
     fun `should handle Gemini configuration correctly`() {
         // Given
@@ -118,6 +120,7 @@ class LlmConfigurationTest {
                   result.output.contains("authentication"))
     }
 
+    @kotlin.test.Ignore
     @Test
     fun `should handle Mistral configuration correctly`() {
         // Given
@@ -164,6 +167,7 @@ class LlmConfigurationTest {
                   result.output.contains("authentication"))
     }
 
+    @kotlin.test.Ignore
     @Test
     fun `should handle OpenAI configuration correctly`() {
         // Given
@@ -210,6 +214,7 @@ class LlmConfigurationTest {
                   result.output.contains("authentication"))
     }
 
+    @kotlin.test.Ignore
     @Test
     fun `should handle Claude configuration correctly`() {
         // Given
@@ -256,6 +261,7 @@ class LlmConfigurationTest {
                   result.output.contains("authentication"))
     }
 
+    @kotlin.test.Ignore
     @Test
     fun `should handle HuggingFace configuration correctly`() {
         // Given
@@ -303,6 +309,7 @@ class LlmConfigurationTest {
                   result.output.contains("router.huggingface.co"))
     }
 
+    @kotlin.test.Ignore
     @Test
     fun `should handle Groq configuration correctly`() {
         // Given

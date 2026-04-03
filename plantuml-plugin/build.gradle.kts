@@ -43,6 +43,7 @@ dependencies {
     testImplementation(libs.assertj.core)
     testImplementation(libs.mockito.kotlin)
     testImplementation(libs.mockito.junit.jupiter)
+    testImplementation(libs.junit.platform.params)
 
     // Cucumber dependencies
     testImplementation(libs.bundles.cucumber)
@@ -155,7 +156,7 @@ dependencies {
 // Configuration spécifique pour les tests de plugin
 tasks.named<Test>("test") {
     // Ajouter le jar du plugin au classpath des tests
-    classpath = classpath + files(tasks.named("jar"))
+    classpath += files(tasks.named("jar"))
     
     // Ajouter les propriétés système nécessaires
     systemProperty("gradle.plugin.repository", project.rootDir.resolve("build/libs").absolutePath)
