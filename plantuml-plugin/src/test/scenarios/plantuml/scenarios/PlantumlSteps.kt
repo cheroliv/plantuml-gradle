@@ -176,7 +176,7 @@ class PlantumlSteps(private val world: PlantumlWorld) {
 
     @Then("attempt history should be tracked with {int} entries")
     fun attemptHistoryShouldHaveEntries(expectedCount: Int) {
-        val historyDir = File(world.projectDir, "generated/history")
+        val historyDir = File(world.projectDir, "generated/diagrams")
         if (historyDir.exists()) {
             val historyFiles = historyDir.listFiles { file -> file.extension == "json" }
             assertThat(historyFiles).isNotNull.hasSize(expectedCount)
@@ -187,7 +187,7 @@ class PlantumlSteps(private val world: PlantumlWorld) {
 
     @Then("the first entry should indicate syntax error")
     fun firstEntryShouldIndicateSyntaxError() {
-        val historyDir = File(world.projectDir, "generated/history")
+        val historyDir = File(world.projectDir, "generated/diagrams")
         if (historyDir.exists()) {
             val historyFiles = historyDir.listFiles { file -> file.extension == "json" }
             assertThat(historyFiles).isNotNull.isNotEmpty
@@ -202,7 +202,7 @@ class PlantumlSteps(private val world: PlantumlWorld) {
 
     @Then("the second entry should indicate success")
     fun secondEntryShouldIndicateSuccess() {
-        val historyDir = File(world.projectDir, "generated/history")
+        val historyDir = File(world.projectDir, "generated/diagrams")
         if (historyDir.exists()) {
             val historyFiles = historyDir.listFiles { file -> file.extension == "json" }
 
@@ -263,7 +263,7 @@ class PlantumlSteps(private val world: PlantumlWorld) {
 
     @Then("attempt history should be archived with {int} entries")
     fun attemptHistoryShouldBeArchived(expectedCount: Int) {
-        val archiveDir = File(world.projectDir, "generated/history/archive")
+        val archiveDir = File(world.projectDir, "generated/diagrams")
         if (archiveDir.exists()) {
             val archivedFiles = archiveDir.listFiles { file -> file.extension == "json" }
             assertThat(archivedFiles).isNotNull.hasSize(expectedCount)
@@ -283,7 +283,7 @@ class PlantumlSteps(private val world: PlantumlWorld) {
 
     @Then("the first three entries should indicate syntax errors")
     fun firstThreeEntriesShouldIndicateSyntaxErrors() {
-        val historyDir = File(world.projectDir, "generated/history")
+        val historyDir = File(world.projectDir, "generated/diagrams")
         if (historyDir.exists()) {
             val historyFiles = historyDir.listFiles { file -> file.extension == "json" }
                 ?.sortedBy { it.nameWithoutExtension }
@@ -303,7 +303,7 @@ class PlantumlSteps(private val world: PlantumlWorld) {
 
     @Then("the fourth entry should indicate success")
     fun fourthEntryShouldIndicateSuccess() {
-        val historyDir = File(world.projectDir, "generated/history")
+        val historyDir = File(world.projectDir, "generated/diagrams")
         if (historyDir.exists()) {
             val historyFiles = historyDir.listFiles { file -> file.extension == "json" }
                 ?.sortedBy { it.nameWithoutExtension }
