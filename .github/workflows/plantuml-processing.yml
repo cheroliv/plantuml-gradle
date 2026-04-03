@@ -24,7 +24,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
         
       - name: Process PlantUML Prompts
-        run: ./gradlew processPlantumlPrompts
+        run: ./gradlew processPlantumlPrompts -Dplantuml.test.mode=false
         
       - name: Commit and push results
         run: |

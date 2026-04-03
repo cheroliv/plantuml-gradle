@@ -1,14 +1,14 @@
 package plantuml.service
 
 import net.sourceforge.plantuml.SourceStringReader
-import java.io.File
 import java.io.ByteArrayOutputStream
+import java.io.File
 
 /**
  * Service responsible for PlantUML diagram processing and validation.
  */
 class PlantumlService {
-    
+
     /**
      * Validates PlantUML syntax and returns true if valid, false otherwise.
      * If invalid, returns error details.
@@ -16,7 +16,7 @@ class PlantumlService {
     fun validateSyntax(plantumlCode: String): SyntaxValidationResult {
         return try {
             val reader = SourceStringReader(plantumlCode)
-            
+
             // Simple check for required tags
             if (!plantumlCode.contains("@startuml") || !plantumlCode.contains("@enduml")) {
                 return SyntaxValidationResult.Invalid(
@@ -24,7 +24,7 @@ class PlantumlService {
                     "PlantUML code must be wrapped in @startuml and @enduml tags"
                 )
             }
-            
+
             SyntaxValidationResult.Valid
         } catch (e: Exception) {
             SyntaxValidationResult.Invalid(
@@ -33,7 +33,7 @@ class PlantumlService {
             )
         }
     }
-    
+
     /**
      * Generates an image from valid PlantUML code.
      */
@@ -50,7 +50,7 @@ class PlantumlService {
             outputFile.writeText("PlantUML diagram:\n\n$plantumlCode\n\nError: ${e.message}")
         }
     }
-    
+
     /**
      * Represents the result of PlantUML syntax validation.
      */

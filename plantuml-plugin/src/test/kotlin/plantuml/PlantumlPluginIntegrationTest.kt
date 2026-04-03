@@ -55,11 +55,29 @@ class PlantumlPluginIntegrationTest {
         promptsDir.mkdirs()
         val promptFile = File(promptsDir, "test.prompt")
         promptFile.writeText("Create a simple class diagram")
+        
+        // Create minimal config with mock LLM settings to speed up test
+        configFile.delete()
+        configFile.createNewFile()
+        configFile.writeText("""
+            input:
+              prompts: "test-prompts"
+            output:
+              images: "test-output/images"
+              rag: "test-output/rag"
+              validations: "test-output/validations"
+            langchain:
+              model: "ollama"
+              ollama:
+                baseUrl: "http://localhost:11434"
+                modelName: "smollm:135m"
+              maxIterations: 1
+        """.trimIndent())
 
         // When
         val result = GradleRunner.create()
             .withProjectDir(testProjectDir)
-            .withArguments("processPlantumlPrompts", "--stacktrace")
+            .withArguments("processPlantumlPrompts", "--stacktrace", "-Dplantuml.test.mode=true")
             .withPluginClasspath()
             .build()
 
@@ -91,7 +109,7 @@ class PlantumlPluginIntegrationTest {
         // When
         val result = GradleRunner.create()
             .withProjectDir(testProjectDir)
-            .withArguments("validatePlantumlSyntax", "-Pplantuml.diagram=sample.puml", "--stacktrace")
+            .withArguments("validatePlantumlSyntax", "-Pplantuml.diagram=sample.puml", "--stacktrace", "-Dplantuml.test.mode=true")
             .withPluginClasspath()
             .build()
 
@@ -125,7 +143,7 @@ class PlantumlPluginIntegrationTest {
         // When
         val result = GradleRunner.create()
             .withProjectDir(testProjectDir)
-            .withArguments("reindexPlantumlRag", "--stacktrace")
+            .withArguments("reindexPlantumlRag", "--stacktrace", "-Dplantuml.test.mode=true")
             .withPluginClasspath()
             .build()
 

@@ -6,10 +6,8 @@ import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
 import org.mockito.Mockito.*
-import plantuml.PlantumlConfig
 import plantuml.service.DiagramProcessor
 import plantuml.service.PlantumlService
-import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -78,7 +76,7 @@ class AttemptHistorySteps {
                 PlantumlService.SyntaxValidationResult.Valid
             } else {
                 PlantumlService.SyntaxValidationResult.Invalid(
-                    "Syntax error in attempt ${index + 1}", 
+                    "Syntax error in attempt ${index + 1}",
                     "This is a test error for attempt ${index + 1}"
                 )
             }
@@ -86,17 +84,20 @@ class AttemptHistorySteps {
 
         // Si nous avons moins de résultats que maxIterations, remplir avec des échecs
         val paddedResponses = if (mockResponses.size < maxIterations) {
-            mockResponses.plus(Array(maxIterations - mockResponses.size) { 
+            mockResponses.plus(Array(maxIterations - mockResponses.size) {
                 PlantumlService.SyntaxValidationResult.Invalid(
-                    "Syntax error", 
+                    "Syntax error",
                     "This is a test error"
-                ) 
+                )
             })
         } else {
             mockResponses
         }
 
-        `when`(plantumlService.validateSyntax(anyString())).thenReturn(paddedResponses[0], *paddedResponses.drop(1).toTypedArray())
+        `when`(plantumlService.validateSyntax(anyString())).thenReturn(
+            paddedResponses[0],
+            *paddedResponses.drop(1).toTypedArray()
+        )
 
         result = diagramProcessor.processPrompt(promptContent, maxIterations)
     }

@@ -34,6 +34,17 @@ class ReindexPlantumlRagTaskTest {
             plugins {
                 id("com.cheroliv.plantuml")
             }
+            
+            plantuml {
+                configPath = "plantuml-context.yml"
+            }
+        """.trimIndent())
+
+        // Create config file to ensure correct RAG directory
+        val configFile = File(testProjectDir, "plantuml-context.yml")
+        configFile.writeText("""
+            output:
+              rag: "generated/rag"
         """.trimIndent())
 
         // When
@@ -45,8 +56,8 @@ class ReindexPlantumlRagTaskTest {
 
         // Then
         assertEquals(TaskOutcome.SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
-        assertTrue(result.output.contains("Found 0 PlantUML diagrams and 0 training histories for indexing") ||
-                   result.output.contains("No PlantUML diagrams or training data found in RAG directory"))
+        assertTrue(result.output.contains("→ Created RAG directory") ||
+                   result.output.contains("→ No PlantUML diagrams or training data found in RAG directory"))
     }
 
     @Test
@@ -56,6 +67,17 @@ class ReindexPlantumlRagTaskTest {
             plugins {
                 id("com.cheroliv.plantuml")
             }
+            
+            plantuml {
+                configPath = "plantuml-context.yml"
+            }
+        """.trimIndent())
+
+        // Create config file to ensure correct RAG directory
+        val configFile = File(testProjectDir, "plantuml-context.yml")
+        configFile.writeText("""
+            output:
+              rag: "generated/rag"
         """.trimIndent())
 
         // Create RAG directory with mixed valid/invalid diagrams
@@ -87,8 +109,8 @@ class ReindexPlantumlRagTaskTest {
 
         // Then
         assertEquals(TaskOutcome.SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
-        assertTrue(result.output.contains("Found 1 PlantUML diagrams and 0 training histories for indexing") ||
-                   result.output.contains("Found 2 PlantUML diagrams and 0 training histories for indexing"))
+        assertTrue(result.output.contains("→ Found 2 PlantUML diagrams and 0 training histories for indexing") ||
+                   result.output.contains("→ Found 1 PlantUML diagrams and 0 training histories for indexing"))
     }
 
     @Test
@@ -98,6 +120,17 @@ class ReindexPlantumlRagTaskTest {
             plugins {
                 id("com.cheroliv.plantuml")
             }
+            
+            plantuml {
+                configPath = "plantuml-context.yml"
+            }
+        """.trimIndent())
+
+        // Create config file to ensure correct RAG directory
+        val configFile = File(testProjectDir, "plantuml-context.yml")
+        configFile.writeText("""
+            output:
+              rag: "generated/rag"
         """.trimIndent())
 
         // Create RAG directory with many diagrams
@@ -123,9 +156,7 @@ class ReindexPlantumlRagTaskTest {
 
         // Then
         assertEquals(TaskOutcome.SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
-        assertTrue(result.output.contains("Found 2 PlantUML diagrams and 0 training histories for indexing") ||
-                  result.output.contains("Found 1 PlantUML diagrams and 0 training histories for indexing") ||
-                  result.output.contains("Found 4 PlantUML diagrams and 0 training histories for indexing"))
+        assertTrue(result.output.contains("→ Found 50 PlantUML diagrams and 0 training histories for indexing"))
     }
 
     @Test
@@ -135,6 +166,17 @@ class ReindexPlantumlRagTaskTest {
             plugins {
                 id("com.cheroliv.plantuml")
             }
+            
+            plantuml {
+                configPath = "plantuml-context.yml"
+            }
+        """.trimIndent())
+
+        // Create config file to ensure correct RAG directory
+        val configFile = File(testProjectDir, "plantuml-context.yml")
+        configFile.writeText("""
+            output:
+              rag: "generated/rag"
         """.trimIndent())
 
         // Create RAG directory structure with subdirectories
@@ -167,10 +209,8 @@ class ReindexPlantumlRagTaskTest {
         // Then - Only files in the root RAG directory should be processed
         // (the task currently only looks at the root directory, not subdirectories)
         assertEquals(TaskOutcome.SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
-        assertTrue(result.output.contains("Found 1 PlantUML diagrams and 0 training histories for indexing") ||
-                  result.output.contains("Found 3 PlantUML diagrams and 0 training histories for indexing") ||
-                  result.output.contains("No PlantUML diagrams or training data found in RAG directory") ||
-                  result.output.contains("Found 4 PlantUML diagrams and 0 training histories for indexing"))
+        // The task processes subdirectories recursively, so we expect 3 diagrams
+        assertTrue(result.output.contains("→ Found 3 PlantUML diagrams and 0 training histories for indexing"))
     }
 
     @Test
@@ -180,6 +220,17 @@ class ReindexPlantumlRagTaskTest {
             plugins {
                 id("com.cheroliv.plantuml")
             }
+            
+            plantuml {
+                configPath = "plantuml-context.yml"
+            }
+        """.trimIndent())
+
+        // Create config file to ensure correct RAG directory
+        val configFile = File(testProjectDir, "plantuml-context.yml")
+        configFile.writeText("""
+            output:
+              rag: "generated/rag"
         """.trimIndent())
 
         // Create RAG directory with empty files
@@ -203,9 +254,7 @@ class ReindexPlantumlRagTaskTest {
 
         // Then
         assertEquals(TaskOutcome.SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
-        assertTrue(result.output.contains("Found 1 PlantUML diagrams and 0 training histories for indexing") ||
-                  result.output.contains("Found 3 PlantUML diagrams and 0 training histories for indexing") ||
-                  result.output.contains("No PlantUML diagrams or training data found in RAG directory") ||
-                  result.output.contains("Found 4 PlantUML diagrams and 0 training histories for indexing"))
+        assertTrue(result.output.contains("→ Found 2 PlantUML diagrams and 0 training histories for indexing") ||
+                  result.output.contains("→ Found 1 PlantUML diagrams and 0 training histories for indexing"))
     }
 }

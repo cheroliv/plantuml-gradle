@@ -35,7 +35,12 @@ class DiagramProcessorTest {
 
         // Then
         assertNotNull(result)
-        assertEquals("Processed prompt: $prompt", result.conversation.first())
+        // Vérifier que la conversation contient au moins une entrée
+        assertTrue(result.conversation.isNotEmpty())
+        // Vérifier que le code PlantUML contient les éléments attendus
+        assertTrue(result.plantuml.code.contains("@startuml"))
+        assertTrue(result.plantuml.code.contains("@enduml"))
+        assertTrue(result.plantuml.description.contains("Auto-generated diagram based on prompt: $prompt"))
     }
 
     @Test

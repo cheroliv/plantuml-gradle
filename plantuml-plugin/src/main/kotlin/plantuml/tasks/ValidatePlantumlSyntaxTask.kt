@@ -2,13 +2,12 @@ package plantuml.tasks
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
-import org.gradle.api.provider.Property
 import plantuml.service.PlantumlService
-import java.io.File
 
 /**
  * Gradle task: `validatePlantumlSyntax`
@@ -34,7 +33,7 @@ abstract class ValidatePlantumlSyntaxTask : DefaultTask() {
     fun validateSyntax() {
         val diagramPath = project.findProperty("plantuml.diagram") as? String
             ?: diagramFile.orNull
-            
+
         if (diagramPath.isNullOrEmpty()) {
             logger.lifecycle("No diagram file specified. Use -Pplantuml.diagram=file.puml")
             return
@@ -48,18 +47,19 @@ abstract class ValidatePlantumlSyntaxTask : DefaultTask() {
         }
 
         logger.lifecycle("Validating PlantUML syntax for: $diagramPath")
-        
+
         // Load the PlantUML file
         val plantumlCode = diagramFile.readText()
-        
+
         // Parse and validate syntax using PlantUML service
         val plantumlService = PlantumlService()
         val validationResult = plantumlService.validateSyntax(plantumlCode)
-        
+
         when (validationResult) {
             is PlantumlService.SyntaxValidationResult.Valid -> {
                 logger.lifecycle("  ✓ PlantUML syntax is valid")
             }
+
             is PlantumlService.SyntaxValidationResult.Invalid -> {
                 logger.lifecycle("  ✗ PlantUML syntax is invalid:")
                 logger.lifecycle("    Error: ${validationResult.errorMessage}")

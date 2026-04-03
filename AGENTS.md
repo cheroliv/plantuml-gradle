@@ -42,8 +42,6 @@ Suit les patterns architecturaux des projets `slider-gradle`(les sources sont da
 - Implémentation de tests pour la tâche `reindexPlantumlRag`
 - Ajout de tests sur les différentes configurations (Gemini, Mistral, Claude, HuggingFace, Groq)
 - Ajout de tests de charge et performance
-
-### ✅ Fait — Ne plus retravailler
 - **Corrections des erreurs d'import dans les fichiers Kotlin**
   - Analyse des dépendances manquantes
   - Correction des erreurs de compilation
@@ -58,9 +56,33 @@ Suit les patterns architecturaux des projets `slider-gradle`(les sources sont da
   - Adaptation des README.adoc et README_fr.adoc au contexte PlantUML
   - Documentation de l'architecture interne spécifique au plugin PlantUML
   - Diagrammes PlantUML pour illustrer le pipeline de génération
+- **Correction des tests unitaires NetworkTimeoutTest.kt**
+  - Adaptation des assertions pour gérer les vrais messages d'erreur réseau
+  - Correction du test "should handle DNS resolution failure gracefully"
+- **Correction des tests unitaires LlmConfigurationTest.kt**
+  - Modification des tests pour utiliser buildAndFail() avec configurations factices
+  - Adaptation des assertions pour vérifier le chargement sans crash du plugin
+- **Correction des tests unitaires FilePermissionTest.kt**
+  - Modification du test "should handle directory permission denied gracefully" pour vérifier les messages d'avertissement au lieu de s'attendre à des échecs complets
+  - Simplification de la méthode de test pour rendre les permissions refusées
+- **Optimisation des tests pour réduire le temps d'exécution**
+  - Configuration des mocks pour remplacer les vrais services LLM dans les tests unitaires
+  - Remplacement des gros modèles par smollm:135m dans les tests fonctionnels
+  - Création d'un script setupOllama.sh pour pré-charger le modèle SmolLM
+  - Réduction du nombre d'itérations dans les tests à 1 pour accélérer l'exécution
+  - Mise à jour des workflows GitHub Actions pour utiliser le modèle SmolLM
+  - Configuration de la séparation des sorties de test dans un répertoire dédié (test-output)
 
 ### 📋 Backlog — À faire
-<!-- Toutes les tâches sont terminées -->
+<!-- Liste des tests unitaires à corriger par ordre de priorité -->
+- PlantumlConfigTest.kt
+- LargeFileAndPathTest.kt
+- DiagramProcessorTest.kt
+- PlantumlServiceTest.kt
+- LlmServiceErrorTest.kt
+- LlmServiceTest.kt
+- ReindexPlantumlRagTaskTest.kt
+- PerformanceTest.kt (tests restants)
 
 ---
 
@@ -92,16 +114,28 @@ plantuml-plugin/src/main/kotlin/plantuml/
 - RAG : stocker uniquement les diagrammes valides
 - Tests : JUnit5 + Cucumber BDD (pas de Spock)
 
+## Optimisation des tests
+
+- Utilisation de modèles légers (smollm:135m) pour les tests fonctionnels nécessitant un LLM réel
+- Mise en place de scripts d'initialisation pour pré-charger les modèles Ollama
+- Configuration de timeouts stricts (<10s) pour éviter les blocages lors des tests
+- Utilisation de mocks complets pour les tests unitaires afin d'éviter les appels réseau
+- Limitation du nombre d'itérations dans les tests à 1 pour accélérer l'exécution
+- Séparation des sorties de test dans un répertoire dédié (test-output) pour ne pas fausser l'historique d'entraînement
+
 ---
 
 ## Commandes utiles
 
 ```bash
-./gradlew build -x test   # build rapide
-./gradlew test            # tous les tests
+./gradlew -p plantuml-plugin build -x test   # build rapide
+./gradlew -p plantuml-plugin  test            # tous les tests
+./gradlew -p plantuml-plugin  cucmberTest            # tous les tests cucumber
+./gradlew -p plantuml-plugin  functionalTest            # tous les tests d'integration
 ./gradlew processPlantumlPrompts
 ./gradlew validatePlantumlSyntax -Pplantuml.diagram=file.puml
 ./gradlew reindexPlantumlRag
+./scripts/setupOllama.sh                         # pré-charger le modèle SmolLM
 ```
 
 ---

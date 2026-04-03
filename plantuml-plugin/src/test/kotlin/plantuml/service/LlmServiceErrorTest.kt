@@ -106,11 +106,10 @@ class LlmServiceErrorTest {
         )
         val llmService = LlmService(config)
 
-        // When
-        val chatModel = llmService.createChatModel()
-
-        // Then
-        assertNotNull(chatModel)
-        // Note: Empty API key might still create the model object
+        // When & Then
+        // Should throw IllegalArgumentException for empty API key
+        assertFailsWith<IllegalArgumentException> {
+            llmService.createChatModel()
+        }
     }
 }

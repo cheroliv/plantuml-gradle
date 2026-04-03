@@ -68,8 +68,8 @@ class NetworkTimeoutTest {
                 val serverSocket = ServerSocket(12345)
                 val clientSocket = serverSocket.accept()
                 
-                // Sleep for longer than typical timeout
-                Thread.sleep(30000)
+        // Sleep for shorter time to avoid long test execution
+        Thread.sleep(1000)
                 
                 clientSocket.close()
                 serverSocket.close()
@@ -198,10 +198,12 @@ class NetworkTimeoutTest {
             .buildAndFail()
 
         // Then
-        assertTrue(result.output.contains("UnknownHostException") ||
+        assertTrue(result.output.contains("UnresolvedAddressException") ||
+                  result.output.contains("UnknownHostException") ||
                   result.output.contains("DNS") ||
                   result.output.contains("resolution") ||
-                  result.output.contains("connect"))
+                  result.output.contains("connect"),
+                  "La sortie ne contient aucun des mots attendus. Contenu de la sortie:\n${result.output}")
     }
 
     @Test

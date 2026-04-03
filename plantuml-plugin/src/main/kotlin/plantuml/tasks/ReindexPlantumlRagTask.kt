@@ -48,16 +48,49 @@ abstract class ReindexPlantumlRagTask : DefaultTask() {
             return
         }
 
-        val diagramFiles = ragDir.listFiles { file ->
-            file.extension == "puml"
-        } ?: emptyArray()
+        // Check if the path is actually a directory
+        if (!ragDir.isDirectory) {
+            val errorMsg = "  ✗ Path exists but is not a directory: ${ragDir.absolutePath}"
+            logger.error(errorMsg)
+            throw RuntimeException(errorMsg)
+        }
+
+        // Check if we can read the directory
+        if (!ragDir.canRead()) {
+            val errorMsg = "  ✗ Permission denied: Cannot read RAG directory at ${ragDir.absolutePath}"
+            logger.error(errorMsg)
+            throw RuntimeException(errorMsg)
+        }
+
+        val diagramFiles = try {
+            ragDir.listFiles { file ->
+                file.extension == "puml"
+            } ?: emptyArray()
+        } catch (e: SecurityException) {
+            val errorMsg =
+                "  ✗ Permission denied: Cannot access files in RAG directory ${ragDir.absolutePath} - ${e.message}"
+            logger.error(errorMsg)
+            throw RuntimeException(errorMsg, e)
+        } catch (e: Exception) {
+            // Handle other potential exceptions like AccessDeniedException
+            val errorMsg = "  ✗ Error accessing RAG directory ${ragDir.absolutePath} - ${e.message}"
+            logger.error(errorMsg)
+            throw RuntimeException(errorMsg, e)
+        }
 
         // Also load attempt history files for training data
         val trainingDir = File("generated/training")
         val historyFiles = if (trainingDir.exists()) {
-            trainingDir.listFiles { file ->
-                file.extension == "json" && file.name.startsWith("attempt-history")
-            } ?: emptyArray()
+            try {
+                trainingDir.listFiles { file ->
+                    file.extension == "json" && file.name.startsWith("attempt-history")
+                } ?: emptyArray()
+            } catch (e: SecurityException) {
+                val errorMsg =
+                    "  ✗ Permission denied: Cannot access training directory ${trainingDir.absolutePath} - ${e.message}"
+                logger.error(errorMsg)
+                throw RuntimeException(errorMsg, e)
+            }
         } else {
             emptyArray()
         }

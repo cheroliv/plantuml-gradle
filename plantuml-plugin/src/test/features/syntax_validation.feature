@@ -11,7 +11,6 @@ Feature: Syntax Validation
     Then the syntax should be reported as invalid
     And error details should be provided
 
-  @wip
   Scenario: Validate empty PlantUML file
     Given an invalid PlantUML file "empty.puml" with content ""
     When I run validatePlantumlSyntax task with file "empty.puml"

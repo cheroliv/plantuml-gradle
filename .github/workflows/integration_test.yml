@@ -49,6 +49,7 @@ jobs:
         run: |
           ./gradlew -p readme-plugin cucumberTest \
             -Dcucumber.filter.tags="@integration" \
+            -Dplantuml.test.mode=true \
             --no-daemon
 
       - name: Upload Cucumber report

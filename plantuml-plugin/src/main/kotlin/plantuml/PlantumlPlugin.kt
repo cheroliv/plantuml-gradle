@@ -20,7 +20,7 @@ class PlantumlPlugin : Plugin<Project> {
         with(project) {
             // Register the DSL extension
             extensions.create("plantuml", PlantumlExtension::class.java)
-            
+
             // Register tasks
             PlantumlManager.Tasks.registerTasks(this)
         }

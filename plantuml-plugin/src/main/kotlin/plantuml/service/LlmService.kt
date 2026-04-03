@@ -32,35 +32,35 @@ class LlmService(private val config: PlantumlConfig) {
         .baseUrl(config.langchain.ollama.baseUrl)
         .modelName(config.langchain.ollama.modelName)
         .temperature(0.7)
-        .timeout(Duration.ofSeconds(60))
+        .timeout(Duration.ofSeconds(getTimeoutInSeconds()))
         .build()
 
     private fun createOpenAiModel(): ChatModel = OpenAiChatModel.builder()
         .apiKey(config.langchain.openai.apiKey)
         .modelName("gpt-4") // Default model, can be made configurable
         .temperature(0.7)
-        .timeout(Duration.ofSeconds(60))
+        .timeout(Duration.ofSeconds(getTimeoutInSeconds()))
         .build()
 
     private fun createGeminiModel(): ChatModel = GoogleAiGeminiChatModel.builder()
         .apiKey(config.langchain.gemini.apiKey)
         .modelName("gemini-pro") // Default model, can be made configurable
         .temperature(0.7)
-        .timeout(Duration.ofSeconds(60))
+        .timeout(Duration.ofSeconds(getTimeoutInSeconds()))
         .build()
 
     private fun createMistralModel(): ChatModel = MistralAiChatModel.builder()
         .apiKey(config.langchain.mistral.apiKey)
         .modelName("mistral-large-latest") // Default model, can be made configurable
         .temperature(0.7)
-        .timeout(Duration.ofSeconds(60))
+        .timeout(Duration.ofSeconds(getTimeoutInSeconds()))
         .build()
 
     private fun createClaudeModel(): ChatModel = AnthropicChatModel.builder()
         .apiKey(config.langchain.claude.apiKey)
         .modelName("claude-3-opus-20240229") // Default model, can be made configurable
         .temperature(0.7)
-        .timeout(Duration.ofSeconds(60))
+        .timeout(Duration.ofSeconds(getTimeoutInSeconds()))
         .build()
 
     private fun createHuggingFaceModel(): ChatModel {
@@ -69,7 +69,12 @@ class LlmService(private val config: PlantumlConfig) {
             .baseUrl("https://api-inference.huggingface.co")
             .modelName("gpt2") // Default model, can be made configurable
             .temperature(0.7)
-            .timeout(Duration.ofSeconds(60))
+            .timeout(Duration.ofSeconds(getTimeoutInSeconds()))
             .build()
+    }
+    
+    private fun getTimeoutInSeconds(): Long {
+        // In test environments, use shorter timeouts to avoid hanging tests
+        return if (System.getenv("TEST_ENV") == "true") 5L else 60L
     }
 }

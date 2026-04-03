@@ -16,7 +16,6 @@ Feature: PlantUML Processing
     And a valid diagram should be generated
     And validation feedback should be saved
 
-  @wip
   Scenario: Process multiple prompt files
     Given a prompt file "diagram1.prompt" with content "Create diagram 1"
     And a prompt file "diagram2.prompt" with content "Create diagram 2"
