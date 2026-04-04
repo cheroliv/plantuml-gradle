@@ -1,0 +1,60 @@
+        {
+            "entries": [
+                            {
+                "iteration": 0,
+                "prompt": "Create diagram 3",
+                "response": "Here is a sample PlantUML diagram that follows the described format:
+```
+                                      +---------------+
+                                      |  Plant UML Diagram  |
+                                      +---------------+
+                  +---------------+
+                  |  Parent Node    |
+                  +---------------+
+                  |  Left Child (Root)     |
+                  +---------------+
+                  |  Right Child  |
+                  +---------------+
+                  |  Parent Node     |
+                  +---------------+
+                  |  Right Child  |
+                  +---------------+
+                  |  Left Child       |
+                  +---------------+
+                  |  Right Child       |
+                  +---------------+
+|  Left Child    |  Parent Node  |  Right Child |
+|  Parent Node  |  Right Child  |  Parent Node |
+|  Right Child  |  Parent Node  |  Parent Node |
++---------------+
++---------------+
+```",
+                "isValid": false,
+                "errorMessage": "null",
+                "timestamp": "2026-04-04T01:51:37.034251967"
+            },
+            {
+                "iteration": 1,
+                "prompt": "Correction attempt #1",
+                "response": "The code snippet provided is a sample PlantUML diagram that follows the described format:
+```
++---------------+
+|  Parent Node    |  Left Child    |  Right Child  |
+|  Parent Node  |  Right Child  |  Parent Node |
+|  Right Child  |  Parent Node  |  Parent Node |
++---------------+
++---------------+
+```
+To extract the code and return only valid PlantUML code wrapped in @startuml and @enduml tags, we need to follow these steps:
+
+1. Extract the node names from the diagram: The diagram is a list of nodes, each represented by an object with its `@startuml` and `@enduml` tags.
+2. Extract the child nodes from the list: Extract individual nodes from the list that have a `@startuml` tag and then extract the child node from the list that has the same tag.
+3. Split the tree into three parts: The first part is the `@startuml` tag, followed by the root node, the second part is the left child node, and the third part is the right child node.",
+                "isValid": true,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-04T01:51:41.713723962"
+            }
+            ],
+            "totalAttempts": 2,
+            "timestamp": "2026-04-04T01:51:41.71465112"
+        }
