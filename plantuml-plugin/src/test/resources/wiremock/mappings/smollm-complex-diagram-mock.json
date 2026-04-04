@@ -1,0 +1,17 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPattern": "/api/generate"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "model": "smollm:135m",
+      "response": "@startuml\nactor User\nparticipant \"First Class\" as A\nparticipant \"Second Class\" as B\nparticipant \"Last Class\" as C\n\nUser -> A: DoWork\nactivate A\n\nA -> B: Create Request\nactivate B\n\nB -> C: DoWork\nactivate C\nC --> B: Work Done\ndeactivate C\n\nB --> A: Request Created\ndeactivate B\n\nA --> User: Done\ndeactivate A\n@enduml",
+      "done": true
+    }
+  }
+}
