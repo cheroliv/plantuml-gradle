@@ -45,7 +45,12 @@ Suit les patterns architecturaux des projets `slider-gradle`(les sources sont da
 - **Corrections des erreurs d'import dans les fichiers Kotlin**
   - Analyse des dépendances manquantes
   - Correction des erreurs de compilation
-- **Correction du test d'intégration validatePlantumlSyntax**
+- **Analyse comparative des stratégies d'optimisation**
+  - Benchmarks détaillés de chaque technique
+  - Identification des meilleures combinaisons
+- **Documentation avancée des techniques d'optimisation**
+  - Guide complet "Best Practices for Gradle Plugin Testing"
+  - Étude de cas détaillée avec exemples concrets
   - Suppression du lancement d'exception pour les fichiers invalides
   - Mise en conformité avec le comportement attendu dans syntax_validation.feature
 - **Création de la documentation développeur du plugin (README_truth.adoc & README_truth_fr.adoc)**
@@ -105,15 +110,16 @@ Suit les patterns architecturaux des projets `slider-gradle`(les sources sont da
   - Copie des fichiers de mapping depuis src/test vers src/functionalTest
   - Résolution de l'erreur "No response could be served as there are no stub mappings"
   - Tous les tests LLM fonctionnels passent maintenant
+- **Analyse comparative des stratégies d'optimisation**
+  - Benchmarks détaillés de chaque technique
+  - Identification des meilleures combinaisons
+- **Documentation avancée des techniques d'optimisation**
+  - Guide complet "Best Practices for Gradle Plugin Testing"
+  - Étude de cas détaillée avec exemples concrets
 
 ### 📋 Backlog — À faire
 &lt;!-- Liste des tests unitaires à corriger par ordre de priorité --&gt;
-- 🎯 Analyse comparative des stratégies d'optimisation (Priorité haute)
-   - Benchmarks détaillés de chaque technique
-   - Identification des meilleures combinaisons
-- Documentation avancée des techniques d'optimisation (Priorité moyenne)
-   - Guide complet "Best Practices for Gradle Plugin Testing"
-   - Étude de cas détaillée
+
 - Amélioration du script de benchmark (Priorité moyenne)
    - Mesures statistiques avancées
    - Génération de rapports comparatifs
