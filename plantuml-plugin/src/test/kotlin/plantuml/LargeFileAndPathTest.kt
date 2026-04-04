@@ -2,11 +2,10 @@ package plantuml
 
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
-import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import kotlin.test.Ignore
 import kotlin.test.assertTrue
 
 class LargeFileAndPathTest {
@@ -34,7 +33,6 @@ class LargeFileAndPathTest {
         """.trimIndent())
     }
 
-    @kotlin.test.Ignore
     @ParameterizedTest
     @ValueSource(strings = ["large", "special_chars", "deep_paths", "unicode"])
     fun `should handle various file scenarios`(scenario: String) {
@@ -55,13 +53,15 @@ class LargeFileAndPathTest {
         // When
         val result = GradleRunner.create()
             .withProjectDir(testProjectDir)
-            .withArguments("--quiet", "--no-daemon", "validatePlantumlSyntax", "-Pplantuml.diagram=large.puml", "--stacktrace")
+            .withArguments("--quiet", "validatePlantumlSyntax", "-Pplantuml.diagram=large.puml", "--stacktrace")
             .withPluginClasspath()
             .build()
 
         // Then
         assertTrue(result.output.contains("PlantUML syntax is valid") ||
-                  result.output.contains("PlantUML syntax is invalid"))
+                  result.output.contains("PlantUML syntax is invalid") ||
+                  result.output.contains("✓ PlantUML syntax is valid") ||
+                  result.output.contains("✗ PlantUML syntax is invalid"))
     }
 
     private fun testSpecialCharactersInFilename() {
@@ -80,13 +80,15 @@ class LargeFileAndPathTest {
         // Test one of the special files
         val result = GradleRunner.create()
             .withProjectDir(testProjectDir)
-            .withArguments("--quiet", "--no-daemon", "validatePlantumlSyntax", "-Pplantuml.diagram=file with spaces.puml", "--stacktrace")
+            .withArguments("--quiet", "validatePlantumlSyntax", "-Pplantuml.diagram=file with spaces.puml", "--stacktrace")
             .withPluginClasspath()
             .build()
 
         // Then
         assertTrue(result.output.contains("PlantUML syntax is valid") ||
-                  result.output.contains("PlantUML syntax is invalid"))
+                  result.output.contains("PlantUML syntax is invalid") ||
+                  result.output.contains("✓ PlantUML syntax is valid") ||
+                  result.output.contains("✗ PlantUML syntax is invalid"))
     }
 
     private fun testDeeplyNestedPaths() {
@@ -111,13 +113,15 @@ class LargeFileAndPathTest {
         // When
         val result = GradleRunner.create()
             .withProjectDir(testProjectDir)
-            .withArguments("--quiet", "--no-daemon", "processPlantumlPrompts", "--stacktrace")
+            .withArguments("--quiet", "processPlantumlPrompts", "--stacktrace")
             .withPluginClasspath()
             .build()
 
         // Then
         assertTrue(result.output.contains("Processing") || 
-                  result.output.contains("No prompt files found"))
+                  result.output.contains("No prompt files found") ||
+                  result.output.contains("Processing 1 prompt files") ||
+                  result.output.contains("Processing 0 prompt files"))
     }
 
     private fun testUnicodeCharacters() {
@@ -136,13 +140,15 @@ class LargeFileAndPathTest {
         // When
         val result = GradleRunner.create()
             .withProjectDir(testProjectDir)
-            .withArguments("--quiet", "--no-daemon", "validatePlantumlSyntax", "-Pplantuml.diagram=unicode.puml", "--stacktrace")
+            .withArguments("--quiet", "validatePlantumlSyntax", "-Pplantuml.diagram=unicode.puml", "--stacktrace")
             .withPluginClasspath()
             .build()
 
         // Then
         assertTrue(result.output.contains("PlantUML syntax is valid") ||
-                  result.output.contains("PlantUML syntax is invalid"))
+                  result.output.contains("PlantUML syntax is invalid") ||
+                  result.output.contains("✓ PlantUML syntax is valid") ||
+                  result.output.contains("✗ PlantUML syntax is invalid"))
     }
 
     private fun buildSmallLargePlantUmlContent(): String {
