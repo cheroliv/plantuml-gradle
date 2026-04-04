@@ -3,6 +3,7 @@ package plantuml.tasks
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
+import plantuml.PlantumlConfig
 import plantuml.PlantumlManager
 import plantuml.service.DiagramProcessor
 import plantuml.service.LlmService
