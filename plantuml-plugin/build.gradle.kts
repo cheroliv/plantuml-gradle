@@ -73,6 +73,21 @@ tasks.withType<Test> {
         events("passed", "skipped", "failed")
         showStandardStreams = true
     }
+    
+    // Optimisation des performances des tests
+    maxParallelForks = Runtime.getRuntime().availableProcessors()
+    forkEvery = 10 // Redémarrer le worker tous les 10 tests
+    
+    // Timeout stricte pour éviter les blocages
+    timeout.set(Duration.ofSeconds(30))
+    
+    // Réutilisation des sorties pour accélérer les exécutions
+    reuseDependentsOutputs = true
+    
+    // Options JVM optimisées pour les tests
+    jvmArgs("-XX:+UseSerialGC") // GC plus rapide pour les tests courts
+    jvmArgs("-XX:MaxMetaspaceSize=256m") // Limite mémoire plus stricte
+    jvmArgs("-XX:TieredStopAtLevel=1") // Désactiver JIT pour démarrage rapide
 }
 
 tasks.named<Test>("test") {
