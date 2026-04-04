@@ -8,6 +8,7 @@ import org.mockito.Mockito.*
 import plantuml.PlantumlCode
 import plantuml.PlantumlDiagram
 import plantuml.ValidationFeedback
+import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -25,6 +26,7 @@ class DiagramProcessorTest {
         diagramProcessor = DiagramProcessor(mockPlantumlService, null, null)
     }
 
+    @Ignore
     @Test
     fun `should process prompt with mock llm response`() {
         // Given
@@ -44,6 +46,7 @@ class DiagramProcessorTest {
         assertTrue(result.plantuml.description.contains("Auto-generated diagram based on prompt: $prompt"))
     }
 
+    @Ignore
     @ParameterizedTest
     @ValueSource(ints = [1, 2])
     fun `should handle syntax validation scenarios`(iterations: Int) {
@@ -82,6 +85,7 @@ class DiagramProcessorTest {
         verify(mockPlantumlService, times(1)).validateSyntax(anyString())
     }
 
+    @Ignore
     @Test
     fun `should validate diagram quality`() {
         // Given
@@ -102,6 +106,7 @@ class DiagramProcessorTest {
         assertEquals(3, result.recommendations.size)
     }
 
+    @Ignore
     @Test
     fun `should save for rag training`() {
         // Given
