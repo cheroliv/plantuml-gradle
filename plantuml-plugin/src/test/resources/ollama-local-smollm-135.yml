@@ -1,0 +1,16 @@
+# Configuration pour le test avec Ollama local et modèle SmolLM 135M
+langchain:
+  model: "ollama"
+  ollama:
+    baseUrl: "http://localhost:11434"
+    modelName: "smollm:135m"
+  validation: false  # Désactiver la validation pour les tests rapides
+
+input:
+  prompts: "test/prompts"
+  
+output:
+  diagrams: "test/generated/diagrams"
+  images: "test/generated/images"
+  validations: "test/generated/validations"
+  rag: "test/generated/rag"
