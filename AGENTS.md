@@ -85,11 +85,21 @@ Suit les patterns architecturaux des projets `slider-gradle`(les sources sont da
   - Configuration du plugin pour enregistrer les fichiers de test dans `generated/diagrams` lors de l'exécution en mode test (`-Dplantuml.test.mode=true`)
   - Suppression du champ redondant `aiTestOutput` de la configuration YAML
   - Mise à jour du code dans `DiagramProcessor.kt` et `ReindexPlantumlRagTask.kt` pour utiliser le même répertoire configuré
+- **Correction des tests échoués liés aux changements de répertoire**
+  - Mise à jour des chemins de répertoires dans PlantumlPluginIntegrationTest.kt pour utiliser les chemins par défaut
+  - Correction des chemins dans PerformanceTest.kt pour utiliser generated/diagrams, generated/images, generated/rag
+  - Mise à jour des chemins dans LargeFileAndPathTest.kt pour utiliser les chemins par défaut
+- **Ajout de la dépendance WireMock pour mocker les appels aux fournisseurs d'LLM**
+  - Ajout de la version WireMock 3.9.1 dans libs.versions.toml
+  - Ajout de la dépendance WireMock aux configurations testImplementation et functionalTest
+  - Configuration pour permettre le mocking par défaut des appels LLM dans les tests
 
 ### 📋 Backlog — À faire
 &lt;!-- Liste des tests unitaires à corriger par ordre de priorité --&gt;
+- Optimiser les performances des tests les plus lents
 - Permettre aux tâches Gradle de spécifier le LLM à utiliser pour surcharger la config YAML
 - Configuration par gradle.properties comme troisième niveau de priorité (DSL > YAML > gradle.properties)
+- Implémenter le mocking avec WireMock pour simuler les appels aux fournisseurs d'LLM par défaut
 - PlantumlConfigTest.kt
 - LargeFileAndPathTest.kt
 - DiagramProcessorTest.kt
