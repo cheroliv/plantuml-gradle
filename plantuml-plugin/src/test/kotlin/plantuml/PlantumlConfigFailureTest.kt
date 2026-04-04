@@ -3,10 +3,8 @@ package plantuml
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import kotlin.test.Ignore
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-@Ignore
+
 class PlantumlConfigFailureTest {
 
     @TempDir
@@ -16,18 +14,20 @@ class PlantumlConfigFailureTest {
     fun `should handle invalid YAML syntax gracefully`() {
         // Given
         val configFile = File(tempDir, "plantuml-context.yml")
-        configFile.writeText("""
+        configFile.writeText(
+            """
             invalid:
               yaml:
                 - syntax
                   error: "missing dash"
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // When & Then
         // Note: In a real implementation, we would actually load the config
         // For now, we're just testing that the structure handles invalid YAML
         val config = PlantumlConfig()
-        
+
         // Should use defaults when YAML is invalid
         assertEquals("prompts", config.input.prompts)
         assertEquals("en", config.input.defaultLang)
@@ -37,15 +37,17 @@ class PlantumlConfigFailureTest {
     fun `should handle missing required fields gracefully`() {
         // Given
         val configFile = File(tempDir, "plantuml-context.yml")
-        configFile.writeText("""
+        configFile.writeText(
+            """
             # Intentionally empty config file
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // When & Then
         // Note: In a real implementation, we would actually load the config
         // For now, we're just testing that the structure handles missing fields
         val config = PlantumlConfig()
-        
+
         // Should use defaults when fields are missing
         assertEquals("prompts", config.input.prompts)
         assertEquals("en", config.input.defaultLang)
@@ -55,7 +57,8 @@ class PlantumlConfigFailureTest {
     fun `should handle incorrect data types gracefully`() {
         // Given
         val configFile = File(tempDir, "plantuml-context.yml")
-        configFile.writeText("""
+        configFile.writeText(
+            """
             input:
               prompts: 123  # Should be string
               defaultLang: true  # Should be string
@@ -66,13 +69,14 @@ class PlantumlConfigFailureTest {
             langchain:
               maxIterations: "five"  # Should be integer
               model: 456  # Should be string
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // When & Then
         // Note: In a real implementation, we would actually load the config
         // For now, we're just testing that the structure handles type mismatches
         val config = PlantumlConfig()
-        
+
         // Should use defaults when data types are incorrect
         assertEquals("prompts", config.input.prompts)
         assertEquals("en", config.input.defaultLang)
@@ -84,7 +88,8 @@ class PlantumlConfigFailureTest {
     fun `should handle deeply nested invalid configuration gracefully`() {
         // Given
         val configFile = File(tempDir, "plantuml-context.yml")
-        configFile.writeText("""
+        configFile.writeText(
+            """
             langchain:
               ollama:
                 baseUrl: 123  # Should be string
@@ -94,13 +99,14 @@ class PlantumlConfigFailureTest {
                 
             git:
               watchedBranches: "main"  # Should be array
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // When & Then
         // Note: In a real implementation, we would actually load the config
         // For now, we're just testing that the structure handles nested invalid configs
         val config = PlantumlConfig()
-        
+
         // Should use defaults when nested configs are invalid
         assertEquals("http://localhost:11434", config.langchain.ollama.baseUrl) // Default value
         assertEquals("smollm:135m", config.langchain.ollama.modelName) // Default value
