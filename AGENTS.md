@@ -106,6 +106,12 @@ Suit les patterns architecturaux des projets `slider-gradle`(les sources sont da
   - Extraction des tests unitaires vers ProjectBuilder pour améliorer les performances
   - Réduction du temps d'exécution des tests de ~17s à ~7s (gain de 60%)
   - Maintien des tests d'intégration complets dans les tests fonctionnels
+- **Correction des assertions dans LargeFileAndPathTest.kt pour correspondre aux messages réels**
+  - Révision des assertions pour matcher la sortie réelle des tâches Gradle validatePlantumlSyntax et processPlantumlPrompts
+  - Tests paramétrés fonctionnent correctement après correction
+- **Suppression des annotations @Ignore dans PlantumlConfigTest.kt**
+  - Activation des tests de configuration YAML
+  - Tous les tests du fichier PlantumlConfigTest.kt passent désormais avec succès
 ### 📋 Backlog — À faire
 &lt;!-- Liste des tests unitaires à corriger par ordre de priorité --&gt;
 
@@ -121,8 +127,6 @@ Suit les patterns architecturaux des projets `slider-gradle`(les sources sont da
 - Permettre aux tâches Gradle de spécifier le LLM à utiliser pour surcharger la config YAML
 - Configuration par gradle.properties comme troisième niveau de priorité (DSL > YAML > gradle.properties)
 - Tester progressivement les autres configurations LLM (Gemini, Mistral, etc.) en gardant @Ignore
-- PlantumlConfigTest.kt
-- LargeFileAndPathTest.kt
 - DiagramProcessorTest.kt
 - PlantumlServiceTest.kt
 - LlmServiceErrorTest.kt
