@@ -101,6 +101,10 @@ Suit les patterns architecturaux des projets `slider-gradle`(les sources sont da
   - Extraction des tests unitaires vers ProjectBuilder pour améliorer les performances
   - Réduction du temps d'exécution des tests de ~17s à ~7s (gain de 60%)
   - Maintien des tests d'intégration complets dans les tests fonctionnels
+- **Correction du problème de mappings WireMock dans les tests fonctionnels**
+  - Copie des fichiers de mapping depuis src/test vers src/functionalTest
+  - Résolution de l'erreur "No response could be served as there are no stub mappings"
+  - Tous les tests LLM fonctionnels passent maintenant
 
 ### 📋 Backlog — À faire
 &lt;!-- Liste des tests unitaires à corriger par ordre de priorité --&gt;
