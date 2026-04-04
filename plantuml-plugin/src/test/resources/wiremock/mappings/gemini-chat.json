@@ -1,0 +1,25 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPattern": "/v1/projects/.*/locations/.*/publishers/.*/models/.*/generateContent"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "candidates": [
+        {
+          "content": {
+            "parts": [
+              {
+                "text": "@startuml\nclass Example {\n  - field: String\n  + method(): void\n}\n@enduml"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
