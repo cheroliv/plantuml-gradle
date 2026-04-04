@@ -1,15 +1,12 @@
 package plantuml.service
 
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
-import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
 
 class PlantumlServiceTest {
 
@@ -23,7 +20,6 @@ class PlantumlServiceTest {
         plantumlService = PlantumlService()
     }
 
-    @kotlin.test.Ignore
     @ParameterizedTest
     @ValueSource(strings = ["valid", "invalid"])
     fun `should validate plantuml syntax`(syntaxType: String) {
@@ -55,7 +51,6 @@ class PlantumlServiceTest {
         assertTrue(result is PlantumlService.SyntaxValidationResult.Invalid)
     }
 
-    @kotlin.test.Ignore
     @Test
     fun `should generate image from plantuml code`() {
         // Given
