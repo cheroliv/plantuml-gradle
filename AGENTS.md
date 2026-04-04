@@ -97,6 +97,10 @@ Suit les patterns architecturaux des projets `slider-gradle`(les sources sont da
   - Création de mappings WireMock basés sur les réponses réelles du modèle SmolLM
   - Configuration du serveur WireMock pour charger automatiquement les mappings
   - Validation du fonctionnement des mocks dans les tests unitaires
+- **Refactorisation de LlmConfigurationTest pour séparer les tests unitaires des tests fonctionnels**
+  - Extraction des tests unitaires vers ProjectBuilder pour améliorer les performances
+  - Réduction du temps d'exécution des tests de ~17s à ~7s (gain de 60%)
+  - Maintien des tests d'intégration complets dans les tests fonctionnels
 
 ### 📋 Backlog — À faire
 &lt;!-- Liste des tests unitaires à corriger par ordre de priorité --&gt;
