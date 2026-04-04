@@ -6,6 +6,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import kotlin.test.Ignore
 import kotlin.test.assertTrue
 
 class LargeFileAndPathTest {
@@ -96,7 +97,8 @@ class LargeFileAndPathTest {
               prompts: "deep/path/prompts"
             output:
               images: "deep/path/images"
-              rag: "deep/path/rad"
+              rag: "generated/rag"
+              diagrams: "generated/diagrams"
         """.trimIndent())
 
         // Create moderately deep directories and files
