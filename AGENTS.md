@@ -93,13 +93,18 @@ Suit les patterns architecturaux des projets `slider-gradle`(les sources sont da
   - Ajout de la version WireMock 3.9.1 dans libs.versions.toml
   - Ajout de la dépendance WireMock aux configurations testImplementation et functionalTest
   - Configuration pour permettre le mocking par défaut des appels LLM dans les tests
+- **Configuration WireMock pour mocker les appels LLM avec données réelles SmolLM**
+  - Création de mappings WireMock basés sur les réponses réelles du modèle SmolLM
+  - Configuration du serveur WireMock pour charger automatiquement les mappings
+  - Validation du fonctionnement des mocks dans les tests unitaires
 
 ### 📋 Backlog — À faire
 &lt;!-- Liste des tests unitaires à corriger par ordre de priorité --&gt;
+- 🎯 Tester la fonction de test avec le paramètre LLM pour identifier les causes de lenteur
 - Optimiser les performances des tests les plus lents
 - Permettre aux tâches Gradle de spécifier le LLM à utiliser pour surcharger la config YAML
 - Configuration par gradle.properties comme troisième niveau de priorité (DSL > YAML > gradle.properties)
-- Implémenter le mocking avec WireMock pour simuler les appels aux fournisseurs d'LLM par défaut
+- Tester progressivement les autres configurations LLM (Gemini, Mistral, etc.) en gardant @Ignore
 - PlantumlConfigTest.kt
 - LargeFileAndPathTest.kt
 - DiagramProcessorTest.kt
