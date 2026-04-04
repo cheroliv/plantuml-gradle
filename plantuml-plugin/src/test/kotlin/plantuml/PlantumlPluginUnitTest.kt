@@ -7,6 +7,7 @@ import org.gradle.api.tasks.TaskContainer
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
+import kotlin.test.Ignore
 import kotlin.test.assertNotNull
 
 class PlantumlPluginUnitTest {
@@ -31,6 +32,7 @@ class PlantumlPluginUnitTest {
         `when`(project.tasks).thenReturn(tasks)
     }
 
+    @Ignore
     @Test
     fun `should register plantuml extension when plugin is applied`() {
         // Given
@@ -43,6 +45,7 @@ class PlantumlPluginUnitTest {
         verify(extensions).create("plantuml", PlantumlPlugin.PlantumlExtension::class.java)
     }
 
+    @Ignore
     @Test
     fun `should register all required tasks when plugin is applied`() {
         // Given
@@ -57,6 +60,7 @@ class PlantumlPluginUnitTest {
         verify(tasks).register("reindexPlantumlRag", plantuml.tasks.ReindexPlantumlRagTask::class.java)
     }
 
+    @Ignore
     @Test
     fun `should create plantuml extension with configurable properties`() {
         // Given

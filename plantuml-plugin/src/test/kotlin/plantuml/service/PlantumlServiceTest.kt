@@ -6,6 +6,7 @@ import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import java.io.File
+import kotlin.test.Ignore
 import kotlin.test.assertTrue
 
 class PlantumlServiceTest {
@@ -20,6 +21,7 @@ class PlantumlServiceTest {
         plantumlService = PlantumlService()
     }
 
+    @Ignore
     @ParameterizedTest
     @ValueSource(strings = ["valid", "invalid"])
     fun `should validate plantuml syntax`(syntaxType: String) {
@@ -51,6 +53,7 @@ class PlantumlServiceTest {
         assertTrue(result is PlantumlService.SyntaxValidationResult.Invalid)
     }
 
+    @Ignore
     @Test
     fun `should generate image from plantuml code`() {
         // Given

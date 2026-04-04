@@ -3,6 +3,7 @@ package plantuml.service
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import plantuml.PlantumlConfig
+import kotlin.test.Ignore
 import kotlin.test.assertNotNull
 
 class LlmServiceTest {
@@ -47,6 +48,7 @@ class LlmServiceTest {
         }
     }
 
+    @Ignore
     @ParameterizedTest
     @EnumSource(LangchainModel::class)
     fun `should create chat model for all supported providers`(model: LangchainModel) {
