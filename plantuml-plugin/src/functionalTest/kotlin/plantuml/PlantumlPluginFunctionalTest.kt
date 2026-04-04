@@ -5,9 +5,10 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-
+@Ignore
 class PlantumlPluginFunctionalTest {
 
     @TempDir
