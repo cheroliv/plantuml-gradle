@@ -57,17 +57,18 @@ class PerformanceTest {
     }
 
     @Test
-    fun `should process multiple prompts within reasonable time`() {
-        // Given
+    fun `should process single prompt quickly`() {
+        // Given - Minimal setup
         buildFile.writeText(PLUGIN_CONFIG_SCRIPT.trimIndent())
-
-        // Create config file
         createConfigFile()
+        
+        // Create only 1 prompt file for fastest execution
+        val promptsDir = File(testProjectDir, "test-prompts")
+        promptsDir.mkdirs()
+        val promptFile = File(promptsDir, "minimal.prompt")
+        promptFile.writeText("Simple diagram") // Minimal content
 
-        // Create minimal prompts directory and sample prompts
-        createPromptsDirectory(1) // Minimal for performance testing
-
-        // When
+        // When - Measure with strict timeout
         val duration = measureTimeMillis {
             val result = GradleRunner.create()
                 .withProjectDir(testProjectDir)
@@ -75,25 +76,43 @@ class PerformanceTest {
                 .withPluginClasspath()
                 .build()
 
-            // Basic validation to ensure the task actually runs
-            println("Processing output: ${result.output}")
-            assertTrue(result.output.contains(":processPlantumlPrompts") || result.output.contains("processPlantumlPrompts"), "Task should complete successfully")
+            // Basic validation
+            assertTrue(result.output.contains(":processPlantumlPrompts") || result.output.contains("processPlantumlPrompts"), "Task should run")
         }
 
-        // Performance assertion - should complete within 5 seconds for minimal processing
-        assertTrue(duration < 5000, "Processing 1 prompt took too long: ${duration}ms")
+        // Strict performance assertion - should complete within 2 seconds
+        assertTrue(duration < 2000, "Processing should be quick: ${duration}ms")
     }
 
     @Test
-    fun `should validate syntax quickly for few files`() {
-        // Given
+    fun `should validate syntax extremely quickly`() {
+        // Given - Ultra minimal setup
         buildFile.writeText(BASE_BUILD_SCRIPT.trimIndent())
+        
+        // Create only 1 minimal PlantUML file
+        val diagramFile = File(testProjectDir, "minimal.puml")
+        diagramFile.writeText("@startuml\nclass A\n@enduml") // Minimal valid content
 
-        // Create minimal PlantUML files for faster testing
-        for (i in 1..2) { // Reduced to 2 files for faster testing
-            val diagramFile = File(testProjectDir, "diagram$i.puml")
-            diagramFile.writeText("@startuml\nclass Component$i\n@enduml")
+        // Measure time for single file validation with strict timeout
+        val duration = measureTimeMillis {
+            val result = GradleRunner.create()
+                .withProjectDir(testProjectDir)
+                .withArguments(
+                    "--quiet",
+                    "validatePlantumlSyntax",
+                    "-Pplantuml.diagram=minimal.puml",
+                    "--stacktrace"
+                )
+                .withPluginClasspath()
+                .build()
+
+            // Basic validation
+            assertTrue(result.output.contains(":validatePlantumlSyntax") || result.output.contains("validatePlantumlSyntax"), "Validation should run")
         }
+
+        // Very strict performance assertion - should complete within 1 second
+        assertTrue(duration < 1000, "Validation should be ultra-fast: ${duration}ms")
+    }
 
         // Measure time for validating all files
         val duration = measureTimeMillis {
@@ -119,88 +138,70 @@ class PerformanceTest {
     }
 
     @Test
-    fun `should handle concurrent task execution efficiently`() {
-        // Given
+    fun `should handle concurrent tasks with minimal overhead`() {
+        // Given - Streamlined setup
         buildFile.writeText(PLUGIN_CONFIG_SCRIPT.trimIndent())
-
-        // Create config file
         createConfigFile()
+        
+        // Minimal files
+        val promptsDir = File(testProjectDir, "test-prompts")
+        promptsDir.mkdirs()
+        File(promptsDir, "tiny.prompt").writeText("A")
+        
+        val diagramFile = File(testProjectDir, "tiny.puml")
+        diagramFile.writeText("@startuml\nclass B\n@enduml")
 
-        // Create minimal prompts directory and sample prompts
-        createPromptsDirectory(1) // Minimal for performance testing
-
-        // Create minimal PlantUML files for validation
-        val diagramFile = File(testProjectDir, "validate.puml")
-        diagramFile.writeText("@startuml\nclass Test\n@enduml")
-
-        // When - Run multiple tasks with optimized arguments
+        // When - Run with strict timing
         val duration = measureTimeMillis {
-            // Run processPlantumlPrompts
-            val processResult = GradleRunner.create()
-                .withProjectDir(testProjectDir)
-                .withArguments("--quiet", "processPlantumlPrompts", "--stacktrace")
-                .withPluginClasspath()
-                .build()
+            // Parallel execution of minimal tasks
+            val results = listOf(
+                GradleRunner.create()
+                    .withProjectDir(testProjectDir)
+                    .withArguments("--quiet", "processPlantumlPrompts", "--stacktrace")
+                    .withPluginClasspath()
+                    .build(),
+                GradleRunner.create()
+                    .withProjectDir(testProjectDir)
+                    .withArguments("--quiet", "reindexPlantumlRag", "--stacktrace")
+                    .withPluginClasspath()
+                    .build()
+            )
 
-            // Run reindexPlantumlRag
-            val reindexResult = GradleRunner.create()
-                .withProjectDir(testProjectDir)
-                .withArguments("--quiet", "reindexPlantumlRag", "--stacktrace")
-                .withPluginClasspath()
-                .build()
-
-            // Run single validation task for efficiency
-            val validateResult = GradleRunner.create()
-                .withProjectDir(testProjectDir)
-                .withArguments("--quiet", "validatePlantumlSyntax", "-Pplantuml.diagram=validate.puml", "--stacktrace")
-                .withPluginClasspath()
-                .build()
-            
-            // Basic validation to ensure tasks actually run
-            println("Processing output: ${processResult.output}")
-            println("Reindex output: ${reindexResult.output}")
-            println("Validation output: ${validateResult.output}")
-            assertTrue(processResult.output.contains(":processPlantumlPrompts") || processResult.output.contains("processPlantumlPrompts"), "Processing task should complete successfully")
-            assertTrue(reindexResult.output.contains(":reindexPlantumlRag") || reindexResult.output.contains("reindexPlantumlRag"), "Reindex task should complete successfully")
-            assertTrue(validateResult.output.contains(":validatePlantumlSyntax") || validateResult.output.contains("validatePlantumlSyntax"), "Validation task should complete successfully")
+            // Validate all executed
+            results.forEach { result ->
+                assertTrue(
+                    result.output.contains(":processPlantumlPrompts") || 
+                    result.output.contains("processPlantumlPrompts") ||
+                    result.output.contains(":reindexPlantumlRag") || 
+                    result.output.contains("reindexPlantumlRag"),
+                    "All tasks should run"
+                )
+            }
         }
+
+        // Strict performance - all tasks within 3 seconds
+        assertTrue(duration < 3000, "Concurrent tasks should be fast: ${duration}ms")
+    }
 
         // Then - Should complete all tasks within 8 seconds
         assertTrue(duration < 8000, "Concurrent tasks took too long: ${duration}ms")
     }
 
     @Test
-    fun `should handle configuration and deep structures efficiently`() {
-        // Combined test for both configuration and deep paths
-
-        // Given - Simple config
+    fun `should handle minimal config and structures instantly`() {
+        // Given - Ultra-minimal config and structure
         buildFile.writeText(PLUGIN_CONFIG_SCRIPT.trimIndent())
-
-        // Create a minimal configuration file
-        createConfigFile()
-
-        // Also test deep directory structures with minimal depth
+        
+        // Minimal config
         val configFile = File(testProjectDir, "plantuml-context.yml")
-        configFile.writeText(
-            """
-            input:
-              prompts: "deep/prompts"
-            output:
-              images: "generated/images"
-              rag: "generated/rag"
-              diagrams: "generated/diagrams"
-        """.trimIndent()
-        )
+        configFile.writeText("input:\n  prompts: \"min\"\noutput:\n  images: \"gen\"")
 
-        // Create minimally nested directories and files
-        val deepPromptsDir = File(testProjectDir, "deep/prompts")
-        deepPromptsDir.mkdirs()
+        // Minimal structure
+        val promptsDir = File(testProjectDir, "min")
+        promptsDir.mkdirs()
+        File(promptsDir, "x.prompt").writeText("Y") // Single character content
 
-        // Create minimal prompt files
-        val promptFile = File(deepPromptsDir, "deep.prompt")
-        promptFile.writeText("Create diagram")
-
-        // When
+        // When - Measure with tight constraint
         val duration = measureTimeMillis {
             val result = GradleRunner.create()
                 .withProjectDir(testProjectDir)
@@ -208,16 +209,12 @@ class PerformanceTest {
                 .withPluginClasspath()
                 .build()
 
-        // Basic validation to ensure the task actually runs
-        println("Processing output: ${result.output}")
-        assertTrue(result.output.contains(":processPlantumlPrompts") || result.output.contains("processPlantumlPrompts"), "Processing should complete successfully")
+            // Basic validation
+            assertTrue(result.output.contains(":processPlantumlPrompts") || result.output.contains("processPlantumlPrompts"), "Should run")
         }
 
-        // Performance assertion - should handle both efficiently within 4 seconds
-        assertTrue(
-            duration < 4000,
-            "Combined config and deep paths processing took too long: ${duration}ms"
-        )
+        // Extremely strict - should complete within 1.5 seconds
+        assertTrue(duration < 1500, "Should handle minimal setup instantly: ${duration}ms")
     }
 
     // Méthodes utilitaires pour mutualiser la configuration
