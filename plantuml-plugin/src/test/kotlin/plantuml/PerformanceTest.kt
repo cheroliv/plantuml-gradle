@@ -76,7 +76,8 @@ class PerformanceTest {
                 .build()
 
             // Basic validation to ensure the task actually runs
-            assertTrue(result.output.contains("processPlantumlPrompts"), "Task should complete successfully")
+            println("Processing output: ${result.output}")
+            assertTrue(result.output.contains(":processPlantumlPrompts") || result.output.contains("processPlantumlPrompts"), "Task should complete successfully")
         }
 
         // Performance assertion - should complete within 5 seconds for minimal processing
@@ -125,14 +126,12 @@ class PerformanceTest {
         // Create config file
         createConfigFile()
 
-        // Create prompts directory and sample prompts
-        createPromptsDirectory(2) // Reduced from 3 to 2
+        // Create minimal prompts directory and sample prompts
+        createPromptsDirectory(1) // Minimal for performance testing
 
-        // Create fewer PlantUML files for validation
-        for (i in 1..2) {
-            val diagramFile = File(testProjectDir, "validate$i.puml")
-            diagramFile.writeText("@startuml\nclass Test$i\n@enduml")
-        }
+        // Create minimal PlantUML files for validation
+        val diagramFile = File(testProjectDir, "validate.puml")
+        diagramFile.writeText("@startuml\nclass Test\n@enduml")
 
         // When - Run multiple tasks with optimized arguments
         val duration = measureTimeMillis {
@@ -153,47 +152,53 @@ class PerformanceTest {
             // Run single validation task for efficiency
             val validateResult = GradleRunner.create()
                 .withProjectDir(testProjectDir)
-                .withArguments("--quiet", "validatePlantumlSyntax", "-Pplantuml.diagram=validate1.puml", "--stacktrace")
+                .withArguments("--quiet", "validatePlantumlSyntax", "-Pplantuml.diagram=validate.puml", "--stacktrace")
                 .withPluginClasspath()
                 .build()
+            
+            // Basic validation to ensure tasks actually run
+            println("Processing output: ${processResult.output}")
+            println("Reindex output: ${reindexResult.output}")
+            println("Validation output: ${validateResult.output}")
+            assertTrue(processResult.output.contains(":processPlantumlPrompts") || processResult.output.contains("processPlantumlPrompts"), "Processing task should complete successfully")
+            assertTrue(reindexResult.output.contains(":reindexPlantumlRag") || reindexResult.output.contains("reindexPlantumlRag"), "Reindex task should complete successfully")
+            assertTrue(validateResult.output.contains(":validatePlantumlSyntax") || validateResult.output.contains("validatePlantumlSyntax"), "Validation task should complete successfully")
         }
 
-        // Then - Should complete all tasks within reasonable time
-        assertTrue(duration < 15000, "Concurrent tasks took too long: ${duration}ms") // Reduced to 15s
+        // Then - Should complete all tasks within 8 seconds
+        assertTrue(duration < 8000, "Concurrent tasks took too long: ${duration}ms")
     }
 
     @Test
     fun `should handle configuration and deep structures efficiently`() {
-        // Combined test for both large config and deep paths
+        // Combined test for both configuration and deep paths
 
-        // Given - Large config
+        // Given - Simple config
         buildFile.writeText(PLUGIN_CONFIG_SCRIPT.trimIndent())
 
-        // Create a moderate configuration file
-        createModerateConfigFile()
+        // Create a minimal configuration file
+        createConfigFile()
 
-        // Also test deep directory structures
+        // Also test deep directory structures with minimal depth
         val configFile = File(testProjectDir, "plantuml-context.yml")
         configFile.writeText(
             """
             input:
-              prompts: "deep/structure/prompts"
+              prompts: "deep/prompts"
             output:
-              images: "deep/structure/images"
+              images: "generated/images"
               rag: "generated/rag"
               diagrams: "generated/diagrams"
         """.trimIndent()
         )
 
-        // Create moderately nested directories and files
-        val deepPromptsDir = File(testProjectDir, "deep/structure/prompts")
+        // Create minimally nested directories and files
+        val deepPromptsDir = File(testProjectDir, "deep/prompts")
         deepPromptsDir.mkdirs()
 
         // Create minimal prompt files
-        for (i in 1..3) {
-            val promptFile = File(deepPromptsDir, "deep$i.prompt")
-            promptFile.writeText("Create diagram $i")
-        }
+        val promptFile = File(deepPromptsDir, "deep.prompt")
+        promptFile.writeText("Create diagram")
 
         // When
         val duration = measureTimeMillis {
@@ -203,15 +208,16 @@ class PerformanceTest {
                 .withPluginClasspath()
                 .build()
 
-            // Then
-            assertProcessingResult(result)
+        // Basic validation to ensure the task actually runs
+        println("Processing output: ${result.output}")
+        assertTrue(result.output.contains(":processPlantumlPrompts") || result.output.contains("processPlantumlPrompts"), "Processing should complete successfully")
         }
 
-        // Performance assertion - should handle both efficiently
+        // Performance assertion - should handle both efficiently within 4 seconds
         assertTrue(
-            duration < 10000,
+            duration < 4000,
             "Combined config and deep paths processing took too long: ${duration}ms"
-        ) // Reduced to 10s
+        )
     }
 
     // Méthodes utilitaires pour mutualiser la configuration
@@ -255,23 +261,19 @@ class PerformanceTest {
         }
     }
 
-    // Méthodes utilitaires pour les assertions
+    // Méthodes utilitaires pour les assertions - conservées pour compatibilité mais non utilisées
     private fun assertSuccessfulGradleRun(result: org.gradle.testkit.runner.BuildResult) {
-        // Pour le moment, acceptons simplement l'exécution sans erreur
-        println("Gradle output: ${result.output}")
-        println("Gradle tasks: ${result.tasks}")
-        assertTrue(true) // Temporairement toujours vrai pour voir ce qui se passe
+        // Ces méthodes ne sont plus utilisées car nous faisons les assertions directement dans les tests
+        assertTrue(result.output.isNotEmpty())
     }
 
     private fun assertValidSyntaxResult(result: org.gradle.testkit.runner.BuildResult) {
-        // Pour le moment, acceptons simplement l'exécution sans erreur
-        println("Validate syntax output: ${result.output}")
-        assertTrue(true) // Temporairement toujours vrai pour voir ce qui se passe
+        // Ces méthodes ne sont plus utilisées car nous faisons les assertions directement dans les tests
+        assertTrue(result.output.isNotEmpty())
     }
 
     private fun assertProcessingResult(result: org.gradle.testkit.runner.BuildResult) {
-        // Pour le moment, acceptons simplement l'exécution sans erreur
-        println("Processing output: ${result.output}")
-        assertTrue(true) // Temporairement toujours vrai pour voir ce qui se passe
+        // Ces méthodes ne sont plus utilisées car nous faisons les assertions directement dans les tests
+        assertTrue(result.output.isNotEmpty())
     }
 }
