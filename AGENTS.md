@@ -132,7 +132,10 @@ Suit les patterns architecturaux des projets `slider-gradle`(les sources sont da
 - LlmServiceErrorTest.kt
 - LlmServiceTest.kt
 - ReindexPlantumlRagTaskTest.kt
-- PerformanceTest.kt (tests restants)
+- **Optimisation des tests de PerformanceTest.k**
+  - Réduction du nombre de fichiers et d'itérations pour accélérer l'exécution
+  - Ajout d'assertions plus précises pour valider le bon fonctionnement
+  - Configuration de timeouts stricts pour détecter rapidement les problèmes
 
 ---
 
