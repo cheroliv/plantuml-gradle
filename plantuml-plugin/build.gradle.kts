@@ -44,6 +44,7 @@ dependencies {
     testImplementation(libs.mockito.kotlin)
     testImplementation(libs.mockito.junit.jupiter)
     testImplementation(libs.junit.platform.params)
+    testImplementation(libs.wiremock)
 
     // Cucumber dependencies
     testImplementation(libs.bundles.cucumber)
@@ -107,6 +108,7 @@ dependencies {
     // Ajouter Mockito si nécessaire
     add(functionalTest.implementationConfigurationName, libs.mockito.kotlin)
     add(functionalTest.implementationConfigurationName, libs.mockito.junit.jupiter)
+    add(functionalTest.implementationConfigurationName, libs.wiremock)
 
     libs.bundles.coroutines.get().forEach { dep ->
         add(functionalTest.implementationConfigurationName, dep)
