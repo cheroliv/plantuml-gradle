@@ -7,6 +7,12 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import kotlin.test.assertTrue
 
+// WireMock for mocking LLM calls
+import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration
+import com.github.tomakehurst.wiremock.client.WireMock
+import org.junit.jupiter.api.AfterEach
+
 class LlmConfigurationTest {
 
     @TempDir
@@ -14,9 +20,19 @@ class LlmConfigurationTest {
 
     private lateinit var buildFile: File
     private lateinit var settingsFile: File
+    private lateinit var wireMockServer: WireMockServer
 
     @BeforeEach
     fun setup() {
+        // Start WireMock server for mocking LLM calls with dynamic port and load mappings from classpath
+        wireMockServer = WireMockServer(
+            WireMockConfiguration.options()
+                .dynamicPort()
+                .usingFilesUnderClasspath("wiremock")
+        )
+        wireMockServer.start()
+        WireMock.configureFor("localhost", wireMockServer.port())
+        
         buildFile = File(testProjectDir, "build.gradle.kts")
         settingsFile = File(testProjectDir, "settings.gradle.kts")
         
@@ -25,9 +41,20 @@ class LlmConfigurationTest {
         """.trimIndent())
     }
 
-    @kotlin.test.Ignore
+    @AfterEach
+    fun tearDown() {
+        // Stop WireMock server after tests
+        if (::wireMockServer.isInitialized) {
+            wireMockServer.stop()
+        }
+    }
+
     @Test
     fun `should handle Ollama configuration correctly`() {
+        // Check if we should use real LLM or mock
+        val useRealLlm = System.getProperty("test.use.real.llm", "false").toBoolean()
+        val baseUrl = if (useRealLlm) "http://localhost:11434" else "http://localhost:${wireMockServer.port()}"
+        
         // Given
         buildFile.writeText("""
             plugins {
@@ -50,8 +77,8 @@ class LlmConfigurationTest {
             langchain:
               model: "ollama"
               ollama:
-                baseUrl: "http://localhost:11434"
-                modelName: "llama3"
+                baseUrl: "$baseUrl"
+                modelName: "smollm:135m"
         """.trimIndent())
 
         // Create prompts directory and a sample prompt
@@ -65,12 +92,13 @@ class LlmConfigurationTest {
             .withProjectDir(testProjectDir)
             .withArguments("processPlantumlPrompts", "--stacktrace")
             .withPluginClasspath()
-            .buildAndFail()
+            .build()
 
         // Then - Should not crash with Ollama configuration (model might not be found, but plugin should load config)
         assertTrue(result.output.contains("Config loaded") ||
                   result.output.contains("model") ||
-                  result.output.contains("not found"))
+                  result.output.contains("not found") ||
+                  result.output.contains("Completed processing"))
     }
 
     @kotlin.test.Ignore
