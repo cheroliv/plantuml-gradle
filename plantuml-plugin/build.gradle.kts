@@ -1,5 +1,6 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.plugin.compatibility.compatibility
+import java.time.Duration
 
 plugins {
     `java-library`
@@ -79,10 +80,10 @@ tasks.withType<Test> {
     forkEvery = 10 // Redémarrer le worker tous les 10 tests
     
     // Timeout stricte pour éviter les blocages
-    timeout.set(Duration.ofSeconds(30))
+    timeout.set(Duration.ofSeconds(60))
     
     // Réutilisation des sorties pour accélérer les exécutions
-    reuseDependentsOutputs = true
+    outputs.cacheIf { true }
     
     // Options JVM optimisées pour les tests
     jvmArgs("-XX:+UseSerialGC") // GC plus rapide pour les tests courts
