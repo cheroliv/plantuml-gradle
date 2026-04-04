@@ -20,7 +20,6 @@ class PlantumlConfigTest {
     @TempDir
     lateinit var tempDir: File
 
-    @kotlin.test.Ignore
     @Test
     fun `should load configuration from YAML file`() {
         // Given
@@ -82,7 +81,6 @@ class PlantumlConfigTest {
         assertEquals("custom_table", config.rag.tableName)
     }
 
-    @kotlin.test.Ignore
     @ParameterizedTest
     @ValueSource(strings = ["missing", "empty"])
     fun `should use default values when config is`(testCase: String) {
