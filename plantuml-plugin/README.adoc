@@ -233,6 +233,31 @@ data class PromptContext(
 ./gradlew check
 ----
 
+=== Test Optimization
+
+The plugin uses several optimization techniques to reduce test execution time:
+
+==== Functional Test Optimization
+- Uses `ProjectBuilder` instead of `GradleRunner` for unit tests to reduce execution time from ~17s to ~7s (60% improvement)
+- Merges multiple verifications into single Gradle invocations
+- Uses WireMock to mock LLM calls instead of real network requests
+- Uses lightweight models (`smollm:135m`) for integration tests
+
+==== WireMock Integration
+- All LLM providers are mocked using WireMock mappings
+- Mocks are loaded automatically from `src/functionalTest/resources/wiremock/mappings/`
+- Supports testing all LLM providers (Ollama, Gemini, Mistral, Claude, etc.) without real API keys
+
+==== Performance Monitoring
+Use the benchmark script to measure test performance:
+
+[source,bash]
+----
+./scripts/benchmark-tests.sh
+----
+
+This script provides detailed timing information for different test categories.
+
 === Publish to Gradle Plugin Portal
 
 [source,bash]
