@@ -36,7 +36,7 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
     @TaskAction
     fun processPrompts() {
         // Load configuration
-        val config = PlantumlManager.Configuration.load(project)
+        val config = loadConfiguration()
         val promptsDir = project.findProperty("plantuml.prompts.dir") as? String
             ?: config.input.prompts
 
@@ -73,6 +73,28 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
 
         promptFiles.forEach { promptFile ->
             processSinglePrompt(promptFile, config, diagramProcessor)
+        }
+    }
+
+    /**
+     * Charge la configuration en tenant compte du paramètre LLM en ligne de commande
+     */
+    private fun loadConfiguration(): PlantumlConfig {
+        // Vérifier si un modèle LLM est spécifié en ligne de commande
+        val llmModel = project.findProperty("plantuml.langchain.model") as? String
+        
+        // Charger la configuration de base
+        val baseConfig = PlantumlManager.Configuration.load(project)
+        
+        // Si un modèle LLM est spécifié en ligne de commande, le substituer
+        return if (llmModel != null) {
+            baseConfig.copy(
+                langchain = baseConfig.langchain.copy(
+                    model = llmModel
+                )
+            )
+        } else {
+            baseConfig
         }
     }
 
