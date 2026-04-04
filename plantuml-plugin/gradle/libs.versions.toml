@@ -31,6 +31,7 @@ testcontainers-pg = "1.21.4"
 logback = "1.5.32"
 groovy = "4.0.29"
 groovy-nio = "4.0.29"
+wiremock = "3.9.1"
 
 [libraries]
 
@@ -84,6 +85,7 @@ docker-java-transport-httpclient5 = { module = "com.github.docker-java:docker-ja
 testcontainers-pg = { module = "org.testcontainers:postgresql", version.ref = "testcontainers-pg" }
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+wiremock = { module = "org.wiremock:wiremock", version.ref = "wiremock" }
 
 
 [plugins]
