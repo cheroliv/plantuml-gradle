@@ -1,410 +1,178 @@
 package plantuml
 
-import org.gradle.testkit.runner.GradleRunner
-import org.junit.jupiter.api.BeforeEach
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-
-// WireMock for mocking LLM calls
-import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration
-import com.github.tomakehurst.wiremock.client.WireMock
-import org.junit.jupiter.api.AfterEach
 
 class LlmConfigurationTest {
 
-    @TempDir
-    lateinit var testProjectDir: File
-
-    private lateinit var buildFile: File
-    private lateinit var settingsFile: File
-    private lateinit var wireMockServer: WireMockServer
-
-    @BeforeEach
-    fun setup() {
-        // Start WireMock server for mocking LLM calls with dynamic port and load mappings from classpath
-        wireMockServer = WireMockServer(
-            WireMockConfiguration.options()
-                .dynamicPort()
-                .usingFilesUnderClasspath("wiremock")
-        )
-        wireMockServer.start()
-        WireMock.configureFor("localhost", wireMockServer.port())
-        
-        buildFile = File(testProjectDir, "build.gradle.kts")
-        settingsFile = File(testProjectDir, "settings.gradle.kts")
-        
-        settingsFile.writeText("""
-            rootProject.name = "plantuml-llm-config-test"
-        """.trimIndent())
+    companion object {
+        private val mapper = ObjectMapper(YAMLFactory()).registerKotlinModule()
     }
 
-    @AfterEach
-    fun tearDown() {
-        // Stop WireMock server after tests
-        if (::wireMockServer.isInitialized) {
-            wireMockServer.stop()
-        }
+    @TempDir
+    lateinit var tempDir: File
+
+    @Test
+    fun `should create plugin extension with default configuration`() {
+        // Given
+        val project = ProjectBuilder.builder().build()
+
+        // When
+        project.pluginManager.apply("com.cheroliv.plantuml")
+
+        // Then
+        val extension = project.extensions.getByType(PlantumlPlugin.PlantumlExtension::class.java)
+        assertNotNull(extension)
     }
 
     @Test
-    fun `should handle Ollama configuration correctly`() {
-        // Check if we should use real LLM or mock
-        val useRealLlm = System.getProperty("test.use.real.llm", "false").toBoolean()
-        val baseUrl = if (useRealLlm) "http://localhost:11434" else "http://localhost:${wireMockServer.port()}"
-        
+    fun `should load Ollama configuration correctly`() {
         // Given
-        buildFile.writeText("""
-            plugins {
-                id("com.cheroliv.plantuml")
-            }
-            
-            plantuml {
-                configPath = "plantuml-context.yml"
-            }
-        """.trimIndent())
-
-        // Create config with Ollama configuration
-        val configFile = File(testProjectDir, "plantuml-context.yml")
+        val configFile = File(tempDir, "plantuml-context.yml")
         configFile.writeText("""
-            input:
-              prompts: "test-prompts"
-            output:
-              images: "test-images"
-              rag: "test-rag"
             langchain:
               model: "ollama"
               ollama:
-                baseUrl: "$baseUrl"
-                modelName: "smollm:135m"
+                baseUrl: "http://localhost:11435"
+                modelName: "llama3:8b"
         """.trimIndent())
-
-        // Create prompts directory and a sample prompt
-        val promptsDir = File(testProjectDir, "test-prompts")
-        promptsDir.mkdirs()
-        val promptFile = File(promptsDir, "ollama.prompt")
-        promptFile.writeText("Create a simple class diagram")
 
         // When
-        val result = GradleRunner.create()
-            .withProjectDir(testProjectDir)
-            .withArguments("processPlantumlPrompts", "--stacktrace")
-            .withPluginClasspath()
-            .build()
+        val config = mapper.readValue(configFile, PlantumlConfig::class.java)
 
-        // Then - Should not crash with Ollama configuration (model might not be found, but plugin should load config)
-        assertTrue(result.output.contains("Config loaded") ||
-                  result.output.contains("model") ||
-                  result.output.contains("not found") ||
-                  result.output.contains("Completed processing"))
+        // Then
+        assertEquals("ollama", config.langchain.model)
+        assertEquals("http://localhost:11435", config.langchain.ollama.baseUrl)
+        assertEquals("llama3:8b", config.langchain.ollama.modelName)
     }
 
-    @kotlin.test.Ignore
     @Test
-    fun `should handle Gemini configuration correctly`() {
+    fun `should load Gemini configuration correctly`() {
         // Given
-        buildFile.writeText("""
-            plugins {
-                id("com.cheroliv.plantuml")
-            }
-            
-            plantuml {
-                configPath = "plantuml-context.yml"
-            }
-        """.trimIndent())
-
-        // Create config with Gemini configuration
-        val configFile = File(testProjectDir, "plantuml-context.yml")
+        val configFile = File(tempDir, "plantuml-context.yml")
         configFile.writeText("""
-            input:
-              prompts: "test-prompts"
-            output:
-              images: "test-images"
-              rag: "test-rag"
             langchain:
               model: "gemini"
               gemini:
-                apiKey: "fake-gemini-key-for-testing"
+                apiKey: "fake-gemini-key"
         """.trimIndent())
-
-        // Create prompts directory and a sample prompt
-        val promptsDir = File(testProjectDir, "test-prompts")
-        promptsDir.mkdirs()
-        val promptFile = File(promptsDir, "gemini.prompt")
-        promptFile.writeText("Create a simple class diagram")
 
         // When
-        val result = GradleRunner.create()
-            .withProjectDir(testProjectDir)
-            .withArguments("processPlantumlPrompts", "--stacktrace")
-            .withPluginClasspath()
-            .buildAndFail()
+        val config = mapper.readValue(configFile, PlantumlConfig::class.java)
 
-        // Then - Should not crash with Gemini configuration (API key is fake, but plugin should load config)
-        assertTrue(result.output.contains("Config loaded") ||
-                  result.output.contains("API key") ||
-                  result.output.contains("authentication"))
+        // Then
+        assertEquals("gemini", config.langchain.model)
+        assertEquals("fake-gemini-key", config.langchain.gemini.apiKey)
     }
 
-    @kotlin.test.Ignore
     @Test
-    fun `should handle Mistral configuration correctly`() {
+    fun `should load Mistral configuration correctly`() {
         // Given
-        buildFile.writeText("""
-            plugins {
-                id("com.cheroliv.plantuml")
-            }
-            
-            plantuml {
-                configPath = "plantuml-context.yml"
-            }
-        """.trimIndent())
-
-        // Create config with Mistral configuration
-        val configFile = File(testProjectDir, "plantuml-context.yml")
+        val configFile = File(tempDir, "plantuml-context.yml")
         configFile.writeText("""
-            input:
-              prompts: "test-prompts"
-            output:
-              images: "test-images"
-              rag: "test-rag"
             langchain:
               model: "mistral"
               mistral:
-                apiKey: "fake-mistral-key-for-testing"
+                apiKey: "fake-mistral-key"
         """.trimIndent())
-
-        // Create prompts directory and a sample prompt
-        val promptsDir = File(testProjectDir, "test-prompts")
-        promptsDir.mkdirs()
-        val promptFile = File(promptsDir, "mistral.prompt")
-        promptFile.writeText("Create a simple class diagram")
 
         // When
-        val result = GradleRunner.create()
-            .withProjectDir(testProjectDir)
-            .withArguments("processPlantumlPrompts", "--stacktrace")
-            .withPluginClasspath()
-            .buildAndFail()
+        val config = mapper.readValue(configFile, PlantumlConfig::class.java)
 
-        // Then - Should not crash with Mistral configuration (API key is fake, but plugin should load config)
-        assertTrue(result.output.contains("Config loaded") ||
-                  result.output.contains("API key") ||
-                  result.output.contains("authentication"))
+        // Then
+        assertEquals("mistral", config.langchain.model)
+        assertEquals("fake-mistral-key", config.langchain.mistral.apiKey)
     }
 
-    @kotlin.test.Ignore
     @Test
-    fun `should handle OpenAI configuration correctly`() {
+    fun `should load OpenAI configuration correctly`() {
         // Given
-        buildFile.writeText("""
-            plugins {
-                id("com.cheroliv.plantuml")
-            }
-            
-            plantuml {
-                configPath = "plantuml-context.yml"
-            }
-        """.trimIndent())
-
-        // Create config with OpenAI configuration
-        val configFile = File(testProjectDir, "plantuml-context.yml")
+        val configFile = File(tempDir, "plantuml-context.yml")
         configFile.writeText("""
-            input:
-              prompts: "test-prompts"
-            output:
-              images: "test-images"
-              rag: "test-rag"
             langchain:
               model: "openai"
               openai:
-                apiKey: "fake-openai-key-for-testing"
+                apiKey: "fake-openai-key"
         """.trimIndent())
-
-        // Create prompts directory and a sample prompt
-        val promptsDir = File(testProjectDir, "test-prompts")
-        promptsDir.mkdirs()
-        val promptFile = File(promptsDir, "openai.prompt")
-        promptFile.writeText("Create a simple class diagram")
 
         // When
-        val result = GradleRunner.create()
-            .withProjectDir(testProjectDir)
-            .withArguments("processPlantumlPrompts", "--stacktrace")
-            .withPluginClasspath()
-            .buildAndFail()
+        val config = mapper.readValue(configFile, PlantumlConfig::class.java)
 
-        // Then - Should not crash with OpenAI configuration (API key is fake, but plugin should load config)
-        assertTrue(result.output.contains("Config loaded") ||
-                  result.output.contains("API key") ||
-                  result.output.contains("authentication"))
+        // Then
+        assertEquals("openai", config.langchain.model)
+        assertEquals("fake-openai-key", config.langchain.openai.apiKey)
     }
 
-    @kotlin.test.Ignore
     @Test
-    fun `should handle Claude configuration correctly`() {
+    fun `should load Claude configuration correctly`() {
         // Given
-        buildFile.writeText("""
-            plugins {
-                id("com.cheroliv.plantuml")
-            }
-            
-            plantuml {
-                configPath = "plantuml-context.yml"
-            }
-        """.trimIndent())
-
-        // Create config with Claude configuration
-        val configFile = File(testProjectDir, "plantuml-context.yml")
+        val configFile = File(tempDir, "plantuml-context.yml")
         configFile.writeText("""
-            input:
-              prompts: "test-prompts"
-            output:
-              images: "test-images"
-              rag: "test-rag"
             langchain:
               model: "claude"
               claude:
-                apiKey: "fake-claude-key-for-testing"
+                apiKey: "fake-claude-key"
         """.trimIndent())
-
-        // Create prompts directory and a sample prompt
-        val promptsDir = File(testProjectDir, "test-prompts")
-        promptsDir.mkdirs()
-        val promptFile = File(promptsDir, "claude.prompt")
-        promptFile.writeText("Create a simple class diagram")
 
         // When
-        val result = GradleRunner.create()
-            .withProjectDir(testProjectDir)
-            .withArguments("processPlantumlPrompts", "--stacktrace")
-            .withPluginClasspath()
-            .buildAndFail()
+        val config = mapper.readValue(configFile, PlantumlConfig::class.java)
 
-        // Then - Should not crash with Claude configuration (API key is fake, but plugin should load config)
-        assertTrue(result.output.contains("Config loaded") ||
-                  result.output.contains("API key") ||
-                  result.output.contains("authentication"))
+        // Then
+        assertEquals("claude", config.langchain.model)
+        assertEquals("fake-claude-key", config.langchain.claude.apiKey)
     }
 
-    @kotlin.test.Ignore
     @Test
-    fun `should handle HuggingFace configuration correctly`() {
+    fun `should load HuggingFace configuration correctly`() {
         // Given
-        buildFile.writeText("""
-            plugins {
-                id("com.cheroliv.plantuml")
-            }
-            
-            plantuml {
-                configPath = "plantuml-context.yml"
-            }
-        """.trimIndent())
-
-        // Create config with HuggingFace configuration
-        val configFile = File(testProjectDir, "plantuml-context.yml")
+        val configFile = File(tempDir, "plantuml-context.yml")
         configFile.writeText("""
-            input:
-              prompts: "test-prompts"
-            output:
-              images: "test-images"
-              rag: "test-rag"
             langchain:
               model: "huggingface"
               huggingface:
-                apiKey: "fake-huggingface-key-for-testing"
+                apiKey: "fake-huggingface-key"
         """.trimIndent())
-
-        // Create prompts directory and a sample prompt
-        val promptsDir = File(testProjectDir, "test-prompts")
-        promptsDir.mkdirs()
-        val promptFile = File(promptsDir, "huggingface.prompt")
-        promptFile.writeText("Create a simple class diagram")
 
         // When
-        val result = GradleRunner.create()
-            .withProjectDir(testProjectDir)
-            .withArguments("processPlantumlPrompts", "--stacktrace")
-            .withPluginClasspath()
-            .buildAndFail()
+        val config = mapper.readValue(configFile, PlantumlConfig::class.java)
 
-        // Then - Should not crash with HuggingFace configuration (API key is fake, but plugin should load config)
-        assertTrue(result.output.contains("Config loaded") ||
-                  result.output.contains("API key") ||
-                  result.output.contains("authentication") ||
-                  result.output.contains("router.huggingface.co"))
+        // Then
+        assertEquals("huggingface", config.langchain.model)
+        assertEquals("fake-huggingface-key", config.langchain.huggingface.apiKey)
     }
 
-    @kotlin.test.Ignore
     @Test
-    fun `should handle Groq configuration correctly`() {
+    fun `should load Groq configuration correctly`() {
         // Given
-        buildFile.writeText("""
-            plugins {
-                id("com.cheroliv.plantuml")
-            }
-            
-            plantuml {
-                configPath = "plantuml-context.yml"
-            }
-        """.trimIndent())
-
-        // Create config with Groq configuration
-        val configFile = File(testProjectDir, "plantuml-context.yml")
+        val configFile = File(tempDir, "plantuml-context.yml")
         configFile.writeText("""
-            input:
-              prompts: "test-prompts"
-            output:
-              images: "test-images"
-              rag: "test-rag"
             langchain:
               model: "groq"
               groq:
-                apiKey: "fake-groq-key-for-testing"
+                apiKey: "fake-groq-key"
         """.trimIndent())
 
-        // Create prompts directory and a sample prompt
-        val promptsDir = File(testProjectDir, "test-prompts")
-        promptsDir.mkdirs()
-        val promptFile = File(promptsDir, "groq.prompt")
-        promptFile.writeText("Create a simple class diagram")
-
         // When
-        val result = GradleRunner.create()
-            .withProjectDir(testProjectDir)
-            .withArguments("processPlantumlPrompts", "--stacktrace")
-            .withPluginClasspath()
-            .buildAndFail()
+        val config = mapper.readValue(configFile, PlantumlConfig::class.java)
 
-        // Then - Should not crash with Groq configuration (API key is fake, but plugin should load config)
-        assertTrue(result.output.contains("Config loaded") ||
-                  result.output.contains("API key") ||
-                  result.output.contains("authentication"))
+        // Then
+        assertEquals("groq", config.langchain.model)
+        assertEquals("fake-groq-key", config.langchain.groq.apiKey)
     }
 
     @Test
-    fun `should handle mixed provider configurations correctly`() {
+    fun `should handle mixed provider configurations`() {
         // Given
-        buildFile.writeText("""
-            plugins {
-                id("com.cheroliv.plantuml")
-            }
-            
-            plantuml {
-                configPath = "plantuml-context.yml"
-            }
-        """.trimIndent())
-
-        // Create config with all providers configured
-        val configFile = File(testProjectDir, "plantuml-context.yml")
+        val configFile = File(tempDir, "plantuml-context.yml")
         configFile.writeText("""
-            input:
-              prompts: "test-prompts"
-            output:
-              images: "test-images"
-              rag: "test-rag"
             langchain:
               model: "ollama"
               ollama:
@@ -424,23 +192,32 @@ class LlmConfigurationTest {
                 apiKey: "fake-groq-key"
         """.trimIndent())
 
-        // Create prompts directory and a sample prompt
-        val promptsDir = File(testProjectDir, "test-prompts")
-        promptsDir.mkdirs()
-        val promptFile = File(promptsDir, "mixed.prompt")
-        promptFile.writeText("Create a simple class diagram")
+        // When
+        val config = mapper.readValue(configFile, PlantumlConfig::class.java)
+
+        // Then
+        assertEquals("ollama", config.langchain.model)
+        assertEquals("http://localhost:11434", config.langchain.ollama.baseUrl)
+        assertEquals("llama3:8b", config.langchain.ollama.modelName)
+        assertEquals("fake-gemini-key", config.langchain.gemini.apiKey)
+        assertEquals("fake-mistral-key", config.langchain.mistral.apiKey)
+        assertEquals("fake-openai-key", config.langchain.openai.apiKey)
+        assertEquals("fake-claude-key", config.langchain.claude.apiKey)
+        assertEquals("fake-huggingface-key", config.langchain.huggingface.apiKey)
+        assertEquals("fake-groq-key", config.langchain.groq.apiKey)
+    }
+
+    @Test
+    fun `should register plantuml tasks when plugin is applied`() {
+        // Given
+        val project = ProjectBuilder.builder().build()
 
         // When
-        val result = GradleRunner.create()
-            .withProjectDir(testProjectDir)
-            .withArguments("processPlantumlPrompts", "--stacktrace")
-            .withPluginClasspath()
-            .buildAndFail()
+        project.pluginManager.apply("com.cheroliv.plantuml")
 
-        // Then - Should not crash with mixed configuration (some configs may fail, but plugin should load)
-        assertTrue(result.output.contains("Config loaded") ||
-                  result.output.contains("model") ||
-                  result.output.contains("API key") ||
-                  result.output.contains("authentication"))
+        // Then
+        assertTrue(project.tasks.findByName("processPlantumlPrompts") != null)
+        assertTrue(project.tasks.findByName("validatePlantumlSyntax") != null)
+        assertTrue(project.tasks.findByName("reindexPlantumlRag") != null)
     }
 }
