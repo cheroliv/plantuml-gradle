@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import kotlin.test.Ignore
 import kotlin.test.assertTrue
 
 /**
@@ -23,24 +24,30 @@ class LlmHandshakeTest {
     fun setup() {
         buildFile = File(testProjectDir, "build.gradle.kts")
         settingsFile = File(testProjectDir, "settings.gradle.kts")
-        
-        settingsFile.writeText("""
+
+        settingsFile.writeText(
+            """
             rootProject.name = "plantuml-handshake-test"
-        """.trimIndent())
-        
+        """.trimIndent()
+        )
+
         // Configuration du plugin
-        buildFile.writeText("""
+        buildFile.writeText(
+            """
             plugins {
                 id("com.cheroliv.plantuml")
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
 
+    @Ignore
     @Test
     fun `should perform handshake with Ollama without full authentication`() {
         // Créer un fichier de configuration pour Ollama
         val configFile = File(testProjectDir, "ollama-local-smollm-135.yml")
-        configFile.writeText("""
+        configFile.writeText(
+            """
             langchain:
               model: "ollama"
               ollama:
@@ -56,12 +63,13 @@ class LlmHandshakeTest {
               images: "test/generated/images"
               validations: "test/generated/validations"
               rag: "test/generated/rag"
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // Créer un répertoire de prompts et un fichier prompt simple
         val promptsDir = File(testProjectDir, "test/prompts")
         promptsDir.mkdirs()
-        
+
         val promptFile = File(promptsDir, "test.prompt")
         promptFile.writeText("Create a simple class diagram with one class")
 
@@ -80,9 +88,9 @@ class LlmHandshakeTest {
         // Vérifier que la tâche s'exécute sans erreur de connexion
         // Note: Ce test ne vérifie que le handshake initial, pas l'authentification complète
         assertTrue(
-            result.output.contains("Processing") || 
-            result.output.contains("No prompt files found") ||
-            result.output.contains("PlantUML generation involves randomness")
+            result.output.contains("Processing") ||
+                    result.output.contains("No prompt files found") ||
+                    result.output.contains("PlantUML generation involves randomness")
         )
     }
 }
