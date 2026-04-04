@@ -114,7 +114,18 @@ class PerformanceTest {
         assertTrue(duration < 1000, "Validation should be ultra-fast: ${duration}ms")
     }
 
-        // Measure time for validating all files
+    @Test
+    fun `should validate multiple files quickly`() {
+        // Given - Ultra minimal setup for 2 files
+        buildFile.writeText(BASE_BUILD_SCRIPT.trimIndent())
+        
+        // Create only 2 minimal PlantUML files
+        for (i in 1..2) {
+            val diagramFile = File(testProjectDir, "diagram$i.puml")
+            diagramFile.writeText("@startuml\nclass A$i\n@enduml") // Minimal valid content
+        }
+
+        // When - Measure time for validating all files
         val duration = measureTimeMillis {
             for (i in 1..2) {
                 val result = GradleRunner.create()
@@ -129,7 +140,9 @@ class PerformanceTest {
                     .build()
 
                 // Basic validation to ensure the task actually runs
-                assertTrue(result.output.contains("validatePlantumlSyntax"), "Validation should complete successfully")
+                assertTrue(result.output.contains(":validatePlantumlSyntax") || 
+                         result.output.contains("validatePlantumlSyntax"), 
+                         "Validation should complete successfully for file $i")
             }
         }
 
@@ -182,6 +195,47 @@ class PerformanceTest {
         // Strict performance - all tasks within 3 seconds
         assertTrue(duration < 3000, "Concurrent tasks should be fast: ${duration}ms")
     }
+
+    @Test
+    fun `should handle concurrent tasks efficiently`() {
+        // Given - Streamlined setup for concurrent test
+        buildFile.writeText(PLUGIN_CONFIG_SCRIPT.trimIndent())
+        createConfigFile()
+        
+        // Minimal files for concurrent tasks
+        val promptsDir = File(testProjectDir, "test-prompts")
+        promptsDir.mkdirs()
+        File(promptsDir, "tiny.prompt").writeText("A")
+        
+        val diagramFile = File(testProjectDir, "tiny.puml")
+        diagramFile.writeText("@startuml\nclass B\n@enduml")
+
+        // When - Run with strict timing constraint
+        val duration = measureTimeMillis {
+            // Parallel execution of minimal tasks
+            val results = listOf(
+                GradleRunner.create()
+                    .withProjectDir(testProjectDir)
+                    .withArguments("--quiet", "processPlantumlPrompts", "--stacktrace")
+                    .withPluginClasspath()
+                    .build(),
+                GradleRunner.create()
+                    .withProjectDir(testProjectDir)
+                    .withArguments("--quiet", "reindexPlantumlRag", "--stacktrace")
+                    .withPluginClasspath()
+                    .build()
+            )
+
+            // Validate all executed
+            results.forEachIndexed { index, result ->
+                val taskName = if (index == 0) "processPlantumlPrompts" else "reindexPlantumlRag"
+                assertTrue(
+                    result.output.contains(":$taskName") || 
+                    result.output.contains(taskName),
+                    "Task $taskName should run"
+                )
+            }
+        }
 
         // Then - Should complete all tasks within 8 seconds
         assertTrue(duration < 8000, "Concurrent tasks took too long: ${duration}ms")
