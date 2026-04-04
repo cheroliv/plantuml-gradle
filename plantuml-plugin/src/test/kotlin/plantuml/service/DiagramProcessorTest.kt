@@ -1,7 +1,7 @@
 package plantuml.service
 
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.Mockito.*
@@ -25,7 +25,6 @@ class DiagramProcessorTest {
         diagramProcessor = DiagramProcessor(mockPlantumlService, null, null)
     }
 
-    @kotlin.test.Ignore
     @Test
     fun `should process prompt with mock llm response`() {
         // Given
@@ -45,7 +44,6 @@ class DiagramProcessorTest {
         assertTrue(result.plantuml.description.contains("Auto-generated diagram based on prompt: $prompt"))
     }
 
-    @kotlin.test.Ignore
     @ParameterizedTest
     @ValueSource(ints = [1, 2])
     fun `should handle syntax validation scenarios`(iterations: Int) {
@@ -61,7 +59,7 @@ class DiagramProcessorTest {
         setupInvalidThenValidSyntaxMock()
 
         // When
-        val result = diagramProcessor.processPrompt(prompt, maxIterations = 1)
+        val result = diagramProcessor.processPrompt(prompt, maxIterations = 2)
 
         // Then
         assertNotNull(result)
@@ -84,7 +82,6 @@ class DiagramProcessorTest {
         verify(mockPlantumlService, times(1)).validateSyntax(anyString())
     }
 
-    @kotlin.test.Ignore
     @Test
     fun `should validate diagram quality`() {
         // Given
@@ -105,7 +102,6 @@ class DiagramProcessorTest {
         assertEquals(3, result.recommendations.size)
     }
 
-    @kotlin.test.Ignore
     @Test
     fun `should save for rag training`() {
         // Given
