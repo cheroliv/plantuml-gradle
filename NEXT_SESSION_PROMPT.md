@@ -1,41 +1,53 @@
 # Prompt de démarrage pour la prochaine session Opencode
 
 ## Contexte actuel
-Suite à l'optimisation des tests du plugin PlantUML Gradle avec WireMock, nous avons :
-- Configuré WireMock pour mocker les appels LLM par défaut dans les tests
-- Modifié LlmConfigurationTest pour utiliser WireMock avec port dynamique
-- Implémenté option système pour activer vrais LLM via ligne de commande (-Dtest.use.real.llm=true)
-- Validé que les tests Ollama passent avec succès utilisant WireMock
-- Créé des mappings WireMock basés sur les réponses réelles du modèle SmolLM
-- Mis à jour la documentation dans AGENTS.md
+Suite aux optimisations effectuées sur les tests du plugin PlantUML Gradle :
 
-## Résultats du benchmark
-Benchmark effectué pour comparer les performances :
-- Tests avec mocks : ~19.8 secondes
-- Tests avec vrais LLM : ~19.7 secondes
+### ✅ Accomplissements
+1. **Optimisation des tests unitaires LLM**
+   - Refactorisation de `LlmConfigurationTest` pour séparer les tests unitaires des tests fonctionnels
+   - Utilisation de `ProjectBuilder` au lieu de `GradleRunner` pour les tests unitaires
+   - Réduction du temps d'exécution de ~17s à ~7s (gain de 60%)
 
-La différence de performance est négligeable, ce qui signifie que les gains de vitesse apportés par les mocks sont minimes dans ce cas précis.
+2. **Correction du problème WireMock**
+   - Copie des mappings WireMock vers le répertoire des tests fonctionnels
+   - Résolution de l'erreur "No response could be served as there are no stub mappings"
+   - Tous les tests LLM fonctionnels passent maintenant
 
-## Prochaines étapes prioritaires
+3. **Optimisation des tests fonctionnels**
+   - Création d'une version optimisée `OptimizedPlantumlPluginFunctionalTest`
+   - Réduction du temps d'exécution de ~28% (de 14s à 10s)
 
-### 🎯 1. Analyser les tests les plus lents
-- Identifier quels tests spécifiques prennent le plus de temps
-- Profiler les performances des différents tests unitaires et fonctionnels
-- Déterminer si la lenteur vient des appels LLM, du traitement PlantUML ou d'autres facteurs
+### 🔧 Configuration actuelle
+- Tests unitaires : ~7 secondes
+- Tests fonctionnels : ~10 secondes (optimisés)
+- Tests LLM fonctionnels : Passent tous correctement
 
-### 2. Optimiser les performances des tests
-- Appliquer des optimisations ciblées sur les tests les plus lents
-- Explorer d'autres moyens d'accélérer les tests (cache, parallélisation, etc.)
+## Objectifs prioritaires pour la prochaine session
 
-### 3. Activer progressivement les autres configurations LLM
-- Retirer @Ignore des tests pour Gemini, Mistral, Claude, etc.
-- Valider que les mappings WireMock fonctionnent pour tous les fournisseurs
+### 🎯 1. Réduction supplémentaire du temps des tests fonctionnels
+- Expliquer pourquoi certaines méthodes d'optimisation n'ont pas fonctionné (dry-run, etc.)
+- Trouver des moyens supplémentaires pour accélérer les tests fonctionnels
+- Appliquer les mêmes optimisations à tous les tests fonctionnels
 
-### 4. Améliorer le rapport de benchmark
+### 2. Activation progressive des configurations LLM ignorées
+- Retirer `@Ignore` des tests LLM pour Gemini, Mistral, Claude, etc.
+- Valider que tous les mappings WireMock fonctionnent correctement
+- Assurer une couverture complète des différentes configurations
+
+### 3. Amélioration du rapport de benchmark
 - Créer un script de benchmark plus détaillé avec des mesures par test
 - Générer des rapports comparatifs lisibles
+- Documenter les techniques d'optimisation pour les nouveaux développeurs
 
-## Questions à explorer
-1. Pourquoi la différence de performance entre mocks et vrais LLM est-elle si faible ?
-2. Quels sont les autres facteurs qui ralentissent les tests ?
-3. Comment pouvons-nous encore réduire le temps d'exécution global des tests ?
+### 4. Documentation des optimisations
+- Mettre à jour la documentation développeur avec les nouvelles pratiques
+- Expliquer la séparation entre tests unitaires et fonctionnels
+- Documenter l'utilisation optimale de WireMock
+
+## Questions techniques à explorer
+
+1. **Pourquoi `--dry-run` ne montre pas toutes les tâches dans les tests fonctionnels ?**
+2. **Comment utiliser efficacement le cache de configuration de Gradle pour les tests ?**
+3. **Quelles sont les limites de regrouper plusieurs vérifications dans un seul test fonctionnel ?**
+4. **Comment équilibrer rapidité des tests vs granularité des vérifications ?**
