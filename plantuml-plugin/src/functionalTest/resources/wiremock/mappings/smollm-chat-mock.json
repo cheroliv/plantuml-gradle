@@ -1,0 +1,31 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPattern": "/v1/chat/completions"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "id": "chatcmpl-123",
+      "object": "chat.completion",
+      "created": 1677652288,
+      "model": "smollm:135m",
+      "choices": [{
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "@startuml\nactor User\nUser --> (Use Application)\n@enduml"
+        },
+        "finish_reason": "stop"
+      }],
+      "usage": {
+        "prompt_tokens": 10,
+        "completion_tokens": 20,
+        "total_tokens": 30
+      }
+    }
+  }
+}

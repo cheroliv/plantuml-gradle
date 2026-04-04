@@ -1,0 +1,17 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPattern": "/api/generate"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "model": "smollm:135m",
+      "response": "@startuml\nactor User\nUser --> (Use Application)\n@enduml",
+      "done": true
+    }
+  }
+}
