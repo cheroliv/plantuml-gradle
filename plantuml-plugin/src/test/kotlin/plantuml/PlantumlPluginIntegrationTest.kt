@@ -6,10 +6,9 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-@Ignore
+
 class PlantumlPluginIntegrationTest {
 
     @TempDir
@@ -22,16 +21,19 @@ class PlantumlPluginIntegrationTest {
     fun setup() {
         buildFile = File(testProjectDir, "build.gradle.kts")
         settingsFile = File(testProjectDir, "settings.gradle.kts")
-        
-        settingsFile.writeText("""
+
+        settingsFile.writeText(
+            """
             rootProject.name = "plantuml-test-project"
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
 
     @Test
     fun `should apply plugin and run processPlantumlPrompts task`() {
         // Given
-        buildFile.writeText("""
+        buildFile.writeText(
+            """
             plugins {
                 id("com.cheroliv.plantuml")
             }
@@ -39,28 +41,32 @@ class PlantumlPluginIntegrationTest {
             plantuml {
                 configPath = "plantuml-context.yml"
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // Create minimal config file
         val configFile = File(testProjectDir, "plantuml-context.yml")
-        configFile.writeText("""
+        configFile.writeText(
+            """
             input:
               prompts: "test-prompts"
             output:
               images: "test-images"
               rag: "test-rag"
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // Create prompts directory and a sample prompt
         val promptsDir = File(testProjectDir, "test-prompts")
         promptsDir.mkdirs()
         val promptFile = File(promptsDir, "test.prompt")
         promptFile.writeText("Create a simple class diagram")
-        
+
         // Create minimal config with mock LLM settings to speed up test
         configFile.delete()
         configFile.createNewFile()
-        configFile.writeText("""
+        configFile.writeText(
+            """
             input:
               prompts: "test-prompts"
             output:
@@ -74,7 +80,8 @@ class PlantumlPluginIntegrationTest {
                 baseUrl: "http://localhost:11434"
                 modelName: "smollm:135m"
               maxIterations: 1
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // When
         val result = GradleRunner.create()
@@ -91,27 +98,36 @@ class PlantumlPluginIntegrationTest {
     @Test
     fun `should run validatePlantumlSyntax task`() {
         // Given
-        buildFile.writeText("""
+        buildFile.writeText(
+            """
             plugins {
                 id("com.cheroliv.plantuml")
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // Create a sample PlantUML file
         val diagramFile = File(testProjectDir, "sample.puml")
-        diagramFile.writeText("""
+        diagramFile.writeText(
+            """
             @startuml
             class Car {
               - String brand
               - String model
             }
             @enduml
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // When
         val result = GradleRunner.create()
             .withProjectDir(testProjectDir)
-            .withArguments("validatePlantumlSyntax", "-Pplantuml.diagram=sample.puml", "--stacktrace", "-Dplantuml.test.mode=true")
+            .withArguments(
+                "validatePlantumlSyntax",
+                "-Pplantuml.diagram=sample.puml",
+                "--stacktrace",
+                "-Dplantuml.test.mode=true"
+            )
             .withPluginClasspath()
             .build()
 
@@ -123,24 +139,28 @@ class PlantumlPluginIntegrationTest {
     @Test
     fun `should run reindexPlantumlRag task`() {
         // Given
-        buildFile.writeText("""
+        buildFile.writeText(
+            """
             plugins {
                 id("com.cheroliv.plantuml")
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // Create RAG directory with a sample diagram
         val ragDir = File(testProjectDir, "generated/rag")
         ragDir.mkdirs()
         val diagramFile = File(ragDir, "sample.puml")
-        diagramFile.writeText("""
+        diagramFile.writeText(
+            """
             @startuml
             class Car {
               - String brand
               - String model
             }
             @enduml
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // When
         val result = GradleRunner.create()
