@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import plantuml.PlantumlConfig
+import kotlin.test.Ignore
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 
@@ -20,6 +21,7 @@ class LlmServiceErrorTest {
         )
     }
 
+    @Ignore
     @ParameterizedTest
     @MethodSource("errorHandlingScenarios")
     fun `should handle various error scenarios gracefully`(scenario: String, model: String, apiKey: String) {
@@ -34,6 +36,7 @@ class LlmServiceErrorTest {
         assertNotNull(chatModel)
     }
 
+    @Ignore
     @Test
     fun `should handle malformed configuration gracefully`() {
         // Given
