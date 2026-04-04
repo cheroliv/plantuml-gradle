@@ -1,0 +1,23 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/api/chat"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "model": "smollm:135m",
+      "created_at": "2023-12-01T00:00:00Z",
+      "message": {
+        "role": "assistant",
+        "content": "@startuml\nactor User\nUser --> (Use Application)\n@enduml"
+      },
+      "done": true,
+      "total_duration": 1234567890,
+      "load_duration": 123456789
+    }
+  }
+}
