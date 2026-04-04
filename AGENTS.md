@@ -108,8 +108,21 @@ Suit les patterns architecturaux des projets `slider-gradle`(les sources sont da
 
 ### 📋 Backlog — À faire
 &lt;!-- Liste des tests unitaires à corriger par ordre de priorité --&gt;
-- 🎯 Tester la fonction de test avec le paramètre LLM pour identifier les causes de lenteur
-- Optimiser les performances des tests les plus lents
+- 🎯 Analyse comparative des stratégies d'optimisation (Priorité haute)
+   - Benchmarks détaillés de chaque technique
+   - Identification des meilleures combinaisons
+- Documentation avancée des techniques d'optimisation (Priorité moyenne)
+   - Guide complet "Best Practices for Gradle Plugin Testing"
+   - Étude de cas détaillée
+- Amélioration du script de benchmark (Priorité moyenne)
+   - Mesures statistiques avancées
+   - Génération de rapports comparatifs
+- Exploration des limites de l'approche actuelle (Priorité moyenne)
+   - Identification des nouveaux goulets d'étranglement
+   - Plan d'optimisations futures
+- Étude de l'impact du parallélisme dans les tests (Priorité basse)
+   - Analyse de la parallélisation des tests Gradle
+   - Recommandations pour l'optimisation du cache Gradle
 - Permettre aux tâches Gradle de spécifier le LLM à utiliser pour surcharger la config YAML
 - Configuration par gradle.properties comme troisième niveau de priorité (DSL > YAML > gradle.properties)
 - Tester progressivement les autres configurations LLM (Gemini, Mistral, etc.) en gardant @Ignore
