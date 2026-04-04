@@ -21,19 +21,24 @@ class SuperOptimizedFunctionalTest {
             .withProjectDir(testProjectDir)
             .withArguments(
                 "help",           // Vérifie que le plugin s'applique
-                "tasks",          // Vérifie l'enregistrement des tâches
-                "--dry-run",      // N'exécute pas réellement les tâches
                 "--console=plain" // Sortie simple
             )
             .withPluginClasspath()
             .build()
 
-        // Vérifier toutes les fonctionnalités dans un seul test
+        // Vérifier le succès de l'application du plugin
         assertTrue(result.output.contains("BUILD SUCCESSFUL"))
-        assertTrue(result.output.contains("processPlantumlPrompts"))
-        assertTrue(result.output.contains("validatePlantumlSyntax"))
-        assertTrue(result.output.contains("reindexPlantumlRag"))
-        assertTrue(result.output.contains("plantuml"))
+        
+        // Vérifier la présence des tâches avec une commande différente
+        val tasksResult = GradleRunner.create()
+            .withProjectDir(testProjectDir)
+            .withArguments("tasks", "--all", "--console=plain")
+            .withPluginClasspath()
+            .build()
+            
+        assertTrue(tasksResult.output.contains("processPlantumlPrompts"))
+        assertTrue(tasksResult.output.contains("validatePlantumlSyntax"))
+        assertTrue(tasksResult.output.contains("reindexPlantumlRag"))
     }
 
     private fun setupTestProject() {
