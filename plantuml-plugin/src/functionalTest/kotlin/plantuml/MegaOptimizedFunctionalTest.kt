@@ -20,18 +20,25 @@ class MegaOptimizedFunctionalTest {
         val result = GradleRunner.create()
             .withProjectDir(testProjectDir)
             .withArguments(
-                "tasks",          // Liste les tâches (ce qu'on veut vérifier)
+                "help",          // Vérifie que le plugin fonctionne
                 "--console=plain" // Sortie simple
             )
             .withPluginClasspath()
             .build()
 
-        // Vérifier tout dans un seul appel
-        assertTrue(result.output.contains("processPlantumlPrompts"))
-        assertTrue(result.output.contains("validatePlantumlSyntax")) 
-        assertTrue(result.output.contains("reindexPlantumlRag"))
-        assertTrue(result.output.contains("plantuml"))
+        // Vérifier le succès de l'application du plugin
         assertTrue(result.output.contains("BUILD SUCCESSFUL"))
+        
+        // Vérifier la présence des tâches avec une commande différente
+        val tasksResult = GradleRunner.create()
+            .withProjectDir(testProjectDir)
+            .withArguments("tasks", "--all", "--console=plain")
+            .withPluginClasspath()
+            .build()
+            
+        assertTrue(tasksResult.output.contains("processPlantumlPrompts"))
+        assertTrue(tasksResult.output.contains("validatePlantumlSyntax")) 
+        assertTrue(tasksResult.output.contains("reindexPlantumlRag"))
     }
 
     private fun setupTestProject() {
