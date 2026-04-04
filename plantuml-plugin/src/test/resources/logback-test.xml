@@ -18,6 +18,10 @@
     <!-- Logger pour vos tests -->
     <logger name="plantuml" level="DEBUG"/>
 
+    <!-- Configuration spécifique pour WireMock -->
+    <logger name="wiremock" level="INFO"/>
+    <logger name="org.eclipse.jetty" level="WARN"/>
+
     <!-- Réduire le bruit de Gradle -->
     <logger name="org.gradle" level="WARN"/>
 
