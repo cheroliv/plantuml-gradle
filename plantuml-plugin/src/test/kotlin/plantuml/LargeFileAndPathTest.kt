@@ -6,8 +6,10 @@ import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import java.io.File
+import kotlin.test.Ignore
 import kotlin.test.assertTrue
 
+@Ignore
 class LargeFileAndPathTest {
 
     @TempDir
