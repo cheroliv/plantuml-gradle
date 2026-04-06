@@ -32,7 +32,6 @@ class PlantumlPluginUnitTest {
         `when`(project.tasks).thenReturn(tasks)
     }
 
-    @Ignore
     @Test
     fun `should register plantuml extension when plugin is applied`() {
         // Given
@@ -45,7 +44,6 @@ class PlantumlPluginUnitTest {
         verify(extensions).create("plantuml", PlantumlPlugin.PlantumlExtension::class.java)
     }
 
-    @Ignore
     @Test
     fun `should register all required tasks when plugin is applied`() {
         // Given
@@ -59,7 +57,46 @@ class PlantumlPluginUnitTest {
         verify(tasks).register("validatePlantumlSyntax", plantuml.tasks.ValidatePlantumlSyntaxTask::class.java)
         verify(tasks).register("reindexPlantumlRag", plantuml.tasks.ReindexPlantumlRagTask::class.java)
     }
+/*
+Configuration on demand is an incubating feature.
+> Task :checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :pluginDescriptors UP-TO-DATE
+> Task :processResources UP-TO-DATE
+> Task :compileFunctionalTestKotlin UP-TO-DATE
+> Task :compileFunctionalTestJava NO-SOURCE
+> Task :processFunctionalTestResources UP-TO-DATE
+> Task :functionalTestClasses UP-TO-DATE
+> Task :processTestResources UP-TO-DATE
+> Task :compileKotlin
+> Task :compileJava NO-SOURCE
+> Task :classes UP-TO-DATE
+> Task :jar
+> Task :pluginUnderTestMetadata
+> Task :compileTestKotlin
+> Task :compileTestJava NO-SOURCE
+> Task :testClasses UP-TO-DATE
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
 
+property(...) must not be null
+java.lang.NullPointerException: property(...) must not be null
+	at plantuml.PlantumlPlugin$PlantumlExtension.<init>(PlantumlPlugin.kt:40)
+	at plantuml.PlantumlPluginUnitTest.should create plantuml extension with configurable properties(PlantumlPluginUnitTest.kt:72)
+
+
+> Task :test FAILED
+PlantumlPluginUnitTest > should create plantuml extension with configurable properties() FAILED
+    java.lang.NullPointerException at PlantumlPluginUnitTest.kt:72
+1 test completed, 1 failed
+FAILURE: Build failed with an exception.
+* What went wrong:
+Execution failed for task ':test'.
+> There were failing tests. See the report at: file:///home/cheroliv/workspace/__repositories__/plantuml-gradle/plantuml-plugin/build/reports/tests/test/index.html
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+BUILD FAILED in 8s
+10 actionable tasks: 5 executed, 5 up-to-date
+
+*/
     @Ignore
     @Test
     fun `should create plantuml extension with configurable properties`() {
