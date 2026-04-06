@@ -26,6 +26,7 @@ class NetworkTimeoutTest {
         """.trimIndent())
     }
 
+//    @slowtest
     @kotlin.test.Ignore
     @Test
     fun `should handle network timeout gracefully with slow server`() {
@@ -107,7 +108,6 @@ class NetworkTimeoutTest {
         }
     }
 
-    @Suppress("TestFailedLine")
     @kotlin.test.Ignore
     @Test
     fun `should handle connection refused gracefully`() {
