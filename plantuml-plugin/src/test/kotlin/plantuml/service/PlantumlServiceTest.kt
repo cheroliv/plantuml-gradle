@@ -21,7 +21,6 @@ class PlantumlServiceTest {
         plantumlService = PlantumlService()
     }
 
-    @Ignore
     @ParameterizedTest
     @ValueSource(strings = ["valid", "invalid"])
     fun `should validate plantuml syntax`(syntaxType: String) {
@@ -53,7 +52,6 @@ class PlantumlServiceTest {
         assertTrue(result is PlantumlService.SyntaxValidationResult.Invalid)
     }
 
-    @Ignore
     @Test
     fun `should generate image from plantuml code`() {
         // Given
