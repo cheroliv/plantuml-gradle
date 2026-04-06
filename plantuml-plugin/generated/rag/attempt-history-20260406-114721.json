@@ -1,0 +1,34 @@
+        {
+            "entries": [
+                            {
+                "iteration": 0,
+                "prompt": "Create a user diagram",
+                "response": "@startuml
+title Create a user diagram
+actor User
+rectangle \"System\" {
+  User --> (Feature)
+}
+@enduml",
+                "isValid": true,
+                "errorMessage": "null",
+                "timestamp": "2026-04-06T11:47:21.902697389"
+            },
+            {
+                "iteration": 0,
+                "prompt": "Fix common issues iteration 0",
+                "response": "@startuml
+title Create a user diagram
+actor User
+rectangle \"System\" {
+  User --> (Feature)
+}
+@enduml",
+                "isValid": false,
+                "errorMessage": "Test error",
+                "timestamp": "2026-04-06T11:47:21.903105628"
+            }
+            ],
+            "totalAttempts": 2,
+            "timestamp": "2026-04-06T11:47:21.907433326"
+        }

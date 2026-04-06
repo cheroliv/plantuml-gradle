@@ -1,0 +1,125 @@
+        {
+            "entries": [
+                            {
+                "iteration": 0,
+                "prompt": "Create a simple class diagram",
+                "response": "Here is a sample PlantUML diagram for a simple class:
+```
+<Node 1>
+    <Name>plant_a</Name>
+        <Description>A single-celled plant with roots and leaves
+         </Description>
+        <Attributes>root_id,leaf_id
+                  <Key>plant_id,value
+                  <Value>1</Value>
+        </Attributes></Node>
+<Node 2>
+    <Name>plant_b</Name>
+        <Description>A single-celled plant with roots
+         </Description>
+        <Attributes>root_id,leaf_id
+                  <Key>plant_id,value
+                  <Value>2</Value>
+        </Attributes></Node>
+```",
+                "isValid": false,
+                "errorMessage": "null",
+                "timestamp": "2026-04-06T11:39:39.542733968"
+            },
+            {
+                "iteration": 1,
+                "prompt": "Correction attempt #1",
+                "response": "To create a PlantUML diagram for a simple class, follow these steps:
+
+1. Create a diagram by dragging and dropping the nodes into a diagram editor or drawing tool like:
+	* SmartDrawers (formerly PostGIS)
+	* Inventor
+	* Clip Studio Paint
+2. Add a \"source\" node to the diagram where you want to store the source code for the species definition. The source node should be in the following format:
+```markdown
+<Node 1>
+    <Name>species_a</Name>
+        ...
+                    
+                    Error: Missing @startuml or @enduml tags
+                    
+                    Please correct the code and return ONLY valid Species Definition node. This node is added to the diagram.
+```
+3. Add a \"value\" node where you want to store the species definition for the species. The value node should be in the following format:
+```markdown
+<Node 1>
+    <Name>species_a</Name>
+        ...
+                    
+                    Error: Missing @startuml or @enduml tags
+                    
+                    Please correct the code and return ONLY valid Species Definition node. This node is added to the diagram.
+```
+4. Add a \"description\" node where you want to store the species definition for the species. The description node should be in the following format:
+```markdown
+<Node 1>
+    <Name>species_a</Name>
+        ...
+                    
+                    Error: Missing @startuml or @enduml tags
+                    
+                    Please correct the code and return ONLY valid Species Definition node. This node is added to the diagram.
+```
+5. Add a \"attributes\" node where you want to store the species definition for the species. The attributes node should be in the following format:
+```markdown
+<Node 1>
+    <Name>species_a</Name>
+        ...
+                    
+                    Error: Missing @startuml or @enduml tags
+                    
+                    Please correct the code and return ONLY valid Species Definition node. This node is added to the diagram.
+```
+6. Add a \"source\" node for the species definition. The source node should be in the following format:
+```markdown
+<Node 1>
+    <Name>species_a</Name>
+        ...
+                    
+                    Error: Missing @startuml or @enduml tags
+                    
+                    Please correct the code and return ONLY valid Species Definition node. This node is added to the diagram.
+```
+7. Add a \"value\" node for each species definition node in the diagram where you want to store the corresponding value. The nodes should be numbered from 1 to 34 (excluding 2 or 5). For example, if the species definition is named \"plant_a\", the nodes should be numbered 1, 2, 34 (excluding 1 and 2), 3, 5)
+```markdown
+| <Node 1>
+    <Name>species_a</Name>
+        ...
+                    
+                    Error: Missing @startuml or @enduml tags
+                    
+                    Please correct the code and return ONLY valid Species Definition node. This node is added to the diagram where the species definition is named plant_a
+
+    <Name>plant_a</Name>
+    ...
+                    
+                    Error: Missing @startuml or @enduml tags
+```
+8. Add a \"description\" node for each species definition node in the diagram where you want to store the corresponding value. The nodes should be numbered from 1 to 34 (excluding 2 or 5)
+```markdown
+| <Node 1>
+    <Name>species_a</Name>
+        ...
+                    
+                    Error: Missing @startuml or @enduml tags
+                    
+                    Please correct the code and return ONLY valid Species Definition node. This node is added to the diagram where the species definition is named plant_a
+
+    <Name>plant_a</Name>
+    ...
+                    
+                    Error: Missing @startuml or @enduml tags
+```",
+                "isValid": true,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-06T11:39:49.626405712"
+            }
+            ],
+            "totalAttempts": 2,
+            "timestamp": "2026-04-06T11:39:49.633274125"
+        }

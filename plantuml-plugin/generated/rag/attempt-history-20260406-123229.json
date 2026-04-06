@@ -1,0 +1,113 @@
+        {
+            "entries": [
+                            {
+                "iteration": 0,
+                "prompt": "Create a complex diagram",
+                "response": "Here is a possible plant UML diagram (simplified by @startuml) that captures the structure of a complex network:
+```
++---------------+
+|  Node 1          |  Node 2      |
++---------------+
+| 1        | 2        |
++---------------+
+| 1        | 3        |
++---------------+
+| 2        | 4        |
++---------------+
+| 3        | 5        |
++---------------+
+| 4        | 6        |
++---------------+
+| 5        | 7        |
++---------------+
+| 6        | 8        |
++---------------+
+| 7        | 9        |
++---------------+
+| 8        | 10        |
++---------------+
+| 9        | 11        |
++---------------+
+| 10        | 12        |
++---------------+
+| 11        | 13        |
++---------------+
+| 12        | 14        |
++---------------+
+| 13        | 15        |
++---------------+
+| 14        | 16        |
++---------------+
+| 15        | 17        |
++---------------+
+| 16        | 18        |
++---------------+
++---------------+
+```",
+                "isValid": false,
+                "errorMessage": "null",
+                "timestamp": "2026-04-06T12:32:26.180201111"
+            },
+            {
+                "iteration": 1,
+                "prompt": "Correction attempt #1",
+                "response": "Here is a simple Plant UML diagram that shows two different types of nodes:
+
+    Node 1 --> Node 2
+     ---+---
+     ---+---
+     ---+---
+
+    Node 1 --> Node 3
+    ---+---
+
+    Node 2 --> Node 4
+  ---+---
+
+  Node 3 --> Node 5
+  ---+---
+```
+This diagram shows two different types of nodes: One is a simple node with no tags, and the other one is a more complex node with multiple tags.",
+                "isValid": false,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-06T12:32:27.979651132"
+            },
+            {
+                "iteration": 2,
+                "prompt": "Correction attempt #2",
+                "response": "Here is a possible solution to this problem:
+```python
+def parse_plant(node_list):
+    def node_to_type(node, tags):
+        tag = None
+        for tag in tags:
+            if tag == '@enduml':
+                continue
+            node['tag'] = tag
+            node['tags'] += ['@startuml', tag]
+            tag = '@enduml'
+
+    return parse_plant_tree(node_list)
+def parse_plant(node_list):
+    def parse_plant_tree(node_tree, tags):
+        tag_strings = []
+
+        for node in node_tree.values():
+            tag = node['tag']
+            tags += [tag_string]
+
+            if '@enduml' in tag:
+                continue
+
+            tag_strings.append('@enduml')
+
+    return parse_plant_tree(node_list)
+```",
+                "isValid": true,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-06T12:32:29.792350842"
+            }
+            ],
+            "totalAttempts": 3,
+            "timestamp": "2026-04-06T12:32:29.79713684"
+        }
