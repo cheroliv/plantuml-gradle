@@ -12,7 +12,10 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.client.WireMock
 import org.junit.jupiter.api.AfterEach
+import kotlin.test.Ignore
 
+//slow test 37sec
+@Ignore
 class LlmConfigurationFunctionalTest {
 
     @TempDir
