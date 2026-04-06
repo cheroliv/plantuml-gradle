@@ -1,6 +1,8 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.plugin.compatibility.compatibility
 import java.time.Duration
+import kotlin.div
+import kotlin.text.set
 
 plugins {
     `java-library`
@@ -69,7 +71,26 @@ configurations.configureEach {
 
 
 tasks.withType<Test> {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        // Les tests @Tag("real-llm") sont exclus par défaut.
+        // Pour les activer : ./gradlew test -Ptest.tags="real-llm"
+        val runRealLlm = project.findProperty("test.tags")
+            ?.toString()
+            ?.contains("real-llm") == true
+
+        if (!runRealLlm) {
+            excludeTags("real-llm")
+        }
+
+        // Timeout global par test — évite qu'un GradleRunner reste bloqué
+        // si Ollama ne répond pas (couvert par WireMock dans les tests unitaires)
+        timeout.set(Duration.ofSeconds(30))
+
+        // Exécution parallèle des classes de test (les nested partagent leur état
+        // via companion object, donc la parallélisation est au niveau classe)
+        maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
+
+    }
     testLogging {
         events("passed", "skipped", "failed")
         showStandardStreams = true
@@ -138,6 +159,7 @@ val functionalTestTask = tasks.register<Test>("functionalTest") {
     testClassesDirs = functionalTest.output.classesDirs
     classpath = configurations[functionalTest.runtimeClasspathConfigurationName] + functionalTest.output
     useJUnitPlatform()
+//    useJUnitPlatform { includeTags("real-llm") }
     testLogging {
         events("passed", "skipped", "failed")
         showStandardStreams = true
