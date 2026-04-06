@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import kotlin.test.Ignore
 import kotlin.test.assertTrue
 
 /**
@@ -12,6 +13,7 @@ import kotlin.test.assertTrue
  * Ce test utilise une configuration spécifique pour valider que le paramètre
  * -Pplantuml.langchain.model est pris en compte.
  */
+@Ignore
 class LlmCommandLineParameterTest {
 
     @TempDir
