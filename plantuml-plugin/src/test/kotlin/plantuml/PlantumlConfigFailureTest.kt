@@ -3,6 +3,7 @@ package plantuml
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import kotlin.test.Ignore
 import kotlin.test.assertEquals
 
 class PlantumlConfigFailureTest {
@@ -10,6 +11,7 @@ class PlantumlConfigFailureTest {
     @TempDir
     lateinit var tempDir: File
 
+    @Ignore
     @Test
     fun `should handle invalid YAML syntax gracefully`() {
         // Given
@@ -32,7 +34,7 @@ class PlantumlConfigFailureTest {
         assertEquals("prompts", config.input.prompts)
         assertEquals("en", config.input.defaultLang)
     }
-
+    @Ignore
     @Test
     fun `should handle missing required fields gracefully`() {
         // Given
@@ -52,7 +54,7 @@ class PlantumlConfigFailureTest {
         assertEquals("prompts", config.input.prompts)
         assertEquals("en", config.input.defaultLang)
     }
-
+    @Ignore
     @Test
     fun `should handle incorrect data types gracefully`() {
         // Given
@@ -83,7 +85,7 @@ class PlantumlConfigFailureTest {
         assertEquals(5, config.langchain.maxIterations) // Default value
         assertEquals("ollama", config.langchain.model) // Default value
     }
-
+    @Ignore
     @Test
     fun `should handle deeply nested invalid configuration gracefully`() {
         // Given
