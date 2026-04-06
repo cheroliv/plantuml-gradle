@@ -48,7 +48,6 @@ class LlmServiceTest {
         }
     }
 
-    @Ignore
     @ParameterizedTest
     @EnumSource(LangchainModel::class)
     fun `should create chat model for all supported providers`(model: LangchainModel) {
