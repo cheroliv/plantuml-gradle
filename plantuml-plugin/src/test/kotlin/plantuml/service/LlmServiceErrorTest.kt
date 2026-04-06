@@ -21,7 +21,7 @@ class LlmServiceErrorTest {
         )
     }
 
-    @Ignore
+    @Suppress("JUnitMalformedDeclaration")
     @ParameterizedTest
     @MethodSource("errorHandlingScenarios")
     fun `should handle various error scenarios gracefully`(scenario: String, model: String, apiKey: String) {
@@ -36,7 +36,6 @@ class LlmServiceErrorTest {
         assertNotNull(chatModel)
     }
 
-    @Ignore
     @Test
     fun `should handle malformed configuration gracefully`() {
         // Given
