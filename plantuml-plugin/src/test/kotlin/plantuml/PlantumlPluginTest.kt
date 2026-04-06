@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-
+//Tests are quick
 class PlantumlPluginTest {
 
     @Test
