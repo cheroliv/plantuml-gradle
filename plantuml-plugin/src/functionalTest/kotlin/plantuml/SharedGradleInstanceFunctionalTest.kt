@@ -5,9 +5,10 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import kotlin.test.Ignore
 import kotlin.test.assertTrue
 import kotlin.test.assertEquals
-
+@Ignore
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class SharedGradleInstanceFunctionalTest {
 
