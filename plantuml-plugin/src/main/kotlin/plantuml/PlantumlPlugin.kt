@@ -37,7 +37,6 @@ class PlantumlPlugin : Plugin<Project> {
      * ```
      */
     open class PlantumlExtension @Inject constructor(objects: ObjectFactory) {
-        @Suppress("unused")
         val configPath: Property<String> = objects.property(String::class.java)
     }
 }
