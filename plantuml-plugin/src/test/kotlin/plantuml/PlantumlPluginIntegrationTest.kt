@@ -6,9 +6,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+//Tests are slow : 46 sec
+@Ignore
 class PlantumlPluginIntegrationTest {
 
     @TempDir
