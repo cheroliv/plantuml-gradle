@@ -9,6 +9,7 @@ import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
+// Test are quick
 class PlantumlConfigLoaderTest {
 
     companion object {
@@ -18,14 +19,15 @@ class PlantumlConfigLoaderTest {
     @TempDir
     lateinit var tempDir: File
 
+    //    @Ignore
     @Test
     fun `should load default configuration when no config file exists`() {
         // Given
         val configFile = File(tempDir, "nonexistent.yml")
-        
+
         // When
         val config = PlantumlConfig()
-        
+
         // Then
         assertDefaultConfigValues(config)
     }
@@ -34,7 +36,8 @@ class PlantumlConfigLoaderTest {
     fun `should load configuration from valid YAML file`() {
         // Given
         val configFile = File(tempDir, "plantuml-context.yml")
-        configFile.writeText("""
+        configFile.writeText(
+            """
             input:
               prompts: "custom-prompts"
               defaultLang: "fr"
@@ -59,7 +62,8 @@ class PlantumlConfigLoaderTest {
               watchedBranches: 
                 - "feature"
                 - "release"
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // When
         val config = mapper.readValue(configFile, PlantumlConfig::class.java)
@@ -85,7 +89,8 @@ class PlantumlConfigLoaderTest {
     fun `should handle all LLM provider configurations`() {
         // Given
         val configFile = File(tempDir, "plantuml-context.yml")
-        configFile.writeText("""
+        configFile.writeText(
+            """
             langchain:
               model: "ollama"
               ollama:
@@ -103,7 +108,8 @@ class PlantumlConfigLoaderTest {
                 apiKey: "fake-huggingface-key"
               groq:
                 apiKey: "fake-groq-key"
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // When
         val config = mapper.readValue(configFile, PlantumlConfig::class.java)
@@ -124,10 +130,12 @@ class PlantumlConfigLoaderTest {
     fun `should use default values for missing configuration`() {
         // Given
         val configFile = File(tempDir, "plantuml-context.yml")
-        configFile.writeText("""
+        configFile.writeText(
+            """
             input:
               prompts: "only-this-is-specified"
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // When
         val config = mapper.readValue(configFile, PlantumlConfig::class.java)
