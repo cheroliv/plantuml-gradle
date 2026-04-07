@@ -1,19 +1,19 @@
-package plantuml.service
+package plantuml
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension
-import com.github.tomakehurst.wiremock.junit5.WireMockTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.api.io.TempDir
 import org.mockito.Mockito.*
-import plantuml.PlantumlConfig
-import plantuml.LangchainConfig
-import plantuml.OllamaConfig
+import plantuml.PromptOrchestratorTest.WireMockerServer.wireMock
+import plantuml.service.DiagramProcessor
+import plantuml.service.LlmService
+import plantuml.service.PlantumlService
 import java.io.File
-import java.nio.file.Path
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -165,11 +165,6 @@ class PromptOrchestratorTest {
     @Nested
     inner class WithWireMockLlm {
 
-        @RegisterExtension
-        val wireMock: WireMockExtension = WireMockExtension.newInstance()
-            .options(com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig().dynamicPort())
-            .build()
-
         private lateinit var orchestrator: PromptOrchestrator
         private lateinit var mockPlantumlService: PlantumlService
 
@@ -248,6 +243,15 @@ class PromptOrchestratorTest {
                     .withRequestBody(matchingJsonPath("$.model", equalTo("smollm:135m"))),
             )
         }
+
+    }
+
+    object WireMockerServer {
+        @JvmStatic
+        @RegisterExtension
+        val wireMock: WireMockExtension = WireMockExtension.newInstance()
+            .options(WireMockConfiguration.wireMockConfig().dynamicPort())
+            .build()
     }
 
     // ------------------------------------------------------------------ //
