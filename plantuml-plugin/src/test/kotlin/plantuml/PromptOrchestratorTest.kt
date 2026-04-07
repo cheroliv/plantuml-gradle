@@ -211,7 +211,7 @@ class PromptOrchestratorTest {
             val result = orchestrator.process()
 
             // Au moins une tentative a été faite vers WireMock
-            wireMock.verify(atLeast(1), postRequestedFor(urlEqualTo("/api/generate")))
+            wireMock.verify(1, postRequestedFor(urlEqualTo("/api/generate")))
             assertEquals(1, result.totalPrompts)
         }
 
