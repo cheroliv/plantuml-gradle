@@ -8,7 +8,6 @@ import org.mockito.Mockito.*
 import plantuml.PlantumlCode
 import plantuml.PlantumlDiagram
 import plantuml.ValidationFeedback
-import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
