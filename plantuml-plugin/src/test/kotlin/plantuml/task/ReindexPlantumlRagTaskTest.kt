@@ -35,7 +35,6 @@ class ReindexPlantumlRagTaskTest {
         createBasicConfigFile()
     }
 
-    @kotlin.test.Ignore
     @ParameterizedTest
     @ValueSource(strings = ["empty", "invalid_syntax", "subdirs", "empty_files"])
     fun `should handle various RAG scenarios`(scenario: String) {
