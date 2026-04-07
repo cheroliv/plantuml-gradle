@@ -1,3 +1,5 @@
+#noinspection CucumberUndefinedStep
+@cucumber @readme
 Feature: Attempt History Tracking
 
 #  Scenario: Track successful diagram generation with corrections
