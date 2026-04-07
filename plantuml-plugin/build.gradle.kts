@@ -223,7 +223,6 @@ val cucumberTest = tasks.register<Test>("cucumberTest") {
     testClassesDirs = sourceSets.test.get().output.classesDirs
     classpath = configurations.testRuntimeClasspath.get() +
             sourceSets.test.get().output +
-            functionalTest.output +
             sourceSets.main.get().output
     useJUnitPlatform {
         // CORRECTION: Ne pas filtrer par tag ici, ça filtre les engines JUnit
@@ -237,9 +236,15 @@ val cucumberTest = tasks.register<Test>("cucumberTest") {
         exceptionFormat = FULL
     }
     outputs.upToDateWhen { false }
-    // S'assurer que functionalTest et main sont compilés avant
-    dependsOn(functionalTest.classesTaskName)
+    // S'assurer que main est compilé avant
     dependsOn(tasks.classes)
+    
+    // Optimisations de performance
+    maxParallelForks = 4
+    forkEvery = 20
+    jvmArgs("-XX:+UseSerialGC")
+    jvmArgs("-XX:MaxMetaspaceSize=256m")
+    jvmArgs("-XX:TieredStopAtLevel=1")
 }
 
 tasks.withType<Test>().configureEach {
