@@ -14,4 +14,3 @@ postgresql.yml
 .kotlin
 #readme-truth.yml
 #plantuml-test-config.yml
-.webui_secret_key
