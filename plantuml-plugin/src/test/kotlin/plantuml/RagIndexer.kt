@@ -1,16 +1,13 @@
-package plantuml.service
+package plantuml
 
 import java.io.File
-import java.nio.file.Path
 
 /**
  * Logique métier d'indexation RAG, extraite de ReindexPlantumlRagTask.
  *
  * Reçoit uniquement le répertoire RAG — pas de référence à Project ou à Task.
  */
-class RagIndexer(
-    private val ragDir: File,
-) {
+class RagIndexer(private val ragDir: File) {
     data class IndexingResult(
         val diagramsFound: Int,
         val historiesFound: Int,
