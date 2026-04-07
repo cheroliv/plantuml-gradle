@@ -4,7 +4,6 @@ import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.io.TempDir
-import plantuml.service.LlmService
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
@@ -127,10 +126,10 @@ class PlantumlRealInfrastructureSuite {
 
         @Test
         fun `should create chat model without exception`() {
-            val config = plantuml.PlantumlConfig(
-                langchain = plantuml.LangchainConfig(
+            val config = PlantumlConfig(
+                langchain = LangchainConfig(
                     model = "ollama",
-                    ollama = plantuml.OllamaConfig(OLLAMA_URL, OLLAMA_MODEL),
+                    ollama = OllamaConfig(OLLAMA_URL, OLLAMA_MODEL),
                 ),
             )
             // Doit juste ne pas lever d'exception — pas besoin de Gradle
