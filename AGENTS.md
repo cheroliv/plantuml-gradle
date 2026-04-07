@@ -112,6 +112,11 @@ Suit les patterns architecturaux des projets `slider-gradle`(les sources sont da
 - **Suppression des annotations @Ignore dans PlantumlConfigTest.kt**
   - Activation des tests de configuration YAML
   - Tous les tests du fichier PlantumlConfigTest.kt passent désormais avec succès
+- **Optimisation des tests Cucumber (61% de gain : 46s → 18s)**
+  - Template de projet partagé dans PlantumlWorld.kt (@BeforeAll + copyRecursively)
+  - Suppression des flags incompatibles (--no-daemon, --configuration-cache)
+  - Réduction du classpath cucumberTest
+  - Minimisation des dépendances entre tâches
 ### 📋 Backlog — À faire
 &lt;!-- Liste des tests unitaires à corriger par ordre de priorité --&gt;
 
@@ -175,6 +180,33 @@ plantuml-plugin/src/main/kotlin/plantuml/
 - Utilisation de mocks complets pour les tests unitaires afin d'éviter les appels réseau
 - Limitation du nombre d'itérations dans les tests à 1 pour accélérer l'exécution
 - Séparation des sorties de test dans un répertoire dédié (test-output) pour ne pas fausser l'historique d'entraînement
+
+### Techniques d'optimisation Cucumber/GradleTestKit (61% de gain : 46s → 18s)
+
+1. **Template de projet partagé** (`PlantumlWorld.kt`)
+   - Créer un projet template unique dans `@BeforeAll` (statique, une fois pour toutes les classes)
+   - Copier le template via `copyRecursively()` pour chaque scénario au lieu de recréer tous les fichiers
+   - Gain : 20-30%
+
+2. **Éviter les flags Gradle incompatibles avec TestKit**
+   - NE PAS utiliser `--no-daemon`, `--configuration-cache` avec `GradleRunner` (erreurs `InternalUnsupportedBuildArgumentException`)
+   - Laisser GradleTestKit gérer le daemon automatiquement
+   - Gain : 40-50%
+
+3. **Réduire le classpath des tâches de test**
+   - Supprimer `functionalTest.output` du classpath `cucumberTest` si non nécessaire
+   - Exclure les dépendances inutiles dans `build.gradle.kts`
+   - Gain : 10-15%
+
+4. **Minimiser les dépendances entre tâches**
+   - Retirer `dependsOn(functionalTest.classesTaskName)` de `cucumberTest`
+   - Ne dépendre que de `tasks.classes` (compilation main)
+   - Gain : 5-10%
+
+5. **Refactorisation des tests unitaires**
+   - Utiliser des tests paramétrés pour réduire la duplication
+   - Extraire les tests unitaires vers `ProjectBuilder` (pas de GradleRunner)
+   - Gain : 60% sur certains tests (ex: LlmConfigurationTest)
 
 ---
 
