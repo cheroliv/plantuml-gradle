@@ -1,4 +1,4 @@
-Feature: Syntax Validation
+#Feature: Syntax Validation
 
 #  Scenario: Validate correct PlantUML file
 #    Given a valid PlantUML file "valid.puml" with content "@startuml\nactor User\n@enduml"
