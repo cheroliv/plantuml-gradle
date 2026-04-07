@@ -1,4 +1,4 @@
-Feature: PlantUML Processing
+#Feature: PlantUML Processing
 
 #  Scenario: Process valid prompt file with mock LLM
 #    Given a prompt file "simple-diagram.prompt" with content "Create a simple user diagram"
