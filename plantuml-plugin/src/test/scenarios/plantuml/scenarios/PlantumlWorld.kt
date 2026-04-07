@@ -1,12 +1,13 @@
 package plantuml.scenarios
 
 import com.sun.net.httpserver.HttpServer
+import com.sun.net.httpserver.HttpServer.create
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Default
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+import org.slf4j.LoggerFactory.getLogger
 import java.io.File
 import java.io.File.createTempFile
 import java.net.HttpURLConnection
@@ -14,7 +15,7 @@ import java.net.InetSocketAddress
 import java.net.URI
 
 class PlantumlWorld {
-    val log: Logger = LoggerFactory.getLogger(PlantumlWorld::class.java)
+    val log: Logger = getLogger(PlantumlWorld::class.java)
 
     val scope = CoroutineScope(Default + SupervisorJob())
 
@@ -61,7 +62,7 @@ class PlantumlWorld {
      * [responseBody] as the assistant message content.
      */
     fun startMockLlm(responseBody: String) {
-        val server = HttpServer.create(InetSocketAddress(0), 0)
+        val server = create(InetSocketAddress(0), 0)
         val port = server.address.port
         mockServerPort = port
 
@@ -105,11 +106,7 @@ class PlantumlWorld {
         log.info("Starting async Gradle execution: $allArgs")
         return scope.async {
             try {
-                GradleRunner.create()
-                    .withProjectDir(projectDir!!)
-                    .withArguments(allArgs)
-                    .withPluginClasspath()
-                    .build()
+                GradleRunner.create().withProjectDir(projectDir!!).withArguments(allArgs).withPluginClasspath().build()
             } catch (e: Exception) {
                 log.error("Gradle build failed", e)
                 exception = e
@@ -121,9 +118,7 @@ class PlantumlWorld {
     suspend fun executeGradle(
         vararg tasks: String,
         properties: Map<String, String> = emptyMap(),
-    ): BuildResult = executeGradleAsync(*tasks, properties = properties)
-        .await()
-        .also { buildResult = it }
+    ): BuildResult = executeGradleAsync(*tasks, properties = properties).await().also { buildResult = it }
 
     suspend fun awaitAll() {
         if (asyncJobs.isNotEmpty()) {
@@ -143,14 +138,10 @@ class PlantumlWorld {
             delete()
             mkdirs()
         }.run {
-            resolve("settings.gradle.kts")
-                .apply { createNewFile() }
-                .writeText(
-                    "pluginManagement.repositories.gradlePluginPortal()\n" +
-                            "rootProject.name = \"${name}\""
+            resolve("settings.gradle.kts").apply { createNewFile() }.writeText(
+                    "pluginManagement.repositories.gradlePluginPortal()\n" + "rootProject.name = \"${name}\""
                 )
-            resolve("build.gradle.kts")
-                .apply { createNewFile() }
+            resolve("build.gradle.kts").apply { createNewFile() }
                 .writeText("plugins { id(\"$pluginId\") }\n$buildScriptContent")
             projectDir = this
             this
