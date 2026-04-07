@@ -6,6 +6,7 @@ import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.io.TempDir
+import plantuml.service.LlmService
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URI
@@ -139,6 +140,7 @@ class PlantumlRealInfrastructureSuite {
             )
             // Doit juste ne pas lever d'exception — pas besoin de Gradle
             LlmService(config).createChatModel()
+
         }
     }
 
