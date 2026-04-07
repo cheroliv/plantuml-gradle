@@ -6,6 +6,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Default
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
+import org.junit.jupiter.api.BeforeAll
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory.getLogger
 import java.io.File
@@ -24,6 +25,65 @@ class PlantumlWorld {
     var exception: Throwable? = null
 
     private val asyncJobs = mutableListOf<Deferred<BuildResult>>()
+
+    companion object {
+        private var templateProjectDir: File? = null
+
+        @BeforeAll
+        @JvmStatic
+        fun createTemplateProject() {
+            if (templateProjectDir == null) {
+                templateProjectDir = createBaseTemplateProject()
+            }
+        }
+
+        private fun createBaseTemplateProject(): File {
+            val templateDir =
+                File(System.getProperty("java.io.tmpdir"), "plantuml-test-template-${System.currentTimeMillis()}")
+            templateDir.mkdirs()
+
+            File(templateDir, "settings.gradle.kts").writeText(
+                "pluginManagement.repositories.gradlePluginPortal()\n" + "rootProject.name = \"plantuml-test-template\""
+            )
+
+            File(templateDir, "build.gradle.kts").writeText(
+                """
+                plugins {
+                    id("com.cheroliv.plantuml")
+                }
+                
+                plantuml {
+                    configPath = "plantuml-context.yml"
+                }
+                """.trimIndent()
+            )
+
+            File(templateDir, "plantuml-context.yml").writeText(
+                """
+                input:
+                  prompts: "test-prompts"
+                output:
+                  images: "generated/images"
+                  rag: "generated/rag"
+                  diagrams: "generated/diagrams"
+                  validations: "generated/validations"
+                langchain:
+                  model: "ollama"
+                  ollama:
+                    baseUrl: "http://localhost:11434"
+                    modelName: "smollm:135m"
+                  maxIterations: 1
+                """.trimIndent()
+            )
+
+            val promptsDir = File(templateDir, "test-prompts")
+            promptsDir.mkdirs()
+            File(promptsDir, "test.prompt").writeText("Create a simple class diagram")
+
+            templateDir.deleteOnExit()
+            return templateDir
+        }
+    }
 
     /** Base URL of the Ollama instance available for this scenario. */
     var ollamaBaseUrl: String? = null
@@ -129,23 +189,28 @@ class PlantumlWorld {
     }
 
     /**
-     * Creates a temporary Gradle project for testing.
+     * Creates a temporary Gradle project for testing by copying from template.
+     * This is faster than creating from scratch.
      */
     fun createGradleProject(configFileName: String = "plantuml-context.yml"): File {
-        val pluginId = "com.cheroliv.plantuml"
-        val buildScriptContent = "plantuml { configPath = file(\"$configFileName\").absolutePath }"
-        return createTempFile("gradle-test-", "").apply {
+        val templateDir = templateProjectDir ?: createBaseTemplateProject().also { templateProjectDir = it }
+
+        val testDir = createTempFile("gradle-test-", "").apply {
             delete()
             mkdirs()
-        }.run {
-            resolve("settings.gradle.kts").apply { createNewFile() }.writeText(
-                    "pluginManagement.repositories.gradlePluginPortal()\n" + "rootProject.name = \"${name}\""
-                )
-            resolve("build.gradle.kts").apply { createNewFile() }
-                .writeText("plugins { id(\"$pluginId\") }\n$buildScriptContent")
-            projectDir = this
-            this
         }
+
+        templateDir.copyRecursively(testDir, overwrite = true)
+
+        if (configFileName != "plantuml-context.yml") {
+            val configFile = File(testDir, configFileName)
+            if (!configFile.exists()) {
+                configFile.createNewFile()
+            }
+        }
+
+        projectDir = testDir
+        return testDir
     }
 
     @Suppress("unused")
