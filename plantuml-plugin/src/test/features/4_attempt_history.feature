@@ -1,6 +1,6 @@
 #noinspection CucumberUndefinedStep
-@cucumber @readme
-Feature: Attempt History Tracking
+#@cucumber @plantuml
+#Feature: Attempt History Tracking
 
 #  Scenario: Track successful diagram generation with corrections
 #    Given a prompt file "tracking-test.prompt" with content "Create a simple user diagram"
