@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import plantuml.PlantumlConfig
-import kotlin.test.Ignore
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 
@@ -62,29 +61,34 @@ class LlmServiceErrorTest {
                     openai = plantuml.ApiKeyConfig(apiKey)
                 )
             )
+
             "unsupported-model" -> PlantumlConfig(
                 langchain = plantuml.LangchainConfig(
                     model = model
                 )
             )
+
             "network-timeouts" -> PlantumlConfig(
                 langchain = plantuml.LangchainConfig(
                     model = model,
                     openai = plantuml.ApiKeyConfig(apiKey)
                 )
             )
+
             "rate-limiting" -> PlantumlConfig(
                 langchain = plantuml.LangchainConfig(
                     model = model,
                     mistral = plantuml.ApiKeyConfig(apiKey)
                 )
             )
+
             "fallback-default" -> PlantumlConfig(
                 langchain = plantuml.LangchainConfig(
                     model = model
                     // Missing gemini configuration for fallback test
                 )
             )
+
             else -> PlantumlConfig()
         }
     }
