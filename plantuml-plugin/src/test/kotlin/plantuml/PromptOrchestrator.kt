@@ -1,6 +1,7 @@
-package plantuml.service
+package plantuml
 
-import plantuml.PlantumlConfig
+import plantuml.service.DiagramProcessor
+import plantuml.service.PlantumlService
 import java.io.File
 import java.nio.file.Path
 
