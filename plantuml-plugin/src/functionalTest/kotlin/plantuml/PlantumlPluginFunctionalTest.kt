@@ -8,6 +8,7 @@ import java.io.File
 import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+
 @Ignore
 class PlantumlPluginFunctionalTest {
 
@@ -58,12 +59,14 @@ class PlantumlPluginFunctionalTest {
         writeBuildFileWithExtension()
         writeSettingsFile()
         val configFile = File(testProjectDir, "plantuml-context.yml").apply {
-            writeText("""
+            writeText(
+                """
                 input:
                   prompts: "test-prompts"
                 output:
                   images: "test-images"
-            """.trimIndent())
+            """.trimIndent()
+            )
         }
 
         // When
@@ -80,16 +83,19 @@ class PlantumlPluginFunctionalTest {
 
     private fun writeBuildFile() {
         val buildFile = File(testProjectDir, "build.gradle.kts")
-        buildFile.writeText("""
+        buildFile.writeText(
+            """
             plugins {
                 id("com.cheroliv.plantuml")
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
 
     private fun writeBuildFileWithExtension() {
         val buildFile = File(testProjectDir, "build.gradle.kts")
-        buildFile.writeText("""
+        buildFile.writeText(
+            """
             plugins {
                 id("com.cheroliv.plantuml")
             }
@@ -97,13 +103,16 @@ class PlantumlPluginFunctionalTest {
             plantuml {
                 configPath = file("plantuml-context.yml").absolutePath
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
 
     private fun writeSettingsFile() {
         val settingsFile = File(testProjectDir, "settings.gradle.kts")
-        settingsFile.writeText("""
+        settingsFile.writeText(
+            """
             rootProject.name = "test-project"
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
 }
