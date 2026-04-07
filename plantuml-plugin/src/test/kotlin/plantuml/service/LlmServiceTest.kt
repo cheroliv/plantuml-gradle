@@ -3,7 +3,6 @@ package plantuml.service
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import plantuml.PlantumlConfig
-import kotlin.test.Ignore
 import kotlin.test.assertNotNull
 
 class LlmServiceTest {
@@ -21,24 +20,28 @@ class LlmServiceTest {
                     openai = plantuml.ApiKeyConfig("test-key")
                 )
             )
+
             LangchainModel.GEMINI -> PlantumlConfig(
                 langchain = plantuml.LangchainConfig(
                     model = "gemini",
                     gemini = plantuml.ApiKeyConfig("test-key")
                 )
             )
+
             LangchainModel.MISTRAL -> PlantumlConfig(
                 langchain = plantuml.LangchainConfig(
                     model = "mistral",
                     mistral = plantuml.ApiKeyConfig("test-key")
                 )
             )
+
             LangchainModel.CLAUDE -> PlantumlConfig(
                 langchain = plantuml.LangchainConfig(
                     model = "claude",
                     claude = plantuml.ApiKeyConfig("test-key")
                 )
             )
+
             LangchainModel.HUGGINGFACE -> PlantumlConfig(
                 langchain = plantuml.LangchainConfig(
                     model = "huggingface",
