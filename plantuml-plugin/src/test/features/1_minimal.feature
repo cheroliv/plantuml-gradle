@@ -1,4 +1,3 @@
-noinspection CucumberUndefinedStep
 @cucumber @plantuml
 Feature: Minimal Plantuml configuration
 
