@@ -151,6 +151,13 @@ dependencies {
     libs.bundles.coroutines.get().forEach { dep ->
         add(functionalTest.implementationConfigurationName, dep)
     }
+    
+    // CORRECTION: Ajouter LangChain4j pour accéder aux classes ChatModel
+    add(functionalTest.implementationConfigurationName, libs.langchain4j)
+    add(functionalTest.implementationConfigurationName, libs.langchain4j.ollama)
+    
+    // CORRECTION: Ajouter la dépendance vers le code source principal pour accéder aux classes du plugin
+    add(functionalTest.implementationConfigurationName, sourceSets.main.get().output)
 }
 
 // 3. Tâche pour les tests fonctionnels
