@@ -1,3 +1,5 @@
+@file:Suppress("FunctionName")
+
 package plantuml
 
 import org.gradle.testkit.runner.GradleRunner
@@ -6,7 +8,10 @@ import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.net.HttpURLConnection
+import java.net.URI
+import java.net.URI.create
 import java.net.URL
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
@@ -120,8 +125,8 @@ class PlantumlRealInfrastructureSuite {
 
         @Test
         fun `should reach ollama api tags endpoint`() {
-            val conn = URL("$OLLAMA_URL/api/tags").openConnection() as HttpURLConnection
-            assertTrue(conn.responseCode == 200)
+            val conn = create("$OLLAMA_URL/api/tags").toURL().openConnection() as HttpURLConnection
+            assertEquals(conn.responseCode, 200)
         }
 
         @Test
