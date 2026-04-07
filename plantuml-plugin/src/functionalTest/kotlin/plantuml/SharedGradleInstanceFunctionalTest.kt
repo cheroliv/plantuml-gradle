@@ -6,8 +6,9 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import kotlin.test.Ignore
-import kotlin.test.assertTrue
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+
 @Ignore
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class SharedGradleInstanceFunctionalTest {
@@ -16,10 +17,10 @@ class SharedGradleInstanceFunctionalTest {
         @TempDir
         @JvmField
         var sharedTestProjectDir: File? = null
-        
+
         private var gradleRunner: GradleRunner? = null
         private var testResults: MutableMap<String, String> = mutableMapOf()
-        
+
         @BeforeAll
         @JvmStatic
         fun setupSharedGradleInstance() {
@@ -27,10 +28,11 @@ class SharedGradleInstanceFunctionalTest {
                 // Créer les fichiers de configuration partagés
                 val settingsFile = File(sharedTestProjectDir!!, "settings.gradle.kts")
                 val buildFile = File(sharedTestProjectDir!!, "build.gradle.kts")
-                
+
                 settingsFile.writeText("""rootProject.name = "shared-test-project"""")
-                
-                buildFile.writeText("""
+
+                buildFile.writeText(
+                    """
                     plugins {
                         id("com.cheroliv.plantuml")
                     }
@@ -38,18 +40,21 @@ class SharedGradleInstanceFunctionalTest {
                     plantuml {
                         configPath = file("plantuml-context.yml").absolutePath
                     }
-                """.trimIndent())
-                
+                """.trimIndent()
+                )
+
                 // Créer un fichier de configuration minimal
                 val configFile = File(sharedTestProjectDir!!, "plantuml-context.yml")
-                configFile.writeText("""
+                configFile.writeText(
+                    """
                     input:
                       prompts: "test-prompts"
                     output:
                       images: "test-images"
                       rag: "test-rag"
-                """.trimIndent())
-                
+                """.trimIndent()
+                )
+
                 // Initialiser GradleRunner une seule fois
                 gradleRunner = GradleRunner.create()
                     .withProjectDir(sharedTestProjectDir!!)
@@ -65,7 +70,7 @@ class SharedGradleInstanceFunctionalTest {
         val result = gradleRunner!!
             .withArguments("help", "--console=plain")
             .build()
-            
+
         testResults["pluginApplies"] = result.output
         assertEquals(TaskOutcome.SUCCESS, result.task(":help")?.outcome)
     }
@@ -76,7 +81,7 @@ class SharedGradleInstanceFunctionalTest {
         val result = gradleRunner!!
             .withArguments("tasks", "--all", "--console=plain")
             .build()
-            
+
         testResults["taskRegistration"] = result.output
         assertTrue(result.output.contains("processPlantumlPrompts"))
         assertTrue(result.output.contains("validatePlantumlSyntax"))
@@ -89,7 +94,7 @@ class SharedGradleInstanceFunctionalTest {
         val result = gradleRunner!!
             .withArguments("properties", "--console=plain")
             .build()
-            
+
         testResults["extensionConfig"] = result.output
         assertTrue(result.output.contains("plantuml"))
     }
@@ -99,7 +104,8 @@ class SharedGradleInstanceFunctionalTest {
     fun `test04 llm provider configurations`() {
         // Créer des configurations pour différents providers
         val configFile = File(sharedTestProjectDir!!, "plantuml-context.yml")
-        configFile.writeText("""
+        configFile.writeText(
+            """
             input:
               prompts: "test-prompts"
             output:
@@ -112,12 +118,13 @@ class SharedGradleInstanceFunctionalTest {
                 modelName: "smollm:135m"
               gemini:
                 apiKey: "fake-key"
-        """.trimIndent())
-        
+        """.trimIndent()
+        )
+
         val result = gradleRunner!!
             .withArguments("help", "--console=plain")
             .build()
-            
+
         testResults["llmConfig"] = result.output
         assertEquals(TaskOutcome.SUCCESS, result.task(":help")?.outcome)
     }
