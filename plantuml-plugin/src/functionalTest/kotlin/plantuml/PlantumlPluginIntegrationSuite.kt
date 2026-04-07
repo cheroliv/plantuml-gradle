@@ -173,8 +173,8 @@ class PlantumlPluginIntegrationSuite {
 
             assertTrue(
                 result.output.contains("does not exist", ignoreCase = true) ||
-                    result.output.contains("not found", ignoreCase = true) ||
-                    result.output.contains("No such file", ignoreCase = true),
+                        result.output.contains("not found", ignoreCase = true) ||
+                        result.output.contains("No such file", ignoreCase = true),
             )
         }
 
@@ -215,8 +215,8 @@ class PlantumlPluginIntegrationSuite {
             assertEquals(TaskOutcome.SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
             assertTrue(
                 result.output.contains("Found") ||
-                    result.output.contains("Indexed") ||
-                    result.output.contains("Processed"),
+                        result.output.contains("Indexed") ||
+                        result.output.contains("Processed"),
             )
         }
 
@@ -243,8 +243,8 @@ class PlantumlPluginIntegrationSuite {
             assertEquals(TaskOutcome.SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
             assertTrue(
                 result.output.contains("Created RAG directory") ||
-                    result.output.contains("No RAG directory found") ||
-                    result.output.contains("No PlantUML diagrams"),
+                        result.output.contains("No RAG directory found") ||
+                        result.output.contains("No PlantUML diagrams"),
             )
         }
 
