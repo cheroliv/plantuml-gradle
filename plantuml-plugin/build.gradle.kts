@@ -146,6 +146,7 @@ dependencies {
     add(functionalTest.implementationConfigurationName, libs.mockito.kotlin)
     add(functionalTest.implementationConfigurationName, libs.mockito.junit.jupiter)
     add(functionalTest.implementationConfigurationName, libs.wiremock)
+    add(functionalTest.implementationConfigurationName, libs.junit.platform.params)
 
     libs.bundles.coroutines.get().forEach { dep ->
         add(functionalTest.implementationConfigurationName, dep)
