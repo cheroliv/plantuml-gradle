@@ -11,7 +11,6 @@ import java.io.File
 import java.net.HttpURLConnection
 import java.net.URI
 import java.net.URI.create
-import java.net.URL
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -56,11 +55,11 @@ class PlantumlRealInfrastructureSuite {
         @JvmStatic
         fun checkOllamaAvailability() {
             ollamaAvailable = try {
-                val conn = URL("$OLLAMA_URL/api/tags").openConnection() as HttpURLConnection
+                val conn = URI("$OLLAMA_URL/api/tags").toURL().openConnection() as HttpURLConnection
                 conn.connectTimeout = 2000
                 conn.readTimeout = 2000
                 conn.responseCode == 200
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 false
             }
 
@@ -103,11 +102,11 @@ class PlantumlRealInfrastructureSuite {
                 .writeText("Create a minimal class diagram with one class named Foo")
         }
 
-        fun runner(vararg args: String) =
+        fun runner(vararg args: String): GradleRunner =
             GradleRunner.create()
                 .withProjectDir(sharedProjectDir)
                 .withArguments(*args, "--stacktrace")
-                .withPluginClasspath()
+                .withPluginClasspath()!!
     }
 
     // ------------------------------------------------------------------ //
