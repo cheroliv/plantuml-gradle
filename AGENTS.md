@@ -92,6 +92,92 @@ plantuml-plugin/src/main/kotlin/plantuml/
 
 ---
 
+## 🚀 Optimisation des tests
+
+### Types de tests et localisation
+
+| Type | Dossier | Outil | Règles |
+|------|---------|-------|--------|
+| **Tests unitaires** | `src/test/kotlin/plantuml/` | **ProjectBuilder** | ✅ Mocks complets, ❌ Jamais GradleRunner |
+| **Tests fonctionnels** | `src/functionalTest/kotlin/plantuml/` | **GradleRunner** | ✅ Vrai build Gradle, ✅ smollm:135m |
+| **Tests BDD (Cucumber)** | `src/test/features/`, `src/test/scenarios/` | **GradleRunner** | ✅ Template partagé (`PlantumlWorld.kt`) |
+
+### Règles par type de test
+
+#### 1. Tests unitaires (`src/test/kotlin/plantuml/`)
+```kotlin
+// ✅ OUI : ProjectBuilder + Mocks
+val project = ProjectBuilder.builder().build()
+val mockService = mock(PlantumlService::class.java)
+
+// ❌ NON : GradleRunner (trop lent, réservé aux tests fonctionnels)
+```
+
+**Règles :**
+- ✅ **Mocks complets** pour éviter les appels réseau
+- ✅ **ProjectBuilder** (pas GradleRunner) → 60% plus rapide
+- ✅ **WireMock** pour les tests HTTP (endpoint `/api/chat`)
+- ✅ **1 itération max** pour les tests LLM
+- ✅ **Objectif** : <10ms par test
+
+#### 2. Tests fonctionnels (`src/functionalTest/kotlin/plantuml/`)
+```kotlin
+// ✅ OUI : GradleRunner avec vrais plugins
+val result = GradleRunner.create()
+    .withProjectDir(testDir)
+    .withArguments("processPlantumlPrompts")
+    .build()
+
+// ✅ OUI : smollm:135m (léger) pour les tests nécessitant un LLM réel
+// ✅ OUI : 1 itération max pour accélérer
+```
+
+**Règles :**
+- ✅ **GradleRunner** obligatoire (teste le vrai build)
+- ✅ **smollm:135m** pour les tests LLM (pas de gros modèles)
+- ✅ **1 itération max** dans la config YAML
+- ✅ **WireMock** si possible (mappings dans `src/test/resources/__files/`)
+- ✅ **Objectif** : <30s par test
+
+#### 3. Tests BDD / Cucumber (`src/test/features/`, `src/test/scenarios/`)
+```kotlin
+// ✅ OUI : Template de projet partagé
+@BeforeAll
+fun setup() {
+    // Copier le template une fois pour toutes les classes
+    templateDir.copyRecursively(testDir)
+}
+
+// ❌ NON : Flags incompatibles avec GradleTestKit
+// Jamais : --no-daemon, --configuration-cache
+```
+
+**Règles :**
+- ✅ **Template partagé** (`PlantumlWorld.kt`) → 61% de gain (46s → 18s)
+- ✅ **Jamais `--no-daemon`** avec GradleRunner → Erreur `InternalUnsupportedBuildArgumentException`
+- ✅ **Jamais `--configuration-cache`** avec GradleRunner
+- ✅ **Objectif** : <30s par scénario
+
+### ⚠️ Pièges connus
+
+| Erreur | Conséquence | Solution |
+|--------|-------------|----------|
+| `GradleRunner` dans tests unitaires | Tests lents (minutes) | Utiliser `ProjectBuilder` |
+| `--no-daemon` avec TestKit | Crash `InternalUnsupportedBuildArgumentException` | Supprimer le flag |
+| Appels HTTP réels | Tests non-déterministes, lents | WireMock avec `/api/chat` |
+| Gros modèles LLM (llama2) | Tests >10min | Utiliser `smollm:135m` |
+| 5 itérations dans les tests | Tests très lents | Réduire à 1 itération |
+
+### 📁 Sorties de test
+
+- **Tests unitaires** : `test-output/` (à côté de `generated/`)
+- **Tests fonctionnels** : `test-output/` (même répertoire)
+- **RAG** : `generated/rag/` (pour l'historique d'entraînement)
+
+**Pourquoi** : Ne pas fausser l'historique RAG avec des fichiers de test.
+
+---
+
 ## 📦 Commandes
 
 ```bash
