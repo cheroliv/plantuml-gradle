@@ -161,6 +161,7 @@ class PromptOrchestratorTest {
     //  Cas 2 : WireMock intercepte les appels HTTP au LLM                 //
     // ------------------------------------------------------------------ //
 
+    @Suppress("JUnitMalformedDeclaration")
     @RegisterExtension
     val wireMock: WireMockExtension = WireMockExtension.newInstance()
         .options(WireMockConfiguration.wireMockConfig().dynamicPort())
@@ -176,14 +177,14 @@ class PromptOrchestratorTest {
         fun setup() {
             mockPlantumlService = mock(PlantumlService::class.java)
 
-            // Réponse Ollama simulée — format JSON de l'API /api/generate
+            // Réponse Ollama simulée — format JSON de l'API /api/chat
             wireMock.stubFor(
-                post(urlEqualTo("/api/generate"))
+                post(urlEqualTo("/api/chat"))
                     .willReturn(
                         aResponse()
                             .withStatus(200)
                             .withHeader("Content-Type", "application/json")
-                            .withBody(ollamaJsonResponse("@startuml\nclass WireMockedClass\n@enduml")),
+                            .withBody(ollamaChatJsonResponse("@startuml\nclass WireMockedClass\n@enduml")),
                     ),
             )
 
@@ -215,14 +216,14 @@ class PromptOrchestratorTest {
             val result = orchestrator.process()
 
             // Au moins une tentative a été faite vers WireMock
-            wireMock.verify(1, postRequestedFor(urlEqualTo("/api/generate")))
+            wireMock.verify(1, postRequestedFor(urlEqualTo("/api/chat")))
             assertEquals(1, result.totalPrompts)
         }
 
         @Test
         fun `should handle 503 from llm and count as failure`() {
             wireMock.stubFor(
-                post(urlEqualTo("/api/generate"))
+                post(urlEqualTo("/api/chat"))
                     .willReturn(aResponse().withStatus(503).withBody("Service Unavailable")),
             )
 
@@ -243,7 +244,7 @@ class PromptOrchestratorTest {
             orchestrator.process()
 
             wireMock.verify(
-                postRequestedFor(urlEqualTo("/api/generate"))
+                postRequestedFor(urlEqualTo("/api/chat"))
                     .withRequestBody(matchingJsonPath("$.model", equalTo("smollm:135m"))),
             )
         }
@@ -274,10 +275,13 @@ class PromptOrchestratorTest {
             plantuml = plantuml.PlantumlCode(code = code, description = "fake"),
         )
 
-    private fun ollamaJsonResponse(plantumlCode: String) = """
+    private fun ollamaChatJsonResponse(plantumlCode: String) = """
         {
           "model": "smollm:135m",
-          "response": "$plantumlCode",
+          "message": {
+            "role": "assistant",
+            "content": "${plantumlCode.replace("\n", "\\n")}"
+          },
           "done": true
         }
     """.trimIndent()
