@@ -1,17 +1,20 @@
 # 🔄 Prompt de reprise — Session Tests Unitaires
 
-> **Prérequis** : `AGENTS.md` est déjà chargé dans le contexte
+> **Prérequis** : `AGENTS.md` est déjà chargé dans le contexte  
+> **Règle** : 1 session = 1 fichier de test créé et validé
 
 ---
 
-## 🎯 Mission de la session
+## 🎯 Mission de CETTE session
 
-**Objectif** : Créer les **7 fichiers de tests unitaires manquants** pour atteindre >80% de couverture
+**Objectif** : Créer **1 fichier de test** (parmi les 7 manquants)
 
-### Les 7 fichiers à créer (par ordre de priorité)
+### Fichier à traiter dans cette session
 
-| # | Fichier | À tester | Tests | Difficulté |
-|---|---------|----------|-------|------------|
+**Recommandation** : Commencer par le **plus simple** en premier
+
+| Priorité | Fichier | À tester | Tests | Difficulté |
+|----------|---------|----------|-------|------------|
 | 1 | `PlantumlManagerTest.kt` | `Configuration.load()`, `Tasks.registerTasks()` | 6 | ⭐ Facile |
 | 2 | `ValidatePlantumlSyntaxTaskTest.kt` | `validateSyntax()` | 5 | ⭐ Facile |
 | 3 | `ModelsDataClassTest.kt` | 11 data classes | 11 | ⭐ Facile |
@@ -20,14 +23,13 @@
 | 6 | `LlmServicePrivateMethodsTest.kt` | 7 méthodes privées | 8 | ⭐⭐⭐ Avancé |
 | 7 | `DiagramProcessorPrivateMethodsTest.kt` | 5 méthodes privées | 8 | ⭐⭐⭐ Avancé |
 
-**Total** : ~50 tests à créer  
-**Contraintes** : Tests <10ms, utiliser ProjectBuilder (pas GradleRunner)
+**À faire** : Cocher la ligne du fichier en cours de traitement
 
 ---
 
 ## 📚 Fichiers complémentaires
 
-- `TEST_COVERAGE_ANALYSIS.md` — Exemples de code pour chaque test
+- `TEST_COVERAGE_ANALYSIS.md` — Exemples de code pour le fichier choisi
 - `COMPLETED_TASKS_ARCHIVE.md` — Historique (pour ne pas refaire)
 
 ---
@@ -40,24 +42,42 @@
 ```
 → Doit afficher : **66/66 tests passent (100%)**
 
-### Étape 2 : Commencer par le plus simple
-**Recommandation** : `PlantumlManagerTest.kt` ou `ValidatePlantumlSyntaxTaskTest.kt`
+### Étape 2 : Choisir 1 fichier à créer
+**Recommandation** : Commencer par `PlantumlManagerTest.kt` (le plus simple)
 
-### Étape 3 : Suivre TEST_COVERAGE_ANALYSIS.md
-Chaque section contient :
-- Signatures des fonctions à tester
-- Exemples de code Kotlin
-- Assertions attendues
+### Étape 3 : Lire TEST_COVERAGE_ANALYSIS.md
+Consulter la section correspondant au fichier choisi
+
+### Étape 4 : Créer le fichier + Tester
+```bash
+# Après avoir créé le fichier
+./gradlew -p plantuml-plugin test
+```
+
+### Étape 5 : Valider
+- ✅ **Si passe** → Commit → Fin de session → Nouvelle session pour le fichier suivant
+- ❌ **Si échec** → Corriger → Re-tester → Puis commit
 
 ---
 
-## ✅ Critères de succès
+## ✅ Critères de succès de CETTE session
 
-- [ ] 7 fichiers créés dans `src/test/kotlin/plantuml/`
-- [ ] ~50 tests ajoutés
-- [ ] Tous les tests passent
+- [ ] **1 fichier** créé dans `src/test/kotlin/plantuml/`
+- [ ] Tests du fichier passent (`./gradlew -p plantuml-plugin test`)
 - [ ] `AGENTS.md` mis à jour (section "État actuel")
-- [ ] Tâches terminées → `COMPLETED_TASKS_ARCHIVE.md`
+- [ ] Tâche terminée → `COMPLETED_TASKS_ARCHIVE.md`
+- [ ] Commit effectué
+
+---
+
+## 🔄 Fin de session
+
+**Quand la session est terminée :**
+1. Vérifier : `./gradlew -p plantuml-plugin test`
+2. Mettre à jour `AGENTS.md`
+3. Déplacer vers `COMPLETED_TASKS_ARCHIVE.md`
+4. Commit : `git add -A && git commit -m "Test: [nom du fichier]"`
+5. **Ouvrir une nouvelle session** pour le fichier suivant
 
 ---
 
