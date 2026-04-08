@@ -173,6 +173,12 @@ val functionalTestTask = tasks.register<Test>("functionalTest") {
         showStandardStreams = true
     }
     failOnNoDiscoveredTests = false
+    
+    // Augmenter le timeout pour les tests fonctionnels qui utilisent GradleRunner
+    timeout.set(Duration.ofMinutes(5))
+    
+    // Ajouter des propriétés système pour les tests de permissions
+    systemProperty("test.timeout.multiplier", "2")
 }
 
 // CORRECTION: Gérer les duplications de ressources pour functionalTest
