@@ -1,6 +1,7 @@
 package plantuml
 
 import org.gradle.testkit.runner.GradleRunner
+import org.gradle.testkit.runner.GradleRunner.create
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -74,7 +75,7 @@ class LlmHandshakeTest {
         promptFile.writeText("Create a simple class diagram with one class")
 
         // Exécuter la tâche avec le paramètre LLM
-        val result = GradleRunner.create()
+        val result = create()
             .withProjectDir(testProjectDir)
             .withArguments(
                 "processPlantumlPrompts",
