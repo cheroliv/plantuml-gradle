@@ -9,21 +9,18 @@
 
 **Objectif** : Créer **1 fichier de test** (parmi les 6 manquants)
 
-### Fichier à traiter dans cette session
+### Fichiers restants à créer (par ordre de priorité)
 
-**Recommandation** : Commencer par le **plus simple** en premier
+| # | Fichier | À tester | Tests | Difficulté |
+|---|---------|----------|-------|------------|
+| 1 | `ValidatePlantumlSyntaxTaskTest.kt` | `validateSyntax()` | 5 | ⭐ Facile |
+| 2 | `ModelsDataClassTest.kt` | 11 data classes | 11 | ⭐ Facile |
+| 3 | `ProcessPlantumlPromptsTaskTest.kt` | `processPrompts()`, `processSinglePrompt()` | 5 | ⭐⭐ Moyen |
+| 4 | `ReindexPlantumlRagTaskUnitTest.kt` | `reindexRag()`, `simulateIndexing()` | 7 | ⭐⭐ Moyen |
+| 5 | `LlmServicePrivateMethodsTest.kt` | 7 méthodes privées | 8 | ⭐⭐⭐ Avancé |
+| 6 | `DiagramProcessorPrivateMethodsTest.kt` | 5 méthodes privées | 8 | ⭐⭐⭐ Avancé |
 
-| Priorité | Fichier | À tester | Tests | Difficulté | Statut |
-|----------|---------|----------|-------|------------|--------|
-| ~~1~~ | ~~`PlantumlManagerTest.kt`~~ | ~~`Configuration.load()`, `Tasks.registerTasks()`~~ | ~~6~~ | ⭐ Facile | ✅ **FAIT** (Session 1) |
-| 1 | `ValidatePlantumlSyntaxTaskTest.kt` | `validateSyntax()` | 5 | ⭐ Facile | ⏳ **Session 3** |
-| 2 | `ModelsDataClassTest.kt` | 11 data classes | 11 | ⭐ Facile | ⏳ À faire |
-| 3 | `ProcessPlantumlPromptsTaskTest.kt` | `processPrompts()`, `processSinglePrompt()` | 5 | ⭐⭐ Moyen | ⏳ À faire |
-| 4 | `ReindexPlantumlRagTaskUnitTest.kt` | `reindexRag()`, `simulateIndexing()` | 7 | ⭐⭐ Moyen | ⏳ À faire |
-| 5 | `LlmServicePrivateMethodsTest.kt` | 7 méthodes privées | 8 | ⭐⭐⭐ Avancé | ⏳ À faire |
-| 6 | `DiagramProcessorPrivateMethodsTest.kt` | 5 méthodes privées | 8 | ⭐⭐⭐ Avancé | ⏳ À faire |
-
-**À faire** : Cocher la ligne du fichier en cours de traitement
+**Recommandation** : Commencer par le **plus simple** (Priorité 1 ou 2)
 
 ---
 
@@ -43,7 +40,7 @@
 → Doit afficher : **70/70 tests passent (100%)**
 
 ### Étape 2 : Choisir 1 fichier à créer
-**Recommandation** : Commencer par `ValidatePlantumlSyntaxTaskTest.kt` (Priorité 1, ⭐ Facile)
+**Recommandation** : `ValidatePlantumlSyntaxTaskTest.kt` (⭐ Facile, 5 tests)
 
 ### Étape 3 : Lire TEST_COVERAGE_ANALYSIS.md
 Consulter la section correspondant au fichier choisi
@@ -57,18 +54,6 @@ Consulter la section correspondant au fichier choisi
 ### Étape 5 : Valider
 - ✅ **Si passe** → Fin de session → Nouvelle session pour le fichier suivant
 - ❌ **Si échec** → Corriger → Re-tester
-
----
-
-## 📊 État actuel (après Session 2)
-
-- **Tests totaux** : 70/70 (100%)
-- **Fichiers de test** : 12 fichiers
-- **Dernière action** : Session 2 — Nettoyage des overlaps (7 tests supprimés, 1 fichier supprimé)
-- **Couverture** : 100% préservée
-- **Sessions terminées** :
-  - ✅ Session 1 : `PlantumlManagerTest.kt` enrichi (6 → 11 tests)
-  - ✅ Session 2 : Nettoyage des overlaps (71 → 70 tests)
 
 ---
 
@@ -93,6 +78,10 @@ Consulter la section correspondant au fichier choisi
 - ❌ **L'agent N'EST PAS autorisé à exécuter des commandes Git**
 - ❌ **Pas de `git add`, `git commit`, `git push`**
 - ✅ **C'est l'utilisateur qui gère Git manuellement**
+
+**⚠️ Périmètre d'action :**
+- ❌ **NE PAS toucher** à `src/test/scenarios/`, `src/test/resources/`, `src/test/features/`
+- ✅ **Seul dossier autorisé** : `src/test/kotlin/plantuml/`
 
 ---
 
