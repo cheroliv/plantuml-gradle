@@ -5,6 +5,8 @@ import plantuml.service.PlantumlService
 import java.io.File
 import java.nio.file.Path
 
+enum class ProcessResult { SUCCESS, SKIPPED, FAILED }
+
 /**
  * Logique métier de traitement des prompts, extraite de ProcessPlantumlPromptsTask.
  *
@@ -57,11 +59,16 @@ class PromptOrchestrator(
         val messages = mutableListOf("Processing ${promptFiles.size} prompt files")
         var succeeded = 0
         var failed = 0
+        var skipped = 0
 
         promptFiles.forEach { promptFile ->
             runCatching {
-                processOnePrompt(promptFile, messages)
-                succeeded++
+                val result = processOnePrompt(promptFile, messages)
+                when (result) {
+                    ProcessResult.SUCCESS -> succeeded++
+                    ProcessResult.SKIPPED -> skipped++
+                    ProcessResult.FAILED -> failed++
+                }
             }.onFailure { e ->
                 failed++
                 messages += "Failed to process ${promptFile.name}: ${e.message}"
@@ -72,16 +79,16 @@ class PromptOrchestrator(
             totalPrompts = promptFiles.size,
             succeeded = succeeded,
             failed = failed,
-            skipped = 0,
+            skipped = skipped,
             messages = messages,
         )
     }
 
-    private fun processOnePrompt(promptFile: File, messages: MutableList<String>) {
+    private fun processOnePrompt(promptFile: File, messages: MutableList<String>): ProcessResult {
         val promptText = promptFile.readText().trim()
         if (promptText.isBlank()) {
             messages += "Skipping empty prompt: ${promptFile.name}"
-            return
+            return ProcessResult.SKIPPED
         }
 
         val diagram = diagramProcessor.processPrompt(
@@ -89,7 +96,7 @@ class PromptOrchestrator(
             maxIterations = config.langchain.maxIterations,
         ) ?: run {
             messages += "Could not generate valid diagram for: ${promptFile.name}"
-            return
+            return ProcessResult.SKIPPED
         }
 
         val outputDir = projectDir.resolve(config.output.diagrams).toFile()
@@ -105,5 +112,7 @@ class PromptOrchestrator(
             val imageFile = File(imageDir, "${promptFile.nameWithoutExtension}.${config.output.format}")
             plantumlService.generateImage(diagram.plantuml.code, imageFile)
         }
+
+        return ProcessResult.SUCCESS
     }
 }
