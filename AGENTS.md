@@ -129,17 +129,34 @@ Suit les patterns architecturaux des projets `slider-gradle`(les sources sont da
   - Test unitaire fonctionnel sans perte de couverture de tests
 - **Mise à jour de la documentation AGENTS.md**
   - Ajout de la note sur la langue de communication (français) et code (anglais)
+- **Correction de WireMockExtension dans PromptOrchestratorTest.kt**
+  - Déplacement de `@RegisterExtension` hors du companion object imbriqué
+  - Déclaration au niveau de la classe principale pour initialisation correcte
+- **Correction de RagIndexerTest.kt**
+  - Assertion corrigée : attend 2 diagrammes au lieu de 3 (root.puml + deep.puml)
+- **Refactorisation de PromptOrchestrator.kt**
+  - Ajout de l'enum `ProcessResult` (SUCCESS, SKIPPED, FAILED)
+  - Meilleur tracking des résultats (succeeded/skipped/failed)
+  - Correction du comptage quand processor retourne null
+- **Tests unitaires : 64/66 passent (97%)**
+  - 2 tests WireMock restants à investiguer (WithWireMockLlm)
 
 ### 📋 Backlog — À faire
 &lt;!-- Liste des tâches à faire par ordre de priorité --&gt;
 
 #### 🔄 En cours
-- **Optimisation des tests fonctionnels FilePermissionTest.kt** (Priorité haute)
-  - Réduire le temps d'exécution (~1min35sec par test)
-  - Identifier les goulots d'étranglement dans l'utilisation de GradleRunner
-  - Explorer le mocking des appels Gradle pour les tests de permission
+- **Optimisation des tests unitaires (src/test/kotlin/plantuml/)** (Priorité haute - NEW)
+  - Analyser le temps d'exécution de tous les tests unitaires
+  - Identifier les tests lents et les goulots d'étranglement
+  - Appliquer les techniques d'optimisation (mocks, tests paramétrés, ProjectBuilder)
+  - Objectif : réduire le temps total des tests unitaires de 50%+
+  - **Critère d'évaluation** : Tous les tests unitaires doivent passer en &lt; 30 secondes
 
 #### 📋 À faire
+- **Optimisation des tests fonctionnels (src/functionalTest/kotlin/plantuml/)** (Priorité moyenne)
+  - Réduire le temps d'exécution de FilePermissionTest.kt (~1min35sec par test)
+  - Identifier les goulots d'étranglement dans l'utilisation de GradleRunner
+  - Explorer le mocking des appels Gradle pour les tests de permission
 - Amélioration du script de benchmark (Priorité moyenne)
    - Mesures statistiques avancées
    - Génération de rapports comparatifs
