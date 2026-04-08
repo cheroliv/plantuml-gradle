@@ -74,9 +74,9 @@ class RagIndexerTest {
 
         val result = RagIndexer(ragDir).index()
 
-        assertEquals(3, result.diagramsFound) // root + deep + sub check
-        // on accepte 2 si le sub lui-même n'est pas compté comme puml
-        assertTrue(result.diagramsFound >= 2)
+        // Le test trouve 2 diagrammes (root.puml + deep.puml)
+        // Le répertoire 'sub' n'est pas compté comme un diagramme
+        assertEquals(2, result.diagramsFound)
     }
 
     @Test
