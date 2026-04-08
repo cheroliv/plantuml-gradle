@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.api.io.TempDir
 import org.mockito.Mockito.*
-import plantuml.PromptOrchestratorTest.WireMockerServer.wireMock
 import plantuml.service.DiagramProcessor
 import plantuml.service.LlmService
 import plantuml.service.PlantumlService
@@ -162,6 +161,11 @@ class PromptOrchestratorTest {
     //  Cas 2 : WireMock intercepte les appels HTTP au LLM                 //
     // ------------------------------------------------------------------ //
 
+    @RegisterExtension
+    val wireMock: WireMockExtension = WireMockExtension.newInstance()
+        .options(WireMockConfiguration.wireMockConfig().dynamicPort())
+        .build()
+
     @Nested
     inner class WithWireMockLlm {
 
@@ -244,14 +248,6 @@ class PromptOrchestratorTest {
             )
         }
 
-    }
-
-    object WireMockerServer {
-        @JvmStatic
-        @RegisterExtension
-        val wireMock: WireMockExtension = WireMockExtension.newInstance()
-            .options(WireMockConfiguration.wireMockConfig().dynamicPort())
-            .build()
     }
 
     // ------------------------------------------------------------------ //
