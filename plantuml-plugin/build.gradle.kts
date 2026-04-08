@@ -174,11 +174,18 @@ val functionalTestTask = tasks.register<Test>("functionalTest") {
     }
     failOnNoDiscoveredTests = false
     
-    // Augmenter le timeout pour les tests fonctionnels qui utilisent GradleRunner
-    timeout.set(Duration.ofMinutes(5))
+    // Timeout réduit pour les tests fonctionnels - les mocks WireMock évitent les appels réseau réels
+    timeout.set(Duration.ofMinutes(2))
     
     // Ajouter des propriétés système pour les tests de permissions
     systemProperty("test.timeout.multiplier", "2")
+    
+    // Optimisations de performance
+    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
+    forkEvery = 4 // Redémarrer le worker tous les 4 tests fonctionnels
+    jvmArgs("-XX:+UseSerialGC")
+    jvmArgs("-XX:MaxMetaspaceSize=256m")
+    jvmArgs("-XX:TieredStopAtLevel=1")
 }
 
 // CORRECTION: Gérer les duplications de ressources pour functionalTest
