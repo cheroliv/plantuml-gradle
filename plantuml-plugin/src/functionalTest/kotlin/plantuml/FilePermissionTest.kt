@@ -99,7 +99,6 @@ class FilePermissionTest {
         }
     }
 
-
     @Test
     fun `should handle write permission denied gracefully`() {
         // Given
@@ -199,7 +198,6 @@ class FilePermissionTest {
             }
         }
     }
-
 
     @Test
     fun `should handle directory permission denied gracefully`() {
