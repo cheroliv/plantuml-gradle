@@ -3,13 +3,10 @@ package plantuml
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 class LlmConfigurationTest {
 
@@ -19,19 +16,6 @@ class LlmConfigurationTest {
 
     @TempDir
     lateinit var tempDir: File
-
-    @Test
-    fun `should create plugin extension with default configuration`() {
-        // Given
-        val project = ProjectBuilder.builder().build()
-
-        // When
-        project.pluginManager.apply("com.cheroliv.plantuml")
-
-        // Then
-        val extension = project.extensions.getByType(PlantumlPlugin.PlantumlExtension::class.java)
-        assertNotNull(extension)
-    }
 
     @Test
     fun `should load Ollama configuration correctly`() {
@@ -205,19 +189,5 @@ class LlmConfigurationTest {
         assertEquals("fake-claude-key", config.langchain.claude.apiKey)
         assertEquals("fake-huggingface-key", config.langchain.huggingface.apiKey)
         assertEquals("fake-groq-key", config.langchain.groq.apiKey)
-    }
-
-    @Test
-    fun `should register plantuml tasks when plugin is applied`() {
-        // Given
-        val project = ProjectBuilder.builder().build()
-
-        // When
-        project.pluginManager.apply("com.cheroliv.plantuml")
-
-        // Then
-        assertTrue(project.tasks.findByName("processPlantumlPrompts") != null)
-        assertTrue(project.tasks.findByName("validatePlantumlSyntax") != null)
-        assertTrue(project.tasks.findByName("reindexPlantumlRag") != null)
     }
 }

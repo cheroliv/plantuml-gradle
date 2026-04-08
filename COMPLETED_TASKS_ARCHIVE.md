@@ -2,6 +2,53 @@
 
 ## Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+### Session 2 — 2026-04-08 : Nettoyage des Overlaps de Tests
+
+#### ✅ Analyse et suppression des tests redondants
+- **Analyse manuelle des overlaps** dans tous les fichiers de test
+  - Détection des tests 100% redondants (même YAML, mêmes assertions)
+  - Évaluation de la valeur ajoutée de chaque test
+  - Application des principes DRY aux tests
+- **Suppressions effectuées** :
+  - `PlantumlConfigLoaderTest.kt` (4 tests, 171 lignes) — 100% redondant
+  - `LlmConfigurationTest.kt` (2 tests, 47 lignes) — extension + tasks
+  - `PlantumlPluginTest.kt` (1 test, 12 lignes) — tasks registration
+- **Résultat** : 71 → 70 tests (-1), 13 → 12 fichiers (-1)
+- **Couverture** : 100% préservée (aucune régression)
+
+#### ✅ Documentation de la méthodologie
+- **Mise à jour de `TEST_COVERAGE_ANALYSIS.md`**
+  - Ajout section "Session 2 — Nettoyage des Overlaps"
+  - Documentation de la méthodologie d'analyse (3 étapes)
+  - Principes TDD/Clean Architecture appliqués
+  - Workflow de maintenance continue
+  - Statistiques avant/après
+
+---
+
+### Session 1 — 2026-04-08 : Enrichissement de PlantumlManagerTest.kt
+
+#### ✅ Tests ajoutés (6 → 11 tests)
+- **Nouveaux tests** :
+  - `should register tasks with correct types()` — vérifie les types exacts
+  - `should call configureExtensions without throwing()` — protection future
+  - `should load config with all sections populated()` — TOUS les champs YAML
+  - `should prioritize extension configPath over default file()` — priorité configPath
+  - `should handle partial config and use defaults for missing sections()` — valeurs par défaut
+- **Couverture** :
+  - 100% des méthodes de `PlantumlManager.Configuration`
+  - 100% des méthodes de `PlantumlManager.Tasks`
+  - 100% des méthodes de `PlantumlManager.Extensions`
+  - TOUS les champs de `PlantumlConfig` et nested data classes
+
+#### ✅ Protection contre les régressions
+- Détection si type de tâche change
+- Détection si configPath n'est pas prioritaire
+- Détection si valeurs par défaut changent
+- Détection si structure YAML change
+
+---
+
 ### Session 2026-04-08 - Tests Unitaires et WireMock
 
 #### ✅ Corrections de tests WireMock

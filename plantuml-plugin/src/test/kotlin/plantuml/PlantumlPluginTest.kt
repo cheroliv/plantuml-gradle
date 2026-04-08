@@ -23,20 +23,6 @@ class PlantumlPluginTest {
     }
 
     @Test
-    fun `should register tasks`() {
-        // Given
-        val project = builder().build()
-
-        // When
-        project.pluginManager.apply("com.cheroliv.plantuml")
-
-        // Then
-        assertNotNull(project.tasks.findByName("processPlantumlPrompts"))
-        assertNotNull(project.tasks.findByName("validatePlantumlSyntax"))
-        assertNotNull(project.tasks.findByName("reindexPlantumlRag"))
-    }
-
-    @Test
     fun `should apply plugin successfully`() {
         // Given
         val project = builder().build()

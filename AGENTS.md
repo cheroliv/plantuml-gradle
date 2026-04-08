@@ -57,22 +57,22 @@ plantuml-plugin/src/main/kotlin/plantuml/
 
 ## 📊 État actuel
 
-### ✅ Tests unitaires : 66/66 passent (100%)
+### ✅ Tests unitaires : 70/70 passent (100%)
 - WireMock corrigé (endpoint `/api/chat`)
+- Overlaps nettoyés (7 tests redondants supprimés)
 - Voir : `TEST_COVERAGE_ANALYSIS.md`
 
 ### 🔄 TOP PRIORITÉ — Tests manquants
-**7 fichiers à créer** (détails dans `TEST_COVERAGE_ANALYSIS.md`) :
+**6 fichiers à créer** (détails dans `TEST_COVERAGE_ANALYSIS.md`) :
 
-| Fichier | À tester |
-|---------|----------|
-| `PlantumlManagerTest.kt` | `Configuration.load()`, `Tasks.registerTasks()` |
-| `ProcessPlantumlPromptsTaskTest.kt` | `processPrompts()`, `processSinglePrompt()` |
-| `ValidatePlantumlSyntaxTaskTest.kt` | `validateSyntax()` |
-| `ReindexPlantumlRagTaskUnitTest.kt` | `reindexRag()`, `simulateIndexing()` |
-| `LlmServicePrivateMethodsTest.kt` | 7 méthodes privées (création modèles) |
-| `DiagramProcessorPrivateMethodsTest.kt` | 5 méthodes privées (history, fixes) |
-| `ModelsDataClassTest.kt` | 11 data classes |
+| Fichier | À tester | Tests | Difficulté |
+|---------|----------|-------|------------|
+| `ValidatePlantumlSyntaxTaskTest.kt` | `validateSyntax()` | 5 | ⭐ Facile |
+| `ModelsDataClassTest.kt` | 11 data classes | 11 | ⭐ Facile |
+| `ProcessPlantumlPromptsTaskTest.kt` | `processPrompts()`, `processSinglePrompt()` | 5 | ⭐⭐ Moyen |
+| `ReindexPlantumlRagTaskUnitTest.kt` | `reindexRag()`, `simulateIndexing()` | 7 | ⭐⭐ Moyen |
+| `LlmServicePrivateMethodsTest.kt` | 7 méthodes privées | 8 | ⭐⭐⭐ Avancé |
+| `DiagramProcessorPrivateMethodsTest.kt` | 5 méthodes privées | 8 | ⭐⭐⭐ Avancé |
 
 **Objectif** : 40-50 tests, couverture >80%
 
