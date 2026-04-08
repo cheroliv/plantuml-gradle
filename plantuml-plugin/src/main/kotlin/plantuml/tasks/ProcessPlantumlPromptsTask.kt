@@ -131,11 +131,15 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
             // Generate image from valid diagrams
             logger.lifecycle("  → Generating diagram image...")
             val imagesDir = project.file(config.output.images)
-            imagesDir.mkdirs()
-            val imageFile = File(imagesDir, "${promptFile.nameWithoutExtension}.${config.output.format}")
+            try {
+                imagesDir.mkdirs()
+                val imageFile = File(imagesDir, "${promptFile.nameWithoutExtension}.${config.output.format}")
 
-            // Generate actual PlantUML image
-            diagramProcessor.plantumlService.generateImage(diagram.plantuml.code, imageFile)
+                // Generate actual PlantUML image
+                diagramProcessor.plantumlService.generateImage(diagram.plantuml.code, imageFile)
+            } catch (e: Exception) {
+                logger.lifecycle("    Warning: Failed to generate image - ${e.message}")
+            }
 
             // Request LLM validation with scoring
             if (config.langchain.validation) {
@@ -160,15 +164,19 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
 
             // Save valid diagrams for RAG training
             logger.lifecycle("  → Collecting for RAG training...")
-            val ragDir = project.file(config.output.rag)
-            ragDir.mkdirs()
-            val diagramFile = File(ragDir, "${promptFile.nameWithoutExtension}.puml")
-            diagramFile.writeText(diagram.plantuml.code)
+            try {
+                val ragDir = project.file(config.output.rag)
+                ragDir.mkdirs()
+                val diagramFile = File(ragDir, "${promptFile.nameWithoutExtension}.puml")
+                diagramFile.writeText(diagram.plantuml.code)
 
-            // Save validation feedback for RAG if validation is enabled
-            if (config.langchain.validation) {
-                val validation = diagramProcessor.validateDiagram(diagram)
-                diagramProcessor.saveForRagTraining(diagram, validation)
+                // Save validation feedback for RAG if validation is enabled
+                if (config.langchain.validation) {
+                    val validation = diagramProcessor.validateDiagram(diagram)
+                    diagramProcessor.saveForRagTraining(diagram, validation)
+                }
+            } catch (e: Exception) {
+                logger.lifecycle("    Warning: Failed to save diagrams for RAG training - ${e.message}")
             }
         } else {
             logger.lifecycle("  → Failed to generate valid diagram after $maxIterations iterations")
