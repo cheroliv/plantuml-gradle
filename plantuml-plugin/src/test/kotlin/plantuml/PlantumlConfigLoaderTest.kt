@@ -19,7 +19,6 @@ class PlantumlConfigLoaderTest {
     @TempDir
     lateinit var tempDir: File
 
-    //    @Ignore
     @Test
     fun `should load default configuration when no config file exists`() {
         // Given
