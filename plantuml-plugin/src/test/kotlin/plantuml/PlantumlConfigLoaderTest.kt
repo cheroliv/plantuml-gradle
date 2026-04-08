@@ -22,6 +22,7 @@ class PlantumlConfigLoaderTest {
     @Test
     fun `should load default configuration when no config file exists`() {
         // Given
+        @Suppress("UnusedVariable", "unused")
         val configFile = File(tempDir, "nonexistent.yml")
 
         // When
