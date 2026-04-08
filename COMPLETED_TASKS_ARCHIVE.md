@@ -2,6 +2,35 @@
 
 ## Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+### Session 2026-04-08 - Tests Unitaires et WireMock
+
+#### ✅ Corrections de tests WireMock
+- **Correction de WireMockExtension dans PromptOrchestratorTest.kt**
+  - Déplacement de `@RegisterExtension` hors du companion object imbriqué
+  - Déclaration au niveau de la classe principale pour initialisation correcte
+- **Correction de RagIndexerTest.kt**
+  - Assertion corrigée : attend 2 diagrammes au lieu de 3 (root.puml + deep.puml)
+- **Refactorisation de PromptOrchestrator.kt**
+  - Ajout de l'enum `ProcessResult` (SUCCESS, SKIPPED, FAILED)
+  - Meilleur tracking des résultats (succeeded/skipped/failed)
+  - Correction du comptage quand processor retourne null
+- **Tests unitaires : 66/66 passent (100%)** ✨
+  - Correction des tests WireMock dans PromptOrchestratorTest.kt (endpoint /api/chat)
+  - Correction du format JSON pour ollamaChatJsonResponse()
+  - Exécution réussie de `./gradlew -p plantuml-plugin -i clean test --rerun-tasks`
+
+#### ✅ Analyse de couverture de tests
+- **Analyse complète de couverture de tests**
+  - Création de TEST_COVERAGE_ANALYSIS.md avec l'analyse détaillée
+  - Identification de 4 classes sans tests unitaires directs (PlantumlManager, 3 tâches Gradle)
+  - Identification de 11 méthodes privées non testées (LlmService, DiagramProcessor)
+  - Identification de 10 data classes sans tests directs (models.kt)
+  - Recommandations : ~7 nouveaux fichiers de test, ~40-50 tests à créer
+
+---
+
+## Sessions précédentes
+
 ### Architecture et Configuration
 - Architecture du plugin définie (PlantumlPlugin, Extension, Config, Manager, tasks/, service/)
 - Configuration YAML via `plantuml-context.yml`
