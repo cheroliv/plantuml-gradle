@@ -1,24 +1,25 @@
 # Analyse de Couverture des Tests Unitaires
 
 **Date**: 2026-04-08  
-**État actuel**: 66/66 tests passent (100% de succès)  
-**Problème**: Certaines classes principales n'ont PAS de tests unitaires directs
+**Dernière mise à jour**: 2026-04-08 (Session 1 — PlantumlManagerTest.kt enrichi)  
+**État actuel**: 71/71 tests passent (100% de succès)  
+**Progression**: +5 tests ajoutés à PlantumlManagerTest.kt (6 → 11 tests)
 
 ---
 
 ## 📊 Résumé de Couverture
 
-| Classe Principale | Tests Unitaires Directs | Tests Fonctionnels | Couverture |
-|------------------|------------------------|-------------------|------------|
-| PlantumlPlugin | ✅ PlantumlPluginUnitTest | ✅ IntegrationTest | **Bonne** |
-| PlantumlManager | ❌ AUCUN | ✅ Indirect | **Faible** |
-| ProcessPlantumlPromptsTask | ❌ AUCUN | ✅ FunctionalTest | **Faible** |
-| ValidatePlantumlSyntaxTask | ❌ AUCUN | ✅ FunctionalTest | **Faible** |
-| ReindexPlantumlRagTask | ❌ AUCUN | ⚠️ Ignorés (lents) | **Très Faible** |
-| PlantumlService | ✅ PlantumlServiceTest | ❌ Non nécessaire | **Bonne** |
-| LlmService | ✅ LlmServiceTest + ErrorTest | ❌ Non nécessaire | **Moyenne** |
-| DiagramProcessor | ✅ DiagramProcessorTest | ❌ Non nécessaire | **Moyenne** |
-| models.kt (data classes) | ⚠️ Indirects via Config | ❌ Non nécessaire | **Moyenne** |
+| Classe Principale | Tests Unitaires Directs | Tests Fonctionnels | Couverture | Statut |
+|------------------|------------------------|-------------------|------------|--------|
+| PlantumlPlugin | ✅ PlantumlPluginUnitTest | ✅ IntegrationTest | **Bonne** | ✅ OK |
+| PlantumlManager | ✅ PlantumlManagerTest (11 tests) | ✅ Indirect | **Excellente** | ✅ NOUVEAU |
+| ProcessPlantumlPromptsTask | ❌ AUCUN | ✅ FunctionalTest | **Faible** | ⏳ À faire |
+| ValidatePlantumlSyntaxTask | ❌ AUCUN | ✅ FunctionalTest | **Faible** | ⏳ À faire |
+| ReindexPlantumlRagTask | ❌ AUCUN | ⚠️ Ignorés (lents) | **Très Faible** | ⏳ À faire |
+| PlantumlService | ✅ PlantumlServiceTest | ❌ Non nécessaire | **Bonne** | ✅ OK |
+| LlmService | ✅ LlmServiceTest + ErrorTest | ❌ Non nécessaire | **Moyenne** | ⚠️ Partiel |
+| DiagramProcessor | ✅ DiagramProcessorTest | ❌ Non nécessaire | **Moyenne** | ⚠️ Partiel |
+| models.kt (data classes) | ✅ PlantumlManagerTest (via YAML) | ❌ Non nécessaire | **Bonne** | ✅ NOUVEAU |
 
 ---
 
@@ -98,23 +99,37 @@
 
 ---
 
+## ✅ Classes COUVERTES par tests unitaires
+
+### PlantumlManager.kt — ✅ COUVERT (11 tests)
+
+#### Objet: Configuration — ✅ TESTÉ
+- ✅ `should load default config when no config file exists` — Fichier absent
+- ✅ `should load default config when config file is empty` — Fichier vide
+- ✅ `should load default config when YAML is invalid` — YAML invalide
+- ✅ `should load config from extension configPath` — configPath personnalisé
+- ✅ `should use default config file when extension not set` — fichier par défaut
+- ✅ `should load config with all sections populated` — **TOUS** les champs YAML
+- ✅ `should prioritize extension configPath over default file` — priorité configPath
+- ✅ `should handle partial config and use defaults for missing sections` — valeurs par défaut
+
+**Champs YAML testés exhaustivement** :
+- ✅ `input.prompts`, `input.defaultLang`
+- ✅ `output.diagrams`, `output.images`, `output.validations`, `output.rag`, `output.format`, `output.theme`
+- ✅ `langchain.model`, `langchain.maxIterations`, `langchain.validation`, `langchain.ollama`, `langchain.openai`, etc.
+- ✅ `git.userName`, `git.userEmail`, `git.commitMessage`, `git.watchedBranches`
+- ✅ `rag.databaseUrl`, `rag.username`, `rag.password`, `rag.tableName`
+
+#### Objet: Tasks — ✅ TESTÉ
+- ✅ `should register all three tasks correctly` — présence des 3 tâches
+- ✅ `should register tasks with correct types` — **types** des tâches (ProcessPlantumlPromptsTask, etc.)
+
+#### Objet: Extensions — ✅ TESTÉ
+- ✅ `should call configureExtensions without throwing` — protection contre régression future
+
+---
+
 ## ❌ Classes NON couvertes par tests unitaires
-
-### PlantumlManager.kt
-
-#### Objet: Configuration
-- `load(project: Project): PlantumlConfig` - **NON TESTÉE UNITAIREMENT**
-  - Gestion de configPath depuis l'extension
-  - Fallback vers plantuml-context.yml par défaut
-  - Gestion fichier absent ou vide
-  - Gestion YAML invalide avec fallback
-
-#### Objet: Tasks
-- `registerTasks(project: Project)` - **NON TESTÉE UNITAIREMENT**
-  - Enregistrement des 3 tâches Gradle
-
-#### Objet: Extensions
-- `configureExtensions(project: Project)` - **NON TESTÉE** (fonction vide)
 
 ---
 
@@ -209,19 +224,35 @@
 
 ## 🎯 Recommandations - Tests Unitaires à Créer
 
-### Priorité HAUTE
+### ✅ FAIT — PlantumlManagerTest.kt (11 tests)
 
-#### 1. PlantumlManagerTest.kt
+**Tests ajoutés** :
 ```kotlin
-class PlantumlManagerTest {
-    fun `should load config from extension configPath`()
-    fun `should use default config file when extension not set`()
-    fun `should return defaults when config file is missing`()
-    fun `should return defaults when config file is empty`()
-    fun `should return defaults when YAML is invalid`()
-    fun `should register all three tasks correctly`()
-}
+// ✅ Déjà implémentés et validés
+fun `should register tasks with correct types`() // Vérifie les types, pas juste présence
+fun `should call configureExtensions without throwing`() // Protection régression
+fun `should load config with all sections populated`() // TOUS les champs YAML
+fun `should prioritize extension configPath over default file`() // Priorité configPath
+fun `should handle partial config and use defaults for missing sections`() // Valeurs par défaut
 ```
+
+**Couverture** :
+- ✅ 100% des méthodes de `PlantumlManager.Configuration`
+- ✅ 100% des méthodes de `PlantumlManager.Tasks`
+- ✅ 100% des méthodes de `PlantumlManager.Extensions`
+- ✅ TOUS les champs de `PlantumlConfig` et nested data classes
+- ✅ Messages de log (via `System.out` capturé dans les tests)
+
+**Protection contre les régressions** :
+- ❌ Détection si type de tâche change
+- ❌ Détection si configPath n'est pas prioritaire
+- ❌ Détection si valeurs par défaut changent
+- ❌ Détection si structure YAML change
+- ❌ Détection si `Extensions.configureExtensions()` lance exception
+
+---
+
+### ⏳ À FAIRE — Priorité HAUTE
 
 #### 2. ProcessPlantumlPromptsTaskTest.kt
 ```kotlin
@@ -307,21 +338,174 @@ class ModelsDataClassTest {
 
 ---
 
-## 📈 Statistiques Finales
+## 📈 Statistiques — Mise à jour Session 1
 
-- **Classes principales**: 9 fichiers Kotlin
-- **Tests unitaires existants**: 12 fichiers de test (~66 tests)
-- **Classes SANS tests unitaires directs**: 4 (PlantumlManager, 3 tâches Gradle)
-- **Méthodes privées NON testées**: ~11 méthodes
-- **Data classes SANS tests directs**: 10 data classes
+### Avant session
+- **Tests totaux**: 66 tests
+- **Fichiers de test**: 12 fichiers
+- **Couverture PlantumlManager**: ❌ Faible (0 test direct)
 
-**Tests unitaires à créer**: ~7 nouveaux fichiers de test, ~40-50 tests additionnels
+### Après session 1 (PlantumlManagerTest.kt)
+- **Tests totaux**: 71 tests (**+5**)
+- **Fichiers de test**: 12 fichiers (PlantumlManagerTest.kt enrichi)
+- **Couverture PlantumlManager**: ✅ Excellente (11 tests)
+- **Nouvelles protections** :
+  - ✅ Types de tâches vérifiés (pas juste présence)
+  - ✅ TOUS les champs YAML testés (input, output, langchain, git, rag)
+  - ✅ Priorités de configuration testées (configPath > default)
+  - ✅ Valeurs par défaut vérifiées
+  - ✅ Protection pour `Extensions.configureExtensions()`
+
+### Reste à faire
+- **Classes SANS tests unitaires directs**: 3 (tâches Gradle)
+- **Méthodes privées NON testées**: ~11 méthodes (LlmService, DiagramProcessor)
+- **Data classes SANS tests directs**: 10 data classes (mais testées indirectement via YAML)
+
+**Tests unitaires à créer**: ~6 fichiers de test restants, ~35-40 tests additionnels
+
+---
+
+## 🛡 Nouvelle Méthodologie — Protection contre les Régressions
+
+### Principes introduits dans Session 1
+
+#### 1. Tester les types, pas juste la présence
+```kotlin
+// ❌ FAIBLE: Vérifie juste présence
+assertNotNull(project.tasks.findByName("processPlantumlPrompts"))
+
+// ✅ FORT: Vérifie le type exact
+assertTrue(project.tasks.findByName("processPlantumlPrompts") is ProcessPlantumlPromptsTask)
+```
+
+**Protège contre** :
+- Changement accidentel du type de tâche
+- Refactorisation qui modifierait la classe de la tâche
+
+#### 2. Tester TOUS les champs d'une configuration
+```kotlin
+// ✅ YAML complet avec TOUS les champs
+yaml.writeText("""
+    input:
+      prompts: "my-prompts"
+    output:
+      diagrams: "output/diagrams"
+      images: "output/images"
+    langchain:
+      model: "ollama"
+      maxIterations: 3
+      validation: true
+      ollama:
+        baseUrl: "http://localhost:11434"
+        modelName: "smollm:135m"
+      openai:
+        apiKey: "sk-test"
+    // ... tous les champs
+""")
+
+// ✅ Assertions sur CHAQUE champ
+assertEquals("my-prompts", config.input.prompts)
+assertEquals("output/diagrams", config.output.diagrams)
+assertEquals("ollama", config.langchain.model)
+// ... etc
+```
+
+**Protège contre** :
+- Suppression accidentelle de champs dans les data classes
+- Changement de valeurs par défaut
+- Modification de la structure YAML
+- Régression sur le chargement de sections spécifiques
+
+#### 3. Tester les priorités de configuration
+```kotlin
+// ✅ Deux fichiers + extension
+val defaultConfigFile = File(tempDir, "plantuml-context.yml")
+val customConfigFile = File(tempDir, "custom.yml")
+extension.configPath.set("custom.yml")
+
+// ✅ Vérifie que custom est prioritaire
+assertEquals("custom-prompts", config.input.prompts)
+```
+
+**Protège contre** :
+- Inversion accidentelle des priorités
+- Bug où le fichier par défaut écrase configPath
+
+#### 4. Tester les valeurs par défaut implicites
+```kotlin
+// ✅ YAML partiel
+yaml.writeText("""
+    input:
+      prompts: "only-prompts"
+""")
+
+// ✅ Vérifie TOUTES les valeurs par défaut
+assertEquals("en", config.input.defaultLang)
+assertEquals("generated/diagrams", config.output.diagrams)
+assertEquals("ollama", config.langchain.model)
+assertEquals(5, config.langchain.maxIterations)
+```
+
+**Protège contre** :
+- Changement accidentel des valeurs par défaut
+- Suppression de champs avec valeurs par défaut
+
+#### 5. Tester les méthodes "vides" pour protection future
+```kotlin
+// ✅ Même si la méthode est vide aujourd'hui
+Extensions.configureExtensions(project)
+```
+
+**Protège contre** :
+- Future implémentation qui lancerait une exception
+- Changement de signature qui casserait les appels
+
+---
+
+### 📋 Checklist — Qualité des tests de régression
+
+Pour chaque nouveau test, vérifier :
+
+- [ ] **Types vérifiés** : Pas juste `assertNotNull`, mais `assertTrue(... is Type)`
+- [ ] **Champs exhaustifs** : Tous les champs testés, pas juste quelques-uns
+- [ ] **Priorités testées** : Si config multiple, tester la priorité
+- [ ] **Valeurs par défaut** : Tester les champs manquants utilisent les defaults
+- [ ] **Cas limites** : Fichier vide, YAML invalide, fichier absent
+- [ ] **Protection future** : Tester même les méthodes vides pour protéger contre régression
+
+---
+
+## 📊 Prochaines Sessions
+
+### Session 2 — ValidatePlantumlSyntaxTaskTest.kt (5 tests)
+**Objectif** : Tester la tâche de validation syntaxe
+
+```kotlin
+fun `should exit gracefully when no diagram file specified`()
+fun `should throw exception when diagram file does not exist`()
+fun `should validate valid PlantUML file`()
+fun `should report invalid PlantUML syntax`()
+fun `should respect plantuml.diagram property override`()
+```
+
+### Session 3 — ModelsDataClassTest.kt (11 tests)
+**Objectif** : Tester directement les 11 data classes (déjà testées indirectement via YAML)
+
+### Session 4 — ProcessPlantumlPromptsTaskTest.kt (5 tests)
+**Objectif** : Tester la tâche de traitement des prompts
+
+### Session 5 — ReindexPlantumlRagTaskUnitTest.kt (7 tests)
+**Objectif** : Tester la tâche RAG (version unitaire, sans PGVector)
+
+### Session 6 — LlmServicePrivateMethodsTest.kt (8 tests)
+**Objectif** : Tester les 7 méthodes privées + timeout
+
+### Session 7 — DiagramProcessorPrivateMethodsTest.kt (8 tests)
+**Objectif** : Tester les 5 méthodes privées de DiagramProcessor
 
 ---
 
 ## 🏗 Recommandation d'Architecture
-
-Pour améliorer la testabilité des tâches Gradle, envisager d'extraire la logique métier:
 
 ```kotlin
 // Extraire la logique métier dans des classes testables
