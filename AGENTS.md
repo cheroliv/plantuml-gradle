@@ -36,18 +36,43 @@ Le plugin PlantUML Gradle génère automatiquement des diagrammes PlantUML à pa
 
 ```
 plantuml-plugin/src/main/kotlin/plantuml/
-├── PlantumlPlugin.kt
-├── PlantumlExtension.kt
-├── PlantumlConfig.kt
-├── models.kt
-├── PlantumlManager.kt
-├── tasks/
-│   ├── ProcessPlantumlPromptsTask.kt
-│   ├── ValidatePlantumlSyntaxTask.kt
-│   └── ReindexPlantumlRagTask.kt
-└── service/
-    ├── PlantumlService.kt
-    └── DiagramProcessor.kt
+├── 📄 PlantumlPlugin.kt
+│   ├── 🏛️ PlantumlPlugin : Plugin<Project>
+│   └── 📦 PlantumlExtension (nested class)
+│
+├── 📄 models.kt (11 data classes)
+│   ├── PlantumlConfig (+ companion object)
+│   ├── InputConfig, OutputConfig, LangchainConfig
+│   ├── GitConfig, OllamaConfig, ApiKeyConfig, RagConfig
+│   ├── PlantumlDiagram, PlantumlCode, ValidationFeedback
+│
+├── 📄 PlantumlManager.kt
+│   └── 🏛️ PlantumlManager (objet Kotlin / singleton)
+│       ├── Configuration (nested object)
+│       ├── Tasks (nested object)
+│       └── Extensions (nested object)
+│
+├── 📁 service/
+│   ├── 📄 PlantumlService.kt
+│   │   ├── 🏛️ PlantumlService (classe)
+│   │   └── 📦 SyntaxValidationResult (sealed class nested)
+│   │
+│   ├── 📄 DiagramProcessor.kt
+│   │   ├── 📦 AttemptEntry (data class top-level)
+│   │   └── 🏛️ DiagramProcessor (classe)
+│   │
+│   └── 📄 LlmService.kt
+│       └── 🏛️ LlmService (classe)
+│
+└── 📁 tasks/
+    ├── 📄 ProcessPlantumlPromptsTask.kt
+    │   └── 🏛️ ProcessPlantumlPromptsTask : DefaultTask
+    │
+    ├── 📄 ValidatePlantumlSyntaxTask.kt
+    │   └── 🏛️ ValidatePlantumlSyntaxTask : DefaultTask
+    │
+    └── 📄 ReindexPlantumlRagTask.kt
+        └── 🏛️ ReindexPlantumlRagTask : DefaultTask
 ```
 
 ---
