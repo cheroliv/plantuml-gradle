@@ -1,0 +1,5 @@
+input:
+  prompts: "prompts"
+output:
+  images: "generated/diagrams"
+  rag: "generated/rag"
