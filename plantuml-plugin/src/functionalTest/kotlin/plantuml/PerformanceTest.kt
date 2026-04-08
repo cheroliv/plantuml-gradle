@@ -1,6 +1,10 @@
+@file:Suppress("unused")
+
 package plantuml
 
+import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
+import org.gradle.testkit.runner.GradleRunner.create
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -9,6 +13,7 @@ import kotlin.system.measureTimeMillis
 import kotlin.test.Ignore
 import kotlin.test.assertTrue
 
+@Suppress("FunctionName")
 class PerformanceTest {
 
     @TempDir
@@ -71,7 +76,7 @@ class PerformanceTest {
 
         // When - Measure with strict timeout
         val duration = measureTimeMillis {
-            val result = GradleRunner.create()
+            val result = create()
                 .withProjectDir(testProjectDir)
                 .withArguments("--quiet", "processPlantumlPrompts", "--stacktrace")
                 .withPluginClasspath()
@@ -100,7 +105,7 @@ class PerformanceTest {
 
         // Measure time for single file validation with strict timeout
         val duration = measureTimeMillis {
-            val result = GradleRunner.create()
+            val result = create()
                 .withProjectDir(testProjectDir)
                 .withArguments(
                     "--quiet",
@@ -137,7 +142,7 @@ class PerformanceTest {
         // When - Measure time for validating all files
         val duration = measureTimeMillis {
             for (i in 1..2) {
-                val result = GradleRunner.create()
+                val result = create()
                     .withProjectDir(testProjectDir)
                     .withArguments(
                         "--quiet",
@@ -192,7 +197,7 @@ class PerformanceTest {
 
         // When - Measure with tight constraint
         val duration = measureTimeMillis {
-            val result = GradleRunner.create()
+            val result = create()
                 .withProjectDir(testProjectDir)
                 .withArguments("--quiet", "processPlantumlPrompts", "--stacktrace")
                 .withPluginClasspath()
@@ -251,17 +256,17 @@ class PerformanceTest {
     }
 
     // Méthodes utilitaires pour les assertions - conservées pour compatibilité mais non utilisées
-    private fun assertSuccessfulGradleRun(result: org.gradle.testkit.runner.BuildResult) {
+    private fun assertSuccessfulGradleRun(result: BuildResult) {
         // Ces méthodes ne sont plus utilisées car nous faisons les assertions directement dans les tests
         assertTrue(result.output.isNotEmpty())
     }
 
-    private fun assertValidSyntaxResult(result: org.gradle.testkit.runner.BuildResult) {
+    private fun assertValidSyntaxResult(result: BuildResult) {
         // Ces méthodes ne sont plus utilisées car nous faisons les assertions directement dans les tests
         assertTrue(result.output.isNotEmpty())
     }
 
-    private fun assertProcessingResult(result: org.gradle.testkit.runner.BuildResult) {
+    private fun assertProcessingResult(result: BuildResult) {
         // Ces méthodes ne sont plus utilisées car nous faisons les assertions directement dans les tests
         assertTrue(result.output.isNotEmpty())
     }
