@@ -1,38 +1,28 @@
 # AGENTS.md — PlantUML Gradle Plugin
 
-> **Note sur la langue de communication** : Cette documentation et nos échanges sont en français, mais le code source, les commentaires et les noms de fonctions sont en anglais conformément aux standards de développement.
+> **Langue** : Communication en français, code en anglais.
 
-## Contexte du projet
+## 🎯 Contexte
 
-Le plugin PlantUML Gradle génère automatiquement des diagrammes PlantUML à partir de descriptions textuelles en utilisant l'IA. Le plugin surveille les fichiers `.prompt`, les transforme en diagrammes PlantUML via des LLM, valide la syntaxe, génère des images et indexe les résultats pour le RAG.
+Plugin Gradle qui génère des diagrammes PlantUML via IA (LangChain4j) à partir de fichiers `.prompt`.
 
 - **Plugin ID** : `com.cheroliv.plantuml`
-- **Package root** : `plantuml`
+- **Package** : `plantuml`
 - **Stack** : Kotlin, Gradle, LangChain4j, Cucumber BDD
 
 ---
 
-## 🎯 État actuel
+## ⚠️ Points d'attention (Pièges à éviter)
 
-### ✅ Fait — Tests unitaires 100% passants
-- **66/66 tests passent (100%)** ✨
-- Exécution réussie de `./gradlew -p plantuml-plugin -i clean test --rerun-tasks`
-- Correction des tests WireMock (PromptOrchestratorTest.kt)
-- Analyse complète de couverture créée (TEST_COVERAGE_ANALYSIS.md)
-
-### 🔄 En cours - TOP PRIORITÉ
-- **Création des tests unitaires manquants** (voir TEST_COVERAGE_ANALYSIS.md)
-  - 7 fichiers de test à créer : PlantumlManager, 3 tâches Gradle, méthodes privées LlmService/DiagramProcessor, data classes
-  - Objectif : 40-50 tests additionnels, couverture >80%
-
-### 📋 Backlog
-- Optimisation des tests fonctionnels (FilePermissionTest.kt ~1min35sec)
-- Amélioration du script de benchmark
-- Configuration LLM via gradle.properties
+- **PlantumlExtension** est une **nested class** de `PlantumlPlugin.kt` (PAS un fichier séparé)
+- **PlantumlConfig** + 10 data classes sont dans **`models.kt`** (pas de fichiers individuels)
+- **PlantumlManager** est un **objet Kotlin** (singleton), pas une classe
+- **SyntaxValidationResult** est une **sealed class nested** dans `PlantumlService`
+- **AttemptEntry** est une **data class top-level** dans `DiagramProcessor.kt`
 
 ---
 
-## Architecture
+## 🏗 Architecture
 
 ```
 plantuml-plugin/src/main/kotlin/plantuml/
@@ -41,59 +31,77 @@ plantuml-plugin/src/main/kotlin/plantuml/
 │   └── 📦 PlantumlExtension (nested class)
 │
 ├── 📄 models.kt (11 data classes)
-│   ├── PlantumlConfig (+ companion object)
-│   ├── InputConfig, OutputConfig, LangchainConfig
+│   ├── PlantumlConfig, InputConfig, OutputConfig, LangchainConfig
 │   ├── GitConfig, OllamaConfig, ApiKeyConfig, RagConfig
-│   ├── PlantumlDiagram, PlantumlCode, ValidationFeedback
+│   └── PlantumlDiagram, PlantumlCode, ValidationFeedback
 │
-├── 📄 PlantumlManager.kt
-│   └── 🏛️ PlantumlManager (objet Kotlin / singleton)
-│       ├── Configuration (nested object)
-│       ├── Tasks (nested object)
-│       └── Extensions (nested object)
+├── 📄 PlantumlManager.kt (objet Kotlin / singleton)
+│   ├── Configuration (nested object) — charge config YAML
+│   ├── Tasks (nested object) — registre les 3 tâches
+│   └── Extensions (nested object)
 │
 ├── 📁 service/
 │   ├── 📄 PlantumlService.kt
-│   │   ├── 🏛️ PlantumlService (classe)
-│   │   └── 📦 SyntaxValidationResult (sealed class nested)
-│   │
+│   │   └── SyntaxValidationResult (sealed class: Valid | Invalid)
 │   ├── 📄 DiagramProcessor.kt
-│   │   ├── 📦 AttemptEntry (data class top-level)
-│   │   └── 🏛️ DiagramProcessor (classe)
-│   │
+│   │   └── AttemptEntry (data class top-level)
 │   └── 📄 LlmService.kt
-│       └── 🏛️ LlmService (classe)
 │
-└── 📁 tasks/
-    ├── 📄 ProcessPlantumlPromptsTask.kt
-    │   └── 🏛️ ProcessPlantumlPromptsTask : DefaultTask
-    │
-    ├── 📄 ValidatePlantumlSyntaxTask.kt
-    │   └── 🏛️ ValidatePlantumlSyntaxTask : DefaultTask
-    │
-    └── 📄 ReindexPlantumlRagTask.kt
-        └── 🏛️ ReindexPlantumlRagTask : DefaultTask
+└── 📁 tasks/ (héritent de DefaultTask)
+    ├── ProcessPlantumlPromptsTask.kt
+    ├── ValidatePlantumlSyntaxTask.kt
+    └── ReindexPlantumlRagTask.kt
 ```
 
 ---
 
-## Décisions techniques
+## 📊 État actuel
 
-- Configuration : YAML (`plantuml-context.yml`)
-- LangChain4j pour toutes les interactions IA
-- Boucle LLM : max 5 itérations
-- RAG : uniquement diagrammes valides
-- Tests : JUnit5 + Cucumber BDD
+### ✅ Tests unitaires : 66/66 passent (100%)
+- WireMock corrigé (endpoint `/api/chat`)
+- Voir : `TEST_COVERAGE_ANALYSIS.md`
+
+### 🔄 TOP PRIORITÉ — Tests manquants
+**7 fichiers à créer** (détails dans `TEST_COVERAGE_ANALYSIS.md`) :
+
+| Fichier | À tester |
+|---------|----------|
+| `PlantumlManagerTest.kt` | `Configuration.load()`, `Tasks.registerTasks()` |
+| `ProcessPlantumlPromptsTaskTest.kt` | `processPrompts()`, `processSinglePrompt()` |
+| `ValidatePlantumlSyntaxTaskTest.kt` | `validateSyntax()` |
+| `ReindexPlantumlRagTaskUnitTest.kt` | `reindexRag()`, `simulateIndexing()` |
+| `LlmServicePrivateMethodsTest.kt` | 7 méthodes privées (création modèles) |
+| `DiagramProcessorPrivateMethodsTest.kt` | 5 méthodes privées (history, fixes) |
+| `ModelsDataClassTest.kt` | 11 data classes |
+
+**Objectif** : 40-50 tests, couverture >80%
+
+### 📋 Backlog
+- Optimiser `FilePermissionTest.kt` (~1min35sec)
+- Configuration LLM via `gradle.properties`
 
 ---
 
-## Commandes utiles
+## 🛠 Décisions techniques
+
+- **Config** : YAML (`plantuml-context.yml`), pas de DSL Gradle
+- **IA** : LangChain4j (Ollama, OpenAI, Gemini, Mistral, Claude, HuggingFace, Groq)
+- **Boucle LLM** : max 5 itérations
+- **RAG** : uniquement diagrammes valides
+- **Tests** : JUnit5 + Cucumber BDD (pas de Spock)
+
+---
+
+## 📦 Commandes
 
 ```bash
+# Build & tests
 ./gradlew -p plantuml-plugin build -x test   # build rapide
 ./gradlew -p plantuml-plugin test            # tous les tests
 ./gradlew -p plantuml-plugin cucumberTest    # tests Cucumber
 ./gradlew -p plantuml-plugin functionalTest  # tests fonctionnels
+
+# Tâches plugin
 ./gradlew processPlantumlPrompts
 ./gradlew validatePlantumlSyntax -Pplantuml.diagram=file.puml
 ./gradlew reindexPlantumlRag
@@ -101,9 +109,9 @@ plantuml-plugin/src/main/kotlin/plantuml/
 
 ---
 
-## Instruction de mise à jour
+## 📝 Mise à jour
 
-À la fin de chaque session :
-1. Déplacer ce qui est terminé dans COMPLETED_TASKS_ARCHIVE.md
-2. Mettre à jour cette section "État actuel"
+En fin de session :
+1. Déplacer le terminé vers `COMPLETED_TASKS_ARCHIVE.md`
+2. Mettre à jour "État actuel"
 3. Ne pas modifier "Architecture" et "Décisions techniques" sauf décision explicite
