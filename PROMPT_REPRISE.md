@@ -7,21 +7,21 @@
 
 ## 🎯 Mission de CETTE session
 
-**Objectif** : Créer **1 fichier de test** (parmi les 7 manquants)
+**Objectif** : Créer **1 fichier de test** (parmi les 6 manquants)
 
 ### Fichier à traiter dans cette session
 
 **Recommandation** : Commencer par le **plus simple** en premier
 
-| Priorité | Fichier | À tester | Tests | Difficulté |
-|----------|---------|----------|-------|------------|
-| 1 | `PlantumlManagerTest.kt` | `Configuration.load()`, `Tasks.registerTasks()` | 6 | ⭐ Facile |
-| 2 | `ValidatePlantumlSyntaxTaskTest.kt` | `validateSyntax()` | 5 | ⭐ Facile |
-| 3 | `ModelsDataClassTest.kt` | 11 data classes | 11 | ⭐ Facile |
-| 4 | `ProcessPlantumlPromptsTaskTest.kt` | `processPrompts()`, `processSinglePrompt()` | 5 | ⭐⭐ Moyen |
-| 5 | `ReindexPlantumlRagTaskUnitTest.kt` | `reindexRag()`, `simulateIndexing()` | 7 | ⭐⭐ Moyen |
-| 6 | `LlmServicePrivateMethodsTest.kt` | 7 méthodes privées | 8 | ⭐⭐⭐ Avancé |
-| 7 | `DiagramProcessorPrivateMethodsTest.kt` | 5 méthodes privées | 8 | ⭐⭐⭐ Avancé |
+| Priorité | Fichier | À tester | Tests | Difficulté | Statut |
+|----------|---------|----------|-------|------------|--------|
+| ~~1~~ | ~~`PlantumlManagerTest.kt`~~ | ~~`Configuration.load()`, `Tasks.registerTasks()`~~ | ~~6~~ | ⭐ Facile | ✅ **FAIT** (Session 1) |
+| 1 | `ValidatePlantumlSyntaxTaskTest.kt` | `validateSyntax()` | 5 | ⭐ Facile | ⏳ **Session 3** |
+| 2 | `ModelsDataClassTest.kt` | 11 data classes | 11 | ⭐ Facile | ⏳ À faire |
+| 3 | `ProcessPlantumlPromptsTaskTest.kt` | `processPrompts()`, `processSinglePrompt()` | 5 | ⭐⭐ Moyen | ⏳ À faire |
+| 4 | `ReindexPlantumlRagTaskUnitTest.kt` | `reindexRag()`, `simulateIndexing()` | 7 | ⭐⭐ Moyen | ⏳ À faire |
+| 5 | `LlmServicePrivateMethodsTest.kt` | 7 méthodes privées | 8 | ⭐⭐⭐ Avancé | ⏳ À faire |
+| 6 | `DiagramProcessorPrivateMethodsTest.kt` | 5 méthodes privées | 8 | ⭐⭐⭐ Avancé | ⏳ À faire |
 
 **À faire** : Cocher la ligne du fichier en cours de traitement
 
@@ -40,10 +40,10 @@
 ```bash
 ./gradlew -p plantuml-plugin test
 ```
-→ Doit afficher : **66/66 tests passent (100%)**
+→ Doit afficher : **70/70 tests passent (100%)**
 
 ### Étape 2 : Choisir 1 fichier à créer
-**Recommandation** : Commencer par `PlantumlManagerTest.kt` (le plus simple)
+**Recommandation** : Commencer par `ValidatePlantumlSyntaxTaskTest.kt` (Priorité 1, ⭐ Facile)
 
 ### Étape 3 : Lire TEST_COVERAGE_ANALYSIS.md
 Consulter la section correspondant au fichier choisi
@@ -57,6 +57,18 @@ Consulter la section correspondant au fichier choisi
 ### Étape 5 : Valider
 - ✅ **Si passe** → Commit → Fin de session → Nouvelle session pour le fichier suivant
 - ❌ **Si échec** → Corriger → Re-tester → Puis commit
+
+---
+
+## 📊 État actuel (après Session 2)
+
+- **Tests totaux** : 70/70 (100%)
+- **Fichiers de test** : 12 fichiers
+- **Dernière action** : Session 2 — Nettoyage des overlaps (7 tests supprimés, 1 fichier supprimé)
+- **Couverture** : 100% préservée
+- **Sessions terminées** :
+  - ✅ Session 1 : `PlantumlManagerTest.kt` enrichi (6 → 11 tests)
+  - ✅ Session 2 : Nettoyage des overlaps (71 → 70 tests)
 
 ---
 
