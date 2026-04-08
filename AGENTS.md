@@ -1,5 +1,7 @@
 # AGENTS.md — PlantUML Gradle Plugin
 
+> **Note sur la langue de communication** : Cette documentation et nos échanges sont en français, mais le code source, les commentaires et les noms de fonctions sont en anglais conformément aux standards de développement.
+
 ## Contexte du projet
 
 Le plugin PlantUML Gradle est un outil qui permet de générer automatiquement des diagrammes PlantUML à partir de descriptions textuelles en utilisant l'intelligence artificielle. Le plugin surveille les fichiers `.prompt`, les transforme en diagrammes PlantUML via des modèles de langage (LLM), valide la syntaxe, génère des images et indexe les résultats pour une utilisation future via RAG (Retrieval Augmented Generation).
