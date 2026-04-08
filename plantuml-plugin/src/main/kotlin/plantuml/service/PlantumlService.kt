@@ -47,7 +47,12 @@ class PlantumlService {
             }
         } catch (e: Exception) {
             // Fallback to text file if image generation fails
-            outputFile.writeText("PlantUML diagram:\n\n$plantumlCode\n\nError: ${e.message}")
+            try {
+                outputFile.writeText("PlantUML diagram:\n\n$plantumlCode\n\nError: ${e.message}")
+            } catch (ioException: Exception) {
+                // If we can't even write a text file, log the error and continue
+                System.err.println("Failed to write diagram to ${outputFile.absolutePath}: ${ioException.message}")
+            }
         }
     }
 
