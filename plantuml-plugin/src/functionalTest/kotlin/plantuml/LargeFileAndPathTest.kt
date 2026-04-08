@@ -1,6 +1,6 @@
 package plantuml
 
-import org.gradle.testkit.runner.GradleRunner
+import org.gradle.testkit.runner.GradleRunner.create
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
@@ -9,6 +9,7 @@ import java.io.File
 import kotlin.test.Ignore
 import kotlin.test.assertTrue
 
+@Suppress("FunctionName")
 @Ignore
 class LargeFileAndPathTest {
 
@@ -22,17 +23,21 @@ class LargeFileAndPathTest {
     fun setup() {
         buildFile = File(testProjectDir, "build.gradle.kts")
         settingsFile = File(testProjectDir, "settings.gradle.kts")
-        
-        settingsFile.writeText("""
+
+        settingsFile.writeText(
+            """
             rootProject.name = "plantuml-large-file-test"
-        """.trimIndent())
-        
+        """.trimIndent()
+        )
+
         // Common plugin configuration
-        buildFile.writeText("""
+        buildFile.writeText(
+            """
             plugins {
                 id("com.cheroliv.plantuml")
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
 
     @ParameterizedTest
@@ -53,7 +58,8 @@ class LargeFileAndPathTest {
         largeDiagramFile.writeText(largeContent)
 
         // When
-        val result = GradleRunner.create()
+        @Suppress("UnusedVariable", "unused")
+        val result = create()
             .withProjectDir(testProjectDir)
             .withArguments("--quiet", "validatePlantumlSyntax", "-Pplantuml.diagram=large.puml", "--stacktrace")
             .withPluginClasspath()
@@ -78,9 +84,15 @@ class LargeFileAndPathTest {
         }
 
         // Test one of the special files
-        val result = GradleRunner.create()
+        @Suppress("UnusedVariable", "unused")
+        val result = create()
             .withProjectDir(testProjectDir)
-            .withArguments("--quiet", "validatePlantumlSyntax", "-Pplantuml.diagram=file with spaces.puml", "--stacktrace")
+            .withArguments(
+                "--quiet",
+                "validatePlantumlSyntax",
+                "-Pplantuml.diagram=file with spaces.puml",
+                "--stacktrace"
+            )
             .withPluginClasspath()
             .build()
 
@@ -92,38 +104,42 @@ class LargeFileAndPathTest {
     private fun testDeeplyNestedPaths() {
         // Create config with deep path
         val configFile = File(testProjectDir, "plantuml-context.yml")
-        configFile.writeText("""
+        configFile.writeText(
+            """
             input:
               prompts: "deep/path/prompts"
             output:
               images: "deep/path/images"
               rag: "generated/rag"
               diagrams: "generated/diagrams"
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // Create moderately deep directories and files
         val deepPromptsDir = File(testProjectDir, "deep/path/prompts")
         deepPromptsDir.mkdirs()
-        
+
         val promptFile = File(deepPromptsDir, "deep.prompt")
         promptFile.writeText("Create a diagram")
-        
+
         // When
-        val result = GradleRunner.create()
+        @Suppress("UnusedVariable", "unused")
+        val result = create()
             .withProjectDir(testProjectDir)
             .withArguments("--quiet", "processPlantumlPrompts", "--stacktrace")
             .withPluginClasspath()
             .build()
 
         // Then
-        // Le test passe si la tâche s'exécute sans erreur
+        // Le test passe si la tâche s'exécute sans erreurs
         assertTrue(true)
     }
 
     private fun testUnicodeCharacters() {
         // Create a PlantUML file with unicode characters
         val unicodeFile = File(testProjectDir, "unicode.puml")
-        unicodeFile.writeText("""
+        unicodeFile.writeText(
+            """
             @startuml
             title Diagramme avec des caractères spéciaux
             actor Utilisateur
@@ -131,10 +147,12 @@ class LargeFileAndPathTest {
               Utilisateur --> (Fonctionnalité)
             }
             @enduml
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // When
-        val result = GradleRunner.create()
+        @Suppress("UnusedVariable", "unused")
+        val result = create()
             .withProjectDir(testProjectDir)
             .withArguments("--quiet", "validatePlantumlSyntax", "-Pplantuml.diagram=unicode.puml", "--stacktrace")
             .withPluginClasspath()
@@ -149,7 +167,7 @@ class LargeFileAndPathTest {
         val builder = StringBuilder()
         builder.append("@startuml\n")
         builder.append("title Large Diagram Test\n")
-        
+
         // Reduced number of classes for faster testing
         for (i in 1..10) {
             builder.append("class Class$i {\n")
@@ -157,12 +175,12 @@ class LargeFileAndPathTest {
             builder.append("  + void method$i()\n")
             builder.append("}\n\n")
         }
-        
+
         // Add some relationships
         for (i in 1..5) {
             builder.append("Class$i --> Class${i + 1}\n")
         }
-        
+
         builder.append("@enduml\n")
         return builder.toString()
     }
