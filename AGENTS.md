@@ -197,9 +197,21 @@ fun setup() {
 
 ## 📝 Méthodologie de travail
 
-**Règle d'or** : **1 fichier de test à la fois, avec validation systématique**
+### Principe : Sessions atomiques
+
+**Règle d'or** : **1 session = 1 test créé et validé**
+
+| Métrique | Cible |
+|----------|-------|
+| **Durée** | 15-30 minutes |
+| **Fichiers modifiés** | 1-3 maximum |
+| **Tests créés** | 1 fichier |
+| **Échanges LLM** | 5-10 messages |
+
+---
 
 ### Processus itératif (à suivre pour chaque fichier)
+
 ```
 1. Créer le fichier de test (ex: PlantumlManagerTest.kt)
 2. ./gradlew -p plantuml-plugin test
@@ -217,6 +229,46 @@ fun setup() {
 - ❌ Créer les 7 fichiers d'un coup
 - ❌ Lancer les tests après avoir créé tous les fichiers
 - ❌ Accumuler les erreurs de compilation
+
+---
+
+### 🔄 Quand changer de session
+
+**✅ Situations idéales pour une nouvelle session :**
+- 1 test créé et validé → Session terminée
+- 1 bug fixé → Commit → Nouvelle session
+- 1 feature complétée → Nouvelle session
+- 3 échanges sans progrès → Reset mental → Nouvelle session
+
+**❌ Ne PAS changer de session pour :**
+- Un simple test qui échoue (corriger puis continuer)
+- Une question rapide de clarification
+- Une modification mineure (< 5 lignes)
+
+---
+
+### ✅ Fin de session
+
+**Procédure :**
+1. Vérifier : `./gradlew -p plantuml-plugin test`
+2. Mettre à jour `AGENTS.md` (section "État actuel")
+3. Déplacer tâches terminées vers `COMPLETED_TASKS_ARCHIVE.md`
+4. Commit : `git add -A && git commit -m "Fix: [description]"`
+
+---
+
+### 🚀 Démarrage de nouvelle session
+
+**Prompt d'ouverture :**
+```
+Nouvelle session. Contexte chargé :
+1. AGENTS.md (architecture, décisions, méthodologie)
+2. PROMPT_REPRISE.md (mission en cours)
+
+Mission : [Décrire la tâche unique de cette session]
+
+Contrainte : 1 fichier à la fois, validation après chaque changement.
+```
 
 ---
 
