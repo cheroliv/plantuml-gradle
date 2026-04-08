@@ -195,6 +195,31 @@ fun setup() {
 
 ---
 
+## 📝 Méthodologie de travail
+
+**Règle d'or** : **1 fichier de test à la fois, avec validation systématique**
+
+### Processus itératif (à suivre pour chaque fichier)
+```
+1. Créer le fichier de test (ex: PlantumlManagerTest.kt)
+2. ./gradlew -p plantuml-plugin test
+3. ✅ Si passe → On passe au fichier suivant
+4. ❌ Si échec → On corrige AVANT de continuer
+```
+
+**Pourquoi** :
+- ✅ 1 erreur à la fois (pas de debugging chaos)
+- ✅ Base de code toujours stable
+- ✅ Feedback immédiat
+- ✅ Progression mesurable
+
+**À NE PAS faire** :
+- ❌ Créer les 7 fichiers d'un coup
+- ❌ Lancer les tests après avoir créé tous les fichiers
+- ❌ Accumuler les erreurs de compilation
+
+---
+
 ## 📝 Mise à jour
 
 En fin de session :
