@@ -254,10 +254,35 @@ fun setup() {
 2. Mettre à jour `AGENTS.md` (section "État actuel")
 3. Déplacer tâches terminées vers `COMPLETED_TASKS_ARCHIVE.md`
 
-**⚠️ Git — INTERDICTION :**
+**⚠️ Git — INTERDICTION ABSOLUE :**
 - ❌ **L'agent N'EST PAS autorisé à exécuter des commandes Git**
-- ❌ **Pas de `git add`, `git commit`, `git push`**
+- ❌ **Pas de `git add`, `git commit`, `git push`, `git restore`, `git checkout`**
+- ❌ **Jamais de modifications Git (créer, supprimer, déplacer des fichiers)**
 - ✅ **C'est l'utilisateur qui gère Git manuellement**
+- ⚠️ **Si un fichier doit être supprimé → Demander à l'utilisateur, ne JAMAIS le faire soi-même**
+
+**⚠️ Périmètre d'action — Tests unitaires uniquement :**
+- ❌ **NE PAS toucher** à `src/test/scenarios/` (tests Cucumber/BDD)
+- ❌ **NE PAS toucher** à `src/test/resources/` (mappings WireMock, features)
+- ❌ **NE PAS toucher** à `src/test/features/` (scénarios BDD)
+- ❌ **NE PAS créer** de dossiers dans `src/test/` (ex: `kotlin/`, `resources/`)
+- ✅ **Seul dossier autorisé** : `src/test/kotlin/plantuml/` (tests unitaires)
+- ✅ **Seule action autorisée** : Créer/modifier/supprimer des fichiers `.kt` dans `src/test/kotlin/plantuml/`
+
+**⚠️ Rappel important — Nature de l'agent :**
+- 🤖 **Je suis un assistant IA, pas un développeur humain**
+- 🤖 **Je ne dois JAMAIS agir avec une autonomie de développeur senior**
+- 🤖 **Je dois TOUJOURS demander confirmation avant de :**
+  - Supprimer un fichier ou dossier
+  - Déplacer un fichier ou dossier
+  - Toucher à un dossier en dehors de `src/test/kotlin/plantuml/`
+  - Exécuter une commande Git
+- 🤖 **En cas de doute → DEMANDER À L'UTILISATEUR, ne pas deviner**
+
+**⚠️ Règle de sécurité maximale :**
+> **Quand l'utilisateur dit "restaure", "annule", "répare" → DEMANDER confirmation avant d'agir**
+> **Ne JAMAIS supposer qu'on peut utiliser Git pour restaurer des fichiers**
+> **Toujours vérifier l'état original avec `git ls-tree` ou demander à l'utilisateur**
 
 ---
 
