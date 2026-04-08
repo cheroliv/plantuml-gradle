@@ -1,0 +1,304 @@
+        {
+            "entries": [
+                            {
+                "iteration": 0,
+                "prompt": "Create a simple class diagram",
+                "response": "Here is a sample PlantUML diagram that follows the description:
+```xml
+<?xml version=\"10\" encoding=\"UTF-8\"?>
+<symbol xmlns:asm=\"http://www.w3.org/ statute/ns/plantus\">
+<Symbol name=\"plantus\">
+    <Symbol id=\"1\"/>
+    <Symbol id=\"2\"/>
+    <...more symbols>
+        <Symbol id=\"n_1\"/>
+        <Symbol id=\"n_2\"/>
+        <...more symbols>
+            <symbol id=\"0\"/>
+            <symbol id=\"1\"/>
+        </symbols>
+    </Symbol>
+</symbol>
+<symbol xmlns:asm=\"http://www.w3.org/ statute/ns/plantus\">
+<Symbol name=\"node\">
+    <Symbol id=\"1\"/>
+    <Symbol id=\"2\"/>
+    <...more symbols>
+        <symbol id=\"0\"/>
+        <symbol id=\"1\"/>
+        <symbol id=\"2\"/>
+    </symbols>
+    <symbol id=\"3\"/>
+    <symbol id=\"4\"/>
+    <...more symbols>
+        <symbol id=\"5\"/>
+        <symbol id=\"6\"/>
+    </symbols>
+</symbol>
+<symbol xmlns:asm=\"http://www.w3.org/ statute/ns/plantus\">
+<Symbol name=\"node\">
+    <Symbol id=\"1\"/>
+    <Symbol id=\"2\"/>
+    <...more symbols>
+        <symbol id=\"0\"/>
+        <symbol id=\"1\"/>
+        <symbol id=\"2\"/>
+    </symbols>
+    <symbol id=\"3\"/>
+    <symbol id=\"4\"/>
+    <symbol id=\"5\"/>
+    <symbol id=\"6\"/>
+    <...more symbols>
+        <symbol id=\"7\"/>
+        <symbol id=\"8\"/>
+        <symbol id=\"9\"/>
+    </symbols>
+</symbol>
+<symbol xmlns:asm=\"http://www.w3.org/ statute/ns/plantus\">
+<Symbol name=\"node\">
+    <Symbol id=\"1\"/>
+    <Symbol id=\"2\"/>
+    <...more symbols>
+        <symbol id=\"0\"/>
+        <symbol id=\"1\"/>
+        <symbol id=\"2\"/>
+    </symbols>
+    <symbol id=\"3\"/>
+    <symbol id=\"4\"/>
+    <symbol id=\"5\"/>
+    <symbol id=\"6\"/>
+    <symbol id=\"7\"/>
+    <symbol id=\"8\"/>
+    <symbol id=\"9\"/>
+    <...more symbols>
+        <symbol id=\"1\"/>
+        <symbol id=\"2\"/>
+        <symbol id=\"3\"/>
+        <symbol id=\"4\"/>
+        <symbol id=\"5\"/>
+        <symbol id=\"6\"/>
+        <symbol id=\"7\"/>
+        <symbol id=\"8\"/>
+        <symbol id=\"9\"/>
+    </symbols>
+</symbol>
+```",
+                "isValid": false,
+                "errorMessage": "null",
+                "timestamp": "2026-04-08T13:03:18.267890005"
+            },
+            {
+                "iteration": 1,
+                "prompt": "Correction attempt #1",
+                "response": "Here is a sample CodeNode that follows the description:
+```xml
+<?xml version=\"10\" encoding=\"...
+                    
+    @@{
+      @@{
+        @@{
+          @@{
+            @@{
+              @@{
+                @@{
+                    <Symbol>
+                    <Symbol id=\"1\"/>
+                    <Symbol id=\"2\"/>
+                    <...more symbols>
+                        <symbol id=\"n_1\"/>
+                        <symbol id=\"n_2\"/>
+                        <...more symbols>
+                            <symbol id=\"0\"/>
+                            <symbol id=\"1\"/>
+            </Symbol>
+          </Symbol>
+        </Symbol>
+      }
+    </Symbol>
+  </Symbol>
+</@>`
+```
+The following CodeNode:
+```xml
+<?xml version=\"10\" encoding=\"...
+                    
+    <Symbol name=\"plantus\">
+    <Symbol id=\"1\"/>
+    <Symbol id=\"2\"/>
+    <...more symbols>
+        <symbol id=\"0\"/>
+        <symbol id=\"1\"/>
+        <symbol id=\"2\"/>
+        <...more symbols>
+            <symbol id=\"0\"/>
+            <symbol id=\"1\"/>
+            <symbol id=\"2\"/>
+    </symbols>
+    <symbol id=\"3\"/>
+    <symbol id=\"4\"/>
+    <symbol id=\"5\"/>
+    <symbol id=\"6\"/>
+    <symbol id=\"7\"/>
+    <...more symbols>
+        <symbol id=\"7\"/>
+        <symbol id=\"8\"/>
+        <symbol id=\"9\"/>
+    </symbols>
+</symbol>
+<symbol xmlns:asm=\"http://www.w3.org/ statute/ns/plantus\">
+<Symbol name=\"node\">
+    <Symbol id=\"1\"/>
+    <Symbol id=\"2\"/>
+    <...more symbols>
+        <symbol id=\"0\"/>
+        <symbol id=\"1\"/>
+        <symbol id=\"2\"/>
+    </symbols>
+    <symbol id=\"3\"/>
+    <symbol id=\"4\"/>
+    <symbol id=\"5\"/>
+    <symbol id=\"6\"/>
+    <symbol id=\"7\"/>
+    <symbol id=\"8\"/>
+    <...more symbols>
+        <symbol id=\"0\"/>
+        <symbol id=\"1\"/>
+        <symbol id=\"2\"/>
+        <symbol id=\"3\"/>
+        <symbol id=\"4\"/>
+        <symbol id=\"5\"/>
+        <symbol id=\"6\"/>
+        <symbol id=\"7\"/>
+        <symbol id=\"8\"/>
+        <symbol id=\"9\"/>
+        <...more symbols>
+            <symbol id=\"1\"/>
+            <symbol id=\"2\"/>
+            <symbol id=\"3\"/>
+            <symbol id=\"4\"/>
+            <symbol id=\"5\"/>
+            <symbol id=\"6\"/>
+            <symbol id=\"7\"/>
+          </Symbol>
+          </Symbol>
+          <Symbol id=\"0\"/>
+        </Symbol>
+      </Symbol>
+    </Symbol>
+  </Symbol>
+</@>`
+```",
+                "isValid": false,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-08T13:03:28.280820428"
+            },
+            {
+                "iteration": 2,
+                "prompt": "Correction attempt #2",
+                "response": "Here is a Python function that implements the above steps:
+
+```python
+def generate_plantuml_diagram(node, node_id):
+    symbols = ['@startuml', '@enduml']
+    node_symbols = []
+
+    for symbol in node['symbols']:
+        if symbol not in symbols or symbol != node_id[symbol]:
+            raise ValueError('Node ' + symbol + ' does not have the correct symbol.')
+
+        node_symbols.append(symbol)
+
+    diagram = '''\
+    <Symbol name=\"node\">
+      <Symbol id=\"1\"/>
+      <Symbol id=\"2\"/>
+      <...more symbols>
+        <symbol id=\"0\"/>
+        <symbol id=\"1\"/>
+        <symbol id=\"2\"/>
+        <...more symbols>
+            <symbol id=\"0\"/>
+            <symbol id=\"1\"/>
+            <symbol id=\"2\"/>
+            <...more symbols>
+                <symbol id=\"0\"/>
+            </symbol>
+        </Symbol>
+    </Symbol>
+
+    # ... <symbols>
+      <Symbol id=\"3\"/>
+      <Symbol id=\"4\"/>
+      <...more symbols>
+        <symbol id=\"5\"/>
+        <symbol id=\"6\"/>
+        <symbol id=\"7\"/>
+        <symbol id=\"8\"/>
+        <symbol id=\"9\"/>
+        <symbol id=\"10\"/>
+        <symbol id=\"20\"/>
+        <symbol id=\"21\"/>
+        <...more symbols>
+            <symbol id=\"30\"/>
+            <symbol id=\"41\"/>
+            <symbol id=\"51\"/>
+            <symbol id=\"61\"/>
+        </Symbol>
+    </Symbol>
+
+    # ... <symbols>
+      <Symbol id=\"9\"/>
+      <Symbol id=\"22\"/>
+      <...more symbols>
+        <symbol id=\"32\"/>
+        <symbol id=\"42\"/>
+        <symbol id=\"52\"/>
+        <symbol id=\"62\"/>
+        <symbol id=\"73\"/>
+        <...more symbols>
+            <symbol id=\"83\"/>
+            <symbol id=\"109\"/>
+            <symbol id=\"33\"/>
+            <symbol id=\"43\"/>
+            <symbol id=\"53\"/>
+        </Symbol>
+    </Symbol>
+
+    # ... <symbols>
+      <Symbol id=\"10\"/>
+      <Symbol id=\"20\"/>
+      <...more symbols>
+        <symbol id=\"30\"/>
+        <symbol id=\"40\"/>
+        <symbol id=\"50\"/>
+        <symbol id=\"60\"/>
+        <symbol id=\"70\"/>
+        <symbol id=\"80\"/>
+        <symbol id=\"90\"/>
+        <symbol id=\"101\"/>
+        <...more symbols>
+            <symbol id=\"31\"/>
+            <symbol id=\"41\"/>
+            <symbol id=\"51\"/>
+            <symbol id=\"61\"/>
+            <symbol id=\"72\"/>
+            <symbol id=\"83\"/>
+            <symbol id=\"93\"/>
+          </Symbol>
+      </Symbol>
+
+    </Symbol>
+    '''
+
+    diagram += '\n'.join(lines)
+
+    return '\n'.join(diagram)
+```",
+                "isValid": true,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-08T13:03:38.839537109"
+            }
+            ],
+            "totalAttempts": 3,
+            "timestamp": "2026-04-08T13:03:38.847873193"
+        }
