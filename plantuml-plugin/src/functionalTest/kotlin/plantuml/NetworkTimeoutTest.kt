@@ -1,13 +1,15 @@
 package plantuml
 
-import org.gradle.testkit.runner.GradleRunner
+import org.gradle.testkit.runner.GradleRunner.create
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.net.ServerSocket
+import kotlin.test.Ignore
 import kotlin.test.assertTrue
 
+@Suppress("FunctionName")
 class NetworkTimeoutTest {
 
     @TempDir
@@ -20,18 +22,21 @@ class NetworkTimeoutTest {
     fun setup() {
         buildFile = File(testProjectDir, "build.gradle.kts")
         settingsFile = File(testProjectDir, "settings.gradle.kts")
-        
-        settingsFile.writeText("""
+
+        settingsFile.writeText(
+            """
             rootProject.name = "plantuml-network-test"
-        """.trimIndent())
+        """.trimIndent()
+        )
     }
 
-//    @slowtest
-    @kotlin.test.Ignore
+    //    @slowtest
+    @Ignore
     @Test
     fun `should handle network timeout gracefully with slow server`() {
         // Given
-        buildFile.writeText("""
+        buildFile.writeText(
+            """
             plugins {
                 id("com.cheroliv.plantuml")
             }
@@ -39,11 +44,13 @@ class NetworkTimeoutTest {
             plantuml {
                 configPath = "plantuml-context.yml"
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // Create config with Ollama pointing to slow server
         val configFile = File(testProjectDir, "plantuml-context.yml")
-        configFile.writeText("""
+        configFile.writeText(
+            """
             input:
               prompts: "test-prompts"
             output:
@@ -54,7 +61,8 @@ class NetworkTimeoutTest {
               ollama:
                 baseUrl: "http://localhost:12345"
                 modelName: "slow-model"
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // Create prompts directory and a sample prompt
         val promptsDir = File(testProjectDir, "test-prompts")
@@ -67,13 +75,13 @@ class NetworkTimeoutTest {
             try {
                 val serverSocket = ServerSocket(12345)
                 val clientSocket = serverSocket.accept()
-                
-        // Sleep for shorter time to avoid long test execution
-        Thread.sleep(1000)
-                
+
+                // Sleep for shorter time to avoid long test execution
+                Thread.sleep(1000)
+
                 clientSocket.close()
                 serverSocket.close()
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // Ignore exceptions in test server
             }
         }
@@ -84,35 +92,38 @@ class NetworkTimeoutTest {
             Thread.sleep(1000)
 
             // When & Then
-            val result = GradleRunner.create()
+            val result = create()
                 .withProjectDir(testProjectDir)
                 .withArguments("processPlantumlPrompts", "--stacktrace")
                 .withPluginClasspath()
                 .buildAndFail()
 
             // Then
-            assertTrue(result.output.contains("timeout") ||
-                      result.output.contains("TIMEOUT") ||
-                      result.output.contains("Connection refused") ||
-                      result.output.contains("Connect timed out"))
+            assertTrue(
+                result.output.contains("timeout") ||
+                        result.output.contains("TIMEOUT") ||
+                        result.output.contains("Connection refused") ||
+                        result.output.contains("Connect timed out")
+            )
         } finally {
             // Interrupt server thread
             serverThread.interrupt()
-            
+
             // Give thread time to shut down
             try {
                 serverThread.join(5000)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // Ignore
             }
         }
     }
 
-    @kotlin.test.Ignore
+    @Ignore
     @Test
     fun `should handle connection refused gracefully`() {
         // Given
-        buildFile.writeText("""
+        buildFile.writeText(
+            """
             plugins {
                 id("com.cheroliv.plantuml")
             }
@@ -120,11 +131,13 @@ class NetworkTimeoutTest {
             plantuml {
                 configPath = "plantuml-context.yml"
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // Create config with Ollama pointing to non-existent server
         val configFile = File(testProjectDir, "plantuml-context.yml")
-        configFile.writeText("""
+        configFile.writeText(
+            """
             input:
               prompts: "test-prompts"
             output:
@@ -135,7 +148,8 @@ class NetworkTimeoutTest {
               ollama:
                 baseUrl: "http://localhost:65000"  # Port that shouldn't be in use
                 modelName: "unreachable-model"
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // Create prompts directory and a sample prompt
         val promptsDir = File(testProjectDir, "test-prompts")
@@ -144,24 +158,27 @@ class NetworkTimeoutTest {
         promptFile.writeText("Create a simple class diagram")
 
         // When
-        val result = GradleRunner.create()
+        val result = create()
             .withProjectDir(testProjectDir)
             .withArguments("processPlantumlPrompts", "--stacktrace")
             .withPluginClasspath()
             .buildAndFail()
 
         // Then
-        assertTrue(result.output.contains("Connection refused") ||
-                  result.output.contains("connect") ||
-                  result.output.contains("refused") ||
-                  result.output.contains("UnknownHostException"))
+        assertTrue(
+            result.output.contains("Connection refused") ||
+                    result.output.contains("connect") ||
+                    result.output.contains("refused") ||
+                    result.output.contains("UnknownHostException")
+        )
     }
 
-    @kotlin.test.Ignore
+    @Ignore
     @Test
     fun `should handle DNS resolution failure gracefully`() {
         // Given
-        buildFile.writeText("""
+        buildFile.writeText(
+            """
             plugins {
                 id("com.cheroliv.plantuml")
             }
@@ -169,11 +186,13 @@ class NetworkTimeoutTest {
             plantuml {
                 configPath = "plantuml-context.yml"
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // Create config with Ollama pointing to invalid hostname
         val configFile = File(testProjectDir, "plantuml-context.yml")
-        configFile.writeText("""
+        configFile.writeText(
+            """
             input:
               prompts: "test-prompts"
             output:
@@ -184,7 +203,8 @@ class NetworkTimeoutTest {
               ollama:
                 baseUrl: "http://nonexistent.invalid.domain.local:11434"
                 modelName: "dns-failure-model"
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // Create prompts directory and a sample prompt
         val promptsDir = File(testProjectDir, "test-prompts")
@@ -193,30 +213,34 @@ class NetworkTimeoutTest {
         promptFile.writeText("Create a simple class diagram")
 
         // When
-        val result = GradleRunner.create()
+        val result = create()
             .withProjectDir(testProjectDir)
             .withArguments("processPlantumlPrompts", "--stacktrace")
             .withPluginClasspath()
             .buildAndFail()
 
         // Then
-        assertTrue(result.output.contains("UnresolvedAddressException") ||
-                  result.output.contains("UnknownHostException") ||
-                  result.output.contains("DNS") ||
-                  result.output.contains("resolution") ||
-                  result.output.contains("connect"),
-                  "La sortie ne contient aucun des mots attendus. Contenu de la sortie:\n${result.output}")
+        assertTrue(
+            result.output.contains("UnresolvedAddressException") ||
+                    result.output.contains("UnknownHostException") ||
+                    result.output.contains("DNS") ||
+                    result.output.contains("resolution") ||
+                    result.output.contains("connect"),
+            "La sortie ne contient aucun des mots attendus. Contenu de la sortie:\n${result.output}"
+        )
     }
 
-    @kotlin.test.Ignore
+    @Ignore
     @Test
     fun `should degrade gracefully with network issues`() {
         // Given
-        buildFile.writeText("""
+        buildFile.writeText(
+            """
             plugins {
                 id("com.cheroliv.plantuml")
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // Create a completely offline scenario by testing with localhost
         // but simulating network failure through firewall rules would be
@@ -224,17 +248,19 @@ class NetworkTimeoutTest {
 
         // Create a simple PlantUML file to validate locally
         val diagramFile = File(testProjectDir, "local.puml")
-        diagramFile.writeText("""
+        diagramFile.writeText(
+            """
             @startuml
             class Test {
               - String field
               + void method()
             }
             @enduml
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // When
-        val result = GradleRunner.create()
+        val result = create()
             .withProjectDir(testProjectDir)
             .withArguments("validatePlantumlSyntax", "-Pplantuml.diagram=local.puml", "--stacktrace")
             .withPluginClasspath()
