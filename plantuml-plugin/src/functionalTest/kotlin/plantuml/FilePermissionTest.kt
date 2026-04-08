@@ -5,8 +5,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import kotlin.test.Ignore
-import kotlin.test.assertContains
+import java.io.File.separator
 import kotlin.test.assertTrue
 
 @Suppress("FunctionName")
@@ -48,11 +47,11 @@ class FilePermissionTest {
         """.trimIndent())
 
         // Make file unreadable (Unix-like systems)
-        if (File.separator == "/") {
+        if (separator == "/") {
             try {
                 diagramFile.setReadable(false)
                 diagramFile.setWritable(false)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // If we can't change permissions, we'll test a different scenario
                 // Create a directory instead of a file to simulate permission error
                 diagramFile.delete()
@@ -88,12 +87,12 @@ class FilePermissionTest {
                 "Expected permission or access error message but got: ${result.output}"
             )
         } finally {
-            // Restore permissions for cleanup
-            if (File.separator == "/") {
+            // Restore permissions for clean-up
+            if (separator == "/") {
                 try {
                     diagramFile.setReadable(true)
                     diagramFile.setWritable(true)
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     // Ignore if permission change fails
                 }
             }
@@ -135,10 +134,10 @@ class FilePermissionTest {
         imagesDir.mkdirs()
 
         // Make directory read-only to prevent writing
-        if (File.separator == "/") {
+        if (separator == "/") {
             try {
                 imagesDir.setWritable(false)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // If we can't change permissions, place a file there to block writes
                 val blockerFile = File(imagesDir, ".gitkeep")
                 blockerFile.writeText("")
@@ -181,10 +180,10 @@ class FilePermissionTest {
             )
         } finally {
             // Restore permissions for cleanup
-            if (File.separator == "/") {
+            if (separator == "/") {
                 try {
                     imagesDir.setWritable(true)
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     // Remove blocking file
                     val blockerFile = File(imagesDir, ".gitkeep")
                     if (blockerFile.exists()) {
@@ -245,13 +244,13 @@ class FilePermissionTest {
         """.trimIndent())
 
         // Make directory inaccessible - use a more reliable method
-        if (File.separator == "/") {
+        if (separator == "/") {
             try {
                 // Remove all permissions
                 ragDir.setReadable(false, false)
                 ragDir.setWritable(false, false)
                 ragDir.setExecutable(false, false)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // If that fails, rename it temporarily to make it appear missing
                 val tempDir = File(testProjectDir, "temp-rag")
                 ragDir.renameTo(tempDir)
@@ -295,7 +294,7 @@ class FilePermissionTest {
             )
         } finally {
             // Restore access for cleanup
-            if (File.separator == "/") {
+            if (separator == "/") {
                 try {
                     // Restore directory permissions
                     ragDir.setReadable(true, false)
@@ -312,7 +311,7 @@ class FilePermissionTest {
                     if (tempDir.exists()) {
                         tempDir.renameTo(ragDir)
                     }
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     // Continue
                 }
             } else {
