@@ -138,19 +138,42 @@ Suit les patterns architecturaux des projets `slider-gradle`(les sources sont da
   - Ajout de l'enum `ProcessResult` (SUCCESS, SKIPPED, FAILED)
   - Meilleur tracking des résultats (succeeded/skipped/failed)
   - Correction du comptage quand processor retourne null
-- **Tests unitaires : 64/66 passent (97%)**
-  - 2 tests WireMock restants à investiguer (WithWireMockLlm)
+- **Tests unitaires : 66/66 passent (100%)** ✨
+  - Correction des tests WireMock dans PromptOrchestratorTest.kt (endpoint /api/chat)
+  - Correction du format JSON pour ollamaChatJsonResponse()
+  - Exécution réussie de `./gradlew -p plantuml-plugin -i clean test --rerun-tasks`
+- **Analyse complète de couverture de tests**
+  - Création de TEST_COVERAGE_ANALYSIS.md avec l'analyse détaillée
+  - Identification de 4 classes sans tests unitaires directs (PlantumlManager, 3 tâches Gradle)
+  - Identification de 11 méthodes privées non testées (LlmService, DiagramProcessor)
+  - Identification de 10 data classes sans tests directs (models.kt)
+  - Recommandations : ~7 nouveaux fichiers de test, ~40-50 tests à créer
 
 ### 📋 Backlog — À faire
 &lt;!-- Liste des tâches à faire par ordre de priorité --&gt;
 
-#### 🔄 En cours
-- **Optimisation des tests unitaires (src/test/kotlin/plantuml/)** (Priorité haute - NEW)
-  - Analyser le temps d'exécution de tous les tests unitaires
-  - Identifier les tests lents et les goulots d'étranglement
-  - Appliquer les techniques d'optimisation (mocks, tests paramétrés, ProjectBuilder)
-  - Objectif : réduire le temps total des tests unitaires de 50%+
-  - **Critère d'évaluation** : Tous les tests unitaires doivent passer en &lt; 30 secondes
+#### 🔄 En cours - TOP PRIORITÉ
+- **Création des tests unitaires manquants (src/test/kotlin/plantuml/)** (Priorité haute - TOP)
+  - **Contexte** : `./gradlew -p plantuml-plugin -i clean test --rerun-tasks` exécuté avec succès (66/66 tests passent)
+  - **Objectif** : Améliorer la couverture de tests des classes principales
+  - **Voir** : TEST_COVERAGE_ANALYSIS.md pour le détail complet
+  
+  **Classes prioritaires sans tests unitaires directs :**
+  1. **PlantumlManagerTest.kt** - Tester `Configuration.load()`, `Tasks.registerTasks()`
+  2. **ProcessPlantumlPromptsTaskTest.kt** - Tester `processPrompts()`, `processSinglePrompt()`, `loadConfiguration()`
+  3. **ValidatePlantumlSyntaxTaskTest.kt** - Tester `validateSyntax()`
+  4. **ReindexPlantumlRagTaskUnitTest.kt** - Tester `reindexRag()`, `simulateIndexing()`
+  
+  **Méthodes privées à tester :**
+  - **LlmServicePrivateMethodsTest.kt** : `createOllamaModel()`, `createOpenAiModel()`, `createGeminiModel()`, `createMistralModel()`, `createClaudeModel()`, `createHuggingFaceModel()`, `getTimeoutInSeconds()` (7 tests)
+  - **DiagramProcessorPrivateMethodsTest.kt** : `buildHistoryContext()`, `archiveAttemptHistory()`, `convertHistoryToJson()`, `fixCommonPlantUmlIssues()`, `generateSimulatedLlmResponse()` (5-8 tests)
+  
+  **Data classes à tester :**
+  - **ModelsDataClassTest.kt** : `InputConfig`, `OutputConfig`, `LangchainConfig`, `GitConfig`, `OllamaConfig`, `ApiKeyConfig`, `RagConfig`, `PlantumlDiagram`, `PlantumlCode`, `ValidationFeedback`, `PlantumlConfig` (11 tests)
+  
+  - **Objectif** : Créer 7 fichiers de test, 40-50 tests additionnels
+  - **Critère d'évaluation** : Couverture >80% sur toutes les classes principales
+  - **Contrainte** : Garder les tests rapides (<10ms chacun), utiliser mocks si nécessaire
 
 #### 📋 À faire
 - **Optimisation des tests fonctionnels (src/functionalTest/kotlin/plantuml/)** (Priorité moyenne)
