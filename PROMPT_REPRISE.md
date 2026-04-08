@@ -55,8 +55,8 @@ Consulter la section correspondant au fichier choisi
 ```
 
 ### Étape 5 : Valider
-- ✅ **Si passe** → Commit → Fin de session → Nouvelle session pour le fichier suivant
-- ❌ **Si échec** → Corriger → Re-tester → Puis commit
+- ✅ **Si passe** → Fin de session → Nouvelle session pour le fichier suivant
+- ❌ **Si échec** → Corriger → Re-tester
 
 ---
 
@@ -78,7 +78,6 @@ Consulter la section correspondant au fichier choisi
 - [ ] Tests du fichier passent (`./gradlew -p plantuml-plugin test`)
 - [ ] `AGENTS.md` mis à jour (section "État actuel")
 - [ ] Tâche terminée → `COMPLETED_TASKS_ARCHIVE.md`
-- [ ] Commit effectué
 
 ---
 
@@ -88,8 +87,12 @@ Consulter la section correspondant au fichier choisi
 1. Vérifier : `./gradlew -p plantuml-plugin test`
 2. Mettre à jour `AGENTS.md`
 3. Déplacer vers `COMPLETED_TASKS_ARCHIVE.md`
-4. Commit : `git add -A && git commit -m "Test: [nom du fichier]"`
-5. **Ouvrir une nouvelle session** pour le fichier suivant
+4. **Ouvrir une nouvelle session** pour le fichier suivant
+
+**⚠️ Git — INTERDICTION :**
+- ❌ **L'agent N'EST PAS autorisé à exécuter des commandes Git**
+- ❌ **Pas de `git add`, `git commit`, `git push`**
+- ✅ **C'est l'utilisateur qui gère Git manuellement**
 
 ---
 
