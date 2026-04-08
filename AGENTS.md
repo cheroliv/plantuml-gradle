@@ -236,7 +236,7 @@ fun setup() {
 
 **✅ Situations idéales pour une nouvelle session :**
 - 1 test créé et validé → Session terminée
-- 1 bug fixé → Commit → Nouvelle session
+- 1 bug fixé → Nouvelle session
 - 1 feature complétée → Nouvelle session
 - 3 échanges sans progrès → Reset mental → Nouvelle session
 
@@ -253,7 +253,11 @@ fun setup() {
 1. Vérifier : `./gradlew -p plantuml-plugin test`
 2. Mettre à jour `AGENTS.md` (section "État actuel")
 3. Déplacer tâches terminées vers `COMPLETED_TASKS_ARCHIVE.md`
-4. Commit : `git add -A && git commit -m "Fix: [description]"`
+
+**⚠️ Git — INTERDICTION :**
+- ❌ **L'agent N'EST PAS autorisé à exécuter des commandes Git**
+- ❌ **Pas de `git add`, `git commit`, `git push`**
+- ✅ **C'est l'utilisateur qui gère Git manuellement**
 
 ---
 
