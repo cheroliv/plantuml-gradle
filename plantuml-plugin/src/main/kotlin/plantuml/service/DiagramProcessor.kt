@@ -201,6 +201,7 @@ class DiagramProcessor(
                 println("Archived attempt history with ${history.size} entries to ${historyFile.absolutePath}")
             } catch (e: Exception) {
                 println("Failed to archive attempt history: ${e.message}")
+                // Don't throw the exception to avoid failing the task
             }
         }
     }
