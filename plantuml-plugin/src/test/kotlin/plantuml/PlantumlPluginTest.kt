@@ -1,6 +1,6 @@
 package plantuml
 
-import org.gradle.testfixtures.ProjectBuilder
+import org.gradle.testfixtures.ProjectBuilder.builder
 import org.junit.jupiter.api.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -11,7 +11,7 @@ class PlantumlPluginTest {
     @Test
     fun `should create plantuml extension`() {
         // Given
-        val project = ProjectBuilder.builder().build()
+        val project = builder().build()
 
         // When
         project.pluginManager.apply("com.cheroliv.plantuml")
@@ -25,7 +25,7 @@ class PlantumlPluginTest {
     @Test
     fun `should register tasks`() {
         // Given
-        val project = ProjectBuilder.builder().build()
+        val project = builder().build()
 
         // When
         project.pluginManager.apply("com.cheroliv.plantuml")
@@ -39,7 +39,7 @@ class PlantumlPluginTest {
     @Test
     fun `should apply plugin successfully`() {
         // Given
-        val project = ProjectBuilder.builder().build()
+        val project = builder().build()
 
         // When
         project.pluginManager.apply("com.cheroliv.plantuml")
