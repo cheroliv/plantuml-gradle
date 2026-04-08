@@ -1,6 +1,7 @@
 package plantuml
 
 import org.gradle.testkit.runner.GradleRunner
+import org.gradle.testkit.runner.GradleRunner.create
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -26,11 +27,11 @@ class LlmCommandLineParameterTest {
     fun setup() {
         buildFile = File(testProjectDir, "build.gradle.kts")
         settingsFile = File(testProjectDir, "settings.gradle.kts")
-        
+
         settingsFile.writeText("""
             rootProject.name = "plantuml-llm-parameter-test"
         """.trimIndent())
-        
+
         // Configuration du plugin avec une config spécifique
         buildFile.writeText("""
             plugins {
@@ -70,13 +71,13 @@ class LlmCommandLineParameterTest {
         // Créer un répertoire de prompts et un fichier prompt simple
         val promptsDir = File(testProjectDir, "test/prompts")
         promptsDir.mkdirs()
-        
+
         val promptFile = File(promptsDir, "test.prompt")
         promptFile.writeText("Create a simple sequence diagram")
 
         // Exécuter la tâche avec le paramètre LLM en ligne de commande
         // Cela doit remplacer la configuration "gemini" du fichier par "ollama"
-        val result = GradleRunner.create()
+        val result = create()
             .withProjectDir(testProjectDir)
             .withArguments(
                 "processPlantumlPrompts",
@@ -90,16 +91,16 @@ class LlmCommandLineParameterTest {
         // Vérifier que la tâche s'exécute sans erreur de configuration
         // Cette vérification teste que le paramètre en ligne de commande est pris en compte
         assertTrue(
-            result.output.contains("Processing") || 
-            result.output.contains("No prompt files found") ||
-            result.output.contains("PlantUML generation") ||
-            result.output.contains("DEBUG")
+            result.output.contains("Processing") ||
+                    result.output.contains("No prompt files found") ||
+                    result.output.contains("PlantUML generation") ||
+                    result.output.contains("DEBUG")
         )
-        
+
         // S'assurer qu'il n'y a pas d'erreurs de configuration
         assertTrue(!result.output.contains("Invalid model configuration"))
     }
-    
+
     @Test
     fun `should perform LLM handshake without full authentication`() {
         // Créer un fichier de configuration YAML de test
@@ -128,7 +129,7 @@ class LlmCommandLineParameterTest {
 
         // Exécuter la tâche avec le paramètre LLM en ligne de commande
         // Cela doit simplement initialiser le modèle sans authentification complète
-        val result = GradleRunner.create()
+        val result = create()
             .withProjectDir(testProjectDir)
             .withArguments(
                 "processPlantumlPrompts",
@@ -140,8 +141,10 @@ class LlmCommandLineParameterTest {
             .build()
 
         // Vérifier que le dry-run fonctionne correctement avec le paramètre LLM
-        assertTrue(result.output.contains("processPlantumlPrompts") || 
-                  result.output.contains("validatePlantumlSyntax") ||
-                  result.output.contains("reindexPlantumlRag"))
+        assertTrue(
+            result.output.contains("processPlantumlPrompts") ||
+                    result.output.contains("validatePlantumlSyntax") ||
+                    result.output.contains("reindexPlantumlRag")
+        )
     }
 }
