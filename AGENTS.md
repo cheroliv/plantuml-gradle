@@ -119,9 +119,27 @@ Suit les patterns architecturaux des projets `slider-gradle`(les sources sont da
   - Suppression des flags incompatibles (--no-daemon, --configuration-cache)
   - Réduction du classpath cucumberTest
   - Minimisation des dépendances entre tâches
-### 📋 Backlog — À faire
-&lt;!-- Liste des tests unitaires à corriger par ordre de priorité --&gt;
+- **Correction des erreurs de permission d'écriture dans ProcessPlantumlPromptsTask**
+  - Ajout de blocs try-catch pour gérer les erreurs d'écriture dans `ProcessPlantumlPromptsTask.kt:134-142` et `:167-180`
+  - Gestion des erreurs d'écriture dans `PlantumlService.generateImage()` avec fallback
+  - Tous les tests de `FilePermissionTest.kt` passent maintenant avec succès
+- **Restauration et correction du test unitaire PlantumlPluginUnitTest**
+  - Correction du test `should create plantuml extension with configurable properties`
+  - Mocking correct de `ObjectFactory` et `Property` pour éviter les NullPointerException
+  - Test unitaire fonctionnel sans perte de couverture de tests
+- **Mise à jour de la documentation AGENTS.md**
+  - Ajout de la note sur la langue de communication (français) et code (anglais)
 
+### 📋 Backlog — À faire
+&lt;!-- Liste des tâches à faire par ordre de priorité --&gt;
+
+#### 🔄 En cours
+- **Optimisation des tests fonctionnels FilePermissionTest.kt** (Priorité haute)
+  - Réduire le temps d'exécution (~1min35sec par test)
+  - Identifier les goulots d'étranglement dans l'utilisation de GradleRunner
+  - Explorer le mocking des appels Gradle pour les tests de permission
+
+#### 📋 À faire
 - Amélioration du script de benchmark (Priorité moyenne)
    - Mesures statistiques avancées
    - Génération de rapports comparatifs
@@ -134,15 +152,6 @@ Suit les patterns architecturaux des projets `slider-gradle`(les sources sont da
 - Permettre aux tâches Gradle de spécifier le LLM à utiliser pour surcharger la config YAML
 - Configuration par gradle.properties comme troisième niveau de priorité (DSL > YAML > gradle.properties)
 - Tester progressivement les autres configurations LLM (Gemini, Mistral, etc.) en gardant @Ignore
-- DiagramProcessorTest.kt
-- PlantumlServiceTest.kt
-- LlmServiceErrorTest.kt
-- LlmServiceTest.kt
-- ReindexPlantumlRagTaskTest.kt
-- **Optimisation des tests de PerformanceTest.k**
-  - Réduction du nombre de fichiers et d'itérations pour accélérer l'exécution
-  - Ajout d'assertions plus précises pour valider le bon fonctionnement
-  - Configuration de timeouts stricts pour détecter rapidement les problèmes
 
 ---
 
