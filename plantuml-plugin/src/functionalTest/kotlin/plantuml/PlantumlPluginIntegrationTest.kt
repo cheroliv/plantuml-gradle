@@ -1,6 +1,7 @@
 package plantuml
 
 import org.gradle.testkit.runner.GradleRunner
+import org.gradle.testkit.runner.GradleRunner.create
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -11,6 +12,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 //Tests are slow : 46 sec
+@Suppress("FunctionName")
 @Ignore
 class PlantumlPluginIntegrationTest {
 
@@ -87,7 +89,7 @@ class PlantumlPluginIntegrationTest {
         )
 
         // When
-        val result = GradleRunner.create()
+        val result = create()
             .withProjectDir(testProjectDir)
             .withArguments("processPlantumlPrompts", "--stacktrace", "-Dplantuml.test.mode=true")
             .withPluginClasspath()
@@ -123,7 +125,7 @@ class PlantumlPluginIntegrationTest {
         )
 
         // When
-        val result = GradleRunner.create()
+        val result = create()
             .withProjectDir(testProjectDir)
             .withArguments(
                 "validatePlantumlSyntax",
@@ -166,7 +168,7 @@ class PlantumlPluginIntegrationTest {
         )
 
         // When
-        val result = GradleRunner.create()
+        val result = create()
             .withProjectDir(testProjectDir)
             .withArguments("reindexPlantumlRag", "--stacktrace", "-Dplantuml.test.mode=true")
             .withPluginClasspath()
