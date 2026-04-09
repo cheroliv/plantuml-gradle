@@ -15,7 +15,7 @@ object ConfigMerger {
         return PlantumlConfig(
             input = mergeInputConfig(propertiesConfig.input, yamlConfig.input, cliParams),
             output = mergeOutputConfig(propertiesConfig.output, yamlConfig.output, cliParams),
-            langchain = mergeLangchainConfig(propertiesConfig.langchain, yamlConfig.langchain, cliParams),
+            langchain4j = mergeLangchain4jConfig(propertiesConfig.langchain4j, yamlConfig.langchain4j, cliParams),
             git = mergeGitConfig(propertiesConfig.git, yamlConfig.git, cliParams),
             rag = mergeRagConfig(propertiesConfig.rag, yamlConfig.rag, cliParams)
         )
@@ -27,7 +27,7 @@ object ConfigMerger {
         return PlantumlConfig(
             input = mergeInputConfig(propertiesConfig.input, yamlConfig.input, cliParams),
             output = mergeOutputConfig(propertiesConfig.output, yamlConfig.output, cliParams),
-            langchain = mergeLangchainConfig(propertiesConfig.langchain, yamlConfig.langchain, cliParams),
+            langchain4j = mergeLangchain4jConfig(propertiesConfig.langchain4j, yamlConfig.langchain4j, cliParams),
             git = mergeGitConfig(propertiesConfig.git, yamlConfig.git, cliParams),
             rag = mergeRagConfig(propertiesConfig.rag, yamlConfig.rag, cliParams)
         )
@@ -68,13 +68,13 @@ object ConfigMerger {
                 format = props["plantuml.output.format"] ?: "png",
                 theme = props["plantuml.output.theme"] ?: "default"
             ),
-            langchain = LangchainConfig(
-                maxIterations = props["plantuml.langchain.maxIterations"]?.toIntOrNull() ?: 5,
-                model = props["plantuml.langchain.model"] ?: "ollama",
-                validation = props["plantuml.langchain.validation"]?.toBoolean() ?: true,
+            langchain4j = LangchainConfig(
+                maxIterations = props["plantuml.langchain4j.maxIterations"]?.toIntOrNull() ?: 5,
+                model = props["plantuml.langchain4j.model"] ?: "ollama",
+                validation = props["plantuml.langchain4j.validation"]?.toBoolean() ?: true,
                 ollama = OllamaConfig(
-                    baseUrl = props["plantuml.langchain.ollama.baseUrl"] ?: "http://localhost:11434",
-                    modelName = props["plantuml.langchain.ollama.modelName"] ?: "smollm:135m"
+                    baseUrl = props["plantuml.langchain4j.ollama.baseUrl"] ?: "http://localhost:11434",
+                    modelName = props["plantuml.langchain4j.ollama.modelName"] ?: "smollm:135m"
                 ),
                 gemini = ApiKeyConfig(apiKey = ""),
                 mistral = ApiKeyConfig(apiKey = ""),
@@ -119,15 +119,15 @@ object ConfigMerger {
         )
     }
 
-    private fun mergeLangchainConfig(props: LangchainConfig, yaml: LangchainConfig, cli: Map<String, Any?>): LangchainConfig {
+    private fun mergeLangchain4jConfig(props: LangchainConfig, yaml: LangchainConfig, cli: Map<String, Any?>): LangchainConfig {
         return LangchainConfig(
-            maxIterations = cli["langchain.maxIterations"] as? Int ?: (if (yaml.maxIterations != 5) yaml.maxIterations else props.maxIterations),
-            model = cli["langchain.model"]?.toString() ?: (if (yaml.model != "ollama") yaml.model else props.model),
-            validation = cli["langchain.validation"] as? Boolean ?: (if (yaml.validation != true) yaml.validation else props.validation),
-            validationPrompt = cli["langchain.validationPrompt"]?.toString() ?: yaml.validationPrompt,
+            maxIterations = cli["langchain4j.maxIterations"] as? Int ?: (if (yaml.maxIterations != 5) yaml.maxIterations else props.maxIterations),
+            model = cli["langchain4j.model"]?.toString() ?: (if (yaml.model != "ollama") yaml.model else props.model),
+            validation = cli["langchain4j.validation"] as? Boolean ?: (if (yaml.validation != true) yaml.validation else props.validation),
+            validationPrompt = cli["langchain4j.validationPrompt"]?.toString() ?: yaml.validationPrompt,
             ollama = OllamaConfig(
-                baseUrl = cli["langchain.ollama.baseUrl"]?.toString() ?: (if (yaml.ollama.baseUrl != "http://localhost:11434") yaml.ollama.baseUrl else props.ollama.baseUrl),
-                modelName = cli["langchain.ollama.modelName"]?.toString() ?: (if (yaml.ollama.modelName != "smollm:135m") yaml.ollama.modelName else props.ollama.modelName)
+                baseUrl = cli["langchain4j.ollama.baseUrl"]?.toString() ?: (if (yaml.ollama.baseUrl != "http://localhost:11434") yaml.ollama.baseUrl else props.ollama.baseUrl),
+                modelName = cli["langchain4j.ollama.modelName"]?.toString() ?: (if (yaml.ollama.modelName != "smollm:135m") yaml.ollama.modelName else props.ollama.modelName)
             ),
             gemini = yaml.gemini,
             mistral = yaml.mistral,
