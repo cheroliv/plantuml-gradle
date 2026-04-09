@@ -13,7 +13,7 @@ class ConfigLoaderTest {
     @Test
     fun `test resolveEnvironmentVariables with existing env var`() {
         val yamlContent = """
-            langchain:
+            langchain4j:
               openai:
                 apiKey: ${'$'}{TEST_API_KEY}
         """.trimIndent()
@@ -27,7 +27,7 @@ class ConfigLoaderTest {
     @Test
     fun `test resolveEnvironmentVariables with missing env var preserves syntax`() {
         val yamlContent = """
-            langchain:
+            langchain4j:
               openai:
                 apiKey: ${'$'}{NONEXISTENT_VAR_12345}
         """.trimIndent()
@@ -40,7 +40,7 @@ class ConfigLoaderTest {
     @Test
     fun `test resolveEnvironmentVariables with multiple env vars`() {
         val yamlContent = """
-            langchain:
+            langchain4j:
               openai:
                 apiKey: ${'$'}{VAR_ONE}
               gemini:
@@ -58,7 +58,7 @@ class ConfigLoaderTest {
     @Test
     fun `test resolveEnvironmentVariables with no env vars returns unchanged`() {
         val yamlContent = """
-            langchain:
+            langchain4j:
               maxIterations: 5
               model: ollama
         """.trimIndent()
@@ -72,7 +72,7 @@ class ConfigLoaderTest {
     fun `test load with environment variable in apiKey`() {
         val tempFile = File.createTempFile("test-config", ".yml")
         tempFile.writeText("""
-            langchain:
+            langchain4j:
               openai:
                 apiKey: ${'$'}{TEST_OPENAI_KEY}
         """.trimIndent())
@@ -81,6 +81,6 @@ class ConfigLoaderTest {
         val config = ConfigLoader.load(tempFile)
 
         val expectedKey = System.getenv("TEST_OPENAI_KEY") ?: "${'$'}{TEST_OPENAI_KEY}"
-        assertEquals(expectedKey, config.langchain.openai.apiKey)
+        assertEquals(expectedKey, config.langchain4j.openai.apiKey)
     }
 }
