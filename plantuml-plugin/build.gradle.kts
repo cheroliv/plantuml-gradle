@@ -1,8 +1,6 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.plugin.compatibility.compatibility
 import java.time.Duration
-import kotlin.div
-import kotlin.text.set
 
 plugins {
     `java-library`
@@ -95,17 +93,17 @@ tasks.withType<Test> {
         events("passed", "skipped", "failed")
         showStandardStreams = true
     }
-    
+
     // Optimisation des performances des tests
     maxParallelForks = Runtime.getRuntime().availableProcessors()
     forkEvery = 10 // Redémarrer le worker tous les 10 tests
-    
+
     // Timeout stricte pour éviter les blocages
     timeout.set(Duration.ofSeconds(60))
-    
+
     // Réutilisation des sorties pour accélérer les exécutions
     outputs.cacheIf { true }
-    
+
     // Options JVM optimisées pour les tests
     jvmArgs("-XX:+UseSerialGC") // GC plus rapide pour les tests courts
     jvmArgs("-XX:MaxMetaspaceSize=256m") // Limite mémoire plus stricte
@@ -151,11 +149,11 @@ dependencies {
     libs.bundles.coroutines.get().forEach { dep ->
         add(functionalTest.implementationConfigurationName, dep)
     }
-    
+
     // CORRECTION: Ajouter LangChain4j pour accéder aux classes ChatModel
     add(functionalTest.implementationConfigurationName, libs.langchain4j)
     add(functionalTest.implementationConfigurationName, libs.langchain4j.ollama)
-    
+
     // CORRECTION: Ajouter la dépendance vers le code source principal pour accéder aux classes du plugin
     add(functionalTest.implementationConfigurationName, sourceSets.main.get().output)
 }
@@ -173,13 +171,13 @@ val functionalTestTask = tasks.register<Test>("functionalTest") {
         showStandardStreams = true
     }
     failOnNoDiscoveredTests = false
-    
+
     // Timeout réduit pour les tests fonctionnels - les mocks WireMock évitent les appels réseau réels
     timeout.set(Duration.ofMinutes(2))
-    
+
     // Ajouter des propriétés système pour les tests de permissions
     systemProperty("test.timeout.multiplier", "2")
-    
+
     // Optimisations de performance
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
     forkEvery = 4 // Redémarrer le worker tous les 4 tests fonctionnels
@@ -259,7 +257,7 @@ val cucumberTest = tasks.register<Test>("cucumberTest") {
     outputs.upToDateWhen { false }
     // S'assurer que main est compilé avant
     dependsOn(tasks.classes)
-    
+
     // Optimisations de performance
     maxParallelForks = 4
     forkEvery = 20
