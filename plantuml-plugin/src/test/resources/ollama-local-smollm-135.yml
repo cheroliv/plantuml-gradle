@@ -1,5 +1,5 @@
 # Configuration pour le test avec Ollama local et modèle SmolLM 135M
-langchain:
+langchain4j:
   model: "ollama"
   ollama:
     baseUrl: "http://localhost:11434"
