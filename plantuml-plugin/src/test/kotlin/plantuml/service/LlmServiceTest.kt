@@ -1,5 +1,6 @@
 package plantuml.service
 
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import plantuml.PlantumlConfig
@@ -63,5 +64,24 @@ class LlmServiceTest {
 
         // Then
         assertNotNull(chatModel)
+    }
+
+    @Test
+    fun `createChatModel should throw NotImplementedError for groq`() {
+        // Given
+        val config = PlantumlConfig(
+            langchain = plantuml.LangchainConfig(
+                model = "groq"
+            )
+        )
+        val llmService = LlmService(config)
+
+        // When & Then
+        try {
+            llmService.createChatModel()
+            throw AssertionError("Expected NotImplementedError was not thrown")
+        } catch (e: NotImplementedError) {
+            // Expected
+        }
     }
 }
