@@ -100,7 +100,7 @@ class ModelsDataClassTest {
         val config = PlantumlConfig(
             input = InputConfig("custom-prompts", "fr"),
             output = OutputConfig("out/diagrams", "out/images", "out/validations", "out/rag", "svg", "dark"),
-            langchain = LangchainConfig(3, "openai", true, "", OllamaConfig("http://custom:11434", "llama2"), ApiKeyConfig("sk-key")),
+            langchain4j = LangchainConfig(3, "openai", true, "", OllamaConfig("http://custom:11434", "llama2"), ApiKeyConfig("sk-key")),
             git = GitConfig("user", "user@email.com", "custom message", listOf("main")),
             rag = RagConfig("jdbc:postgresql://localhost:5432/rag", "user", "pass", "custom_table")
         )
@@ -108,8 +108,8 @@ class ModelsDataClassTest {
         assertEquals("fr", config.input.defaultLang)
         assertEquals("out/diagrams", config.output.diagrams)
         assertEquals("svg", config.output.format)
-        assertEquals(3, config.langchain.maxIterations)
-        assertEquals("openai", config.langchain.model)
+        assertEquals(3, config.langchain4j.maxIterations)
+        assertEquals("openai", config.langchain4j.model)
         assertEquals("user", config.git.userName)
         assertEquals("jdbc:postgresql://localhost:5432/rag", config.rag.databaseUrl)
     }
