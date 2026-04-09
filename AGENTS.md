@@ -288,6 +288,21 @@ fun setup() {
 
 **⚠️ OBLIGATION** : L'agent DOIT exécuter CETTE procédure AVANT de répondre à l'utilisateur
 
+**🚫 RÈGLE D'OR — NE PAS PARLER, FAIRE :**
+- ❌ **JAMAIS** demander "Veux-tu que je...?" ou "Dois-je...?"
+- ❌ **JAMAIS** expliquer ce que tu vas faire avant de le faire
+- ❌ **JAMAIS** répondre à l'utilisateur avant d'avoir fini les 5 étapes
+- ✅ **FAIRE DIRECTEMENT** les 5 étapes SILENCIEUSEMENT
+- ✅ **Répondre UNIQUEMENT** par "✅ Procédure exécutée" + résumé en 3 lignes maximum
+
+**🎯 CIBLE DE CETTE PROCÉDURE :**
+> Cette procédure vise à **AUTOMATISER la fin de session** pour que l'agent :
+> 1. ✅ Exécute les 5 étapes **SANS DEMANDER CONFIRMATION**
+> 2. ✅ Mette à jour les fichiers **SANS EXPLIQUER** ce qu'il fait
+> 3. ✅ Réponde **UNIQUEMENT** par "✅ Procédure exécutée" + 3 lignes de résumé
+> 
+> **Objectif** : Zéro token gaspillé, zéro explication inutile, action directe.
+
 **Procédure en 5 étapes (NON-NÉGOCIABLE) :**
 
 1. **Vérifier les tests** : `./gradlew -p plantuml-plugin test`
