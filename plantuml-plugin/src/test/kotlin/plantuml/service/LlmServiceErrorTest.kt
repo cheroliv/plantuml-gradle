@@ -39,7 +39,7 @@ class LlmServiceErrorTest {
     fun `should handle malformed configuration gracefully`() {
         // Given
         val config = PlantumlConfig(
-            langchain = plantuml.LangchainConfig(
+            langchain4j = plantuml.LangchainConfig(
                 model = "claude",
                 claude = plantuml.ApiKeyConfig("") // Empty API key
             )
@@ -56,34 +56,34 @@ class LlmServiceErrorTest {
     private fun createConfigForScenario(scenario: String, model: String, apiKey: String): PlantumlConfig {
         return when (scenario) {
             "invalid-api-key" -> PlantumlConfig(
-                langchain = plantuml.LangchainConfig(
+                langchain4j = plantuml.LangchainConfig(
                     model = model,
                     openai = plantuml.ApiKeyConfig(apiKey)
                 )
             )
 
             "unsupported-model" -> PlantumlConfig(
-                langchain = plantuml.LangchainConfig(
+                langchain4j = plantuml.LangchainConfig(
                     model = model
                 )
             )
 
             "network-timeouts" -> PlantumlConfig(
-                langchain = plantuml.LangchainConfig(
+                langchain4j = plantuml.LangchainConfig(
                     model = model,
                     openai = plantuml.ApiKeyConfig(apiKey)
                 )
             )
 
             "rate-limiting" -> PlantumlConfig(
-                langchain = plantuml.LangchainConfig(
+                langchain4j = plantuml.LangchainConfig(
                     model = model,
                     mistral = plantuml.ApiKeyConfig(apiKey)
                 )
             )
 
             "fallback-default" -> PlantumlConfig(
-                langchain = plantuml.LangchainConfig(
+                langchain4j = plantuml.LangchainConfig(
                     model = model
                     // Missing gemini configuration for fallback test
                 )
