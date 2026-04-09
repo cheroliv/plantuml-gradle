@@ -13,7 +13,7 @@ output:
   format: "png"
   theme: "default"
 
-langchain:
+langchain4j:
   maxIterations: 5
   model: "ollama"  # Can be: ollama, gemini, mistral, openai, claude, huggingface, groq
   validation: true
