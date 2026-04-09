@@ -1,4 +1,4 @@
-langchain:
+langchain4j:
   model: "ollama"
   ollama:
     baseUrl: "http://localhost:11434"
