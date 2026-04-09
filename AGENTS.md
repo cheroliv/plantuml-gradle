@@ -57,28 +57,54 @@ plantuml-plugin/src/main/kotlin/plantuml/
 
 ## 📊 État actuel
 
-### ✅ Tests unitaires : 75/75 passent (100%)
+### ✅ Tests unitaires : 127/127 passent (100%)
 - WireMock corrigé (endpoint `/api/chat`)
 - Overlaps nettoyés (7 tests redondants supprimés)
 - **ValidatePlantumlSyntaxTaskTest.kt** créé (5 tests)
+- **ModelsDataClassTest.kt** créé (11 tests)
+- **ReindexPlantumlRagTaskUnitTest.kt** créé (7 tests)
+- **ProcessPlantumlPromptsTaskTest.kt** créé (5 tests)
+- **LlmServicePrivateMethodsTest.kt** créé (8 tests)
+- **ConfigLoader.kt** créé + **ConfigLoaderTest.kt** (5 tests) — Support `${VAR_NAME}` dans YAML
+- **DiagramProcessorPrivateMethodsTest.kt** créé (8 tests) — Méthodes privées de DiagramProcessor
+- **ConfigMerger.kt** créé + **ConfigMergerTest.kt** (8 tests) — Fusion properties < yaml < CLI
 - Voir : `TEST_COVERAGE_ANALYSIS.md`
 
 ### 🔄 TOP PRIORITÉ — Tests manquants
-**5 fichiers à créer** (détails dans `TEST_COVERAGE_ANALYSIS.md`) :
+**Tous les tests prioritaires sont TERMINÉS ✅**
 
-| Fichier | À tester | Tests | Difficulté |
-|---------|----------|-------|------------|
-| 1 | `ModelsDataClassTest.kt` | 11 data classes | 11 | ⭐ Facile |
-| 2 | `ProcessPlantumlPromptsTaskTest.kt` | `processPrompts()`, `processSinglePrompt()` | 5 | ⭐⭐ Moyen |
-| 3 | `ReindexPlantumlRagTaskUnitTest.kt` | `reindexRag()`, `simulateIndexing()` | 7 | ⭐⭐ Moyen |
-| 4 | `LlmServicePrivateMethodsTest.kt` | 7 méthodes privées | 8 | ⭐⭐⭐ Avancé |
-| 5 | `DiagramProcessorPrivateMethodsTest.kt` | 5 méthodes privées | 8 | ⭐⭐⭐ Avancé |
+| # | Fichier | À tester | Tests | Difficulté | Statut |
+|---|---------|----------|-------|------------|--------|
+| 1 | `DiagramProcessorPrivateMethodsTest.kt` | 5 méthodes privées | 8 | ⭐⭐⭐ Avancé | ✅ **TERMINÉ** |
+| 2 | `ValidatePlantumlSyntaxTaskTest.kt` | Méthode `validateSyntax()` | 5 | ⭐⭐ Moyen | ✅ **TERMINÉ** |
 
-**Objectif** : 40-50 tests, couverture >80%
+**Objectif atteint** : 127 tests, couverture >80% ✅
 
 ### 📋 Backlog
+
+#### 🔴 PRIORITÉ MAX — Sécurité & Confort
+
+| # | Tâche | Description | Estimation | Statut |
+|---|-------|-------------|------------|--------|
+| 1 | **Support variables d'environnement dans YAML** | Permettre syntaxe `${VAR_NAME}` pour clés API | 2h | ✅ **TERMINÉ** |
+| 2 | **Configuration LLM via gradle.properties** | Hiérarchie properties < yaml < CLI | 3h | ✅ **TERMINÉ** |
+
+**✅ Tâche #1 — TERMINÉE** :
+- **Fichiers créés** : `ConfigLoader.kt`, `ConfigLoaderTest.kt`
+- **Tests** : 5 tests passent (100%)
+- **Fichiers modifiés** : `PlantumlManager.kt`
+- **Fonctionnalité** : Syntaxe `${VAR_NAME}` résolue depuis `System.getenv()`
+- **Fallback** : Si la variable n'existe pas, la syntaxe `${VAR_NAME}` est préservée
+
+**✅ Tâche #2 — TERMINÉE** :
+- **Fichiers créés** : `ConfigMerger.kt`, `ConfigMergerTest.kt` (8 tests)
+- **Fichiers modifiés** : `PlantumlManager.kt`, `ConfigMerger.kt`
+- **Fonctionnalité** : Fusion des 3 sources avec priorité `gradle.properties` < `plantuml-context.yml` < CLI
+- **Tests** : 8 tests passent (100%)
+
+#### 🟡 Autres tâches
+
 - Optimiser `FilePermissionTest.kt` (~1min35sec)
-- Configuration LLM via `gradle.properties`
 
 ---
 
