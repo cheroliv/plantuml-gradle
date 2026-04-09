@@ -22,7 +22,7 @@ class LlmConfigurationTest {
         // Given
         val configFile = File(tempDir, "plantuml-context.yml")
         configFile.writeText("""
-            langchain:
+            langchain4j:
               model: "ollama"
               ollama:
                 baseUrl: "http://localhost:11435"
@@ -33,9 +33,9 @@ class LlmConfigurationTest {
         val config = mapper.readValue(configFile, PlantumlConfig::class.java)
 
         // Then
-        assertEquals("ollama", config.langchain.model)
-        assertEquals("http://localhost:11435", config.langchain.ollama.baseUrl)
-        assertEquals("llama3:8b", config.langchain.ollama.modelName)
+        assertEquals("ollama", config.langchain4j.model)
+        assertEquals("http://localhost:11435", config.langchain4j.ollama.baseUrl)
+        assertEquals("llama3:8b", config.langchain4j.ollama.modelName)
     }
 
     @Test
@@ -43,7 +43,7 @@ class LlmConfigurationTest {
         // Given
         val configFile = File(tempDir, "plantuml-context.yml")
         configFile.writeText("""
-            langchain:
+            langchain4j:
               model: "gemini"
               gemini:
                 apiKey: "fake-gemini-key"
@@ -53,8 +53,8 @@ class LlmConfigurationTest {
         val config = mapper.readValue(configFile, PlantumlConfig::class.java)
 
         // Then
-        assertEquals("gemini", config.langchain.model)
-        assertEquals("fake-gemini-key", config.langchain.gemini.apiKey)
+        assertEquals("gemini", config.langchain4j.model)
+        assertEquals("fake-gemini-key", config.langchain4j.gemini.apiKey)
     }
 
     @Test
@@ -62,7 +62,7 @@ class LlmConfigurationTest {
         // Given
         val configFile = File(tempDir, "plantuml-context.yml")
         configFile.writeText("""
-            langchain:
+            langchain4j:
               model: "mistral"
               mistral:
                 apiKey: "fake-mistral-key"
@@ -72,8 +72,8 @@ class LlmConfigurationTest {
         val config = mapper.readValue(configFile, PlantumlConfig::class.java)
 
         // Then
-        assertEquals("mistral", config.langchain.model)
-        assertEquals("fake-mistral-key", config.langchain.mistral.apiKey)
+        assertEquals("mistral", config.langchain4j.model)
+        assertEquals("fake-mistral-key", config.langchain4j.mistral.apiKey)
     }
 
     @Test
@@ -81,7 +81,7 @@ class LlmConfigurationTest {
         // Given
         val configFile = File(tempDir, "plantuml-context.yml")
         configFile.writeText("""
-            langchain:
+            langchain4j:
               model: "openai"
               openai:
                 apiKey: "fake-openai-key"
@@ -91,8 +91,8 @@ class LlmConfigurationTest {
         val config = mapper.readValue(configFile, PlantumlConfig::class.java)
 
         // Then
-        assertEquals("openai", config.langchain.model)
-        assertEquals("fake-openai-key", config.langchain.openai.apiKey)
+        assertEquals("openai", config.langchain4j.model)
+        assertEquals("fake-openai-key", config.langchain4j.openai.apiKey)
     }
 
     @Test
@@ -100,7 +100,7 @@ class LlmConfigurationTest {
         // Given
         val configFile = File(tempDir, "plantuml-context.yml")
         configFile.writeText("""
-            langchain:
+            langchain4j:
               model: "claude"
               claude:
                 apiKey: "fake-claude-key"
@@ -110,8 +110,8 @@ class LlmConfigurationTest {
         val config = mapper.readValue(configFile, PlantumlConfig::class.java)
 
         // Then
-        assertEquals("claude", config.langchain.model)
-        assertEquals("fake-claude-key", config.langchain.claude.apiKey)
+        assertEquals("claude", config.langchain4j.model)
+        assertEquals("fake-claude-key", config.langchain4j.claude.apiKey)
     }
 
     @Test
@@ -119,7 +119,7 @@ class LlmConfigurationTest {
         // Given
         val configFile = File(tempDir, "plantuml-context.yml")
         configFile.writeText("""
-            langchain:
+            langchain4j:
               model: "huggingface"
               huggingface:
                 apiKey: "fake-huggingface-key"
@@ -129,8 +129,8 @@ class LlmConfigurationTest {
         val config = mapper.readValue(configFile, PlantumlConfig::class.java)
 
         // Then
-        assertEquals("huggingface", config.langchain.model)
-        assertEquals("fake-huggingface-key", config.langchain.huggingface.apiKey)
+        assertEquals("huggingface", config.langchain4j.model)
+        assertEquals("fake-huggingface-key", config.langchain4j.huggingface.apiKey)
     }
 
     @Test
@@ -138,7 +138,7 @@ class LlmConfigurationTest {
         // Given
         val configFile = File(tempDir, "plantuml-context.yml")
         configFile.writeText("""
-            langchain:
+            langchain4j:
               model: "groq"
               groq:
                 apiKey: "fake-groq-key"
@@ -148,8 +148,8 @@ class LlmConfigurationTest {
         val config = mapper.readValue(configFile, PlantumlConfig::class.java)
 
         // Then
-        assertEquals("groq", config.langchain.model)
-        assertEquals("fake-groq-key", config.langchain.groq.apiKey)
+        assertEquals("groq", config.langchain4j.model)
+        assertEquals("fake-groq-key", config.langchain4j.groq.apiKey)
     }
 
     @Test
@@ -157,7 +157,7 @@ class LlmConfigurationTest {
         // Given
         val configFile = File(tempDir, "plantuml-context.yml")
         configFile.writeText("""
-            langchain:
+            langchain4j:
               model: "ollama"
               ollama:
                 baseUrl: "http://localhost:11434"
@@ -180,14 +180,14 @@ class LlmConfigurationTest {
         val config = mapper.readValue(configFile, PlantumlConfig::class.java)
 
         // Then
-        assertEquals("ollama", config.langchain.model)
-        assertEquals("http://localhost:11434", config.langchain.ollama.baseUrl)
-        assertEquals("llama3:8b", config.langchain.ollama.modelName)
-        assertEquals("fake-gemini-key", config.langchain.gemini.apiKey)
-        assertEquals("fake-mistral-key", config.langchain.mistral.apiKey)
-        assertEquals("fake-openai-key", config.langchain.openai.apiKey)
-        assertEquals("fake-claude-key", config.langchain.claude.apiKey)
-        assertEquals("fake-huggingface-key", config.langchain.huggingface.apiKey)
-        assertEquals("fake-groq-key", config.langchain.groq.apiKey)
+        assertEquals("ollama", config.langchain4j.model)
+        assertEquals("http://localhost:11434", config.langchain4j.ollama.baseUrl)
+        assertEquals("llama3:8b", config.langchain4j.ollama.modelName)
+        assertEquals("fake-gemini-key", config.langchain4j.gemini.apiKey)
+        assertEquals("fake-mistral-key", config.langchain4j.mistral.apiKey)
+        assertEquals("fake-openai-key", config.langchain4j.openai.apiKey)
+        assertEquals("fake-claude-key", config.langchain4j.claude.apiKey)
+        assertEquals("fake-huggingface-key", config.langchain4j.huggingface.apiKey)
+        assertEquals("fake-groq-key", config.langchain4j.groq.apiKey)
     }
 }
