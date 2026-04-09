@@ -57,7 +57,12 @@ plantuml-plugin/src/main/kotlin/plantuml/
 
 ## 📊 État actuel
 
-### ✅ Tests unitaires : 128/128 passent (100%)
+### ✅ Tests
+
+- **Tests unitaires** : 128/128 passent (100%)
+- **Tests fonctionnels** : 70/71 passent (1 échec connu : `PlantumlPluginIntegrationSuite.should complete in test mode`)
+- **Tests Cucumber** : Tous passent
+- **FilePermissionTest optimisé** : 85% de réduction (1m59s → 17s)
 - WireMock corrigé (endpoint `/api/chat`)
 - Overlaps nettoyés (7 tests redondants supprimés)
 - **ValidatePlantumlSyntaxTaskTest.kt** créé (5 tests)
@@ -113,7 +118,7 @@ plantuml-plugin/src/main/kotlin/plantuml/
 
 #### 🟡 Autres tâches
 
-- Optimiser `FilePermissionTest.kt` (~1min35sec)
+- ✅ **Optimiser `FilePermissionTest.kt`** — **TERMINÉ** (85% de réduction : 1m59s → 17s)
 
 #### 🔵 NOUVELLE ÉPIC — Configuration multi-LLM avec credentials
 
