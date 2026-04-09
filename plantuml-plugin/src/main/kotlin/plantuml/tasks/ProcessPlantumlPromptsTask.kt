@@ -78,25 +78,36 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
     }
 
     /**
-     * Charge la configuration en tenant compte du paramètre LLM en ligne de commande
+     * Charge la configuration en tenant compte des paramètres LLM en ligne de commande
      */
     private fun loadConfiguration(): PlantumlConfig {
         // Vérifier si un modèle LLM est spécifié en ligne de commande
         val llmModel = project.findProperty("plantuml.langchain.model") as? String
+        val ollamaModelName = project.findProperty("plantuml.langchain.ollama.modelName") as? String
         
         // Charger la configuration de base
         val baseConfig = PlantumlManager.Configuration.load(project)
         
-        // Si un modèle LLM est spécifié en ligne de commande, le substituer
-        return if (llmModel != null) {
-            baseConfig.copy(
-                langchain = baseConfig.langchain.copy(
+        // Appliquer les overrides
+        var config = baseConfig
+        if (llmModel != null) {
+            config = config.copy(
+                langchain = config.langchain.copy(
                     model = llmModel
                 )
             )
-        } else {
-            baseConfig
         }
+        if (ollamaModelName != null) {
+            config = config.copy(
+                langchain = config.langchain.copy(
+                    ollama = config.langchain.ollama.copy(
+                        modelName = ollamaModelName
+                    )
+                )
+            )
+        }
+        
+        return config
     }
 
     private fun processSinglePrompt(
