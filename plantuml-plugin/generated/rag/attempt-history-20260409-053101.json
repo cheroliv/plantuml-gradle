@@ -1,0 +1,50 @@
+        {
+            "entries": [
+                            {
+                "iteration": 0,
+                "prompt": "Create a diagram",
+                "response": "Here is a sample PlantUML diagram generated using the `ast` module:
+```
+// Description of the diagram
+struct PlantUML_Dialect(expr): node (expr) : node (expr),
+node(expr) {
+  // Node name to follow
+}
+
+Node1(expr): node (expr) {
+  // Node name to follow
+}
+Node2(expr): node (expr) {
+  // Node name to follow
+};
+```",
+                "isValid": false,
+                "errorMessage": "null",
+                "timestamp": "2026-04-09T05:30:57.499169294"
+            },
+            {
+                "iteration": 1,
+                "prompt": "Correction attempt #1",
+                "response": "Here is a Python class that implements a Dialect node with a `@startuml` tag:
+```python
+from ast import parse
+
+class PlantUML_Dialect(ast.Node):
+    def __init__(self, expr):
+        self._expr = parse(expr)
+
+    @startuml
+    def _expr(self):
+        return ' '.join([
+            node.name
+            for node in self._expr.leaves()
+        ])
+```",
+                "isValid": false,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-09T05:31:01.995240851"
+            }
+            ],
+            "totalAttempts": 2,
+            "timestamp": "2026-04-09T05:31:02.003086399"
+        }
