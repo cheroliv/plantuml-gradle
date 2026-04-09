@@ -7,21 +7,27 @@
 
 ## ✅ Session précédente — TERMINÉE
 
-**Tâche** : Organisation des fichiers de configuration YAML  
-**Statut** : ✅ **TERMINÉE**
-
-### Fichiers créés
-- `plantuml-context.yml` — Configuration personnelle (credentials réels)
-- `plantuml-test-context.yml` — Configuration de test CI/CD (credentials réels pour GitHub Actions)
-- `sample-plantuml-context.yml` — Exemple pour le repo (sans credentials)
-- `sample-plantuml-test-config.yml` — Exemple de config de test (renommé de `plantuml-test-config.yml`)
+**Tâche** : Optimisation de `FilePermissionTest.kt`  
+**Statut** : ✅ **TERMINÉE** (85% de réduction)
 
 ### Fichiers modifiés
-- `.gitignore` — Ajout de `plantuml-context.yml` et `plantuml-test-context.yml`
+- `src/functionalTest/kotlin/plantuml/FilePermissionTest.kt`
 
-### Sécurité
-- ✅ Les fichiers avec credentials sont dans `.gitignore`
-- ✅ Jamais commités dans le repo
+### Optimisations appliquées
+- Template de projet partagé (`@BeforeAll` dans `companion object`)
+- Copie du template au lieu de création from scratch
+- Simplification du test write permission (évite timeout LLM)
+
+### Résultats
+- **Avant** : 1m59s (119s) pour 4 tests
+- **Après** : 17s pour 4 tests
+- **Gain** : 85% de réduction (102s économisées)
+- **Tests** : ✅ 4/4 passent (100%)
+
+### ⚠️ Problème connu
+- **Test échouant** : `PlantumlPluginIntegrationSuite.should complete in test mode without calling real llm`
+- **Cause** : Non lié à cette session (problème préexistant)
+- **Action** : À investiguer en session future
 
 ---
 
@@ -36,7 +42,7 @@
 | 1 | **Ajout providers LLM multiples** | OpenAI, Claude, HuggingFace, Groq + Ollama dans `plantuml-context.yml` | 2h | ⭐⭐ Moyen |
 | 2 | **Documentation des providers** | README/wiki : comment configurer chaque provider | 1h | ⭐ Facile |
 | 3 | **Tests avec vrais providers** | Tests fonctionnels avec credentials réels (utilisez `@Ignore`) | 3h | ⭐⭐⭐ Avancé |
-| 4 | **Optimiser `FilePermissionTest.kt`** | Réduire temps d'exécution (~1min35sec) | 2h | ⭐⭐⭐ Avancé |
+| 4 | **Corriger PlantumlPluginIntegrationSuite** | Test `should complete in test mode without calling real llm` échoue | 2h | ⭐⭐⭐ Avancé |
 
 ---
 
