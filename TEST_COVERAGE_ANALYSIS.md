@@ -1,11 +1,19 @@
 # Analyse de Couverture des Tests Unitaires
 
-**Date**: 2026-04-08  
-**Dernière mise à jour**: 2026-04-08 (Session 2 — Nettoyage des overlaps)  
-**État actuel**: 70/70 tests passent (100% de succès)  
+**Date**: 2026-04-09  
+**Dernière mise à jour**: 2026-04-09 (Session 10 — ConfigMerger.kt + ConfigMergerTest.kt)  
+**État actuel**: 127/127 tests passent (100% de succès)  
 **Progression**: 
 - Session 1: +5 tests ajoutés à PlantumlManagerTest.kt (6 → 11 tests)
 - Session 2: -7 tests redondants supprimés (71 → 70 tests), -1 fichier (PlantumlConfigLoaderTest.kt)
+- Session 3: +5 tests (ValidatePlantumlSyntaxTaskTest.kt)
+- Session 4: +11 tests (ModelsDataClassTest.kt)
+- Session 5: +7 tests (ReindexPlantumlRagTaskUnitTest.kt)
+- Session 6: +5 tests (ProcessPlantumlPromptsTaskTest.kt) + correction bug
+- Session 7: +5 tests (ConfigLoaderTest.kt) — Feature variables d'environnement
+- Session 8: +8 tests (LlmServicePrivateMethodsTest.kt)
+- Session 9: +8 tests (DiagramProcessorPrivateMethodsTest.kt)
+- Session 10: +8 tests (ConfigMergerTest.kt) — Feature fusion properties < yaml < CLI
 
 ---
 
@@ -15,13 +23,13 @@
 |------------------|------------------------|-------------------|------------|--------|
 | PlantumlPlugin | ✅ PlantumlPluginUnitTest (3) + PlantumlPluginTest (2) | ✅ IntegrationTest | **Excellente** | ✅ OK |
 | PlantumlManager | ✅ PlantumlManagerTest (11 tests) | ✅ Indirect | **Excellente** | ✅ OK |
-| ProcessPlantumlPromptsTask | ❌ AUCUN | ✅ FunctionalTest | **Faible** | ⏳ À faire |
-| ValidatePlantumlSyntaxTask | ❌ AUCUN | ✅ FunctionalTest | **Faible** | ⏳ À faire |
-| ReindexPlantumlRagTask | ❌ AUCUN | ⚠️ Ignorés (lents) | **Très Faible** | ⏳ À faire |
+| ProcessPlantumlPromptsTask | ✅ ProcessPlantumlPromptsTaskTest (5 tests) | ✅ FunctionalTest | **Bonne** | ✅ OK |
+| ValidatePlantumlSyntaxTask | ✅ ValidatePlantumlSyntaxTaskTest (5 tests) | ✅ FunctionalTest | **Bonne** | ✅ OK |
+| ReindexPlantumlRagTask | ✅ ReindexPlantumlRagTaskUnitTest (7 tests) | ⚠️ Ignorés (lents) | **Bonne** | ✅ OK |
 | PlantumlService | ✅ PlantumlServiceTest (3) | ❌ Non nécessaire | **Bonne** | ✅ OK |
-| LlmService | ✅ LlmServiceTest (1) + ErrorTest (2) | ❌ Non nécessaire | **Moyenne** | ⚠️ Partiel |
-| DiagramProcessor | ✅ DiagramProcessorTest (5) | ❌ Non nécessaire | **Moyenne** | ⚠️ Partiel |
-| models.kt (data classes) | ✅ PlantumlManagerTest (via YAML) | ❌ Non nécessaire | **Bonne** | ✅ OK |
+| LlmService | ✅ LlmServiceTest (1) + ErrorTest (2) + PrivateMethodsTest (8) | ❌ Non nécessaire | **Excellente** | ✅ OK |
+| DiagramProcessor | ✅ DiagramProcessorTest (5) | ❌ Non nécessaire | **Moyenne** | ⏳ À faire |
+| models.kt (data classes) | ✅ ModelsDataClassTest (11 tests) | ❌ Non nécessaire | **Excellente** | ✅ OK |
 
 ---
 
@@ -251,25 +259,28 @@ verify(tasks).register("processPlantumlPrompts", ProcessPlantumlPromptsTask::cla
 
 ---
 
-## 📈 Statistiques — Mise à jour Session 2
+## 📈 Statistiques — Mise à jour Session 8
 
-### Avant session (fin Session 1)
-- **Tests totaux**: 71 tests
-- **Fichiers de test**: 13 fichiers
-- **Overlaps identifiés**: 7 tests (10% de redondance)
+### Avant session (fin Session 7)
+- **Tests totaux**: 103 tests
+- **Fichiers de test**: 17 fichiers
+- **Couverture LlmService**: ⚠️ Partielle (méthodes privées non testées)
 
-### Après session
-- **Tests totaux**: 70 tests (**-1**)
-- **Fichiers de test**: 12 fichiers (**-1**)
-- **Couverture**: 100% préservée
-- **Redondance résiduelle**: ~0% (estimée)
+### Après session 8 (LlmServicePrivateMethodsTest.kt)
+- **Tests totaux**: 111 tests (**+8**)
+- **Fichiers de test**: 18 fichiers (+1)
+- **Couverture LlmService**: ✅ Excellente (méthodes privées testées indirectement)
+- **Nouvelles protections** :
+  - ✅ 100% des providers LLM testés (Ollama, OpenAI, Gemini, Mistral, Claude, HuggingFace)
+  - ✅ Timeout adaptatif testé (5s en test, 60s en prod)
+  - ✅ Types de modèles vérifiés avec `assertTrue(model is Type)`
 
 ### Reste à faire
-- **Classes SANS tests unitaires directs**: 3 (tâches Gradle)
-- **Méthodes privées NON testées**: ~11 méthodes (LlmService, DiagramProcessor)
-- **Data classes SANS tests directs**: 10 data classes (mais testées indirectement via YAML)
+- **Classes SANS tests unitaires directs**: 0 (toutes couvertes)
+- **Méthodes privées NON testées**: ~5 méthodes (DiagramProcessor)
+- **Data classes SANS tests directs**: 0 (toutes testées via ModelsDataClassTest)
 
-**Tests unitaires à créer**: ~6 fichiers de test restants, ~35-40 tests additionnels
+**Tests unitaires à créer**: ~2 fichiers de test restants, ~13-15 tests additionnels
 
 ---
 
@@ -381,18 +392,19 @@ verify(tasks).register("processPlantumlPrompts", ProcessPlantumlPromptsTask::cla
 
 ---
 
-### models.kt - Data classes SANS tests directs
+### ✅ models.kt - Data classes COUVERTES (11 tests)
 
-- `InputConfig` - Pas de tests d'instanciation directe
-- `OutputConfig` - Pas de tests d'instanciation directe
-- `LangchainConfig` - Pas de tests d'instanciation directe
-- `GitConfig` - Pas de tests d'instanciation directe
-- `OllamaConfig` - Pas de tests d'instanciation directe
-- `ApiKeyConfig` - Pas de tests d'instanciation directe
-- `RagConfig` - Pas de tests d'instanciation directe
-- `PlantumlDiagram` - Pas de tests d'instanciation directe
-- `PlantumlCode` - Pas de tests d'instanciation directe
-- `ValidationFeedback` - Pas de tests d'instanciation directe
+- ✅ `InputConfig` — testé dans ModelsDataClassTest
+- ✅ `OutputConfig` — testé dans ModelsDataClassTest
+- ✅ `LangchainConfig` — testé dans ModelsDataClassTest
+- ✅ `GitConfig` — testé dans ModelsDataClassTest
+- ✅ `OllamaConfig` — testé dans ModelsDataClassTest
+- ✅ `ApiKeyConfig` — testé dans ModelsDataClassTest
+- ✅ `RagConfig` — testé dans ModelsDataClassTest
+- ✅ `PlantumlDiagram` — testé dans ModelsDataClassTest
+- ✅ `PlantumlCode` — testé dans ModelsDataClassTest
+- ✅ `ValidationFeedback` — testé dans ModelsDataClassTest
+- ✅ `PlantumlConfig` — testé dans ModelsDataClassTest
 
 ---
 
@@ -426,9 +438,34 @@ fun `should handle partial config and use defaults for missing sections`() // Va
 
 ---
 
+### ✅ FAIT — ModelsDataClassTest.kt (11 tests)
+
+**Tests ajoutés** :
+```kotlin
+// ✅ Déjà implémentés et validés
+fun `InputConfig should have correct defaults`()
+fun `OutputConfig should have correct defaults`()
+fun `LangchainConfig should have correct defaults`()
+fun `GitConfig should have correct defaults`()
+fun `OllamaConfig should have correct defaults`()
+fun `ApiKeyConfig should have correct defaults`()
+fun `RagConfig should have correct defaults`()
+fun `PlantumlDiagram should be instantiable`()
+fun `PlantumlCode should be instantiable`()
+fun `ValidationFeedback should be instantiable`()
+fun `PlantumlConfig should compose all configs correctly`()
+```
+
+**Couverture** :
+- ✅ 100% des 11 data classes de `models.kt`
+- ✅ Valeurs par défaut vérifiées
+- ✅ Composition de configuration testée
+
+---
+
 ### ⏳ À FAIRE — Priorité HAUTE
 
-#### 2. ProcessPlantumlPromptsTaskTest.kt
+#### 1. ProcessPlantumlPromptsTaskTest.kt
 ```kotlin
 class ProcessPlantumlPromptsTaskTest {
     fun `should exit early when prompts directory does not exist`()
@@ -439,7 +476,7 @@ class ProcessPlantumlPromptsTaskTest {
 }
 ```
 
-#### 3. ValidatePlantumlSyntaxTaskTest.kt
+#### 2. ValidatePlantumlSyntaxTaskTest.kt
 ```kotlin
 class ValidatePlantumlSyntaxTaskTest {
     fun `should exit gracefully when no diagram file specified`()
@@ -450,7 +487,7 @@ class ValidatePlantumlSyntaxTaskTest {
 }
 ```
 
-#### 4. ReindexPlantumlRagTaskTest.kt (version unitaire)
+#### 3. ReindexPlantumlRagTaskTest.kt (version unitaire)
 ```kotlin
 class ReindexPlantumlRagTaskUnitTest {
     fun `should create RAG directory when not exists`()
@@ -465,7 +502,7 @@ class ReindexPlantumlRagTaskUnitTest {
 
 ### Priorité MOYENNE
 
-#### 5. LlmServicePrivateMethodsTest.kt
+#### 4. LlmServicePrivateMethodsTest.kt
 ```kotlin
 class LlmServicePrivateMethodsTest {
     fun `createOllamaModel should set correct baseUrl and modelName`()
@@ -479,7 +516,7 @@ class LlmServicePrivateMethodsTest {
 }
 ```
 
-#### 6. DiagramProcessorPrivateMethodsTest.kt
+#### 5. DiagramProcessorPrivateMethodsTest.kt
 ```kotlin
 class DiagramProcessorPrivateMethodsTest {
     fun `buildHistoryContext should format history entries`()
@@ -493,26 +530,35 @@ class DiagramProcessorPrivateMethodsTest {
 }
 ```
 
-#### 7. ModelsDataClassTest.kt
-```kotlin
-class ModelsDataClassTest {
-    fun `InputConfig should have correct defaults`()
-    fun `OutputConfig should have correct defaults`()
-    fun `LangchainConfig should have correct defaults`()
-    fun `GitConfig should have correct defaults`()
-    fun `OllamaConfig should have correct defaults`()
-    fun `ApiKeyConfig should have correct defaults`()
-    fun `RagConfig should have correct defaults`()
-    fun `PlantumlDiagram should be instantiable`()
-    fun `PlantumlCode should be instantiable`()
-    fun `ValidationFeedback should be instantiable`()
-    fun `PlantumlConfig should compose all configs correctly`()
-}
-```
+---
+
+## 📈 Statistiques — Mise à jour Session 4
+
+### Avant session
+- **Tests totaux**: 75 tests
+- **Fichiers de test**: 13 fichiers
+- **Couverture models.kt**: ❌ Faible (0 test direct, uniquement via YAML)
+
+### Après session 4 (ModelsDataClassTest.kt)
+- **Tests totaux**: 86 tests (**+11**)
+- **Fichiers de test**: 14 fichiers (+1)
+- **Couverture models.kt**: ✅ Excellente (11 tests)
+- **Nouvelles protections** :
+  - ✅ 100% des 11 data classes testées directement
+  - ✅ Valeurs par défaut vérifiées pour chaque classe
+  - ✅ Composition de configuration testée (PlantumlConfig)
+
+### Reste à faire
+- **Classes SANS tests unitaires directs**: 3 (tâches Gradle)
+- **Méthodes privées NON testées**: ~11 méthodes (LlmService, DiagramProcessor)
+
+**Tests unitaires à créer**: ~4 fichiers de test restants, ~25-30 tests additionnels
 
 ---
 
-## 📈 Statistiques — Mise à jour Session 1
+## 📈 Statistiques — Historique des sessions
+
+### Session 1 (PlantumlManagerTest.kt)
 
 ### Avant session
 - **Tests totaux**: 66 tests
