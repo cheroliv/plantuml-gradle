@@ -115,6 +115,45 @@ plantuml-plugin/src/main/kotlin/plantuml/
 
 - Optimiser `FilePermissionTest.kt` (~1min35sec)
 
+#### 🔵 NOUVELLE ÉPIC — Configuration multi-LLM avec credentials
+
+| # | Tâche | Description | Estimation | Statut |
+|---|-------|-------------|------------|--------|
+| 1 | **Organisation des fichiers YAML** | Séparer config perso, exemple et test | 30min | ✅ **TERMINÉ** |
+| 2 | **Ajout providers LLM multiples** | OpenAI, Claude, HuggingFace, Groq + Ollama | 2h | 📋 À faire |
+| 3 | **Documentation des providers** | Expliquer comment configurer chaque provider | 1h | 📋 À faire |
+| 4 | **Tests avec vrais providers** | Tester chaque provider avec credentials réels | 3h | 📋 À faire |
+
+**✅ Tâche #1 — TERMINÉE** :
+- **Fichiers créés** :
+  - `plantuml-context.yml` — Configuration personnelle (credentials réels, **dans .gitignore**)
+  - `plantuml-test-context.yml` — Configuration de test CI/CD (credentials réels pour GitHub Actions, **dans .gitignore**)
+  - `sample-plantuml-context.yml` — Exemple pour le repo (sans credentials)
+  - `sample-plantuml-test-config.yml` — Exemple de config de test (renommé de `plantuml-test-config.yml`)
+- **Fichier modifié** : `.gitignore` (ajout de `plantuml-context.yml` et `plantuml-test-context.yml`)
+- **Sécurité** : Les credentials ne seront jamais commités dans le repo
+
+**📋 Tâche #2 — À FAIRE** :
+- Ajouter les providers suivants dans `plantuml-context.yml` :
+  - OpenAI (apiKey)
+  - Anthropic/Claude (apiKey)
+  - HuggingFace (apiKey)
+  - Groq (apiKey)
+  - GitHub Copilot (si supporté par LangChain4j)
+- Permettre de switcher de provider via CLI : `-Pplantuml.langchain4j.model=gemini`
+
+**📋 Tâche #3 — À FAIRE** :
+- Documenter dans un README ou wiki :
+  - Comment obtenir chaque clé API
+  - Avantages/inconvénients de chaque provider
+  - Coûts et limites d'usage
+  - Exemples de configuration pour chaque provider
+
+**📋 Tâche #4 — À FAIRE** :
+- Créer des tests fonctionnels pour chaque provider
+- Utiliser `@Ignore` pour les tests nécessitant des credentials réels
+- Garder Ollama local comme provider par défaut pour les tests CI/CD
+
 ---
 
 ## 🛠 Décisions techniques
