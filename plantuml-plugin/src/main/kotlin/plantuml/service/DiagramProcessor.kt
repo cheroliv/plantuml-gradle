@@ -286,7 +286,7 @@ class DiagramProcessor(
 
         // Create validation prompt with diagram and validation instructions
         val validationPrompt = """
-            ${config.langchain.validationPrompt}
+            ${config.langchain4j.validationPrompt}
             
             PlantUML diagram to evaluate:
             ${diagram.plantuml.code}
