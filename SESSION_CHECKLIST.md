@@ -8,7 +8,7 @@
 - [ ] **1 bug fixé** → Commit → Nouvelle session
 - [ ] **1 feature complétée** → Documentation → Nouvelle session
 - [ ] **3 échanges sans progrès** → Reset mental → Nouvelle session
-- [ ] **Contexte > 50k tokens** → Nettoyage → Nouvelle session
+- [ ] **Contexte > 70k tokens** → Nettoyage → Nouvelle session
 
 ### ❌ Ne PAS changer de session pour
 
@@ -23,15 +23,18 @@
 ### 1. Vérifier l'état du code
 ```bash
 ./gradlew -p plantuml-plugin test
-git status
 ```
+
+> **Note** : `git status` est à exécuter manuellement par l'utilisateur pour vérifier les fichiers modifiés.
 
 ### 2. Mettre à jour les fichiers de contexte
 - [ ] `AGENTS.md` — Section "État actuel" (mettre à jour)
 - [ ] `COMPLETED_TASKS_ARCHIVE.md` — Déplacer les tâches terminées
 - [ ] `PROMPT_REPRISE.md` — Mettre à jour la mission si changée
 
-### 3. Commiter (optionnel mais recommandé)
+### 3. Commiter (optionnel mais recommandé) — **Utilisateur uniquement**
+> **⚠️ L'agent N'EST PAS autorisé à exécuter des commandes Git**
+> C'est l'utilisateur qui gère Git manuellement.
 ```bash
 git add -A
 git commit -m "Fix: [description courte]"
@@ -74,7 +77,7 @@ Contrainte : 1 fichier à la fois, validation après chaque changement.
 ./gradlew -p plantuml-plugin test --console=plain
 
 # 2. Fichiers modifiés depuis dernière session
-git status
+git status  # À exécuter manuellement par l'utilisateur
 
 # 3. Dernière tâche en cours
 tail -20 COMPLETED_TASKS_ARCHIVE.md
