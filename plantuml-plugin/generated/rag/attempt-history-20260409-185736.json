@@ -1,0 +1,180 @@
+        {
+            "entries": [
+                            {
+                "iteration": 0,
+                "prompt": "Create a class diagram",
+                "response": "Here is a sample PlantUML diagram:
+```
+          +---------------------------------------+
+           |                                         |
+           |  Code:  #|
+           |  Description:  Plant UML  |
+            |  Diagram:  #|
+           +---------------------------------------+
+           |                                         |
+           |  Attributes:  |
+            |  Values:  |
+            |  Functionality:  |
+          +---------------------------------------+
+          |  Keywords:  |
+```
+This diagram should be clearly visible and well-structured, with proper formatting.
+Here is a sample PlantUML diagram that contains more details (attributes, values, functionality):
+```
+          +---------------------------------------+
+           |                                         |
+           |  Code:  #|
+           |  Description:  Plant UML  |
+            |  Diagram:  #|
+           +---------------------------------------+
+          |  Keywords:  |
+```",
+                "isValid": false,
+                "errorMessage": "null",
+                "timestamp": "2026-04-09T18:57:26.793268233"
+            },
+            {
+                "iteration": 1,
+                "prompt": "Correction attempt #1",
+                "response": "Here is a sample PlantUML diagram that includes more details (attributes, values, functionality):
+```
+          +---------------------------------------+
+         ...
+             +---------------------------------------+
+         .|   Plant UML  |
+        +---------------------------------------+
+        |  Description:  Plant UML  |
+        |  Diagram:  #|
+           +---------------------------------------+
+           |
+            |  Keywords:  |
+            |  Attributes:  |
+            |  Values:  |
+            |  Functionality:  |
+          +---------------------------------------+
+          |  Keywords:  |
+          |  Attributes:  |
+          |  Values:  |
+          |  Functionality:  |
+          |  Attributes:  |
+          |  Functionality:  |
+          |  Attributes:  |
+          |  Functionality:  |
+          |  Attributes:  |
+          |  Functionality:  |
+          |  Attributes:  |
+          |  Functionality:  |
+          +---------------------------------------+
+```
+Here is a sample PlantUML diagram that contains less details (attributes, values, functionality):
+```
+          +---------------------------------------+
+         ...
+             +---------------------------------------+
+         .|   Plant UML  |
+        +---------------------------------------+
+        |  Description:  Plant UML  |
+        |  Diagram:  #|
+           +---------------------------------------+
+            |
+            |  Keywords:  |
+            |  Attributes:  |
+            |  Values:  |
+            |  Functionality:  |
+          +---------------------------------------+
+          |
+            |  Keywords:  |
+          |  Attributes:  |
+          |  Values:  |
+          |  Functionality:  |
+          |  Attributes:  |
+          |  Functionality:  |
+          +---------------------------------------+
+```",
+                "isValid": false,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-09T18:57:30.827785157"
+            },
+            {
+                "iteration": 2,
+                "prompt": "Correction attempt #2",
+                "response": "Here is a simple PlantUML diagram that contains less details (attributes, values, functionality):
+```
+          +---------------------------------------+
+         ...
+             +---------------------------------------+
+         .|   Plant UML  |
+        +---------------------------------------+
+        |  Description:  Plant UML  |
+        |  Diagram:  #|
+           +---------------------------------------+
+            |
+            |  Keywords:  |
+            |  Attributes:  |
+            |  Values:  |
+            +---------------------------------------+
+          +---------------------------------------+
+         .|   Plant UML  |
+        +---------------------------------------+
+        |  Diagram:  #|
+           +---------------------------------------+
+        |  Keywords:  |
+        |  Attributes:  |
+        |  Values:  |
+        +---------------------------------------+
+```
+The code is as follows:
+```
+          +---------------------------------------+
+         ...
+             +---------------------------------------+
+         .|   Plant UML  |
+        +---------------------------------------+
+        |  Description:  Plant UML  |
+        |  Diagram:  #|
+           +---------------------------------------+
+            |
+            |  Keywords:  |
+            |  Attributes:  |
+            |  Values:  |
+            +---------------------------------------+
+          +---------------------------------------+
+         .|   Plant UML  |
+        +---------------------------------------+
+        |  Diagram:  #|
+           +---------------------------------------+
+        |  Keywords:  |
+        |  Attributes:  |
+        |  Values:  |
+        +---------------------------------------+
+```
+To learn from previous attempts to avoid repeating the same mistakes, we can iterate through the code and make a few changes. For example, we can remove @startuml tags or @enduml tags in the above diagram to avoid missing the @startuml tag for more details:
+```
+          +---------------------------------------+
+         .|   Plant UML  |
+        +---------------------------------------+
+        |  Diagram:  #|
+           +---------------------------------------+
+            |
+            |  Keywords:  |
+            |  Attributes:  |
+            |  Values:  |
+            +---------------------------------------+
+          +---------------------------------------+
+         .|   Plant UML  |
+        +---------------------------------------+
+        |  Diagram:  #|
+           +---------------------------------------+
+        |  Keywords:  |
+        |  Attributes:  |
+        |  Values:  |
+        +---------------------------------------+
+```",
+                "isValid": true,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-09T18:57:36.755661789"
+            }
+            ],
+            "totalAttempts": 3,
+            "timestamp": "2026-04-09T18:57:36.762731641"
+        }
