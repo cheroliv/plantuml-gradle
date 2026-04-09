@@ -1,85 +1,87 @@
-# Contribuer au plugin PlantUML Gradle
+# Contributing to the PlantUML Gradle Plugin
 
-Merci de votre intérêt pour contribuer au plugin PlantUML Gradle ! Ce guide vous expliquera comment participer au développement de ce projet.
+> <img src="images/lang-fr-red.svg" alt="Français" title="Français" width="16" height="12"/> [Version française](CONTRIBUTING_fr.md)
 
-## Code de conduite
+Thank you for your interest in contributing to the PlantUML Gradle Plugin! This guide will explain how to participate in the development of this project.
 
-En participant à ce projet, vous acceptez de respecter notre [Code de conduite](CODE_OF_CONDUCT.md).
+## Code of Conduct
 
-## Comment contribuer
+By participating in this project, you agree to abide by our [Code of Conduct](CODE_OF_CONDUCT.md).
 
-### Signaler des bugs
+## How to Contribute
 
-Si vous trouvez un bug, veuillez créer une issue en incluant :
-- Une description claire et concise du problème
-- Les étapes pour reproduire le bug
-- La version du plugin utilisée
-- Votre environnement (OS, version de Gradle, etc.)
+### Reporting Bugs
 
-### Proposer des améliorations
+If you find a bug, please create an issue including:
+- A clear and concise description of the problem
+- Steps to reproduce the bug
+- The version of the plugin used
+- Your environment (OS, Gradle version, etc.)
 
-Vous pouvez proposer des améliorations en créant une issue avec :
-- Une description détaillée de l'amélioration proposée
-- Les bénéfices attendus
-- Toute information pertinente sur l'implémentation
+### Proposing Enhancements
 
-### Soumettre des corrections
+You can propose enhancements by creating an issue with:
+- A detailed description of the proposed enhancement
+- Expected benefits
+- Any relevant implementation information
 
-Pour soumettre des corrections de code :
+### Submitting Fixes
 
-1. Fork le dépôt
-2. Créez une branche pour votre fonctionnalité (`git checkout -b feature/nom-de-la-fonctionnalite`)
-3. Commitez vos changements (`git commit -am 'Ajout d'une nouvelle fonctionnalité'`)
-4. Poussez vers la branche (`git push origin feature/nom-de-la-fonctionnalite`)
-5. Créez une Pull Request
+To submit code fixes:
 
-## Structure du projet
+1. Fork the repository
+2. Create a branch for your feature (`git checkout -b feature/feature-name`)
+3. Commit your changes (`git commit -am 'Add new feature'`)
+4. Push to the branch (`git push origin feature/feature-name`)
+5. Create a Pull Request
+
+## Project Structure
 
 ```
 plantuml-gradle/
-├── plantuml-plugin/           # Module principal du plugin
+├── plantuml-plugin/           # Main plugin module
 │   ├── src/
-│   │   ├── main/              # Code source
-│   │   ├── test/              # Tests unitaires
-│   │   └── functionalTest/    # Tests fonctionnels
-│   └── build.gradle.kts       # Configuration du build
-├── prompts/                   # Exemples de prompts
-├── generated/                 # Fichiers générés
+│   │   ├── main/              # Source code
+│   │   ├── test/              # Unit tests
+│   │   └── functionalTest/    # Functional tests
+│   └── build.gradle.kts       # Build configuration
+├── prompts/                   # Example prompts
+├── generated/                 # Generated files
 └── docs/                      # Documentation
 ```
 
-## Standards de codage
+## Coding Standards
 
 ### Kotlin
 
-- Suivez les [conventions de codage Kotlin](https://kotlinlang.org/docs/coding-conventions.html)
-- Utilisez les fonctionnalités modernes de Kotlin (coroutines, etc.)
-- Écrivez du code clair et auto-documenté
-- Ajoutez des tests pour chaque nouvelle fonctionnalité
+- Follow [Kotlin coding conventions](https://kotlinlang.org/docs/coding-conventions.html)
+- Use modern Kotlin features (coroutines, etc.)
+- Write clear, self-documenting code
+- Add tests for each new feature
 
 ### Git
 
-- Utilisez des messages de commit en français ou en anglais de manière cohérente
-- Un commit par fonctionnalité/unité de travail
-- Les messages de commit doivent être formatés comme suit :
+- Use commit messages in French or English consistently
+- One commit per feature/work unit
+- Commit messages should be formatted as follows:
   ```
   type(scope): description
   
-  Corps du message (optionnel)
+  Message body (optional)
   ```
 
-Types valides : feat, fix, chore, docs, style, refactor, perf, test
+Valid types: feat, fix, chore, docs, style, refactor, perf, test
 
 ### Tests
 
-- Tous les nouveaux codes doivent être accompagnés de tests
-- Utilisez JUnit 5 pour les tests unitaires
-- Utilisez Cucumber pour les tests d'acceptation
-- Couvrez les cas d'erreur et les cas limites
+- All new code must be accompanied by tests
+- Use JUnit 5 for unit tests
+- Use Cucumber for acceptance tests
+- Cover error cases and edge cases
 
-## Configuration de l'environnement
+## Environment Setup
 
-### Prérequis
+### Prerequisites
 
 - Java 24+
 - Gradle 9.4+
@@ -87,55 +89,55 @@ Types valides : feat, fix, chore, docs, style, refactor, perf, test
 
 ### Installation
 
-1. Clonez le dépôt :
+1. Clone the repository:
    ```bash
    git clone https://github.com/cheroliv/plantuml-gradle.git
    ```
 
-2. Importez le projet dans votre IDE favori (IntelliJ IDEA recommandé)
+2. Import the project into your favorite IDE (IntelliJ IDEA recommended)
 
-3. Construisez le projet :
+3. Build the project:
    ```bash
    ./gradlew build
    ```
 
-## Exécution des tests
+## Running Tests
 
-### Tests unitaires
+### Unit Tests
 
 ```bash
 ./gradlew test
 ```
 
-### Tests fonctionnels
+### Functional Tests
 
 ```bash
 ./gradlew functionalTest
 ```
 
-### Tous les tests
+### All Tests
 
 ```bash
 ./gradlew check
 ```
 
-## Publication
+## Publishing
 
-La publication est gérée automatiquement par les GitHub Actions lors des releases.
-Seuls les mainteneurs peuvent publier de nouvelles versions.
+Publishing is handled automatically by GitHub Actions during releases.
+Only maintainers can publish new versions.
 
-## Processus de release
+## Release Process
 
-1. Mettez à jour le numéro de version dans `gradle/libs.versions.toml`
-2. Mettez à jour le CHANGELOG.md
-3. Créez un tag Git avec le numéro de version
-4. Publiez une release sur GitHub
+1. Update the version number in `gradle/libs.versions.toml`
+2. Update CHANGELOG.md
+3. Create a Git tag with the version number
+4. Publish a release on GitHub
 
-## Besoin d'aide ?
+## Need Help?
 
-Si vous avez des questions, n'hésitez pas à :
-- Créer une issue
-- Contacter les maintainers sur Discord/Twitter
-- Joindre la communauté sur les forums Kotlin/Gradle
+If you have questions, feel free to:
+- Create an issue
+- Contact maintainers on Discord/Twitter
+- Join the community on Kotlin/Gradle forums
 
-Merci encore pour votre contribution !
+Thank you again for your contribution!
