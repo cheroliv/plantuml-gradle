@@ -2,6 +2,26 @@
 
 ## Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+### Session 11 — 2026-04-09 : Tests 100% Couverture (2 tests)
+
+#### ✅ Tests créés (2 tests)
+- **Nouveaux tests** :
+  - `archiveAttemptHistory should handle exception gracefully()` — Le catch dans archiveAttemptHistory ne lance pas d'exception
+  - `createChatModel should throw NotImplementedError for groq()` — Le TODO pour Groq lance bien NotImplementedError
+- **Couverture** :
+  - 100% du code source testé
+  - Cas limites couverts (exception dans archive, TODO non implémenté)
+- **Fichiers modifiés** :
+  - `DiagramProcessorPrivateMethodsTest.kt` — 1 test ajouté
+  - `LlmServiceTest.kt` — 1 test ajouté
+
+#### ✅ Statistiques
+- **Total tests** : 127 → 129 tests (+2)
+- **Fichiers de test** : 20 fichiers (inchangé)
+- **Couverture** : ✅ 100% du code source
+
+---
+
 ### Session 10 — 2026-04-09 : ConfigMerger.kt + ConfigMergerTest.kt (8 tests)
 
 #### ✅ Tests créés (8 tests)
