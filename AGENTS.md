@@ -57,7 +57,7 @@ plantuml-plugin/src/main/kotlin/plantuml/
 
 ## 📊 État actuel
 
-### ✅ Tests unitaires : 127/127 passent (100%)
+### ✅ Tests unitaires : 129/129 passent (100%)
 - WireMock corrigé (endpoint `/api/chat`)
 - Overlaps nettoyés (7 tests redondants supprimés)
 - **ValidatePlantumlSyntaxTaskTest.kt** créé (5 tests)
@@ -68,6 +68,7 @@ plantuml-plugin/src/main/kotlin/plantuml/
 - **ConfigLoader.kt** créé + **ConfigLoaderTest.kt** (5 tests) — Support `${VAR_NAME}` dans YAML
 - **DiagramProcessorPrivateMethodsTest.kt** créé (8 tests) — Méthodes privées de DiagramProcessor
 - **ConfigMerger.kt** créé + **ConfigMergerTest.kt** (8 tests) — Fusion properties < yaml < CLI
+- **Tests 100% couverture** : 2 tests ajoutés (archiveAttemptHistory exception + groq TODO)
 - Voir : `TEST_COVERAGE_ANALYSIS.md`
 
 ### 🔄 TOP PRIORITÉ — Tests manquants
@@ -78,7 +79,7 @@ plantuml-plugin/src/main/kotlin/plantuml/
 | 1 | `DiagramProcessorPrivateMethodsTest.kt` | 5 méthodes privées | 8 | ⭐⭐⭐ Avancé | ✅ **TERMINÉ** |
 | 2 | `ValidatePlantumlSyntaxTaskTest.kt` | Méthode `validateSyntax()` | 5 | ⭐⭐ Moyen | ✅ **TERMINÉ** |
 
-**Objectif atteint** : 127 tests, couverture >80% ✅
+**Objectif atteint** : 129 tests, couverture 100% ✅
 
 ### 📋 Backlog
 
