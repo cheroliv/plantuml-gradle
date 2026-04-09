@@ -8,7 +8,7 @@ import java.io.File
 data class PlantumlConfig(
     val input: InputConfig = InputConfig(),
     val output: OutputConfig = OutputConfig(),
-    val langchain: LangchainConfig = LangchainConfig(),
+    val langchain4j: LangchainConfig = LangchainConfig(),
     val git: GitConfig = GitConfig(),
     val rag: RagConfig = RagConfig()
 ) {
