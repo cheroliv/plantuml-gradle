@@ -57,7 +57,7 @@ plantuml-plugin/src/main/kotlin/plantuml/
 
 ## 📊 État actuel
 
-### ✅ Tests unitaires : 129/129 passent (100%)
+### ✅ Tests unitaires : 128/128 passent (100%)
 - WireMock corrigé (endpoint `/api/chat`)
 - Overlaps nettoyés (7 tests redondants supprimés)
 - **ValidatePlantumlSyntaxTaskTest.kt** créé (5 tests)
@@ -69,6 +69,7 @@ plantuml-plugin/src/main/kotlin/plantuml/
 - **DiagramProcessorPrivateMethodsTest.kt** créé (8 tests) — Méthodes privées de DiagramProcessor
 - **ConfigMerger.kt** créé + **ConfigMergerTest.kt** (8 tests) — Fusion properties < yaml < CLI
 - **Tests 100% couverture** : 2 tests ajoutés (archiveAttemptHistory exception + groq TODO)
+- **Renommage `langchain` → `langchain4j`** : 25+ fichiers mis à jour (YAML + Kotlin)
 - Voir : `TEST_COVERAGE_ANALYSIS.md`
 
 ### 🔄 TOP PRIORITÉ — Tests manquants
@@ -89,6 +90,7 @@ plantuml-plugin/src/main/kotlin/plantuml/
 |---|-------|-------------|------------|--------|
 | 1 | **Support variables d'environnement dans YAML** | Permettre syntaxe `${VAR_NAME}` pour clés API | 2h | ✅ **TERMINÉ** |
 | 2 | **Configuration LLM via gradle.properties** | Hiérarchie properties < yaml < CLI | 3h | ✅ **TERMINÉ** |
+| 3 | **Renommage `langchain` → `langchain4j`** | Correction terminologie (Python vs JVM) | 4h | ✅ **TERMINÉ** |
 
 **✅ Tâche #1 — TERMINÉE** :
 - **Fichiers créés** : `ConfigLoader.kt`, `ConfigLoaderTest.kt`
@@ -102,6 +104,12 @@ plantuml-plugin/src/main/kotlin/plantuml/
 - **Fichiers modifiés** : `PlantumlManager.kt`, `ConfigMerger.kt`
 - **Fonctionnalité** : Fusion des 3 sources avec priorité `gradle.properties` < `plantuml-context.yml` < CLI
 - **Tests** : 8 tests passent (100%)
+
+**✅ Tâche #3 — TERMINÉE** :
+- **Fichiers YAML modifiés** (6) : `plantuml-context.yml`, `plantuml-context.example.yml`, `plantuml-test-config.yml`, `ollama-local-smollm-135.yaml`, `test-llm-param/ollama-local-smollm-135.yml`, `src/test/resources/ollama-local-smollm-135.yml`
+- **Fichiers Kotlin modifiés** (20+) : `models.kt`, `ConfigMerger.kt`, `LlmService.kt`, `DiagramProcessor.kt`, `ProcessPlantumlPromptsTask.kt` + tous les tests
+- **Propriétés CLI** : `plantuml.langchain.*` → `plantuml.langchain4j.*`
+- **Résultat** : 128/128 tests passent (100%)
 
 #### 🟡 Autres tâches
 
