@@ -35,7 +35,7 @@ class LlmServicePrivateMethodsTest {
         config = PlantumlConfig(
             input = InputConfig(),
             output = OutputConfig(),
-            langchain = LangchainConfig(
+            langchain4j = LangchainConfig(
                 model = "ollama",
                 maxIterations = 1,
                 validation = false,
@@ -58,7 +58,7 @@ class LlmServicePrivateMethodsTest {
     @Test
     fun `createOllamaModel should return OllamaChatModel with correct configuration`() {
         // Given: configuration Ollama
-        config = config.copy(langchain = config.langchain.copy(model = "ollama"))
+        config = config.copy(langchain4j = config.langchain4j.copy(model = "ollama"))
         llmService = LlmService(config)
         
         // When: on crée le modèle via reflection (méthode privée)
@@ -71,7 +71,7 @@ class LlmServicePrivateMethodsTest {
     @Test
     fun `createOpenAiModel should return OpenAiChatModel with correct API key`() {
         // Given: configuration OpenAI
-        config = config.copy(langchain = config.langchain.copy(model = "openai"))
+        config = config.copy(langchain4j = config.langchain4j.copy(model = "openai"))
         llmService = LlmService(config)
         
         // When: on crée le modèle
@@ -84,7 +84,7 @@ class LlmServicePrivateMethodsTest {
     @Test
     fun `createGeminiModel should return GoogleAiGeminiChatModel with correct API key`() {
         // Given: configuration Gemini
-        config = config.copy(langchain = config.langchain.copy(model = "gemini"))
+        config = config.copy(langchain4j = config.langchain4j.copy(model = "gemini"))
         llmService = LlmService(config)
         
         // When: on crée le modèle
@@ -97,7 +97,7 @@ class LlmServicePrivateMethodsTest {
     @Test
     fun `createMistralModel should return MistralAiChatModel with correct API key`() {
         // Given: configuration Mistral
-        config = config.copy(langchain = config.langchain.copy(model = "mistral"))
+        config = config.copy(langchain4j = config.langchain4j.copy(model = "mistral"))
         llmService = LlmService(config)
         
         // When: on crée le modèle
@@ -110,7 +110,7 @@ class LlmServicePrivateMethodsTest {
     @Test
     fun `createClaudeModel should return AnthropicChatModel with correct API key`() {
         // Given: configuration Claude
-        config = config.copy(langchain = config.langchain.copy(model = "claude"))
+        config = config.copy(langchain4j = config.langchain4j.copy(model = "claude"))
         llmService = LlmService(config)
         
         // When: on crée le modèle
@@ -123,7 +123,7 @@ class LlmServicePrivateMethodsTest {
     @Test
     fun `createHuggingFaceModel should return OpenAiChatModel with custom baseUrl`() {
         // Given: configuration HuggingFace
-        config = config.copy(langchain = config.langchain.copy(model = "huggingface"))
+        config = config.copy(langchain4j = config.langchain4j.copy(model = "huggingface"))
         llmService = LlmService(config)
         
         // When: on crée le modèle
