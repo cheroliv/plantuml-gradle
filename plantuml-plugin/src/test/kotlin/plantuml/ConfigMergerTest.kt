@@ -28,7 +28,7 @@ class ConfigMergerTest {
         gradleProperties.writeText("""
             plantuml.input.prompts=custom-prompts
             plantuml.output.images=custom-images
-            plantuml.langchain.maxIterations=3
+            plantuml.langchain4j.maxIterations=3
         """.trimIndent())
 
         val yamlConfig = PlantumlConfig()
@@ -38,7 +38,7 @@ class ConfigMergerTest {
 
         assertEquals("custom-prompts", result.input.prompts)
         assertEquals("custom-images", result.output.images)
-        assertEquals(3, result.langchain.maxIterations)
+        assertEquals(3, result.langchain4j.maxIterations)
     }
 
     @Test
@@ -111,8 +111,8 @@ class ConfigMergerTest {
 
         assertEquals("prompts", result.input.prompts)
         assertEquals("generated/images", result.output.images)
-        assertEquals(5, result.langchain.maxIterations)
-        assertEquals("ollama", result.langchain.model)
+        assertEquals(5, result.langchain4j.maxIterations)
+        assertEquals("ollama", result.langchain4j.model)
     }
 
     @Test
@@ -135,8 +135,8 @@ class ConfigMergerTest {
             plantuml.output.diagrams=my-diagrams
             plantuml.output.images=my-images
             plantuml.output.rag=my-rag
-            plantuml.langchain.model=gemini
-            plantuml.langchain.maxIterations=10
+            plantuml.langchain4j.model=gemini
+            plantuml.langchain4j.maxIterations=10
             plantuml.git.userName=custom-user
             plantuml.rag.tableName=my_embeddings
         """.trimIndent())
@@ -150,8 +150,8 @@ class ConfigMergerTest {
         assertEquals("my-diagrams", result.output.diagrams)
         assertEquals("my-images", result.output.images)
         assertEquals("my-rag", result.output.rag)
-        assertEquals("gemini", result.langchain.model)
-        assertEquals(10, result.langchain.maxIterations)
+        assertEquals("gemini", result.langchain4j.model)
+        assertEquals(10, result.langchain4j.maxIterations)
         assertEquals("custom-user", result.git.userName)
         assertEquals("my_embeddings", result.rag.tableName)
     }
