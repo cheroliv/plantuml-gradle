@@ -57,22 +57,22 @@ plantuml-plugin/src/main/kotlin/plantuml/
 
 ## 📊 État actuel
 
-### ✅ Tests unitaires : 70/70 passent (100%)
+### ✅ Tests unitaires : 75/75 passent (100%)
 - WireMock corrigé (endpoint `/api/chat`)
 - Overlaps nettoyés (7 tests redondants supprimés)
+- **ValidatePlantumlSyntaxTaskTest.kt** créé (5 tests)
 - Voir : `TEST_COVERAGE_ANALYSIS.md`
 
 ### 🔄 TOP PRIORITÉ — Tests manquants
-**6 fichiers à créer** (détails dans `TEST_COVERAGE_ANALYSIS.md`) :
+**5 fichiers à créer** (détails dans `TEST_COVERAGE_ANALYSIS.md`) :
 
 | Fichier | À tester | Tests | Difficulté |
 |---------|----------|-------|------------|
-| `ValidatePlantumlSyntaxTaskTest.kt` | `validateSyntax()` | 5 | ⭐ Facile |
-| `ModelsDataClassTest.kt` | 11 data classes | 11 | ⭐ Facile |
-| `ProcessPlantumlPromptsTaskTest.kt` | `processPrompts()`, `processSinglePrompt()` | 5 | ⭐⭐ Moyen |
-| `ReindexPlantumlRagTaskUnitTest.kt` | `reindexRag()`, `simulateIndexing()` | 7 | ⭐⭐ Moyen |
-| `LlmServicePrivateMethodsTest.kt` | 7 méthodes privées | 8 | ⭐⭐⭐ Avancé |
-| `DiagramProcessorPrivateMethodsTest.kt` | 5 méthodes privées | 8 | ⭐⭐⭐ Avancé |
+| 1 | `ModelsDataClassTest.kt` | 11 data classes | 11 | ⭐ Facile |
+| 2 | `ProcessPlantumlPromptsTaskTest.kt` | `processPrompts()`, `processSinglePrompt()` | 5 | ⭐⭐ Moyen |
+| 3 | `ReindexPlantumlRagTaskUnitTest.kt` | `reindexRag()`, `simulateIndexing()` | 7 | ⭐⭐ Moyen |
+| 4 | `LlmServicePrivateMethodsTest.kt` | 7 méthodes privées | 8 | ⭐⭐⭐ Avancé |
+| 5 | `DiagramProcessorPrivateMethodsTest.kt` | 5 méthodes privées | 8 | ⭐⭐⭐ Avancé |
 
 **Objectif** : 40-50 tests, couverture >80%
 
@@ -247,12 +247,43 @@ fun setup() {
 
 ---
 
-### ✅ Fin de session
+### ✅ Fin de session — PROCÉDURE AUTOMATIQUE OBLIGATOIRE
 
-**Procédure :**
-1. Vérifier : `./gradlew -p plantuml-plugin test`
-2. Mettre à jour `AGENTS.md` (section "État actuel")
-3. Déplacer tâches terminées vers `COMPLETED_TASKS_ARCHIVE.md`
+**🚨 DÉCLENCHEUR** : Quand l'utilisateur dit "nouvelle session", "je quitte", "session terminée", "à plus tard", ou équivalent
+
+**⚠️ OBLIGATION** : L'agent DOIT exécuter CETTE procédure AVANT de répondre à l'utilisateur
+
+**Procédure en 5 étapes (NON-NÉGOCIABLE) :**
+
+1. **Vérifier les tests** : `./gradlew -p plantuml-plugin test`
+   - ✅ Tous les tests doivent passer
+   - ❌ Si échec → Corriger AVANT de continuer
+
+2. **Mettre à jour `AGENTS.md`** (section "État actuel") :
+   - ✅ Nombre de tests (ex: 70 → 75)
+   - ✅ Fichier créé (ex: `ValidatePlantumlSyntaxTaskTest.kt`)
+   - ✅ Liste des fichiers restants (supprimer celui terminé)
+   - ✅ Priorités mises à jour
+
+3. **Mettre à jour `COMPLETED_TASKS_ARCHIVE.md`** :
+   - ✅ Ajouter nouvelle section avec nom de session
+   - ✅ Détails des tests créés
+   - ✅ Statistiques (avant/après)
+
+4. **Mettre à jour `PROMPT_REPRISE.md`** :
+   - ✅ Nombre de tests (ex: 70 → 75)
+   - ✅ Nombre de fichiers restants (ex: 6 → 5)
+   - ✅ Supprimer fichier terminé de la liste
+   - ✅ Recommandation pour prochaine session
+
+5. **Mettre à jour `TEST_COVERAGE_ANALYSIS.md`** (si besoin) :
+   - ✅ Marquer classe comme "COUVERTE"
+   - ✅ Mettre à jour statistiques
+
+**🚫 INTERDICTIONS :**
+- ❌ NE PAS répondre à l'utilisateur avant d'avoir fini les 5 étapes
+- ❌ NE PAS dire "Je vais le faire" → LE FAIRE DIRECTEMENT
+- ❌ NE PAS demander "Veux-tu que je...?" → C'EST AUTOMATIQUE
 
 **⚠️ Git — INTERDICTION ABSOLUE :**
 - ❌ **L'agent N'EST PAS autorisé à exécuter des commandes Git**
