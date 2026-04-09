@@ -1,7 +1,7 @@
 package plantuml
 
-import org.gradle.api.Project
 import org.gradle.api.GradleException
+import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -10,7 +10,6 @@ import plantuml.tasks.ValidatePlantumlSyntaxTask
 import java.io.File
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
-import kotlin.test.assertFalse
 
 /**
  * Tests unitaires pour ValidatePlantumlSyntaxTask
@@ -30,8 +29,8 @@ class ValidatePlantumlSyntaxTaskTest {
         project = ProjectBuilder.builder()
             .withProjectDir(tempDir)
             .build()
-        
-        task = project.tasks.create("validatePlantumlSyntax", ValidatePlantumlSyntaxTask::class.java)
+
+        task = project.tasks.register("validatePlantumlSyntax", ValidatePlantumlSyntaxTask::class.java).get()
     }
 
     @Test
@@ -60,6 +59,7 @@ class ValidatePlantumlSyntaxTaskTest {
     @Test
     fun `should validate valid PlantUML file`() {
         // Arrange: Valid PlantUML file
+        @Suppress("UnusedVariable", "unused")
         val validDiagram = File(tempDir, "valid.puml").apply {
             writeText("@startuml\nAlice -> Bob: Hello\n@enduml")
         }
@@ -75,6 +75,7 @@ class ValidatePlantumlSyntaxTaskTest {
     @Test
     fun `should report invalid PlantUML syntax`() {
         // Arrange: Invalid PlantUML file (missing @enduml)
+        @Suppress("UnusedVariable", "unused")
         val invalidDiagram = File(tempDir, "invalid.puml").apply {
             writeText("@startuml\nAlice -> Bob")
         }
@@ -91,9 +92,11 @@ class ValidatePlantumlSyntaxTaskTest {
     @Test
     fun `should respect plantuml diagram property override`() {
         // Arrange: Multiple files, property override
+        @Suppress("UnusedVariable", "unused")
         val file1 = File(tempDir, "diagram1.puml").apply {
             writeText("@startuml\nAlice -> Bob\n@enduml")
         }
+        @Suppress("UnusedVariable", "unused")
         val file2 = File(tempDir, "diagram2.puml").apply {
             writeText("@startuml\nBob -> Alice\n@enduml")
         }
