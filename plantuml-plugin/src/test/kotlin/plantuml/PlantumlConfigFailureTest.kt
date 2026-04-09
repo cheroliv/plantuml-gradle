@@ -80,8 +80,8 @@ class PlantumlConfigFailureTest {
         // Should use defaults when data types are incorrect
         assertEquals("prompts", config.input.prompts)
         assertEquals("en", config.input.defaultLang)
-        assertEquals(5, config.langchain.maxIterations) // Default value
-        assertEquals("ollama", config.langchain.model) // Default value
+        assertEquals(5, config.langchain4j.maxIterations) // Default value
+        assertEquals("ollama", config.langchain4j.model) // Default value
     }
 
     @Test
@@ -108,9 +108,9 @@ class PlantumlConfigFailureTest {
         val config = PlantumlConfig()
 
         // Should use defaults when nested configs are invalid
-        assertEquals("http://localhost:11434", config.langchain.ollama.baseUrl) // Default value
-        assertEquals("smollm:135m", config.langchain.ollama.modelName) // Default value
-        assertEquals("", config.langchain.gemini.apiKey) // Default value
+        assertEquals("http://localhost:11434", config.langchain4j.ollama.baseUrl) // Default value
+        assertEquals("smollm:135m", config.langchain4j.ollama.modelName) // Default value
+        assertEquals("", config.langchain4j.gemini.apiKey) // Default value
         assertEquals(listOf("main", "develop"), config.git.watchedBranches) // Default value
     }
 }

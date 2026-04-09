@@ -132,7 +132,7 @@ class PlantumlRealInfrastructureSuite {
         @Test
         fun `should create chat model without exception`() {
             val config = PlantumlConfig(
-                langchain = LangchainConfig(
+                langchain4j = LangchainConfig(
                     model = "ollama",
                     ollama = OllamaConfig(OLLAMA_URL, OLLAMA_MODEL),
                 ),

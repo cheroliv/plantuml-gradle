@@ -32,7 +32,7 @@ class PlantumlManagerTest {
         assertNotNull(config)
         assertNotNull(config.input)
         assertNotNull(config.output)
-        assertNotNull(config.langchain)
+        assertNotNull(config.langchain4j)
     }
 
     @Test
@@ -49,7 +49,7 @@ class PlantumlManagerTest {
         assertNotNull(config)
         assertNotNull(config.input)
         assertNotNull(config.output)
-        assertNotNull(config.langchain)
+        assertNotNull(config.langchain4j)
     }
 
     @Test
@@ -66,7 +66,7 @@ class PlantumlManagerTest {
         assertNotNull(config)
         assertNotNull(config.input)
         assertNotNull(config.output)
-        assertNotNull(config.langchain)
+        assertNotNull(config.langchain4j)
     }
 
     @Test
@@ -166,7 +166,7 @@ class PlantumlManagerTest {
             output:
               diagrams: "output/diagrams"
               images: "output/images"
-            langchain:
+            langchain4j:
               model: "ollama"
               maxIterations: 3
               validation: true
@@ -206,13 +206,13 @@ class PlantumlManagerTest {
         assertEquals("my-prompts", config.input.prompts)
         assertEquals("output/diagrams", config.output.diagrams)
         assertEquals("output/images", config.output.images)
-        assertEquals("ollama", config.langchain.model)
-        assertEquals(3, config.langchain.maxIterations)
-        assertTrue(config.langchain.validation)
-        assertEquals("http://localhost:11434", config.langchain.ollama.baseUrl)
-        assertEquals("smollm:135m", config.langchain.ollama.modelName)
-        assertEquals("sk-test", config.langchain.openai.apiKey)
-        assertEquals("gem-test", config.langchain.gemini.apiKey)
+        assertEquals("ollama", config.langchain4j.model)
+        assertEquals(3, config.langchain4j.maxIterations)
+        assertTrue(config.langchain4j.validation)
+        assertEquals("http://localhost:11434", config.langchain4j.ollama.baseUrl)
+        assertEquals("smollm:135m", config.langchain4j.ollama.modelName)
+        assertEquals("sk-test", config.langchain4j.openai.apiKey)
+        assertEquals("gem-test", config.langchain4j.gemini.apiKey)
         assertEquals("test-user", config.git.userName)
         assertEquals("test@example.com", config.git.userEmail)
         assertEquals("test commit", config.git.commitMessage)
@@ -275,10 +275,10 @@ class PlantumlManagerTest {
         assertEquals("en", config.input.defaultLang)
         assertEquals("generated/diagrams", config.output.diagrams)
         assertEquals("generated/images", config.output.images)
-        assertEquals("ollama", config.langchain.model)
-        assertEquals(5, config.langchain.maxIterations)
-        assertTrue(config.langchain.validation)
-        assertEquals("http://localhost:11434", config.langchain.ollama.baseUrl)
-        assertEquals("smollm:135m", config.langchain.ollama.modelName)
+        assertEquals("ollama", config.langchain4j.model)
+        assertEquals(5, config.langchain4j.maxIterations)
+        assertTrue(config.langchain4j.validation)
+        assertEquals("http://localhost:11434", config.langchain4j.ollama.baseUrl)
+        assertEquals("smollm:135m", config.langchain4j.ollama.modelName)
     }
 }

@@ -93,7 +93,7 @@ class PromptOrchestrator(
 
         val diagram = diagramProcessor.processPrompt(
             prompt = promptText,
-            maxIterations = config.langchain.maxIterations,
+            maxIterations = config.langchain4j.maxIterations,
         ) ?: run {
             messages += "Could not generate valid diagram for: ${promptFile.name}"
             return ProcessResult.SKIPPED
@@ -106,7 +106,7 @@ class PromptOrchestrator(
         outputFile.writeText(diagram.plantuml.code)
         messages += "Generated: ${outputFile.name}"
 
-        if (config.langchain.validation) {
+        if (config.langchain4j.validation) {
             val imageDir = projectDir.resolve(config.output.images).toFile()
             imageDir.mkdirs()
             val imageFile = File(imageDir, "${promptFile.nameWithoutExtension}.${config.output.format}")

@@ -10,7 +10,7 @@ output:
   format: "png"                         
   theme: "default"                      
 
-langchain:
+langchain4j:
   maxIterations: 5                      
   model: "ollama"                       
   validation: true                      

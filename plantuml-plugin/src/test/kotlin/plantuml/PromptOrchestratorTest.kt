@@ -144,7 +144,7 @@ class PromptOrchestratorTest {
             File(promptsDir, "test.prompt").writeText("A diagram")
 
             val configNoValidation = minimalConfig().copy(
-                langchain = minimalConfig().langchain.copy(validation = false),
+                langchain4j = minimalConfig().langchain4j.copy(validation = false),
             )
             val orch = PromptOrchestrator(configNoValidation, mockProcessor, mockPlantumlService, tempDir.toPath())
 
@@ -189,7 +189,7 @@ class PromptOrchestratorTest {
             )
 
             val config = minimalConfig().copy(
-                langchain = LangchainConfig(
+                langchain4j = LangchainConfig(
                     model = "ollama",
                     ollama = OllamaConfig(
                         baseUrl = "http://localhost:${wireMock.port}",
@@ -262,7 +262,7 @@ class PromptOrchestratorTest {
             images = "generated/images",
             format = "png",
         ),
-        langchain = LangchainConfig(
+        langchain4j = LangchainConfig(
             model = "ollama",
             validation = false,
             maxIterations = 1,

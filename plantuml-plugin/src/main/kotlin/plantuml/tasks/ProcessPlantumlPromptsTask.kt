@@ -23,8 +23,8 @@ import java.io.File
  *
  * Optional properties:
  *   -Pplantuml.prompts.dir=custom/prompts/path
- *   -Pplantuml.langchain.model=gemini
- *   -Pplantuml.langchain.maxIterations=3
+ *   -Pplantuml.langchain4j.model=gemini
+ *   -Pplantuml.langchain4j.maxIterations=3
  */
 @DisableCachingByDefault(because = "PlantUML generation involves randomness and AI interaction")
 abstract class ProcessPlantumlPromptsTask : DefaultTask() {
@@ -82,8 +82,8 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
      */
     private fun loadConfiguration(): PlantumlConfig {
         // Vérifier si un modèle LLM est spécifié en ligne de commande
-        val llmModel = project.findProperty("plantuml.langchain.model") as? String
-        val ollamaModelName = project.findProperty("plantuml.langchain.ollama.modelName") as? String
+        val llmModel = project.findProperty("plantuml.langchain4j.model") as? String
+        val ollamaModelName = project.findProperty("plantuml.langchain4j.ollama.modelName") as? String
         
         // Charger la configuration de base
         val baseConfig = PlantumlManager.Configuration.load(project)
@@ -92,15 +92,15 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
         var config = baseConfig
         if (llmModel != null) {
             config = config.copy(
-                langchain = config.langchain.copy(
+                langchain4j = config.langchain4j.copy(
                     model = llmModel
                 )
             )
         }
         if (ollamaModelName != null) {
             config = config.copy(
-                langchain = config.langchain.copy(
-                    ollama = config.langchain.ollama.copy(
+                langchain4j = config.langchain4j.copy(
+                    ollama = config.langchain4j.ollama.copy(
                         modelName = ollamaModelName
                     )
                 )
@@ -121,8 +121,8 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
         val promptContent = promptFile.readText()
 
         // Process through LLM interaction loop (max 5 iterations)
-        val maxIterations = project.findProperty("plantuml.langchain.maxIterations") as? Int
-            ?: config.langchain.maxIterations
+        val maxIterations = project.findProperty("plantuml.langchain4j.maxIterations") as? Int
+            ?: config.langchain4j.maxIterations
 
         val diagram = diagramProcessor.processPrompt(promptContent, maxIterations)
 
@@ -153,7 +153,7 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
             }
 
             // Request LLM validation with scoring
-            if (config.langchain.validation) {
+            if (config.langchain4j.validation) {
                 logger.lifecycle("  → Requesting LLM validation...")
                 val validation = diagramProcessor.validateDiagram(diagram)
 
@@ -182,7 +182,7 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
                 diagramFile.writeText(diagram.plantuml.code)
 
                 // Save validation feedback for RAG if validation is enabled
-                if (config.langchain.validation) {
+                if (config.langchain4j.validation) {
                     val validation = diagramProcessor.validateDiagram(diagram)
                     diagramProcessor.saveForRagTraining(diagram, validation)
                 }

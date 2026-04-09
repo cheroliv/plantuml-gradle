@@ -23,7 +23,7 @@ import kotlin.test.assertTrue
  * - Sortie anticipée quand aucun fichier .prompt n'est trouvé
  * - Traitement des fichiers prompt avec WireMock LLM
  * - Override de plantuml.prompts.dir
- * - Override de plantuml.langchain.model
+ * - Override de plantuml.langchain4j.model
  */
 class ProcessPlantumlPromptsTaskTest {
 
@@ -150,7 +150,7 @@ class ProcessPlantumlPromptsTaskTest {
         // Given: configuration avec ollama comme modèle par défaut
         val configPath = File(tempDir, "plantuml-context.yml")
         configPath.writeText("""
-            langchain:
+            langchain4j:
               model: "ollama"
               maxIterations: 1
               validation: false
@@ -167,7 +167,7 @@ class ProcessPlantumlPromptsTaskTest {
         
         // Override du nom du modèle ollama
         // Doit être fait APRÈS l'écriture du fichier YAML
-        project.extensions.extraProperties.set("plantuml.langchain.ollama.modelName", "llama2")
+        project.extensions.extraProperties.set("plantuml.langchain4j.ollama.modelName", "llama2")
         
         // When: on exécute la tâche
         task.processPrompts()
@@ -190,7 +190,7 @@ class ProcessPlantumlPromptsTaskTest {
     private fun setupProjectConfig() {
         val configPath = File(tempDir, "plantuml-context.yml")
         configPath.writeText("""
-            langchain:
+            langchain4j:
               model: "ollama"
               maxIterations: 1
               validation: false

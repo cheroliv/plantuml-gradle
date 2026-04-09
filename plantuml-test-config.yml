@@ -2,7 +2,7 @@
 # This file is used for local testing and should never be committed
 # Credentials here are for testing purposes only
 
-langchain:
+langchain4j:
   ollama:
     baseUrl: "http://localhost:11434"
     modelName: "smollm:135m"

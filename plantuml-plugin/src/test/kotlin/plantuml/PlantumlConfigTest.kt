@@ -35,7 +35,7 @@ class PlantumlConfigTest {
               format: "svg"
               theme: "blue"
               
-            langchain:
+            langchain4j:
               maxIterations: 3
               model: "gemini"
               validation: false
@@ -68,10 +68,10 @@ class PlantumlConfigTest {
         assertEquals("custom-images", config.output.images)
         assertEquals("svg", config.output.format)
         assertEquals("blue", config.output.theme)
-        assertEquals(3, config.langchain.maxIterations)
-        assertEquals("gemini", config.langchain.model)
-        assertEquals(false, config.langchain.validation)
-        assertEquals("custom-gemini-key", config.langchain.gemini.apiKey)
+        assertEquals(3, config.langchain4j.maxIterations)
+        assertEquals("gemini", config.langchain4j.model)
+        assertEquals(false, config.langchain4j.validation)
+        assertEquals("custom-gemini-key", config.langchain4j.gemini.apiKey)
         assertEquals("custom-user", config.git.userName)
         assertEquals("custom@example.com", config.git.userEmail)
         assertEquals("custom commit message", config.git.commitMessage)
@@ -110,15 +110,15 @@ class PlantumlConfigTest {
         assertEquals("generated/images", config.output.images)
         assertEquals("png", config.output.format)
         assertEquals("default", config.output.theme)
-        assertEquals(5, config.langchain.maxIterations)
-        assertEquals("ollama", config.langchain.model)
-        assertEquals(true, config.langchain.validation)
-        assertEquals("", config.langchain.gemini.apiKey)
-        assertEquals("", config.langchain.mistral.apiKey)
-        assertEquals("", config.langchain.openai.apiKey)
-        assertEquals("", config.langchain.claude.apiKey)
-        assertEquals("", config.langchain.huggingface.apiKey)
-        assertEquals("", config.langchain.groq.apiKey)
+        assertEquals(5, config.langchain4j.maxIterations)
+        assertEquals("ollama", config.langchain4j.model)
+        assertEquals(true, config.langchain4j.validation)
+        assertEquals("", config.langchain4j.gemini.apiKey)
+        assertEquals("", config.langchain4j.mistral.apiKey)
+        assertEquals("", config.langchain4j.openai.apiKey)
+        assertEquals("", config.langchain4j.claude.apiKey)
+        assertEquals("", config.langchain4j.huggingface.apiKey)
+        assertEquals("", config.langchain4j.groq.apiKey)
         assertEquals("github-actions[bot]", config.git.userName)
         assertEquals("github-actions[bot]@users.noreply.github.com", config.git.userEmail)
         assertEquals("chore: update PlantUML diagrams [skip ci]", config.git.commitMessage)
