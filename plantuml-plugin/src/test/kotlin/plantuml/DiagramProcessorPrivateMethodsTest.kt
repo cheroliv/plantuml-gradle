@@ -140,6 +140,25 @@ class DiagramProcessorPrivateMethodsTest {
         assertTrue(result.contains("\"isValid\": true"))
         assertTrue(result.contains("\"totalAttempts\": 1"))
     }
+
+    @Test
+    fun `archiveAttemptHistory should handle exception gracefully`() {
+        val history = listOf(
+            AttemptEntry("Test prompt", "@startuml\nTest\n@enduml", 0, false),
+            AttemptEntry("Correction", "@startuml\nFixed\n@enduml", 1, true)
+        )
+
+        val configWithInvalidPath = PlantumlConfig(
+            output = OutputConfig(
+                rag = "/root/invalid-path-that-will-fail/rag"
+            )
+        )
+        val processorWithConfig = DiagramProcessor(plantumlService, null, configWithInvalidPath)
+
+        callPrivateMethod(processorWithConfig, "archiveAttemptHistory", listOf(history))
+
+        assertTrue(true, "Method should not throw exception even with invalid path")
+    }
 }
 
 /**
