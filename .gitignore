@@ -13,5 +13,6 @@ workspace-engine
 postgresql.yml
 .kotlin
 #readme-truth.yml
-#plantuml-test-config.yml
+plantuml-test-config.yml
+plantuml-context.yml
 answer.md
