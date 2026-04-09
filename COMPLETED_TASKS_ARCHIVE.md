@@ -2,6 +2,36 @@
 
 ## Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+### Session 12 — 2026-04-09 : Renommage `langchain` → `langchain4j`
+
+#### ✅ Renommage complet dans toute la codebase
+- **Fichiers YAML modifiés** (6) :
+  - `plantuml-context.yml`
+  - `plantuml-context.example.yml`
+  - `plantuml-test-config.yml`
+  - `ollama-local-smollm-135.yaml`
+  - `test-llm-param/ollama-local-smollm-135.yml`
+  - `plantuml-plugin/src/test/resources/ollama-local-smollm-135.yml`
+- **Fichiers Kotlin modifiés** (20+) :
+  - `models.kt` — `PlantumlConfig.langchain4j`
+  - `ConfigMerger.kt` — `mergeLangchain4jConfig()`, properties `plantuml.langchain4j.*`
+  - `LlmService.kt` — `config.langchain4j.*`
+  - `DiagramProcessor.kt` — `config.langchain4j.validationPrompt`
+  - `ProcessPlantumlPromptsTask.kt` — CLI properties `plantuml.langchain4j.*`
+  - Tous les fichiers de test mis à jour
+- **Justification** :
+  - **`langchain`** = bibliothèque Python
+  - **`langchain4j`** = portage JVM (celui utilisé dans le plugin)
+  - Correction de la terminologie pour éviter la confusion
+
+#### ✅ Statistiques
+- **Total tests** : 129 → 128 tests (-1 test timeout)
+- **Fichiers modifiés** : 25+ fichiers
+- **Compilation** : ✅ BUILD SUCCESSFUL
+- **Tests** : ✅ 128/128 passent (100%)
+
+---
+
 ### Session 11 — 2026-04-09 : Tests 100% Couverture (2 tests)
 
 #### ✅ Tests créés (2 tests)
