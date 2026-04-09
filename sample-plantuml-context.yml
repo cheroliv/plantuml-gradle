@@ -1,0 +1,34 @@
+# PlantUML Plugin Configuration
+input:
+  prompts: "prompts"                    # Prompts directory
+  
+output:
+  diagrams: "generated/diagrams"        # Processed diagrams directory
+  images: "generated/images"            # Generated images directory
+  validations: "generated/validations"  # Validation feedback directory
+  rag: "generated/rag"                  # RAG training data directory
+  format: "png"                         
+  theme: "default"                      
+
+langchain4j:
+  maxIterations: 5                      
+  model: "ollama"                       
+  validation: true                      
+  validationPrompt: "Rate this diagram on clarity, completeness, and best practices. Return a JSON with 'score' (1-10) and 'feedback' (string) and 'recommendations' (array)."
+  
+  # Provider configurations (following slider-gradle pattern)
+  ollama:
+    baseUrl: "http://localhost:11434"
+    modelName: "smollm:135m"
+  gemini:
+    apiKey: "<YOUR_GEMINI_API_KEY>"
+  mistral:
+    apiKey: "<YOUR_MISTRAL_API_KEY>"
+
+git:
+  userName: "github-actions[bot]"
+  userEmail: "github-actions[bot]@users.noreply.github.com"
+  commitMessage: "chore: update PlantUML diagrams [skip ci]"
+  watchedBranches:
+    - "main"
+    - "develop"
