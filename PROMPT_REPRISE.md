@@ -7,21 +7,22 @@
 
 ## ✅ Session précédente — TERMINÉE
 
-**Fichier** : Tests 100% couverture (2 tests)  
-**Statut** : ✅ **129/129 tests passent (100%)**
+**Fichier** : Renommage `langchain` → `langchain4j`  
+**Statut** : ✅ **128/128 tests passent (100%)**
 
-### Fichiers modifiés
-- `DiagramProcessorPrivateMethodsTest.kt` — 1 test ajouté (archiveAttemptHistory exception)
-- `LlmServiceTest.kt` — 1 test ajouté (groq TODO)
+### Fichiers modifiés (25+)
+- **YAML** (6) : `plantuml-context.yml`, `plantuml-context.example.yml`, `plantuml-test-config.yml`, `ollama-local-smollm-135.yaml`, `test-llm-param/ollama-local-smollm-135.yml`, `src/test/resources/ollama-local-smollm-135.yml`
+- **Kotlin main** (5) : `models.kt`, `ConfigMerger.kt`, `LlmService.kt`, `DiagramProcessor.kt`, `ProcessPlantumlPromptsTask.kt`
+- **Kotlin tests** (15+) : Tous les fichiers de test mis à jour
 
-### Tests ajoutés
-- `archiveAttemptHistory should handle exception gracefully()` — catch ne lance pas d'exception
-- `createChatModel should throw NotImplementedError for groq()` — TODO lance NotImplementedError
+### Changements clés
+- `PlantumlConfig.langchain` → `PlantumlConfig.langchain4j`
+- `plantuml.langchain.*` → `plantuml.langchain4j.*` (CLI properties)
+- `mergeLangchainConfig()` → `mergeLangchain4jConfig()`
 
-### Couverture atteinte
-- ✅ 100% du code source testé
-- ✅ Tous les cas limites couverts
-- ✅ Couverture maximale atteinte
+### Justification
+- **`langchain`** = bibliothèque Python
+- **`langchain4j`** = portage JVM (celui utilisé dans le plugin)
 
 ---
 
@@ -31,13 +32,13 @@
 
 ### Tâches restantes (BACKLOG)
 
-| # | Fichier | À tester | Tests | Difficulté | Statut |
-|---|---------|----------|-------|------------|--------|
-| 1 | `DiagramProcessorPrivateMethodsTest.kt` | 5 méthodes privées | 8 | ⭐⭐⭐ Avancé | ✅ **TERMINÉ** |
-| 2 | `ValidatePlantumlSyntaxTaskTest.kt` | Méthode `validateSyntax()` | 5 | ⭐⭐ Moyen | ✅ **TERMINÉ** |
-| 3 | `ConfigMergerTest.kt` | Fusion properties < yaml < CLI | 8 | ⭐⭐⭐ Avancé | ✅ **TERMINÉ** |
+| # | Tâche | Description | Difficulté | Statut |
+|---|-------|-------------|------------|--------|
+| 1 | Optimiser `FilePermissionTest.kt` | Réduire temps ~1min35sec | ⭐⭐⭐ Avancé | 🟡 Backlog |
+| 2 | Tests fonctionnels supplémentaires | Scénarios end-to-end | ⭐⭐ Moyen | 🟡 Backlog |
+| 3 | Améliorations documentation | README, exemples | ⭐ Facile | 🟡 Backlog |
 
-**Objectif atteint** : 129 tests, couverture 100% ✅
+**Objectif atteint** : 128 tests, couverture 100% ✅
 
 **Prochaines étapes possibles** :
 - Optimiser `FilePermissionTest.kt` (~1min35sec) — tests fonctionnels
