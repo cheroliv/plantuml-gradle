@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.io.File.separator
-import kotlin.test.Ignore
 import kotlin.test.assertTrue
 
 @Suppress("FunctionName")
@@ -17,52 +16,74 @@ class FilePermissionTest {
 
     private lateinit var buildFile: File
 
+    private val simpleDiagram = """
+        @startuml
+        left to right direction
+        actor "Food Critic" as fc
+        rectangle Restaurant {
+          usecase "Eat Food" as UC1
+          usecase "Pay for Food" as UC2
+          usecase "Drink" as UC3
+        }
+        fc --> UC1
+        fc --> UC2
+        fc --> UC3
+        @enduml
+    """.trimIndent()
+
     @BeforeEach
     fun setup() {
         File(testProjectDir, "settings.gradle.kts").writeText(
             """rootProject.name = "plantuml-permission-test"""".trimIndent()
         )
-        
         buildFile = File(testProjectDir, "build.gradle.kts")
+    }
+
+    private fun writeConfig(ragDir: String) {
+        File(testProjectDir, "plantuml-context.yml").writeText("""
+            input:
+              prompts: "test-prompts"
+            output:
+              images: "test-images"
+              rag: "$ragDir"
+            rag:
+              databaseUrl: ""
+              username: ""
+              password: ""
+              tableName: "embeddings"
+        """.trimIndent())
+    }
+
+    private fun assertContainsPermissionOrNotFoundMessage(output: String, message: String) {
+        assertTrue(
+            output.contains("Permission denied", true) ||
+            output.contains("Access is denied", true) ||
+            output.contains("access denied", true) ||
+            output.contains("Permission non accordée", true) ||
+            output.contains("Unable to read", true) ||
+            output.contains("Failed to read", true) ||
+            output.contains("Directory not found", true) ||
+            output.contains("No such file or directory", true) ||
+            output.contains("No PlantUML diagrams or training data found", true),
+            message
+        )
     }
 
     @Test
     fun `should handle read permission denied gracefully`() {
-        // Given
-        buildFile.writeText("""
-            plugins {
-                id("com.cheroliv.plantuml")
-            }
-        """.trimIndent())
+        buildFile.writeText("""plugins { id("com.cheroliv.plantuml") }""")
 
-        // Create a sample PlantUML file
         val diagramFile = File(testProjectDir, "protected.puml")
-        diagramFile.writeText("""
-            @startuml
-            class Car {
-              - String brand
-            }
-            @enduml
-        """.trimIndent())
+        diagramFile.writeText(simpleDiagram)
 
-        // Make file unreadable (Unix-like systems)
         if (separator == "/") {
-            try {
-                diagramFile.setReadable(false)
-                diagramFile.setWritable(false)
-            } catch (_: Exception) {
-                // If we can't change permissions, we'll test a different scenario
-                // Create a directory instead of a file to simulate permission error
-                diagramFile.delete()
-                diagramFile.mkdirs()
-            }
+            diagramFile.setReadable(false)
+            diagramFile.setWritable(false)
         } else {
-            // On Windows or if permission change fails, make it a directory
             diagramFile.delete()
             diagramFile.mkdirs()
         }
 
-        // When & Then
         try {
             val result = GradleRunner.create()
                 .withProjectDir(testProjectDir)
@@ -70,19 +91,9 @@ class FilePermissionTest {
                 .withPluginClasspath()
                 .buildAndFail()
 
-            assertTrue(
-                result.output.contains("Permission denied", true) ||
-                        result.output.contains("Access is denied", true) ||
-                        result.output.contains("access denied", true) ||
-                        result.output.contains("Unable to read file", true) ||
-                        result.output.contains("Failed to read", true) ||
-                        result.output.contains("Diagram file does not exist", true) ||
-                        result.output.contains("Is a directory", true) ||
-                        result.output.contains("not a file", true) ||
-                        result.output.contains("Permission non accordée", true) ||
-                        result.output.contains("File not found", true) ||
-                        result.output.contains("No such file or directory", true),
-                "Expected permission or access error message but got: ${result.output}"
+            assertContainsPermissionOrNotFoundMessage(
+                result.output,
+                "Expected permission or access error but got: ${result.output}"
             )
         } finally {
             diagramFile.setReadable(true)
@@ -92,27 +103,12 @@ class FilePermissionTest {
 
     @Test
     fun `should handle write permission denied gracefully`() {
-        // Given - Test write permission on diagram file for validation task
-        buildFile.writeText("""
-            plugins {
-                id("com.cheroliv.plantuml")
-            }
-        """.trimIndent())
+        buildFile.writeText("""plugins { id("com.cheroliv.plantuml") }""")
 
-        // Create a PlantUML diagram file
         val diagramFile = File(testProjectDir, "test.puml")
-        diagramFile.writeText("""
-            @startuml
-            class Car {
-              - String brand
-            }
-            @enduml
-        """.trimIndent())
-
-        // Make file read-only to prevent any potential write operations
+        diagramFile.writeText(simpleDiagram)
         diagramFile.setWritable(false)
 
-        // When & Then - Validation should succeed (it only reads)
         try {
             val result = GradleRunner.create()
                 .withProjectDir(testProjectDir)
@@ -121,8 +117,7 @@ class FilePermissionTest {
                 .build()
 
             assertTrue(
-                result.output.contains("valid", true) ||
-                        result.output.contains("Valid", true),
+                result.output.contains("valid", true),
                 "Expected validation success but got: ${result.output}"
             )
         } finally {
@@ -131,176 +126,69 @@ class FilePermissionTest {
     }
 
     @Test
-    @Ignore
     fun `should handle directory permission denied gracefully`() {
-        // Given
         buildFile.writeText("""
-            plugins {
-                id("com.cheroliv.plantuml")
-            }
-            
-            plantuml {
-                configPath = "plantuml-context.yml"
-            }
+            plugins { id("com.cheroliv.plantuml") }
+            plantuml { configPath = "plantuml-context.yml" }
         """.trimIndent())
 
-        // Create config file with specific RAG directory
-        val configFile = File(testProjectDir, "plantuml-context.yml")
-        configFile.writeText("""
-            input:
-              prompts: "test-prompts"
-            output:
-              images: "test-images"
-              rag: "restricted-rag"
-            rag:
-              databaseUrl: ""
-              username: ""
-              password: ""
-              tableName: "embeddings"
-        """.trimIndent())
+        writeConfig("restricted-rag")
 
-        // Create RAG directory and make it completely inaccessible
         val ragDir = File(testProjectDir, "restricted-rag")
         ragDir.mkdirs()
+        File(ragDir, "sample.puml").writeText(simpleDiagram)
 
-        // Create a sample diagram
-        val diagramFile = File(ragDir, "sample.puml")
-        diagramFile.writeText("""
-            @startuml
-            class Car {
-              - String brand
-            }
-            @enduml
-        """.trimIndent())
-
-        // Make directory inaccessible - use a more reliable method
         if (separator == "/") {
-            try {
-                // Remove all permissions
-                ragDir.setReadable(false, false)
-                ragDir.setWritable(false, false)
-                ragDir.setExecutable(false, false)
-            } catch (_: Exception) {
-                // If that fails, rename it temporarily to make it appear missing
-                val tempDir = File(testProjectDir, "temp-rag")
-                ragDir.renameTo(tempDir)
-
-                // Create a file with the same name to block access
-                ragDir.createNewFile()
-                ragDir.setReadOnly()
-            }
+            ragDir.setReadable(false, false)
+            ragDir.setExecutable(false, false)
         } else {
-            // On Windows, rename to make it appear missing
             val tempDir = File(testProjectDir, "temp-rag")
             ragDir.renameTo(tempDir)
-
-            // Create a file with the same name to block access
-            ragDir.createNewFile()
-            ragDir.setReadOnly()
         }
 
-        // When & Then
         try {
             val result = GradleRunner.create()
                 .withProjectDir(testProjectDir)
-                .withArguments("reindexPlantumlRag", "--stacktrace")
+                .withArguments("reindexPlantumlRag")
                 .withPluginClasspath()
                 .build()
 
-            // Then - Check that appropriate error/warning message is displayed
-            assertTrue(
-                result.output.contains("Permission denied", true) ||
-                        result.output.contains("Access is denied", true) ||
-                        result.output.contains("access denied", true) ||
-                        result.output.contains("✗ Permission denied", true) ||
-                        result.output.contains("✗ Error accessing RAG directory", true) ||
-                        result.output.contains("No PlantUML diagrams or training data found", true) ||
-                        result.output.contains("Failed to read", true) ||
-                        result.output.contains("Unable to read", true) ||
-                        result.output.contains("Directory not found", true) ||
-                        result.output.contains("No such file or directory", true) ||
-                        result.output.contains("The system cannot find the path specified", true),
-                "Expected directory permission error or warning message but got: ${result.output}"
+            assertContainsPermissionOrNotFoundMessage(
+                result.output,
+                "Expected directory permission error but got: ${result.output}"
             )
         } finally {
-            // Restore access for cleanup
             if (separator == "/") {
-                try {
-                    // Restore directory permissions
-                    ragDir.setReadable(true, false)
-                    ragDir.setWritable(true, false)
-                    ragDir.setExecutable(true, false)
-
-                    // Remove blocking file if exists
-                    if (ragDir.exists() && !ragDir.isDirectory) {
-                        ragDir.delete()
-                    }
-
-                    // Restore directory if renamed
-                    val tempDir = File(testProjectDir, "temp-rag")
-                    if (tempDir.exists()) {
-                        tempDir.renameTo(ragDir)
-                    }
-                } catch (_: Exception) {
-                    // Continue
-                }
+                ragDir.setReadable(true, false)
+                ragDir.setExecutable(true, false)
             } else {
-                // Remove blocking file if exists
-                if (ragDir.exists() && !ragDir.isDirectory) {
-                    ragDir.delete()
-                }
-
-                // Restore directory if renamed
                 val tempDir = File(testProjectDir, "temp-rag")
-                if (tempDir.exists()) {
-                    tempDir.renameTo(ragDir)
-                }
+                if (tempDir.exists()) tempDir.renameTo(ragDir)
+                if (ragDir.exists() && !ragDir.isDirectory) ragDir.delete()
             }
         }
     }
 
     @Test
-    @Ignore
     fun `should handle nonexistent directory gracefully`() {
-        // Given
         buildFile.writeText("""
-            plugins {
-                id("com.cheroliv.plantuml")
-            }
-            
-            plantuml {
-                configPath = "plantuml-context.yml"
-            }
+            plugins { id("com.cheroliv.plantuml") }
+            plantuml { configPath = "plantuml-context.yml" }
         """.trimIndent())
 
-        // Create config file with specific RAG directory that doesn't exist
-        val configFile = File(testProjectDir, "plantuml-context.yml")
-        configFile.writeText("""
-            input:
-              prompts: "test-prompts"
-            output:
-              images: "test-images"
-              rag: "nonexistent-rag"
-            rag:
-              databaseUrl: ""
-              username: ""
-              password: ""
-              tableName: "embeddings"
-        """.trimIndent())
+        writeConfig("nonexistent-rag")
 
-        // When
         val result = GradleRunner.create()
             .withProjectDir(testProjectDir)
-            .withArguments("reindexPlantumlRag", "--stacktrace")
+            .withArguments("reindexPlantumlRag")
             .withPluginClasspath()
             .build()
 
-        // Then - Check that appropriate message is displayed
         assertTrue(
             result.output.contains("No RAG directory found", true) ||
                     result.output.contains("No PlantUML diagrams or training data found", true) ||
                     result.output.contains("RAG reindexing complete with 0 diagrams", true),
-            "Expected message about missing RAG directory but got: ${result.output}"
+            "Expected missing RAG directory message but got: ${result.output}"
         )
     }
 }
