@@ -59,8 +59,8 @@ plantuml-plugin/src/main/kotlin/plantuml/
 
 ### ✅ Tests
 
-- **Tests unitaires** : 128/128 passent (100%)
-- **Tests fonctionnels** : 70/71 passent (1 échec connu : `PlantumlPluginIntegrationSuite.should complete in test mode`)
+- **Tests unitaires** : 129/129 passent (100%)
+- **Tests fonctionnels** : 55 tests annotés `@Ignore` (évitent crash système hôte)
 - **Tests Cucumber** : Tous passent
 - **FilePermissionTest optimisé** : 85% de réduction (1m59s → 17s)
 - WireMock corrigé (endpoint `/api/chat`)
@@ -74,7 +74,10 @@ plantuml-plugin/src/main/kotlin/plantuml/
 - **DiagramProcessorPrivateMethodsTest.kt** créé (8 tests) — Méthodes privées de DiagramProcessor
 - **ConfigMerger.kt** créé + **ConfigMergerTest.kt** (8 tests) — Fusion properties < yaml < CLI
 - **Tests 100% couverture** : 2 tests ajoutés (archiveAttemptHistory exception + groq TODO)
-- **Renommage `langchain` → `langchain4j`** : 25+ fichiers mis à jour (YAML + Kotlin)
+- **Renommage `langchain` → `langchain4j`** : 29+ fichiers mis à jour (tests fonctionnels + unitaires corrigés)
+- **Support multi-LLM** : 7 providers (Ollama, Gemini, Mistral, OpenAI, Claude, HuggingFace, Groq)
+- **Correction tests fonctionnels** : 9 tests passés, 3 échecs identifiés (documentés)
+- **Debug tests fonctionnels** : 2/55 testés (BaselineFunctionalTest ✅, DebuggingFunctionalTest ✅)
 - Voir : `TEST_COVERAGE_ANALYSIS.md`
 
 ### 🔄 TOP PRIORITÉ — Tests manquants
@@ -89,7 +92,22 @@ plantuml-plugin/src/main/kotlin/plantuml/
 
 ### 📋 Backlog
 
-#### 🔴 PRIORITÉ MAX — Sécurité & Confort
+#### 🔴 TOP PRIORITÉ — Debug tests fonctionnels un par un
+
+| # | Tâche | Description | Estimation | Statut |
+|---|-------|-------------|------------|--------|
+| 1 | **@Ignore sur tous les tests fonctionnels** | Annoter chaque `@Test` dans `src/functionalTest/kotlin/plantuml/` | 1h | ✅ **TERMINÉ** |
+| 2 | **Debug test par test** | Exécuter chaque test individuellement pour identifier timeout/exceptions | 4h | 🟡 **EN COURS** |
+| 3 | **Correction `langchain` → `langchain4j` tests unitaires** | Corriger 3 occurrences restantes | 30min | ✅ **TERMINÉ** |
+
+**Stratégie** :
+```bash
+./gradlew -p plantuml-plugin test --tests "plantuml.NomDuTest.nom_du_test"
+```
+
+**Objectif** : Identifier le premier test qui prend un temps déraisonnable ou lève une exception.
+
+#### 🔴 PRIORITÉ MAX — Sécurité & Confort (ARCHIVÉ)
 
 | # | Tâche | Description | Estimation | Statut |
 |---|-------|-------------|------------|--------|
@@ -338,8 +356,15 @@ fun setup() {
 - ❌ **JAMAIS** demander "Veux-tu que je...?" ou "Dois-je...?"
 - ❌ **JAMAIS** expliquer ce que tu vas faire avant de le faire
 - ❌ **JAMAIS** répondre à l'utilisateur avant d'avoir fini les 5 étapes
+- ❌ **JAMAIS** démarrer une nouvelle tâche après la procédure
+- ❌ **JAMAIS** lancer de nouveaux tests, corrections, ou traitements après la procédure
 - ✅ **FAIRE DIRECTEMENT** les 5 étapes SILENCIEUSEMENT
 - ✅ **Répondre UNIQUEMENT** par "✅ Procédure exécutée" + résumé en 3 lignes maximum
+- ✅ **S'ARRÊTER** après la réponse — attendre la prochaine instruction de l'utilisateur
+
+**⚠️ RAPPEL CRITIQUE :**
+> **L'agent NE décide PAS quand une session commence ou finit — C'est l'utilisateur qui décide.**
+> **Après la procédure → L'agent se TAIRE et ATTENDRE la prochaine instruction.**
 
 **🎯 CIBLE DE CETTE PROCÉDURE :**
 > Cette procédure vise à **AUTOMATISER la fin de session** pour que l'agent :
