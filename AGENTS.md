@@ -100,6 +100,7 @@ plantuml-plugin/src/main/kotlin/plantuml/
 | 2 | **Debug test par test** | Exécuter chaque test individuellement pour identifier timeout/exceptions | 4h | ✅ **TERMINÉ** |
 | 3 | **Correction `langchain` → `langchain4j` tests unitaires** | Corriger 3 occurrences restantes | 30min | ✅ **TERMINÉ** |
 | 4 | **Correction @Ignore → @Disabled** | Convertir @Ignore classe en @Disabled méthode (LargeFileAndPathTest) | 30min | ✅ **TERMINÉ** |
+| 5 | **Activation et optimisation FilePermissionTest** | Activer 2 tests + simplifier code | 1h | ✅ **TERMINÉ** |
 
 **Stratégie** :
 ```bash
@@ -110,6 +111,7 @@ plantuml-plugin/src/main/kotlin/plantuml/
 - ✅ **9 tests PASS** : BaselineFunctionalTest, DebuggingFunctionalTest, FilePermissionTest, LlmHandshakeTest, LlmConfigurationFunctionalTest, LlmCommandLineParameterTest, MegaOptimizedFunctionalTest, NetworkTimeoutTest (1/4), PlantumlPluginFunctionalTest (3/3)
 - ⚠️ **46 tests SKIP** : Tests annotés @Disabled (conception intentionnelle)
 - ✅ **2 tests CORRIGÉS** : FinalOptimizedFunctionalTest (résolu), LargeFileAndPathTest (@Ignore→@Disabled)
+- ✅ **FilePermissionTest optimisé** : 2 tests activés (`should handle read permission denied gracefully`, `should handle write permission denied gracefully`), code simplifié (suppression companion object, try-finally allégé)
 
 #### 🔴 PRIORITÉ MAX — Sécurité & Confort (ARCHIVÉ)
 
@@ -140,7 +142,7 @@ plantuml-plugin/src/main/kotlin/plantuml/
 
 #### 🟡 Autres tâches
 
-- ✅ **Optimiser `FilePermissionTest.kt`** — **TERMINÉ** (85% de réduction : 1m59s → 17s)
+- ✅ **Optimiser `FilePermissionTest.kt`** — **TERMINÉ** (2 tests activés, code simplifié)
 
 #### 🔵 NOUVELLE ÉPIC — Configuration multi-LLM avec credentials
 
