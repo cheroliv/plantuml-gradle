@@ -78,6 +78,7 @@ plantuml-plugin/src/main/kotlin/plantuml/
 - **Support multi-LLM** : 7 providers (Ollama, Gemini, Mistral, OpenAI, Claude, HuggingFace, Groq)
 - **Debug tests fonctionnels** : 11/17 tests debuggés (9 ✅ PASS, 2 ⚠️ SKIP)
 - **Correction @Ignore → @Disabled** : `LargeFileAndPathTest.kt` converti en 4 tests individuels
+- **LlmCommandLineParameterTest optimisé** : 2 tests activés, code simplifié (-30%)
 - Voir : `TEST_COVERAGE_ANALYSIS.md`
 
 ### 🔄 TOP PRIORITÉ — Tests manquants
@@ -102,6 +103,7 @@ plantuml-plugin/src/main/kotlin/plantuml/
 | 4 | **Correction @Ignore → @Disabled** | Convertir @Ignore classe en @Disabled méthode (LargeFileAndPathTest) | 30min | ✅ **TERMINÉ** |
 | 5 | **Activation et optimisation FilePermissionTest** | Activer 4 tests + simplifier code | 1h | ✅ **TERMINÉ** |
 | 6 | **Activation et optimisation LargeFileAndPathTest** | Activer 4 tests + refactoriser | 1h | ✅ **TERMINÉ** |
+| 7 | **Activation et optimisation LlmCommandLineParameterTest** | Activer 2 tests + simplifier code | 30min | ✅ **TERMINÉ** |
 
 **Stratégie** :
 ```bash
