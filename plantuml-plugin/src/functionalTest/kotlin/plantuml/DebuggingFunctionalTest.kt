@@ -1,3 +1,5 @@
+@file:Suppress("FunctionName")
+
 package plantuml
 
 import org.gradle.testkit.runner.GradleRunner
