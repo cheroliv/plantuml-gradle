@@ -7,18 +7,17 @@
 
 ## ✅ Session précédente — TERMINÉE
 
-**Tâche** : Debug des tests fonctionnels un par un  
+**Tâche** : Activation et optimisation FilePermissionTest  
 **Statut** : ✅ **TERMINÉE**
 
 ### Fichiers modifiés
-- `LargeFileAndPathTest.kt` : Converti @Ignore classe → 4 tests individuels @Disabled
+- `FilePermissionTest.kt` : 2 tests activés (@Ignore retiré), code simplifié
 
 ### Résultats
+- ✅ **Tests activés** : 2/4 (`should handle read permission denied gracefully`, `should handle write permission denied gracefully`)
 - ✅ **Tests unitaires** : 129/129 passent (100%)
-- ✅ **Tests fonctionnels debuggés** : 17/17 (100%)
-- ✅ **Tests PASS** : 9 tests (BaselineFunctionalTest, DebuggingFunctionalTest, FilePermissionTest, LlmHandshakeTest, LlmConfigurationFunctionalTest, LlmCommandLineParameterTest, MegaOptimizedFunctionalTest, NetworkTimeoutTest 1/4, PlantumlPluginFunctionalTest 3/3)
-- ⚠️ **Tests SKIP** : 46 tests (annotés @Disabled - conception intentionnelle)
-- ✅ **Tests CORRIGÉS** : 2 tests (FinalOptimizedFunctionalTest, LargeFileAndPathTest)
+- ✅ **Code simplifié** : 331 → 320 lignes (-11 lignes)
+- ✅ **Optimisations** : companion object supprimé, try-finally allégé, settingsFile supprimé
 
 ---
 
@@ -27,13 +26,13 @@
 **Mission** : [À définir par l'utilisateur]
 
 **Suggestions** :
-- Documentation des providers LLM (comment obtenir chaque clé API, coûts, limites)
+- Documentation des 7 providers LLM (comment obtenir chaque clé API, coûts, limites)
 - Tests fonctionnels avec vrais providers (avec @Disabled pour credentials réels)
-- Autres améliorations du plugin
+- Activation des 2 tests restants dans FilePermissionTest (directory permission, nonexistent directory)
 
 **Fichiers de référence** :
 - `AGENTS.md` — Section "État actuel" mise à jour
-- `COMPLETED_TASKS_ARCHIVE.md` — Session 17 documentée
+- `COMPLETED_TASKS_ARCHIVE.md` — Session 18 documentée
 - `TEST_COVERAGE_ANALYSIS.md` — Couverture 100%
 
 ---
