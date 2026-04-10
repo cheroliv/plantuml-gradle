@@ -9,7 +9,7 @@ import kotlin.test.assertNotNull
 class LlmServiceTest {
 
     enum class LangchainModel {
-        OLLAMA, OPENAI, GEMINI, MISTRAL, CLAUDE, HUGGINGFACE
+        OLLAMA, OPENAI, GEMINI, MISTRAL, CLAUDE, HUGGINGFACE, GROQ
     }
 
     private fun createConfigForModel(model: LangchainModel): PlantumlConfig {
@@ -49,6 +49,13 @@ class LlmServiceTest {
                     huggingface = plantuml.ApiKeyConfig("test-key")
                 )
             )
+
+            LangchainModel.GROQ -> PlantumlConfig(
+                langchain4j = plantuml.LangchainConfig(
+                    model = "groq",
+                    groq = plantuml.ApiKeyConfig("test-key")
+                )
+            )
         }
     }
 
@@ -64,24 +71,5 @@ class LlmServiceTest {
 
         // Then
         assertNotNull(chatModel)
-    }
-
-    @Test
-    fun `createChatModel should throw NotImplementedError for groq`() {
-        // Given
-        val config = PlantumlConfig(
-            langchain4j = plantuml.LangchainConfig(
-                model = "groq"
-            )
-        )
-        val llmService = LlmService(config)
-
-        // When & Then
-        try {
-            llmService.createChatModel()
-            throw AssertionError("Expected NotImplementedError was not thrown")
-        } catch (e: NotImplementedError) {
-            // Expected
-        }
     }
 }
