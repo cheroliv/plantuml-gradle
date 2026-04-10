@@ -39,50 +39,37 @@ class LargeFileAndPathTest {
     }
 
     @Test
-    @Ignore
     fun `should handle large PlantUML file`() {
         testLargePlantUmlFile()
     }
 
     @Test
-    @Ignore
     fun `should handle special characters in filename`() {
         testSpecialCharactersInFilename()
     }
 
     @Test
-    @Ignore
     fun `should handle deeply nested paths`() {
         testDeeplyNestedPaths()
     }
 
     @Test
-    @Ignore
     fun `should handle unicode characters`() {
         testUnicodeCharacters()
     }
 
     private fun testLargePlantUmlFile() {
-        // Create a smaller large PlantUML file for faster testing
         val largeDiagramFile = File(testProjectDir, "large.puml")
-        val largeContent = buildSmallLargePlantUmlContent()
-        largeDiagramFile.writeText(largeContent)
+        largeDiagramFile.writeText(buildSmallLargePlantUmlContent())
 
-        // When
-        @Suppress("UnusedVariable", "unused")
-        val result = create()
+        create()
             .withProjectDir(testProjectDir)
-            .withArguments("--quiet", "validatePlantumlSyntax", "-Pplantuml.diagram=large.puml", "--stacktrace")
+            .withArguments("validatePlantumlSyntax", "-Pplantuml.diagram=large.puml")
             .withPluginClasspath()
             .build()
-
-        // Then
-        // Validation réussit toujours car les fichiers PlantUML créés sont valides
-        assertTrue(true)
     }
 
     private fun testSpecialCharactersInFilename() {
-        // Create fewer files with special characters in filename for faster testing
         val specialFiles = listOf(
             "file with spaces.puml",
             "file-with-dashes.puml",
@@ -90,67 +77,42 @@ class LargeFileAndPathTest {
         )
 
         specialFiles.forEach { filename ->
-            val file = File(testProjectDir, filename)
-            file.writeText("@startuml\nclass Test\n@enduml")
+            File(testProjectDir, filename).writeText("@startuml\nclass Test\n@enduml")
         }
 
-        // Test one of the special files
-        @Suppress("UnusedVariable", "unused")
-        val result = create()
+        create()
             .withProjectDir(testProjectDir)
-            .withArguments(
-                "--quiet",
-                "validatePlantumlSyntax",
-                "-Pplantuml.diagram=file with spaces.puml",
-                "--stacktrace"
-            )
+            .withArguments("validatePlantumlSyntax", "-Pplantuml.diagram=file with spaces.puml")
             .withPluginClasspath()
             .build()
-
-        // Then
-        // Validation réussit toujours car les fichiers PlantUML créés sont valides
-        assertTrue(true)
     }
 
     private fun testDeeplyNestedPaths() {
-        // Create config with deep path
         val configFile = File(testProjectDir, "plantuml-context.yml")
-        configFile.writeText(
-            """
+        configFile.writeText("""
             input:
               prompts: "deep/path/prompts"
             output:
-              images: "deep/path/images"
+              images: "test-images"
               rag: "generated/rag"
               diagrams: "generated/diagrams"
-        """.trimIndent()
-        )
+        """.trimIndent())
 
-        // Create moderately deep directories and files
         val deepPromptsDir = File(testProjectDir, "deep/path/prompts")
         deepPromptsDir.mkdirs()
 
-        val promptFile = File(deepPromptsDir, "deep.prompt")
-        promptFile.writeText("Create a diagram")
+        File(deepPromptsDir, "deep.prompt").writeText("Create a diagram")
 
-        // When
-        @Suppress("UnusedVariable", "unused")
-        val result = create()
+        create()
             .withProjectDir(testProjectDir)
-            .withArguments("--quiet", "processPlantumlPrompts", "--stacktrace")
+            .withArguments("processPlantumlPrompts")
             .withPluginClasspath()
             .build()
-
-        // Then
-        // Le test passe si la tâche s'exécute sans erreurs
-        assertTrue(true)
     }
 
     private fun testUnicodeCharacters() {
-        // Create a PlantUML file with unicode characters
         val unicodeFile = File(testProjectDir, "unicode.puml")
-        unicodeFile.writeText(
-            """
+        unicodeFile.writeText("""
             @startuml
             title Diagramme avec des caractères spéciaux
             actor Utilisateur
@@ -158,20 +120,13 @@ class LargeFileAndPathTest {
               Utilisateur --> (Fonctionnalité)
             }
             @enduml
-        """.trimIndent()
-        )
+        """.trimIndent())
 
-        // When
-        @Suppress("UnusedVariable", "unused")
-        val result = create()
+        create()
             .withProjectDir(testProjectDir)
-            .withArguments("--quiet", "validatePlantumlSyntax", "-Pplantuml.diagram=unicode.puml", "--stacktrace")
+            .withArguments("validatePlantumlSyntax", "-Pplantuml.diagram=unicode.puml")
             .withPluginClasspath()
             .build()
-
-        // Then
-        // Validation réussit toujours car les fichiers PlantUML créés sont valides
-        assertTrue(true)
     }
 
     private fun buildSmallLargePlantUmlContent(): String {
