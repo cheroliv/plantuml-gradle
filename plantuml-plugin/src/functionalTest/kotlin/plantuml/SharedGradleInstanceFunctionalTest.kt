@@ -5,11 +5,10 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.test.Ignore
 
-@Ignore
 @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
 class SharedGradleInstanceFunctionalTest {
 
@@ -64,6 +63,7 @@ class SharedGradleInstanceFunctionalTest {
         }
     }
 
+    @Ignore
     @Test
     @Order(1)
     fun `test01 plugin applies successfully`() {
@@ -75,6 +75,7 @@ class SharedGradleInstanceFunctionalTest {
         assertEquals(TaskOutcome.SUCCESS, result.task(":help")?.outcome)
     }
 
+    @Ignore
     @Test
     @Order(2)
     fun `test02 all tasks are registered`() {
@@ -88,6 +89,7 @@ class SharedGradleInstanceFunctionalTest {
         assertTrue(result.output.contains("reindexPlantumlRag"))
     }
 
+    @Ignore
     @Test
     @Order(3)
     fun `test03 extension configuration loads`() {
@@ -99,6 +101,7 @@ class SharedGradleInstanceFunctionalTest {
         assertTrue(result.output.contains("plantuml"))
     }
 
+    @Ignore
     @Test
     @Order(4)
     fun `test04 llm provider configurations`() {
@@ -111,7 +114,7 @@ class SharedGradleInstanceFunctionalTest {
             output:
               images: "test-images"
               rag: "test-rag"
-            langchain:
+            langchain4j:
               model: "ollama"
               ollama:
                 baseUrl: "http://localhost:11434"

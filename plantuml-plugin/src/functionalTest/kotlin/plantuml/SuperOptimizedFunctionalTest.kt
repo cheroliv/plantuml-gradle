@@ -7,12 +7,12 @@ import java.io.File
 import kotlin.test.Ignore
 import kotlin.test.assertTrue
 
-@Ignore
 class SuperOptimizedFunctionalTest {
 
     @TempDir
     lateinit var testProjectDir: File
 
+    @Ignore
     @Test
     fun `super optimized single test for all plugin functionality`() {
         // Créer tous les fichiers nécessaires en une seule fois
@@ -72,7 +72,7 @@ class SuperOptimizedFunctionalTest {
             output:
               images: "test-images"
               rag: "test-rag"
-            langchain:
+            langchain4j:
               model: "ollama"
               ollama:
                 baseUrl: "http://localhost:11434"
