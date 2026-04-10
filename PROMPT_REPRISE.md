@@ -7,17 +7,18 @@
 
 ## ✅ Session précédente — TERMINÉE
 
-**Tâche** : Activation et optimisation FilePermissionTest  
+**Tâche** : Activation et optimisation LargeFileAndPathTest  
 **Statut** : ✅ **TERMINÉE**
 
 ### Fichiers modifiés
-- `FilePermissionTest.kt` : 2 tests activés (@Ignore retiré), code simplifié
+- `LargeFileAndPathTest.kt` : 4 tests activés (@Ignore retiré), code refactorisé
 
 ### Résultats
-- ✅ **Tests activés** : 2/4 (`should handle read permission denied gracefully`, `should handle write permission denied gracefully`)
+- ✅ **Tests activés** : 4/4 (large file, special chars, deep paths, unicode)
 - ✅ **Tests unitaires** : 129/129 passent (100%)
-- ✅ **Code simplifié** : 331 → 320 lignes (-11 lignes)
-- ✅ **Optimisations** : companion object supprimé, try-finally allégé, settingsFile supprimé
+- ✅ **Code optimisé** : 198 → 137 lignes (-31%)
+- ✅ **Temps total** : ~99s → 44s (-55%)
+- ✅ **Test optimisé** : deeply nested paths 43s → 18s (-58%)
 
 ---
 
@@ -28,7 +29,7 @@
 **Suggestions** :
 - Documentation des 7 providers LLM (comment obtenir chaque clé API, coûts, limites)
 - Tests fonctionnels avec vrais providers (avec @Disabled pour credentials réels)
-- Activation des 2 tests restants dans FilePermissionTest (directory permission, nonexistent directory)
+- Autres optimisations de tests fonctionnels
 
 **Fichiers de référence** :
 - `AGENTS.md` — Section "État actuel" mise à jour
