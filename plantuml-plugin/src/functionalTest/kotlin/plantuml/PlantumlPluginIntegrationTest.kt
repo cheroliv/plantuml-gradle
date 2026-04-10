@@ -7,13 +7,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.test.Ignore
 
 //Tests are slow : 46 sec
 @Suppress("FunctionName")
-@Ignore
 class PlantumlPluginIntegrationTest {
 
     @TempDir
@@ -34,6 +33,7 @@ class PlantumlPluginIntegrationTest {
         )
     }
 
+    @Ignore
     @Test
     fun `should apply plugin and run processPlantumlPrompts task`() {
         // Given
@@ -79,7 +79,7 @@ class PlantumlPluginIntegrationTest {
               rag: "generated/rag"
               diagrams: "generated/diagrams"
               validations: "generated/validations"
-            langchain:
+            langchain4j:
               model: "ollama"
               ollama:
                 baseUrl: "http://localhost:11434"
@@ -100,6 +100,7 @@ class PlantumlPluginIntegrationTest {
         assertTrue(result.output.contains("Processing 1 prompt files"))
     }
 
+    @Ignore
     @Test
     fun `should run validatePlantumlSyntax task`() {
         // Given
@@ -141,6 +142,7 @@ class PlantumlPluginIntegrationTest {
         assertTrue(result.output.contains("PlantUML syntax is valid"))
     }
 
+    @Ignore
     @Test
     fun `should run reindexPlantumlRag task`() {
         // Given

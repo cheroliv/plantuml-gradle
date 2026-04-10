@@ -9,7 +9,6 @@ import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-@Ignore
 class PlantumlPluginFunctionalTest {
 
     @TempDir

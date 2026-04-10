@@ -12,9 +12,8 @@ import kotlin.test.assertTrue
 /**
  * Test pour vérifier que le paramètre LLM en ligne de commande fonctionne correctement.
  * Ce test utilise une configuration spécifique pour valider que le paramètre
- * -Pplantuml.langchain.model est pris en compte.
+ * -Pplantuml.langchain4j.model est pris en compte.
  */
-@Ignore
 class LlmCommandLineParameterTest {
 
     @TempDir
@@ -44,12 +43,13 @@ class LlmCommandLineParameterTest {
         """.trimIndent())
     }
 
+    @Ignore
     @Test
     fun `should use command line LLM parameter to override configuration`() {
         // Créer un fichier de configuration YAML de test
         val configFile = File(testProjectDir, "ollama-local-smollm-135.yml")
         configFile.writeText("""
-            langchain:
+            langchain4j:
               model: "gemini"  # Configuration par défaut dans le fichier
               gemini:
                 apiKey: "fake-api-key"
@@ -81,7 +81,7 @@ class LlmCommandLineParameterTest {
             .withProjectDir(testProjectDir)
             .withArguments(
                 "processPlantumlPrompts",
-                "-Pplantuml.langchain.model=ollama",
+                "-Pplantuml.langchain4j.model=ollama",
                 "--stacktrace",
                 "--info"
             )
@@ -101,12 +101,13 @@ class LlmCommandLineParameterTest {
         assertTrue(!result.output.contains("Invalid model configuration"))
     }
 
+    @Ignore
     @Test
     fun `should perform LLM handshake without full authentication`() {
         // Créer un fichier de configuration YAML de test
         val configFile = File(testProjectDir, "ollama-local-smollm-135.yml")
         configFile.writeText("""
-            langchain:
+            langchain4j:
               model: "ollama"
               ollama:
                 baseUrl: "http://localhost:11434"
@@ -133,7 +134,7 @@ class LlmCommandLineParameterTest {
             .withProjectDir(testProjectDir)
             .withArguments(
                 "processPlantumlPrompts",
-                "-Pplantuml.langchain.model=ollama",
+                "-Pplantuml.langchain4j.model=ollama",
                 "--dry-run",  // N'exécute pas vraiment les tâches, juste vérifie la configuration
                 "--stacktrace"
             )

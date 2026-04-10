@@ -66,7 +66,7 @@ class PlantumlConfigFailureTest {
             output:
               images: []  # Should be string
               
-            langchain:
+            langchain4j:
               maxIterations: "five"  # Should be integer
               model: 456  # Should be string
         """.trimIndent()
@@ -90,7 +90,7 @@ class PlantumlConfigFailureTest {
         val configFile = File(tempDir, "plantuml-context.yml")
         configFile.writeText(
             """
-            langchain:
+            langchain4j:
               ollama:
                 baseUrl: 123  # Should be string
                 modelName: 456  # Should be string

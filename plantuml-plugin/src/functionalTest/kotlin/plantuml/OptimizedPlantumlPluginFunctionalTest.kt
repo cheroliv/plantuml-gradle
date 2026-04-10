@@ -4,8 +4,8 @@ import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import kotlin.test.Ignore
 import kotlin.test.assertTrue
+import kotlin.test.Ignore
 
 /**
  * Test fonctionnel optimisé pour le plugin PlantUML.
@@ -15,12 +15,12 @@ import kotlin.test.assertTrue
  * 2. Minimisant le nombre d'invocations de GradleRunner
  * 3. Utilisant des configurations légères
  */
-@Ignore
 class OptimizedPlantumlPluginFunctionalTest {
 
     @TempDir
     lateinit var testProjectDir: File
 
+    @Ignore
     @Test
     fun `optimized plugin functionality test`() {
         // Configuration minimale dans un seul endroit

@@ -15,7 +15,6 @@ import org.junit.jupiter.api.AfterEach
 import kotlin.test.Ignore
 
 //slow test 37sec
-@Ignore
 class LlmConfigurationFunctionalTest {
 
     @TempDir
@@ -52,6 +51,7 @@ class LlmConfigurationFunctionalTest {
         }
     }
 
+    @Ignore
     @Test
     fun `should handle Ollama configuration correctly`() {
         // Check if we should use real LLM or mock
@@ -77,7 +77,7 @@ class LlmConfigurationFunctionalTest {
             output:
               images: "test-images"
               rag: "test-rag"
-            langchain:
+            langchain4j:
               model: "ollama"
               ollama:
                 baseUrl: "$baseUrl"
@@ -125,7 +125,7 @@ class LlmConfigurationFunctionalTest {
             output:
               images: "test-images"
               rag: "test-rag"
-            langchain:
+            langchain4j:
               model: "gemini"
               gemini:
                 apiKey: "fake-gemini-key-for-testing"
@@ -171,7 +171,7 @@ class LlmConfigurationFunctionalTest {
             output:
               images: "test-images"
               rag: "test-rag"
-            langchain:
+            langchain4j:
               model: "mistral"
               mistral:
                 apiKey: "fake-mistral-key-for-testing"
@@ -217,7 +217,7 @@ class LlmConfigurationFunctionalTest {
             output:
               images: "test-images"
               rag: "test-rag"
-            langchain:
+            langchain4j:
               model: "openai"
               openai:
                 apiKey: "fake-openai-key-for-testing"
@@ -263,7 +263,7 @@ class LlmConfigurationFunctionalTest {
             output:
               images: "test-images"
               rag: "test-rag"
-            langchain:
+            langchain4j:
               model: "claude"
               claude:
                 apiKey: "fake-claude-key-for-testing"
@@ -309,7 +309,7 @@ class LlmConfigurationFunctionalTest {
             output:
               images: "test-images"
               rag: "test-rag"
-            langchain:
+            langchain4j:
               model: "huggingface"
               huggingface:
                 apiKey: "fake-huggingface-key-for-testing"
@@ -356,7 +356,7 @@ class LlmConfigurationFunctionalTest {
             output:
               images: "test-images"
               rag: "test-rag"
-            langchain:
+            langchain4j:
               model: "groq"
               groq:
                 apiKey: "fake-groq-key-for-testing"
@@ -402,7 +402,7 @@ class LlmConfigurationFunctionalTest {
             output:
               images: "test-images"
               rag: "test-rag"
-            langchain:
+            langchain4j:
               model: "ollama"
               ollama:
                 baseUrl: "http://localhost:11434"

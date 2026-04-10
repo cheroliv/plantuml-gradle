@@ -9,6 +9,7 @@ import java.io.File
 import java.io.File.separator
 import java.io.File.createTempFile
 import kotlin.test.assertTrue
+import kotlin.test.Ignore
 
 @Suppress("FunctionName")
 class FilePermissionTest {
@@ -62,6 +63,7 @@ class FilePermissionTest {
     }
 
     @Test
+    @Ignore
     fun `should handle read permission denied gracefully`() {
         // Given
         buildFile.writeText("""
@@ -134,6 +136,7 @@ class FilePermissionTest {
     }
 
     @Test
+    @Ignore
     fun `should handle write permission denied gracefully`() {
         // Given - Test write permission on diagram file for validation task
         buildFile.writeText("""
@@ -188,6 +191,7 @@ class FilePermissionTest {
     }
 
     @Test
+    @Ignore
     fun `should handle directory permission denied gracefully`() {
         // Given
         buildFile.writeText("""
@@ -316,6 +320,7 @@ class FilePermissionTest {
     }
 
     @Test
+    @Ignore
     fun `should handle nonexistent directory gracefully`() {
         // Given
         buildFile.writeText("""

@@ -31,7 +31,6 @@ class NetworkTimeoutTest {
     }
 
     //    @slowtest
-    @Ignore
     @Test
     fun `should handle network timeout gracefully with slow server`() {
         // Given
@@ -56,7 +55,7 @@ class NetworkTimeoutTest {
             output:
               images: "test-images"
               rag: "test-rag"
-            langchain:
+            langchain4j:
               model: "ollama"
               ollama:
                 baseUrl: "http://localhost:12345"
@@ -143,7 +142,7 @@ class NetworkTimeoutTest {
             output:
               images: "test-images"
               rag: "test-rag"
-            langchain:
+            langchain4j:
               model: "ollama"
               ollama:
                 baseUrl: "http://localhost:65000"  # Port that shouldn't be in use
@@ -198,7 +197,7 @@ class NetworkTimeoutTest {
             output:
               images: "test-images"
               rag: "test-rag"
-            langchain:
+            langchain4j:
               model: "ollama"
               ollama:
                 baseUrl: "http://nonexistent.invalid.domain.local:11434"

@@ -8,9 +8,9 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.test.Ignore
 
 /**
  * Suite fonctionnelle consolidée du plugin PlantUML.
@@ -168,7 +168,7 @@ class PlantumlFunctionalSuite {
                   rag: "test-rag"
                   diagrams: "generated/diagrams"
                   validations: "generated/validations"
-                langchain:
+                langchain4j:
                   model: "$model"
                   ollama:
                     baseUrl: "$ollamaUrl"

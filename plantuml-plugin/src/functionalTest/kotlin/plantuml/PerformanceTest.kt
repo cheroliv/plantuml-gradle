@@ -231,7 +231,7 @@ class PerformanceTest {
               images: "generated/images"
               rag: "generated/rag"
               diagrams: "generated/diagrams"
-            langchain:
+            langchain4j:
               maxIterations: 3
               model: "ollama"
             git:

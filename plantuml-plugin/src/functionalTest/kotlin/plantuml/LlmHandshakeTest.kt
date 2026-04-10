@@ -49,7 +49,7 @@ class LlmHandshakeTest {
         val configFile = File(testProjectDir, "ollama-local-smollm-135.yml")
         configFile.writeText(
             """
-            langchain:
+            langchain4j:
               model: "ollama"
               ollama:
                 baseUrl: "http://localhost:11434"
@@ -79,7 +79,7 @@ class LlmHandshakeTest {
             .withProjectDir(testProjectDir)
             .withArguments(
                 "processPlantumlPrompts",
-                "-Pplantuml.langchain.model=ollama",
+                "-Pplantuml.langchain4j.model=ollama",
                 "--stacktrace",
                 "--info"
             )
