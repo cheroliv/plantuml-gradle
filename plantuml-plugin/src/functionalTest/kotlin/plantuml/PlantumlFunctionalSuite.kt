@@ -6,11 +6,12 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.*
+import org.junit.jupiter.api.ClassOrderer.OrderAnnotation
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlin.test.Ignore
 
 /**
  * Suite fonctionnelle consolidée du plugin PlantUML.
@@ -39,7 +40,7 @@ import kotlin.test.Ignore
  *   — c'est-à-dire que même un crash était accepté.
  *   Ici, les stubs /api/chat et /api/generate sont correctement configurés.
  */
-@TestClassOrder(ClassOrderer.OrderAnnotation::class)
+@TestClassOrder(OrderAnnotation::class)
 class PlantumlFunctionalSuite {
 
     companion object {
