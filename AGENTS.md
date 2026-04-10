@@ -125,7 +125,7 @@ plantuml-plugin/src/main/kotlin/plantuml/
 | # | Tâche | Description | Estimation | Statut |
 |---|-------|-------------|------------|--------|
 | 1 | **Organisation des fichiers YAML** | Séparer config perso, exemple et test | 30min | ✅ **TERMINÉ** |
-| 2 | **Ajout providers LLM multiples** | OpenAI, Claude, HuggingFace, Groq + Ollama | 2h | 📋 À faire |
+| 2 | **Ajout providers LLM multiples** | OpenAI, Claude, HuggingFace, Groq + Ollama | 2h | ✅ **TERMINÉ** |
 | 3 | **Documentation des providers** | Expliquer comment configurer chaque provider | 1h | 📋 À faire |
 | 4 | **Tests avec vrais providers** | Tester chaque provider avec credentials réels | 3h | 📋 À faire |
 
@@ -138,14 +138,16 @@ plantuml-plugin/src/main/kotlin/plantuml/
 - **Fichier modifié** : `.gitignore` (ajout de `plantuml-context.yml` et `plantuml-test-context.yml`)
 - **Sécurité** : Les credentials ne seront jamais commités dans le repo
 
-**📋 Tâche #2 — À FAIRE** :
-- Ajouter les providers suivants dans `plantuml-context.yml` :
-  - OpenAI (apiKey)
-  - Anthropic/Claude (apiKey)
-  - HuggingFace (apiKey)
-  - Groq (apiKey)
-  - GitHub Copilot (si supporté par LangChain4j)
-- Permettre de switcher de provider via CLI : `-Pplantuml.langchain4j.model=gemini`
+**✅ Tâche #2 — TERMINÉE** :
+- **Fichiers modifiés** :
+  - `plantuml-context.yml` — Ajout des providers OpenAI, Claude, HuggingFace, Groq
+  - `LlmService.kt` — Implémentation de `createGroqModel()`
+  - `LlmServiceTest.kt` — Ajout de GROQ dans l'enum + test
+- **Fonctionnalités** :
+  - 7 providers supportés : Ollama, Gemini, Mistral, OpenAI, Claude, HuggingFace, Groq
+  - Switch de provider via CLI : `-Pplantuml.langchain4j.model=groq`
+  - Groq utilise l'API compatible OpenAI (`https://api.groq.com/openai/v1`)
+- **Tests** : ✅ 129/129 passent (100%)
 
 **📋 Tâche #3 — À FAIRE** :
 - Documenter dans un README ou wiki :
