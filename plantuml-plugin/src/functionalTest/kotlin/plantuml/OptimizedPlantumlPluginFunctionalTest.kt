@@ -4,8 +4,8 @@ import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import kotlin.test.assertTrue
 import kotlin.test.Ignore
+import kotlin.test.assertTrue
 
 /**
  * Test fonctionnel optimisé pour le plugin PlantUML.
