@@ -1,0 +1,96 @@
+        {
+            "entries": [
+                            {
+                "iteration": 0,
+                "prompt": "Create a simple class diagram with one class",
+                "response": "Here is an example of a PlantUI diagram:
+```python
+class PlantUIMode(IEnumerable):
+    def __init__(self, id, name, description, code):
+        self._id = id
+        self._name = name
+        self._description = description
+        self.build()
+
+    def build(self):
+        self._generate_code()
+
+    def generate_code(self):
+        for item in self._items:
+            if item.isAnimal():
+                item.generate_code()
+
+    def isAnimal(self, item):
+        return isinstance(item, Plant) and item.isSelfTail
+    else:
+        raise ValueError(\"Cannot validate code\")
+```",
+                "isValid": false,
+                "errorMessage": "null",
+                "timestamp": "2026-04-10T22:18:16.926339875"
+            },
+            {
+                "iteration": 1,
+                "prompt": "Correction attempt #1",
+                "response": "Here is a Python class that implements this logic:
+```python
+from enum import IntEnum, IntEnumAttr
+from typing import UnionMatchType
+
+
+class PlantUIMode(IntEnum):
+    animal = IntEnumAttr('animal')
+
+    def generate_code():
+        self._generate_code()
+
+        if 'isSelfTail' in self._items:
+            raise ValueError(\"Cannot generate code for animal self-tails\")
+
+    def isAnimal(self, item):
+        return item['isSelfTail'] and item['isSelfTail'].startswith('not)')
+```",
+                "isValid": false,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-10T22:18:19.079564511"
+            },
+            {
+                "iteration": 2,
+                "prompt": "Correction attempt #2",
+                "response": "Here is a sample PlantUI diagram:
+```python
+class PlantUI:
+    def generate_code():
+        self._generate_code()
+
+    def isAnimal(self, item):
+        return item['isSelfTail'] and item['isSelfTail'].startswith('not')
+
+    def isNotSelfTail(self, item):
+        return item['isSelfTail'] and item['isSelfTail'].startswith('not')
+```",
+                "isValid": false,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-10T22:18:20.685599311"
+            },
+            {
+                "iteration": 3,
+                "prompt": "Correction attempt #3",
+                "response": "Here's how we can generate the following Code:
+```python
+class PlantUI:
+    def generate_code():
+        self._ge...
+                    
+                    Error: Missing @startuml or @enduml tags
+                    
+                    Please correct the code and return ONLY valid PlantUML code wrapped in @startuml and @enduml tags.
+                    Learn from previous attempts to avoid repeating the same mistakes.",
+                "isValid": true,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-10T22:18:22.207981005"
+            }
+            ],
+            "totalAttempts": 4,
+            "timestamp": "2026-04-10T22:18:22.214675995"
+        }
