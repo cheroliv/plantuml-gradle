@@ -7,18 +7,18 @@
 
 ## ✅ Session précédente — TERMINÉE
 
-**Tâche** : Activation et optimisation LargeFileAndPathTest  
+**Tâche** : Activation et optimisation LlmCommandLineParameterTest  
 **Statut** : ✅ **TERMINÉE**
 
 ### Fichiers modifiés
-- `LargeFileAndPathTest.kt` : 4 tests activés (@Ignore retiré), code refactorisé
+- `LlmCommandLineParameterTest.kt` : 2 tests activés (@Ignore retiré), code optimisé
 
 ### Résultats
-- ✅ **Tests activés** : 4/4 (large file, special chars, deep paths, unicode)
+- ✅ **Tests activés** : 2/2 (override CLI + handshake)
 - ✅ **Tests unitaires** : 129/129 passent (100%)
-- ✅ **Code optimisé** : 198 → 137 lignes (-31%)
-- ✅ **Temps total** : ~99s → 44s (-55%)
-- ✅ **Test optimisé** : deeply nested paths 43s → 18s (-58%)
+- ✅ **Code optimisé** : 150 → 105 lignes (-30%)
+- ✅ **Temps total** : ~73s (48s + 25s)
+- ✅ **Fonctionnalité validée** : `-Pplantuml.langchain4j.model` fonctionne
 
 ---
 
@@ -29,11 +29,11 @@
 **Suggestions** :
 - Documentation des 7 providers LLM (comment obtenir chaque clé API, coûts, limites)
 - Tests fonctionnels avec vrais providers (avec @Disabled pour credentials réels)
-- Autres optimisations de tests fonctionnels
+- Autres optimisations de tests fonctionnels (NetworkTimeoutTest, PerformanceTest)
 
 **Fichiers de référence** :
 - `AGENTS.md` — Section "État actuel" mise à jour
-- `COMPLETED_TASKS_ARCHIVE.md` — Session 18 documentée
+- `COMPLETED_TASKS_ARCHIVE.md` — Session 20 documentée
 - `TEST_COVERAGE_ANALYSIS.md` — Couverture 100%
 
 ---

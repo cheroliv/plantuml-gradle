@@ -2,6 +2,27 @@
 
 ## Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+### Session 20 — 2026-04-10 : Activation et optimisation LlmCommandLineParameterTest
+
+#### ✅ Activation de 2 tests fonctionnels
+- **Fichier modifié** : `LlmCommandLineParameterTest.kt`
+- **Tests activés** :
+  - `should use command line LLM parameter to override configuration()` — @Ignore retiré
+  - `should perform LLM handshake without full authentication()` — @Ignore retiré
+
+#### ✅ Optimisations appliquées
+- **Code simplifié** : 150 → 105 lignes (**-30%**)
+- **Suppression commentaires redondants** : "Créer un fichier...", "Exécuter la tâche..."
+- **Retrait flags inutiles** : `--info`, `--dry-run`
+- **Simplification syntaxe** : YAML condensé, variables inutiles retirées
+
+#### ✅ Résultats
+- ✅ **Temps total (2 tests)** : ~73s (48s + 25s)
+- ✅ **Tests unitaires** : 129/129 passent (100%)
+- ✅ **Fonctionnalité validée** : Override CLI `plantuml.langchain4j.model` fonctionne
+
+---
+
 ### Session 19 — 2026-04-10 : Activation et optimisation LargeFileAndPathTest
 
 #### ✅ Activation de 4 tests fonctionnels
