@@ -2,15 +2,13 @@ package plantuml
 
 import org.gradle.testkit.runner.GradleRunner.create
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.ValueSource
 import java.io.File
-import kotlin.test.assertTrue
 import kotlin.test.Ignore
+import kotlin.test.assertTrue
 
 @Suppress("FunctionName")
-@Ignore
 class LargeFileAndPathTest {
 
     @TempDir
@@ -40,15 +38,28 @@ class LargeFileAndPathTest {
         )
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = ["large", "special_chars", "deep_paths", "unicode"])
-    fun `should handle various file scenarios`(scenario: String) {
-        when (scenario) {
-            "large" -> testLargePlantUmlFile()
-            "special_chars" -> testSpecialCharactersInFilename()
-            "deep_paths" -> testDeeplyNestedPaths()
-            "unicode" -> testUnicodeCharacters()
-        }
+    @Test
+    @Ignore
+    fun `should handle large PlantUML file`() {
+        testLargePlantUmlFile()
+    }
+
+    @Test
+    @Ignore
+    fun `should handle special characters in filename`() {
+        testSpecialCharactersInFilename()
+    }
+
+    @Test
+    @Ignore
+    fun `should handle deeply nested paths`() {
+        testDeeplyNestedPaths()
+    }
+
+    @Test
+    @Ignore
+    fun `should handle unicode characters`() {
+        testUnicodeCharacters()
     }
 
     private fun testLargePlantUmlFile() {
