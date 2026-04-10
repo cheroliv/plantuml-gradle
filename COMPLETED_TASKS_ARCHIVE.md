@@ -2,6 +2,29 @@
 
 ## Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+### Session 19 — 2026-04-10 : Activation et optimisation LargeFileAndPathTest
+
+#### ✅ Activation de 4 tests fonctionnels
+- **Fichier modifié** : `LargeFileAndPathTest.kt`
+- **Tests activés** :
+  - `should handle large PlantUML file()` — @Ignore retiré
+  - `should handle special characters in filename()` — @Ignore retiré
+  - `should handle deeply nested paths()` — @Ignore retiré
+  - `should handle unicode characters()` — @Ignore retiré
+
+#### ✅ Optimisations appliquées
+- **Code simplifié** : 198 → 137 lignes (**-31%**)
+- **Suppression commentaires redondants** : "When", "Then", "Le test passe si..."
+- **Retrait flags inutiles** : `--quiet`, `--stacktrace`, `@Suppress("UnusedVariable")`
+- **Simplification syntaxe** : `assertTrue(true)` supprimé, variables inutiles retirées
+
+#### ✅ Résultats
+- ✅ **Temps total (4 tests)** : ~99s → 44s (**-55%**)
+- ✅ **Test le plus lent optimisé** : `deeply nested paths` 43s → 18s (-58%)
+- ✅ **Tests unitaires** : 129/129 passent (100%)
+
+---
+
 ### Session 18 — 2026-04-10 : Activation et optimisation FilePermissionTest
 
 #### ✅ Activation de 2 tests fonctionnels
