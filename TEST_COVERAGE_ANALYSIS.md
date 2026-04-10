@@ -1,8 +1,8 @@
 # Analyse de Couverture des Tests Unitaires
 
 **Date**: 2026-04-09  
-**Dernière mise à jour**: 2026-04-09 (Session 10 — ConfigMerger.kt + ConfigMergerTest.kt)  
-**État actuel**: 127/127 tests passent (100% de succès)  
+**Dernière mise à jour**: 2026-04-10 (Session 17 — Correction `langchain` → `langchain4j` tests unitaires)  
+**État actuel**: 129/129 tests passent (100% de succès)  
 **Progression**: 
 - Session 1: +5 tests ajoutés à PlantumlManagerTest.kt (6 → 11 tests)
 - Session 2: -7 tests redondants supprimés (71 → 70 tests), -1 fichier (PlantumlConfigLoaderTest.kt)
@@ -14,6 +14,7 @@
 - Session 8: +8 tests (LlmServicePrivateMethodsTest.kt)
 - Session 9: +8 tests (DiagramProcessorPrivateMethodsTest.kt)
 - Session 10: +8 tests (ConfigMergerTest.kt) — Feature fusion properties < yaml < CLI
+- Session 17: +0 tests (Correction `langchain` → `langchain4j` dans 2 fichiers + 1 fichier backup supprimé)
 
 ---
 
