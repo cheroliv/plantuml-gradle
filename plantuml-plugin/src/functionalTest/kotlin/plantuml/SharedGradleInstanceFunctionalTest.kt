@@ -2,14 +2,18 @@ package plantuml
 
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation
+import org.junit.jupiter.api.Order
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestMethodOrder
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlin.test.Ignore
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation::class)
+@TestMethodOrder(OrderAnnotation::class)
 class SharedGradleInstanceFunctionalTest {
 
     companion object {
