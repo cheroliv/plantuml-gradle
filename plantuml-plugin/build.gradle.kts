@@ -130,6 +130,7 @@ val functionalTest: SourceSet by sourceSets.creating {
 dependencies {
     add(functionalTest.implementationConfigurationName, gradleTestKit())
     add(functionalTest.implementationConfigurationName, kotlin("stdlib-jdk8"))
+    add(functionalTest.implementationConfigurationName, kotlin("test"))
     add(functionalTest.implementationConfigurationName, kotlin("test-junit5"))
 
     // Ajouter les dépendances nécessaires explicitement
