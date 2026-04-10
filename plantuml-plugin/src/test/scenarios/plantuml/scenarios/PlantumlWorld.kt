@@ -67,7 +67,7 @@ class PlantumlWorld {
                   rag: "generated/rag"
                   diagrams: "generated/diagrams"
                   validations: "generated/validations"
-                langchain:
+                langchain4j:
                   model: "ollama"
                   ollama:
                     baseUrl: "http://localhost:11434"
