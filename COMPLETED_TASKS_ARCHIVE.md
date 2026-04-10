@@ -2,6 +2,34 @@
 
 ## Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+### Session 18 — 2026-04-10 : Activation et optimisation FilePermissionTest
+
+#### ✅ Activation de 2 tests fonctionnels
+- **Fichier modifié** : `FilePermissionTest.kt`
+- **Tests activés** :
+  - `should handle read permission denied gracefully()` — @Ignore retiré
+  - `should handle write permission denied gracefully()` — @Ignore retiré
+- **Tests restants ignorés** :
+  - `should handle directory permission denied gracefully()` — @Ignore conservé
+  - `should handle nonexistent directory gracefully()` — @Ignore conservé
+
+#### ✅ Optimisations appliquées
+- **Suppression du companion object** : Template de projet créé dans `@BeforeEach` (plus simple)
+- **Simplification du code** :
+  - Suppression de `settingsFile` (non utilisé)
+  - Simplification des blocs `try-finally` (suppression des conditions `if (separator == "/")`)
+  - Suppression de `--stacktrace` dans les arguments Gradle (réduit la verbosité)
+- **Code plus lisible** :
+  - Meilleure gestion des permissions (appels directs sans conditions)
+  - Code plus concis et maintenable
+
+#### ✅ Résultats
+- ✅ **Temps d'exécution** : ~34-40s pour 2 tests activés
+- ✅ **Tests unitaires** : 129/129 passent (100%)
+- ✅ **Code simplifié** : 331 → 320 lignes (-11 lignes)
+
+---
+
 ### Session 17 — 2026-04-10 : Debug des tests fonctionnels un par un
 
 #### ✅ Debug de 17 tests fonctionnels
