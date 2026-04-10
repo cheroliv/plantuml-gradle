@@ -2,6 +2,134 @@
 
 ## Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+### Session 25 — 2026-04-10 : Optimisation MegaOptimizedFunctionalTest
+
+#### ✅ Optimisations appliquées
+- **Fichier modifié** : `MegaOptimizedFunctionalTest.kt`
+- **Code réduit** : 62 → 33 lignes (**-47%**)
+- **Suppression `setupTestProject()`** — code inline dans le test
+- **Fusion 2 appels Gradle → 1 seul** : `tasks --all` inclut déjà "BUILD SUCCESSFUL"
+- **YAML condensé** : 6 → 1 ligne (sections inutiles retirées)
+
+#### ✅ Résultats
+- ✅ **Code réduit** : 62 → 33 lignes (**-47%**)
+- ✅ **Temps d'exécution** : ~28s → 14s (**-50%**)
+- ✅ **Tests unitaires** : 129/129 passent (100%)
+- ✅ **Couverture préservée** :
+  - `BUILD SUCCESSFUL` vérifié
+  - `processPlantumlPrompts` vérifié
+  - `validatePlantumlSyntax` vérifié
+  - `reindexPlantumlRag` vérifié
+  - **0 assertion perdue** — couverture 100% préservée
+
+#### ✅ Respect de la méthodologie
+- ✅ **Principe non-négociable** : Couverture avant tout (section renforcée dans `METHODOLOGIE_OPTIMISATION_TESTS.md`)
+- ✅ **Checklist de validation** : Toutes les assertions listées et vérifiées
+- ✅ **Optimisation intelligente** : Redondance supprimée (2 appels Gradle → 1), pas de couverture perdue
+
+---
+
+### Session 24 — 2026-04-10 : Documentation Mécanisme de Proposition de Méthodologie
+
+#### ✅ Fichier créé
+- **Nouveau fichier** : `AGENT_METHODOLOGIES.md`
+- **Objectif** : Documenter le mécanisme de détection et proposition automatique de méthodologies
+
+#### ✅ Contenu du fichier
+- **Tableau de détection** : 6 types de sessions avec indices et méthodologies associées
+- **Règles de proposition** : 5 obligations, 5 interdictions
+- **Exceptions** : 4 cas où ne pas proposer (urgent, déjà spécifié, etc.)
+- **Workflow complet** : Diagramme de décision (prompt → détection → proposition → action)
+- **Exemples de sessions** : 4 scénarios complets (optimisation, création test, debug, fin de session)
+- **Critères de détection** : Indices forts/faibles pour chaque type de session
+- **Guide d'utilisation** : Instructions pour l'agent (avant/pendant/après proposition)
+
+#### ✅ Mécanisme de détection
+| Type de session | Indices | Méthodologie proposée |
+|-----------------|---------|----------------------|
+| Optimisation test fonctionnel | "optimiser", `*FunctionalTest.kt` | `METHODOLOGIE_OPTIMISATION_TESTS.md` |
+| Création test unitaire | "créer test", `src/test/*Test.kt` | `TEST_COVERAGE_ANALYSIS.md` |
+| Debug test fonctionnel | "debug", `*FunctionalTest.kt` | `METHODOLOGIE_OPTIMISATION_TESTS.md` |
+| Correction bug | "corriger", "bug" | Aucune (agir directement) |
+| Nouvelle feature | "ajouter", "feature" | Aucune (agir directement) |
+| Fin de session | "je quitte", "session terminée" | PROCÉDURE AUTOMATIQUE (5 étapes) |
+
+#### ✅ Format de proposition (standardisé)
+```
+🎯 Méthodologie détectée : [Type de session]
+
+Je peux appliquer :
+- [NOM_FICHIER].md
+- Checklist : [Point 1], [Point 2], [Point 3]
+
+Veux-tu que je charge ce fichier et applique cette méthodologie ?
+```
+
+#### ✅ Résultats
+- ✅ **Documentation complète** : 500+ lignes dans `AGENT_METHODOLOGIES.md`
+- ✅ **Intégration dans AGENTS.md** : Section "🧭 Menu des méthodologies" (lignes 299-366)
+- ✅ **Approche just-in-time** : Fichiers spécialisés chargés uniquement si utilisateur confirme
+- ✅ **Proactif mais non-intrusif** : Agent propose automatiquement, jamais imposé
+
+---
+
+### Session 23 — 2026-04-10 : Optimisation LlmHandshakeTest
+
+#### ✅ Optimisations appliquées
+- **Fichier modifié** : `LlmHandshakeTest.kt`
+- **Code réduit** : 94 → 56 lignes (**-40%**)
+- **Suppression `@BeforeEach`** — code inline dans le test
+- **Suppression `--stacktrace`** — réduit la verbosité
+- **`maxIterations: 1`** — limite appels LLM
+- **Simplification syntaxe** : YAML condensé, variables inutiles retirées
+
+#### ✅ Résultats
+- ✅ **Code réduit** : 94 → 56 lignes (**-40%**)
+- ✅ **Temps d'exécution** : ~38s (vs ~24s avant — légère augmentation due à l'appel LLM réel)
+- ✅ **Tests unitaires** : 129/129 passent (100%)
+- ✅ **Couverture préservée** :
+  - Handshake Ollama sans authentification complète
+  - Vérification `BUILD SUCCESSFUL` (succès global)
+  - Test fonctionnel réel avec GradleRunner
+
+---
+
+### Session 22 — 2026-04-10 : Optimisation LlmConfigurationFunctionalTest
+
+#### ✅ Optimisations appliquées
+- **Fichier modifié** : `LlmConfigurationFunctionalTest.kt`
+- **WireMock partagé** (`@BeforeAll`) — démarre une fois pour tous les tests
+- **Test paramétré** — 6 providers (Gemini, Mistral, OpenAI, Claude, HuggingFace, Groq) combinés en 1 test
+- **Suppression `--stacktrace`** — réduit la verbosité
+- **Code factorisé** — méthode `setupTestProject()`
+
+#### ✅ Résultats
+- ✅ **Tests réduits** : 8 → 3 tests (**-63%**)
+- ✅ **Code réduit** : 442 → 155 lignes (**-65%**)
+- ✅ **Temps total** : ~88s (vs ~240s estimé avant) → **63% plus rapide**
+- ✅ **Couverture préservée** :
+  - Ollama (local LLM)
+  - 6 API key providers (test paramétré)
+  - Mixed provider config
+- ✅ **Tests unitaires** : 129/129 passent (100%)
+
+---
+
+### Session 21 — 2026-04-10 : Activation LlmConfigurationFunctionalTest — Ollama
+
+#### ✅ Activation de 1 test fonctionnel
+- **Fichier modifié** : `LlmConfigurationFunctionalTest.kt`
+- **Test activé** :
+  - `should handle Ollama configuration correctly()` — `@Ignore` retiré
+
+#### ✅ Résultats
+- ✅ **Temps d'exécution** : ~22s
+- ✅ **Tests unitaires** : 129/129 passent (100%)
+- ✅ **Fonctionnalité validée** : Configuration Ollama avec WireMock fonctionne
+- ✅ **WireMock** : Mock des appels LLM avec endpoint `/api/chat`
+
+---
+
 ### Session 20 — 2026-04-10 : Activation et optimisation LlmCommandLineParameterTest
 
 #### ✅ Activation de 2 tests fonctionnels

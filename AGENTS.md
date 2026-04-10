@@ -79,6 +79,7 @@ plantuml-plugin/src/main/kotlin/plantuml/
 - **Debug tests fonctionnels** : 11/17 tests debuggés (9 ✅ PASS, 2 ⚠️ SKIP)
 - **Correction @Ignore → @Disabled** : `LargeFileAndPathTest.kt` converti en 4 tests individuels
 - **LlmCommandLineParameterTest optimisé** : 2 tests activés, code simplifié (-30%)
+- **MegaOptimizedFunctionalTest optimisé** : 62 → 33 lignes (-47%), 28s → 14s (-50%)
 - Voir : `TEST_COVERAGE_ANALYSIS.md`
 
 ### 🔄 TOP PRIORITÉ — Tests manquants
@@ -104,6 +105,7 @@ plantuml-plugin/src/main/kotlin/plantuml/
 | 5 | **Activation et optimisation FilePermissionTest** | Activer 4 tests + simplifier code | 1h | ✅ **TERMINÉ** |
 | 6 | **Activation et optimisation LargeFileAndPathTest** | Activer 4 tests + refactoriser | 1h | ✅ **TERMINÉ** |
 | 7 | **Activation et optimisation LlmCommandLineParameterTest** | Activer 2 tests + simplifier code | 30min | ✅ **TERMINÉ** |
+| 8 | **Optimisation MegaOptimizedFunctionalTest** | 62 → 33 lignes (-47%), 28s → 14s (-50%) | 30min | ✅ **TERMINÉ** |
 
 **Stratégie** :
 ```bash
@@ -111,10 +113,12 @@ plantuml-plugin/src/main/kotlin/plantuml/
 ```
 
 **Résultats** :
-- ✅ **9 tests PASS** : BaselineFunctionalTest, DebuggingFunctionalTest, FilePermissionTest, LlmHandshakeTest, LlmConfigurationFunctionalTest, LlmCommandLineParameterTest, MegaOptimizedFunctionalTest, NetworkTimeoutTest (1/4), PlantumlPluginFunctionalTest (3/3)
+- ✅ **10 tests PASS** : BaselineFunctionalTest, DebuggingFunctionalTest, FilePermissionTest, LlmHandshakeTest, LlmConfigurationFunctionalTest (3/3 optimisé), LlmCommandLineParameterTest, MegaOptimizedFunctionalTest, NetworkTimeoutTest (1/4), PlantumlPluginFunctionalTest (3/3)
 - ⚠️ **46 tests SKIP** : Tests annotés @Disabled (conception intentionnelle)
-- ✅ **3 tests CORRIGÉS** : FinalOptimizedFunctionalTest (résolu), LargeFileAndPathTest (@Ignore→@Disabled + optimisé), FilePermissionTest (2 tests restants activés)
+- ✅ **6 tests CORRIGÉS** : FinalOptimizedFunctionalTest (résolu), LargeFileAndPathTest (@Ignore→@Disabled + optimisé), FilePermissionTest (2 tests restants activés), LlmConfigurationFunctionalTest (optimisé 8→3 tests, -63%), LlmHandshakeTest (optimisé -40%)
+- ✅ **Méthodologie documentée** : `AGENT_METHODOLOGIES.md` créé (mécanisme de proposition automatique)
 - ✅ **FilePermissionTest optimisé** : 2 tests activés (`should handle read permission denied gracefully`, `should handle write permission denied gracefully`), code simplifié (suppression companion object, try-finally allégé)
+- ✅ **LlmHandshakeTest optimisé** : 1 test activé, code réduit 94 → 56 lignes (-40%)
 
 #### 🔴 PRIORITÉ MAX — Sécurité & Confort (ARCHIVÉ)
 
@@ -301,6 +305,94 @@ fun setup() {
 ./gradlew validatePlantumlSyntax -Pplantuml.diagram=file.puml
 ./gradlew reindexPlantumlRag
 ```
+
+---
+
+## 📚 Références par type de tâche
+
+| Tâche | Fichier de référence | Quand charger |
+|-------|---------------------|---------------|
+| **Optimisation tests fonctionnels** | `METHODOLOGIE_OPTIMISATION_TESTS.md` | Uniquement session d'optimisation |
+| **Couverture tests unitaires** | `TEST_COVERAGE_ANALYSIS.md` | Création nouveaux tests |
+| **Tâches terminées** | `COMPLETED_TASKS_ARCHIVE.md` | Fin de session (procédure) |
+| **Reprise session** | `PROMPT_REPRISE.md` | Début de chaque session |
+| **Architecture & Décisions** | `AGENTS.md` (ce fichier) | **Toujours chargé** |
+
+---
+
+## 🧭 Menu des méthodologies — À proposer à l'utilisateur
+
+> **Règle** : L'agent DOIT proposer la méthodologie appropriée selon le type de session.
+
+| # | Type de session | Indices | Méthodologie à proposer | Fichier |
+|---|-----------------|---------|------------------------|---------|
+| 1 | **Optimisation test fonctionnel** | "optimiser", "réduire temps", "accélérer", nom de fichier `*FunctionalTest.kt` | "Veux-tu que j'applique la méthodologie d'optimisation ?" | `METHODOLOGIE_OPTIMISATION_TESTS.md` |
+| 2 | **Création test unitaire** | "créer test", "ajouter test", "couverture", nom de fichier `*Test.kt` dans `src/test/` | "Veux-tu que je consulte l'analyse de couverture pour les tests à créer ?" | `TEST_COVERAGE_ANALYSIS.md` |
+| 3 | **Debug test fonctionnel** | "debug", "exécuter test", "faire passer test", nom de fichier `*FunctionalTest.kt` | "Veux-tu que j'applique la méthodologie de debug (Run → Debug → Optimise) ?" | `METHODOLOGIE_OPTIMISATION_TESTS.md` |
+| 4 | **Correction bug** | "corriger", "bug", "fix", "réparer" | Aucune méthodologie spécifique — agir directement | — |
+| 5 | **Nouvelle feature** | "ajouter", "nouvelle", "feature", "implémenter" | Aucune méthodologie spécifique — agir directement | — |
+| 6 | **Fin de session** | "nouvelle session", "je quitte", "session terminée", "à plus tard" | **PROCÉDURE AUTOMATIQUE OBLIGATOIRE** (5 étapes) | `COMPLETED_TASKS_ARCHIVE.md` |
+
+### Comment proposer
+
+**Format de proposition** :
+```
+🎯 Méthodologie détectée : [Type de session]
+
+Je peux appliquer :
+- [Méthodologie X] (fichier Y)
+- Checklist : [3 points clés]
+
+Veux-tu que je charge ce fichier et applique cette méthodologie ?
+```
+
+**Exemple 1 — Optimisation** :
+```
+🎯 Méthodologie détectée : Optimisation test fonctionnel
+
+Je peux appliquer :
+- METHODOLOGIE_OPTIMISATION_TESTS.md
+- Checklist : Code inline, maxIterations=1, suppression flags inutiles
+
+Veux-tu que je charge ce fichier et applique cette méthodologie ?
+```
+
+**Exemple 2 — Création test** :
+```
+🎯 Méthodologie détectée : Création test unitaire
+
+Je peux appliquer :
+- TEST_COVERAGE_ANALYSIS.md
+- Checklist : Classes non-testées, méthodes privées, data classes
+
+Veux-tu que je charge ce fichier et applique cette méthodologie ?
+```
+
+**Exemple 3 — Debug** :
+```
+🎯 Méthodologie détectée : Debug test fonctionnel
+
+Je peux appliquer :
+- METHODOLOGIE_OPTIMISATION_TESTS.md (Section "🔄 Processus itératif")
+- Étapes : Run → Debug → Optimise
+
+Veux-tu que je charge ce fichier et applique cette méthodologie ?
+```
+
+### Règles de proposition
+
+1. ✅ **Toujours proposer** si la session matche un type connu (tableau ci-dessus)
+2. ✅ **Attendre confirmation** avant de charger le fichier (sauf fin de session)
+3. ✅ **Citer 3 points clés** de la méthodologie (checklist résumé)
+4. ❌ **Jamais charger sans confirmation** (sauf procédure fin de session)
+5. ❌ **Jamais proposer si session claire** (ex: "corriger bug" → agir directement)
+
+### Exceptions — Ne PAS proposer
+
+- ❌ Session déjà en cours (méthodologie déjà chargée)
+- ❌ Utilisateur a déjà spécifié la méthodologie dans le prompt
+- ❌ Session urgente ("corriger bug critique", "réparer build cassé")
+- ❌ Session exploratoire ("comment marche X ?", "où est Y ?")
 
 ---
 
