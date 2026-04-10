@@ -1,7 +1,7 @@
 # Analyse de Couverture des Tests Unitaires
 
 **Date**: 2026-04-09  
-**Dernière mise à jour**: 2026-04-10 (Session 17 — Correction `langchain` → `langchain4j` tests unitaires)  
+**Dernière mise à jour**: 2026-04-10 (Session 19 — Activation et optimisation LargeFileAndPathTest)  
 **État actuel**: 129/129 tests passent (100% de succès)  
 **Progression**: 
 - Session 1: +5 tests ajoutés à PlantumlManagerTest.kt (6 → 11 tests)
@@ -15,6 +15,8 @@
 - Session 9: +8 tests (DiagramProcessorPrivateMethodsTest.kt)
 - Session 10: +8 tests (ConfigMergerTest.kt) — Feature fusion properties < yaml < CLI
 - Session 17: +0 tests (Correction `langchain` → `langchain4j` dans 2 fichiers + 1 fichier backup supprimé)
+- Session 18: +0 tests (Activation et optimisation FilePermissionTest — 4 tests activés)
+- Session 19: +0 tests (Activation et optimisation LargeFileAndPathTest — 4 tests activés, -31% code)
 
 ---
 
