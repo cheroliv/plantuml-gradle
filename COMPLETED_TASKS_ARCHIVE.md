@@ -2,6 +2,124 @@
 
 ## Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+### Session 14 — 2026-04-10 : Annotation @Ignore sur tous les tests fonctionnels
+
+#### ✅ Annotation de 55 tests fonctionnels
+- **Fichiers modifiés** : 21 fichiers dans `src/functionalTest/kotlin/plantuml/`
+- **Annotation utilisée** : `@kotlin.test.Ignore` (wrapper JUnit5)
+- **Objectif** : Éviter crash système hôte pendant le build Gradle
+
+#### Fichiers modifiés
+| # | Fichier | Tests ignorés | Statut |
+|---|---------|---------------|--------|
+| 1 | BaselineFunctionalTest.kt | 1 | ✅ |
+| 2 | DebuggingFunctionalTest.kt | 1 | ✅ |
+| 3 | FilePermissionTest.kt | 4 | ✅ |
+| 4 | FinalOptimizedFunctionalTest.kt | 1 | ✅ |
+| 5 | LargeFileAndPathTest.kt | 1 | ✅ |
+| 6 | LlmCommandLineParameterTest.kt | 2 | ✅ |
+| 7 | LlmConfigurationFunctionalTest.kt | 1 | ✅ |
+| 8 | LlmHandshakeTest.kt | 1 | ✅ |
+| 9 | MegaOptimizedFunctionalTest.kt | 1 | ✅ |
+| 10 | NetworkTimeoutTest.kt | 4 | ✅ |
+| 11 | OptimizedPlantumlPluginFunctionalTest.kt | 1 | ✅ |
+| 12 | PerformanceTest.kt | 6 | ✅ |
+| 13 | PlantumlFunctionalSuite.kt | 7 | ✅ |
+| 14 | PlantumlPluginFunctionalTest.kt | 3 | ✅ |
+| 15 | PlantumlPluginIntegrationSuite.kt | 11 | ✅ |
+| 16 | PlantumlPluginIntegrationTest.kt | 1 | ✅ |
+| 17 | PlantumlRealInfrastructureSuite.kt | 5 | ✅ |
+| 18 | SharedGradleInstanceFunctionalTest.kt | 1 | ✅ |
+| 19 | SuperOptimizedFunctionalTest.kt | 1 | ✅ |
+| 20 | FunctionalTestTemplate.kt | variable | ✅ |
+| 21 | task/ReindexPlantumlRagTaskTest.kt | variable | ✅ |
+
+**Total : 55 tests ignorés**
+
+#### Résultat
+- ✅ **Compilation** : `compileFunctionalTestKotlin` réussie
+- ✅ **Tests unitaires** : 129/129 passent (100%)
+- 🎯 **Prochaine étape** : Debug test par test en ligne de commande
+
+---
+
+### Session 16 — 2026-04-10 : Correction `langchain` → `langchain4j` dans les tests fonctionnels
+
+#### ✅ Renommage de 26 occurrences dans les tests fonctionnels
+- **Fichiers modifiés** : 11 fichiers dans `src/functionalTest/kotlin/plantuml/`
+- **Objectif** : Uniformiser la terminologie avec LangChain4j (JVM) vs LangChain (Python)
+
+#### Fichiers modifiés
+| # | Fichier | Occurrences corrigées | Type |
+|---|---------|----------------------|------|
+| 1 | SuperOptimizedFunctionalTest.kt | 1 | YAML |
+| 2 | NetworkTimeoutTest.kt | 3 | YAML |
+| 3 | LlmCommandLineParameterTest.kt | 3 | YAML + CLI |
+| 4 | LlmHandshakeTest.kt | 2 | YAML + CLI |
+| 5 | LlmConfigurationFunctionalTest.kt | 9 | YAML |
+| 6 | SharedGradleInstanceFunctionalTest.kt | 1 | YAML |
+| 7 | PlantumlPluginIntegrationTest.kt | 1 | YAML |
+| 8 | PlantumlRealInfrastructureSuite.kt | 2 | YAML |
+| 9 | PlantumlPluginIntegrationSuite.kt | 2 | YAML + CLI |
+| 10 | PlantumlFunctionalSuite.kt | 1 | YAML |
+| 11 | PerformanceTest.kt | 1 | YAML |
+
+**Total : 26 occurrences corrigées**
+
+#### Types de corrections
+- **Configurations YAML** : `langchain:` → `langchain4j:` (21 occurrences)
+- **Paramètres CLI** : `-Pplantuml.langchain.model` → `-Pplantuml.langchain4j.model` (5 occurrences)
+- **Commentaires** : 1 occurrence dans `LlmCommandLineParameterTest.kt`
+
+#### Résultat
+- ✅ **Tests unitaires** : 129/129 passent (100%)
+- ✅ **Cohérence** : Tous les tests fonctionnels utilisent `langchain4j`
+- ⚠️ **Reste à faire** : 3 occurrences dans les tests unitaires (`PlantumlConfigFailureTest.kt`, `PlantumlWorld.kt`)
+
+---
+
+### Session 15 — 2026-04-10 : Correction finale des annotations @Ignore
+
+#### ✅ Correction des 2 fichiers manquants
+- **Fichiers modifiés** : 2 fichiers
+  - `LlmCommandLineParameterTest.kt` — 2 tests annotés
+  - `PlantumlPluginFunctionalTest.kt` — 3 tests annotés
+- **Total final** : 55 tests annotés @Ignore sur 21 fichiers
+- **Objectif** : 100% des tests fonctionnels ignorés pour éviter crash système hôte
+
+#### Résultat
+- ✅ **100% des tests fonctionnels annotés**
+- ✅ **129/129 tests unitaires passent (100%)**
+- 🎯 **Prêt pour debug test par test**
+
+---
+
+### Session 17 — 2026-04-10 : Correction `langchain` → `langchain4j` dans les tests unitaires
+
+#### ✅ Renommage de 3 occurrences dans les tests unitaires
+- **Fichiers modifiés** : 2 fichiers + 1 fichier backup supprimé
+- **Objectif** : 100% des occurrences `langchain` corrigées dans tout le projet
+
+#### Fichiers modifiés
+| # | Fichier | Occurrences corrigées | Type |
+|---|---------|----------------------|------|
+| 1 | `PlantumlConfigFailureTest.kt` | 2 | YAML |
+| 2 | `PlantumlWorld.kt` | 1 | YAML |
+| 3 | `PlantumlSteps.kt.backup-modified` | N/A | **Supprimé** |
+
+**Total : 3 occurrences corrigées + 1 fichier supprimé**
+
+#### Types de corrections
+- **Configurations YAML** : `langchain:` → `langchain4j:` (3 occurrences)
+- **Fichier backup** : `PlantumlSteps.kt.backup-modified` supprimé (obsolète)
+
+#### Résultat
+- ✅ **Tests unitaires** : 129/129 passent (100%)
+- ✅ **Cohérence** : 100% du codebase utilise `langchain4j`
+- 🎯 **Prochaine étape** : Debug test par test des tests fonctionnels
+
+---
+
 ### Session 13 — 2026-04-10 : Optimisation FilePermissionTest.kt (85% de réduction)
 
 #### ✅ Optimisation des tests fonctionnels de permission
