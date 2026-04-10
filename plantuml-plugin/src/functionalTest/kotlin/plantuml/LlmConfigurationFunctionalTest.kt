@@ -1,18 +1,17 @@
 package plantuml
 
+// WireMock for mocking LLM calls
+import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.client.WireMock
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import org.gradle.testkit.runner.GradleRunner
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import kotlin.test.assertTrue
-
-// WireMock for mocking LLM calls
-import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration
-import com.github.tomakehurst.wiremock.client.WireMock
-import org.junit.jupiter.api.AfterEach
 import kotlin.test.Ignore
+import kotlin.test.assertTrue
 
 //slow test 37sec
 class LlmConfigurationFunctionalTest {
