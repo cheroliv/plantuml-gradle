@@ -5,8 +5,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import kotlin.test.Ignore
-import kotlin.test.assertTrue
 
 @Suppress("FunctionName")
 class LargeFileAndPathTest {
@@ -22,20 +20,10 @@ class LargeFileAndPathTest {
         buildFile = File(testProjectDir, "build.gradle.kts")
         settingsFile = File(testProjectDir, "settings.gradle.kts")
 
-        settingsFile.writeText(
-            """
-            rootProject.name = "plantuml-large-file-test"
-        """.trimIndent()
-        )
+        settingsFile.writeText("rootProject.name = \"plantuml-large-file-test\"")
 
         // Common plugin configuration
-        buildFile.writeText(
-            """
-            plugins {
-                id("com.cheroliv.plantuml")
-            }
-        """.trimIndent()
-        )
+        buildFile.writeText("plugins { id(\"com.cheroliv.plantuml\")}")
     }
 
     @Test
@@ -89,14 +77,16 @@ class LargeFileAndPathTest {
 
     private fun testDeeplyNestedPaths() {
         val configFile = File(testProjectDir, "plantuml-context.yml")
-        configFile.writeText("""
+        configFile.writeText(
+            """
             input:
               prompts: "deep/path/prompts"
             output:
               images: "test-images"
               rag: "generated/rag"
               diagrams: "generated/diagrams"
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         val deepPromptsDir = File(testProjectDir, "deep/path/prompts")
         deepPromptsDir.mkdirs()
@@ -112,7 +102,8 @@ class LargeFileAndPathTest {
 
     private fun testUnicodeCharacters() {
         val unicodeFile = File(testProjectDir, "unicode.puml")
-        unicodeFile.writeText("""
+        unicodeFile.writeText(
+            """
             @startuml
             title Diagramme avec des caractères spéciaux
             actor Utilisateur
@@ -120,7 +111,8 @@ class LargeFileAndPathTest {
               Utilisateur --> (Fonctionnalité)
             }
             @enduml
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         create()
             .withProjectDir(testProjectDir)
@@ -129,25 +121,20 @@ class LargeFileAndPathTest {
             .build()
     }
 
-    private fun buildSmallLargePlantUmlContent(): String {
-        val builder = StringBuilder()
-        builder.append("@startuml\n")
-        builder.append("title Large Diagram Test\n")
-
-        // Reduced number of classes for faster testing
-        for (i in 1..10) {
-            builder.append("class Class$i {\n")
-            builder.append("  - String field$i\n")
-            builder.append("  + void method$i()\n")
-            builder.append("}\n\n")
-        }
-
-        // Add some relationships
-        for (i in 1..5) {
-            builder.append("Class$i --> Class${i + 1}\n")
-        }
-
-        builder.append("@enduml\n")
-        return builder.toString()
-    }
+    private fun buildSmallLargePlantUmlContent(): String =
+        StringBuilder().run {
+            append("@startuml\ntitle Large Diagram Test\n")
+            // Reduced number of classes for faster testing
+            (1..10).forEach {
+                append("class Class$it {\n")
+                    .append("  - String field$it\n")
+                    .append("  + void method$it()\n")
+                    .append("}\n\n")
+            }
+            // Add some relationships
+            (1..5).forEach {
+                append("Class$it --> Class${it + 1}\n")
+            }
+            append("@enduml\n")
+        }.toString()
 }
