@@ -7,88 +7,52 @@
 
 ## ✅ Session précédente — TERMINÉE
 
-**Tâche** : Optimisation de `FilePermissionTest.kt`  
-**Statut** : ✅ **TERMINÉE** (85% de réduction)
+**Tâche** : Correction `langchain` → `langchain4j` dans les tests unitaires  
+**Statut** : ✅ **TERMINÉE**
 
 ### Fichiers modifiés
-- `src/functionalTest/kotlin/plantuml/FilePermissionTest.kt`
+- `PlantumlConfigFailureTest.kt` : 2 occurrences corrigées (lignes 69, 93)
+- `PlantumlWorld.kt` : 1 occurrence corrigée (ligne 70)
+- `PlantumlSteps.kt.backup-modified` : **Supprimé** (fichier backup obsolète)
 
-### Optimisations appliquées
-- Template de projet partagé (`@BeforeAll` dans `companion object`)
-- Copie du template au lieu de création from scratch
-- Simplification du test write permission (évite timeout LLM)
-
-### Résultats
-- **Avant** : 1m59s (119s) pour 4 tests
-- **Après** : 17s pour 4 tests
-- **Gain** : 85% de réduction (102s économisées)
-- **Tests** : ✅ 4/4 passent (100%)
-
-### ⚠️ Problème connu
-- **Test échouant** : `PlantumlPluginIntegrationSuite.should complete in test mode without calling real llm`
-- **Cause** : Non lié à cette session (problème préexistant)
-- **Action** : À investiguer en session future
+### Résultat
+- ✅ **Tests unitaires** : 129/129 passent (100%)
+- ✅ **Cohérence** : 100% du codebase utilise `langchain4j`
 
 ---
 
-## 🎯 Mission de CETTE session
+## 🎯 TOP PRIORITÉ — Session Suivante
 
-**Objectif** : Choisir une tâche dans le backlog ci-dessous
+**Mission** : Debug des tests fonctionnels un par un
 
-### 📋 Backlog — Tâches disponibles
-
-| # | Tâche | Description | Estimation | Difficulté |
-|---|-------|-------------|------------|------------|
-| 1 | **Ajout providers LLM multiples** | OpenAI, Claude, HuggingFace, Groq + Ollama dans `plantuml-context.yml` | 2h | ⭐⭐ Moyen |
-| 2 | **Documentation des providers** | README/wiki : comment configurer chaque provider | 1h | ⭐ Facile |
-| 3 | **Tests avec vrais providers** | Tests fonctionnels avec credentials réels (utilisez `@Ignore`) | 3h | ⭐⭐⭐ Avancé |
-| 4 | **Corriger PlantumlPluginIntegrationSuite** | Test `should complete in test mode without calling real llm` échoue | 2h | ⭐⭐⭐ Avancé |
-
----
-
-## 🚀 Démarrage rapide
-
-### Étape 1 : Vérifier l'état actuel
+**Stratégie** :
 ```bash
-./gradlew -p plantuml-plugin test
+# Exécuter chaque test fonctionnel individuellement
+./gradlew -p plantuml-plugin functionalTest --tests "plantuml.NomDuTest.nom_du_test"
 ```
-→ Doit afficher : **128/128 tests passent (100%)**
 
-### Étape 2 : Choisir une tâche du backlog
-- **Tâche 1** (Recommandée) : Ajouter providers LLM dans `plantuml-context.yml`
-  - OpenAI, Anthropic/Claude, HuggingFace, Groq
-  - Permettre switch via CLI : `-Pplantuml.langchain4j.model=gemini`
+**Objectif** : 
+1. Identifier le premier test qui échoue ou timeout
+2. Documenter l'erreur dans `TEST_COVERAGE_ANALYSIS.md`
+3. Corriger ou annoter avec `@Ignore` si nécessaire
 
-### Étape 3 : Travailler
-- 1 fichier à la fois
-- Validation après chaque changement
-
-### Étape 4 : Valider
-- ✅ **Si passe** → Fin de session → Nouvelle session
-- ❌ **Si échec** → Corriger → Re-tester
-
----
-
-## ✅ Critères de succès de CETTE session
-
-- [ ] **1 tâche du backlog complétée**
-- [ ] **Tous les tests passent** (`./gradlew -p plantuml-plugin test`)
-- [ ] `AGENTS.md` mis à jour (section "Backlog")
-- [ ] `COMPLETED_TASKS_ARCHIVE.md` mis à jour
+**Fichiers à debugger** (21 fichiers, 55 tests @Ignore) :
+- Voir : `src/functionalTest/kotlin/plantuml/`
+- Priorité : Tests de base (BaselineFunctionalTest, PlantumlPluginFunctionalTest)
 
 ---
 
 ## 📚 Fichiers de référence
 
-- `AGENTS.md` — Section "🔵 NOUVELLE ÉPIC — Configuration multi-LLM avec credentials"
-- `plantuml-context.yml` — Configuration personnelle (credentials réels)
-- `sample-plantuml-context.yml` — Exemple pour le repo (placeholders)
+- `AGENTS.md` — Section "État actuel"
+- `COMPLETED_TASKS_ARCHIVE.md` — Session 16 documentée
+- `TEST_COVERAGE_ANALYSIS.md` — Couverture des tests
 
 ---
 
 ## 🔄 Fin de session
 
-**Quand la session est terminée :**
+**Quand la session est terminée** :
 1. Vérifier : `./gradlew -p plantuml-plugin test`
 2. Mettre à jour `AGENTS.md`
 3. Déplacer vers `COMPLETED_TASKS_ARCHIVE.md`
