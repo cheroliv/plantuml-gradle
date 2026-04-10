@@ -1,12 +1,10 @@
 package plantuml
 
 import org.gradle.testkit.runner.GradleRunner
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import java.io.File.createTempFile
 import java.io.File.separator
 import kotlin.test.Ignore
 import kotlin.test.assertTrue
@@ -18,52 +16,17 @@ class FilePermissionTest {
     lateinit var testProjectDir: File
 
     private lateinit var buildFile: File
-    private lateinit var settingsFile: File
-
-    companion object {
-        private var templateProjectDir: File? = null
-
-        @BeforeAll
-        @JvmStatic
-        fun createTemplate() {
-            if (templateProjectDir == null) {
-                templateProjectDir = createBaseTemplateProject()
-            }
-        }
-
-        private fun createBaseTemplateProject(): File {
-            val templateDir = createTempFile("plantuml-permission-template-", "").apply {
-                delete()
-                mkdirs()
-            }
-
-            File(templateDir, "settings.gradle.kts").writeText(
-                """rootProject.name = "plantuml-permission-test"""".trimIndent()
-            )
-
-            File(templateDir, "build.gradle.kts").writeText(
-                """
-                plugins {
-                    id("com.cheroliv.plantuml")
-                }
-                """.trimIndent()
-            )
-
-            templateDir.deleteOnExit()
-            return templateDir
-        }
-    }
 
     @BeforeEach
     fun setup() {
-        val templateDir = templateProjectDir ?: createBaseTemplateProject().also { templateProjectDir = it }
-        templateDir.copyRecursively(testProjectDir, overwrite = true)
+        File(testProjectDir, "settings.gradle.kts").writeText(
+            """rootProject.name = "plantuml-permission-test"""".trimIndent()
+        )
+        
         buildFile = File(testProjectDir, "build.gradle.kts")
-        settingsFile = File(testProjectDir, "settings.gradle.kts")
     }
 
     @Test
-    @Ignore
     fun `should handle read permission denied gracefully`() {
         // Given
         buildFile.writeText("""
@@ -103,11 +66,10 @@ class FilePermissionTest {
         try {
             val result = GradleRunner.create()
                 .withProjectDir(testProjectDir)
-                .withArguments("validatePlantumlSyntax", "-Pplantuml.diagram=protected.puml", "--stacktrace")
+                .withArguments("validatePlantumlSyntax", "-Pplantuml.diagram=protected.puml")
                 .withPluginClasspath()
                 .buildAndFail()
 
-        // Then - Check various possible error messages including French system messages
             assertTrue(
                 result.output.contains("Permission denied", true) ||
                         result.output.contains("Access is denied", true) ||
@@ -123,20 +85,12 @@ class FilePermissionTest {
                 "Expected permission or access error message but got: ${result.output}"
             )
         } finally {
-            // Restore permissions for clean-up
-            if (separator == "/") {
-                try {
-                    diagramFile.setReadable(true)
-                    diagramFile.setWritable(true)
-                } catch (_: Exception) {
-                    // Ignore if permission change fails
-                }
-            }
+            diagramFile.setReadable(true)
+            diagramFile.setWritable(true)
         }
     }
 
     @Test
-    @Ignore
     fun `should handle write permission denied gracefully`() {
         // Given - Test write permission on diagram file for validation task
         buildFile.writeText("""
@@ -156,37 +110,23 @@ class FilePermissionTest {
         """.trimIndent())
 
         // Make file read-only to prevent any potential write operations
-        if (separator == "/") {
-            try {
-                diagramFile.setWritable(false)
-            } catch (_: Exception) {
-                // Ignore if permission change fails
-            }
-        }
+        diagramFile.setWritable(false)
 
         // When & Then - Validation should succeed (it only reads)
         try {
             val result = GradleRunner.create()
                 .withProjectDir(testProjectDir)
-                .withArguments("validatePlantumlSyntax", "-Pplantuml.diagram=test.puml", "--stacktrace")
+                .withArguments("validatePlantumlSyntax", "-Pplantuml.diagram=test.puml")
                 .withPluginClasspath()
                 .build()
 
-            // Validation task only reads, so it should succeed
             assertTrue(
                 result.output.contains("valid", true) ||
                         result.output.contains("Valid", true),
                 "Expected validation success but got: ${result.output}"
             )
         } finally {
-            // Restore permissions for cleanup
-            if (separator == "/") {
-                try {
-                    diagramFile.setWritable(true)
-                } catch (_: Exception) {
-                    // Ignore
-                }
-            }
+            diagramFile.setWritable(true)
         }
     }
 
