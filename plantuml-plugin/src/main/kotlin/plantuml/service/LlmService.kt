@@ -24,7 +24,7 @@ class LlmService(private val config: PlantumlConfig) {
         "mistral" -> createMistralModel()
         "claude" -> createClaudeModel()
         "huggingface" -> createHuggingFaceModel()
-        "groq" -> TODO("Groq model implementation")
+        "groq" -> createGroqModel()
         else -> createOllamaModel() // Default to Ollama
     }
 
@@ -72,6 +72,14 @@ class LlmService(private val config: PlantumlConfig) {
             .timeout(Duration.ofSeconds(getTimeoutInSeconds()))
             .build()
     }
+
+    private fun createGroqModel(): ChatModel = OpenAiChatModel.builder()
+        .apiKey(config.langchain4j.groq.apiKey)
+        .baseUrl("https://api.groq.com/openai/v1")
+        .modelName("llama3-8b-8192") // Default model, can be made configurable
+        .temperature(0.7)
+        .timeout(Duration.ofSeconds(getTimeoutInSeconds()))
+        .build()
     
     private fun getTimeoutInSeconds(): Long {
         // In test environments, use shorter timeouts to avoid hanging tests
