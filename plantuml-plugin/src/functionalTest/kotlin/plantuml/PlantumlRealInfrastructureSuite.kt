@@ -11,9 +11,9 @@ import java.io.File
 import java.net.HttpURLConnection
 import java.net.URI
 import java.net.URI.create
+import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlin.test.Ignore
 
 /**
  * Tests d'infrastructure réelle.
