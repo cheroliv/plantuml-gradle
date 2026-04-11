@@ -15,37 +15,43 @@ class PlantumlPluginFunctionalTest {
 
     @Test
     fun `should apply plugin successfully`() {
-        // Given
-        writeBuildFile()
-        writeSettingsFile()
+        File(testProjectDir, "build.gradle.kts").writeText(
+            """
+            plugins {
+                id("com.cheroliv.plantuml")
+            }
+        """.trimIndent()
+        )
+        File(testProjectDir, "settings.gradle.kts").writeText("rootProject.name = \"test-project\"")
 
-        // When
         val result = GradleRunner.create()
             .withProjectDir(testProjectDir)
             .withArguments("tasks")
             .withPluginClasspath()
-            .withGradleVersion("9.4.0") // Spécifier explicitement la version de Gradle
+            .withGradleVersion("9.4.0")
             .build()
 
-        // Then
         assertEquals(TaskOutcome.SUCCESS, result.task(":tasks")?.outcome)
     }
 
     @Test
     fun `should register all tasks`() {
-        // Given
-        writeBuildFile()
-        writeSettingsFile()
+        File(testProjectDir, "build.gradle.kts").writeText(
+            """
+            plugins {
+                id("com.cheroliv.plantuml")
+            }
+        """.trimIndent()
+        )
+        File(testProjectDir, "settings.gradle.kts").writeText("rootProject.name = \"test-project\"")
 
-        // When
         val result = GradleRunner.create()
             .withProjectDir(testProjectDir)
             .withArguments("tasks", "--all")
             .withPluginClasspath()
-            .withGradleVersion("9.4.0") // Spécifier explicitement la version de Gradle
+            .withGradleVersion("9.4.0")
             .build()
 
-        // Then
         assertTrue(result.output.contains("processPlantumlPrompts"))
         assertTrue(result.output.contains("validatePlantumlSyntax"))
         assertTrue(result.output.contains("reindexPlantumlRag"))
@@ -53,46 +59,7 @@ class PlantumlPluginFunctionalTest {
 
     @Test
     fun `should configure extension properly`() {
-        // Given
-        writeBuildFileWithExtension()
-        writeSettingsFile()
-        val configFile = File(testProjectDir, "plantuml-context.yml").apply {
-            writeText(
-                """
-                input:
-                  prompts: "test-prompts"
-                output:
-                  images: "test-images"
-            """.trimIndent()
-            )
-        }
-
-        // When
-        val result = GradleRunner.create()
-            .withProjectDir(testProjectDir)
-            .withArguments("tasks")
-            .withPluginClasspath()
-            .withGradleVersion("9.4.0") // Spécifier explicitement la version de Gradle
-            .build()
-
-        // Then
-        assertEquals(TaskOutcome.SUCCESS, result.task(":tasks")?.outcome)
-    }
-
-    private fun writeBuildFile() {
-        val buildFile = File(testProjectDir, "build.gradle.kts")
-        buildFile.writeText(
-            """
-            plugins {
-                id("com.cheroliv.plantuml")
-            }
-        """.trimIndent()
-        )
-    }
-
-    private fun writeBuildFileWithExtension() {
-        val buildFile = File(testProjectDir, "build.gradle.kts")
-        buildFile.writeText(
+        File(testProjectDir, "build.gradle.kts").writeText(
             """
             plugins {
                 id("com.cheroliv.plantuml")
@@ -103,14 +70,23 @@ class PlantumlPluginFunctionalTest {
             }
         """.trimIndent()
         )
-    }
-
-    private fun writeSettingsFile() {
-        val settingsFile = File(testProjectDir, "settings.gradle.kts")
-        settingsFile.writeText(
+        File(testProjectDir, "settings.gradle.kts").writeText("rootProject.name = \"test-project\"")
+        File(testProjectDir, "plantuml-context.yml").writeText(
             """
-            rootProject.name = "test-project"
+            input:
+              prompts: "test-prompts"
+            output:
+              images: "test-images"
         """.trimIndent()
         )
+
+        val result = GradleRunner.create()
+            .withProjectDir(testProjectDir)
+            .withArguments("tasks")
+            .withPluginClasspath()
+            .withGradleVersion("9.4.0")
+            .build()
+
+        assertEquals(TaskOutcome.SUCCESS, result.task(":tasks")?.outcome)
     }
 }
