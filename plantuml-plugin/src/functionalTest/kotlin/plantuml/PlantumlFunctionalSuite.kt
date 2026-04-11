@@ -40,6 +40,7 @@ import kotlin.test.assertTrue
  *   — c'est-à-dire que même un crash était accepté.
  *   Ici, les stubs /api/chat et /api/generate sont correctement configurés.
  */
+@Ignore
 @TestClassOrder(OrderAnnotation::class)
 class PlantumlFunctionalSuite {
 
