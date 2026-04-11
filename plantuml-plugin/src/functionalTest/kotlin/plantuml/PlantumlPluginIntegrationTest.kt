@@ -6,11 +6,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import kotlin.test.Ignore
+import org.junit.jupiter.api.Disabled
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-//Tests are slow : 46 sec
+// Tests are slow : ~46 sec
 @Suppress("FunctionName")
 class PlantumlPluginIntegrationTest {
 
@@ -32,10 +32,9 @@ class PlantumlPluginIntegrationTest {
         )
     }
 
-    @Ignore
+    @Disabled
     @Test
     fun `should apply plugin and run processPlantumlPrompts task`() {
-        // Given
         buildFile.writeText(
             """
             plugins {
@@ -48,27 +47,7 @@ class PlantumlPluginIntegrationTest {
         """.trimIndent()
         )
 
-        // Create minimal config file
         val configFile = File(testProjectDir, "plantuml-context.yml")
-        configFile.writeText(
-            """
-            input:
-              prompts: "test-prompts"
-            output:
-              images: "test-images"
-              rag: "test-rag"
-        """.trimIndent()
-        )
-
-        // Create prompts directory and a sample prompt
-        val promptsDir = File(testProjectDir, "test-prompts")
-        promptsDir.mkdirs()
-        val promptFile = File(promptsDir, "test.prompt")
-        promptFile.writeText("Create a simple class diagram")
-
-        // Create minimal config with mock LLM settings to speed up test
-        configFile.delete()
-        configFile.createNewFile()
         configFile.writeText(
             """
             input:
@@ -87,22 +66,23 @@ class PlantumlPluginIntegrationTest {
         """.trimIndent()
         )
 
-        // When
+        val promptsDir = File(testProjectDir, "test-prompts")
+        promptsDir.mkdirs()
+        File(promptsDir, "test.prompt").writeText("Create a simple class diagram")
+
         val result = create()
             .withProjectDir(testProjectDir)
             .withArguments("processPlantumlPrompts", "--stacktrace", "-Dplantuml.test.mode=true")
             .withPluginClasspath()
             .build()
 
-        // Then
         assertEquals(TaskOutcome.SUCCESS, result.task(":processPlantumlPrompts")?.outcome)
         assertTrue(result.output.contains("Processing 1 prompt files"))
     }
 
-    @Ignore
+    @Disabled
     @Test
     fun `should run validatePlantumlSyntax task`() {
-        // Given
         buildFile.writeText(
             """
             plugins {
@@ -111,9 +91,7 @@ class PlantumlPluginIntegrationTest {
         """.trimIndent()
         )
 
-        // Create a sample PlantUML file
-        val diagramFile = File(testProjectDir, "sample.puml")
-        diagramFile.writeText(
+        File(testProjectDir, "sample.puml").writeText(
             """
             @startuml
             class Car {
@@ -124,7 +102,6 @@ class PlantumlPluginIntegrationTest {
         """.trimIndent()
         )
 
-        // When
         val result = create()
             .withProjectDir(testProjectDir)
             .withArguments(
@@ -136,15 +113,13 @@ class PlantumlPluginIntegrationTest {
             .withPluginClasspath()
             .build()
 
-        // Then
         assertEquals(TaskOutcome.SUCCESS, result.task(":validatePlantumlSyntax")?.outcome)
         assertTrue(result.output.contains("PlantUML syntax is valid"))
     }
 
-    @Ignore
+    @Disabled
     @Test
     fun `should run reindexPlantumlRag task`() {
-        // Given
         buildFile.writeText(
             """
             plugins {
@@ -153,11 +128,9 @@ class PlantumlPluginIntegrationTest {
         """.trimIndent()
         )
 
-        // Create RAG directory with a sample diagram
         val ragDir = File(testProjectDir, "generated/rag")
         ragDir.mkdirs()
-        val diagramFile = File(ragDir, "sample.puml")
-        diagramFile.writeText(
+        File(ragDir, "sample.puml").writeText(
             """
             @startuml
             class Car {
@@ -168,16 +141,13 @@ class PlantumlPluginIntegrationTest {
         """.trimIndent()
         )
 
-        // When
         val result = create()
             .withProjectDir(testProjectDir)
             .withArguments("reindexPlantumlRag", "--stacktrace", "-Dplantuml.test.mode=true")
             .withPluginClasspath()
             .build()
 
-        // Then
         assertEquals(TaskOutcome.SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
-        // Acceptons une sortie plus permissive pour éviter les échecs dus aux différences de locale ou de version
         assertTrue(result.output.contains("Found") || result.output.contains("Indexing") || result.output.contains("Processed"))
     }
 }
