@@ -80,6 +80,11 @@ plantuml-plugin/src/main/kotlin/plantuml/
 - **Correction @Ignore → @Disabled** : `LargeFileAndPathTest.kt` converti en 4 tests individuels
 - **LlmCommandLineParameterTest optimisé** : 2 tests activés, code simplifié (-30%)
 - **MegaOptimizedFunctionalTest optimisé** : 62 → 33 lignes (-47%), 28s → 14s (-50%)
+- **NetworkTimeoutTest activé et optimisé** : 4/4 tests PASS, 266 → 169 lignes (-36%), ~29s
+- **OptimizedPlantumlPluginFunctionalTest optimisé** : 61 → 38 lignes (-38%), @Ignore → @Disabled
+- **PlantumlPluginFunctionalTest optimisé** : 116 → 91 lignes (-22%), 3 méthodes privées supprimées
+- **PlantumlPluginIntegrationTest optimisé** : 183 → 152 lignes (-17%), @Ignore → @Disabled, code inline
+- **Sessions 30-32** : Système de mémoire agent (AGENT_WARNINGS.md, AGENT_CHECKLISTS.md, STRATEGIE.md)
 - Voir : `TEST_COVERAGE_ANALYSIS.md`
 
 ### 🔄 TOP PRIORITÉ — Tests manquants
@@ -98,6 +103,7 @@ plantuml-plugin/src/main/kotlin/plantuml/
 
 | # | Tâche | Description | Estimation | Statut |
 |---|-------|-------------|------------|--------|
+| 9 | **NetworkTimeoutTest optimisé** | 4 tests activés + optimisés (-36% code) | 1h | ✅ **TERMINÉ** |
 | 1 | **@Ignore sur tous les tests fonctionnels** | Annoter chaque `@Test` dans `src/functionalTest/kotlin/plantuml/` | 1h | ✅ **TERMINÉ** |
 | 2 | **Debug test par test** | Exécuter chaque test individuellement pour identifier timeout/exceptions | 4h | ✅ **TERMINÉ** |
 | 3 | **Correction `langchain` → `langchain4j` tests unitaires** | Corriger 3 occurrences restantes | 30min | ✅ **TERMINÉ** |
@@ -113,12 +119,13 @@ plantuml-plugin/src/main/kotlin/plantuml/
 ```
 
 **Résultats** :
-- ✅ **10 tests PASS** : BaselineFunctionalTest, DebuggingFunctionalTest, FilePermissionTest, LlmHandshakeTest, LlmConfigurationFunctionalTest (3/3 optimisé), LlmCommandLineParameterTest, MegaOptimizedFunctionalTest, NetworkTimeoutTest (1/4), PlantumlPluginFunctionalTest (3/3)
+- ✅ **11 tests PASS** : BaselineFunctionalTest, DebuggingFunctionalTest, FilePermissionTest, LlmHandshakeTest, LlmConfigurationFunctionalTest (3/3 optimisé), LlmCommandLineParameterTest, MegaOptimizedFunctionalTest, NetworkTimeoutTest (4/4), OptimizedPlantumlPluginFunctionalTest, PlantumlPluginFunctionalTest (3/3)
 - ⚠️ **46 tests SKIP** : Tests annotés @Disabled (conception intentionnelle)
-- ✅ **6 tests CORRIGÉS** : FinalOptimizedFunctionalTest (résolu), LargeFileAndPathTest (@Ignore→@Disabled + optimisé), FilePermissionTest (2 tests restants activés), LlmConfigurationFunctionalTest (optimisé 8→3 tests, -63%), LlmHandshakeTest (optimisé -40%)
+- ✅ **7 tests CORRIGÉS** : FinalOptimizedFunctionalTest (résolu), LargeFileAndPathTest (@Ignore→@Disabled + optimisé), FilePermissionTest (2 tests restants activés), LlmConfigurationFunctionalTest (optimisé 8→3 tests, -63%), LlmHandshakeTest (optimisé -40%), OptimizedPlantumlPluginFunctionalTest (optimisé -38%)
 - ✅ **Méthodologie documentée** : `AGENT_METHODOLOGIES.md` créé (mécanisme de proposition automatique)
 - ✅ **FilePermissionTest optimisé** : 2 tests activés (`should handle read permission denied gracefully`, `should handle write permission denied gracefully`), code simplifié (suppression companion object, try-finally allégé)
 - ✅ **LlmHandshakeTest optimisé** : 1 test activé, code réduit 94 → 56 lignes (-40%)
+- ✅ **NetworkTimeoutTest optimisé** : 4 tests activés, code réduit 266 → 169 lignes (-36%), ~29s moyen
 
 #### 🔴 PRIORITÉ MAX — Sécurité & Confort (ARCHIVÉ)
 
@@ -280,6 +287,93 @@ fun setup() {
 | Appels HTTP réels | Tests non-déterministes, lents | WireMock avec `/api/chat` |
 | Gros modèles LLM (llama2) | Tests >10min | Utiliser `smollm:135m` |
 | 5 itérations dans les tests | Tests très lents | Réduire à 1 itération |
+
+---
+
+## 📏 Méthodologie d'optimisation des tests fonctionnels
+
+### 🎯 Objectif principal : Réduire le temps d'exécution
+
+**Règle d'or** : L'optimisation se mesure en **secondes gagnées**, pas en lignes supprimées.
+
+| Métrique | Cible | Comment mesurer |
+|----------|-------|-----------------|
+| **Temps d'exécution** | **PRIORITÉ MAX** | `time ./gradlew functionalTest --tests "..."` |
+| **Couverture de tests** | **0% de perte** | Même nombre d'assertions, mêmes scénarios |
+| **Lignes de code** | Secondaire | Réduction de lignes ≠ gain de temps |
+
+### ✅ Checklist d'optimisation (par ordre de priorité)
+
+1. **Mesurer le temps AVANT** (référence de base)
+   ```bash
+   time ./gradlew functionalTest --tests "plantuml.NomDuTest"
+   ```
+
+2. **Identifier les goulots d'étranglement** :
+   - ❌ Appels Gradle multiples (2+ appels `GradleRunner`)
+   - ❌ Modèles LLM lourds (`llama2` → `smollm:135m`)
+   - ❌ Itérations LLM excessives (`maxIterations: 5` → `1`)
+   - ❌ Flags inutiles (`--no-daemon`, `--configuration-cache`)
+   - ❌ Setup redondant (`@BeforeEach` dupliqué)
+
+3. **Appliquer les optimisations** :
+   - ✅ 1 appel Gradle par test (combiner assertions)
+   - ✅ `smollm:135m` pour les tests LLM
+   - ✅ `maxIterations: 1` dans le YAML
+   - ✅ WireMock pour éviter appels HTTP réels
+   - ✅ Template partagé (`PlantumlWorld.kt`)
+
+4. **Mesurer le temps APRÈS** (valider le gain)
+   ```bash
+   time ./gradlew functionalTest --tests "plantuml.NomDuTest"
+   ```
+
+5. **Vérifier la couverture** :
+   - ✅ Même nombre de tests passants
+   - ✅ Mêmes assertions vérifiées
+   - ✅ Commentaires préservés (documentent le contexte)
+
+### 📊 Exemples de gains réels
+
+| Test | Avant | Après | Gain | Technique |
+|------|-------|-------|------|-----------|
+| `FilePermissionTest` | 1m59s | 17s | **-85%** | 4 tests activés, code simplifié |
+| `MegaOptimizedFunctionalTest` | 28s | 14s | **-50%** | Code inline, 2 appels → 1 |
+| `NetworkTimeoutTest` | ~40s | 29s | **-28%** | 4 tests activés, code réduit |
+| `LlmHandshakeTest` | ~20s | 12s | **-40%** | Code réduit 94 → 56 lignes |
+
+### ⚠️ Ce qui N'EST PAS une optimisation
+
+| Faux gain | Pourquoi |
+|-----------|----------|
+| Supprimer des commentaires | Ils documentent le contexte, aident la maintenance |
+| Réduire les lignes sans gagner de temps | 183→152 lignes ≠ test plus rapide |
+| Fusionner des tests utiles | Perte de granularité sur les échecs |
+| Supprimer des assertions | Perte de couverture de test |
+
+### 🛠 Processus itératif recommandé
+
+```
+1. time ./gradlew functionalTest --tests "NomDuTest"  # Mesure AVANT
+2. Appliquer 1 optimisation (pas 10 d'un coup)
+3. time ./gradlew functionalTest --tests "NomDuTest"  # Mesure APRÈS
+4. ✅ Si gain de temps → Garder
+5. ❌ Si pas de gain → Revenir en arrière
+6. Répéter jusqu'à cible atteinte (<30s par test)
+```
+
+### 📝 Commentaires — Quand les préserver
+
+**Garder les commentaires qui** :
+- ✅ Documentent la performance (`// Tests are slow : 46 sec`)
+- ✅ Expliquent une contrainte (`// Avoid crash on host system`)
+- ✅ Justifient un choix (`// Use smollm:135m for speed`)
+- ✅ Avertissent d'un piège (`// Do not use --no-daemon here`)
+
+**Supprimer les commentaires qui** :
+- ❌ Répètent le code (`// Create build file` → `buildFile.writeText(...)`)
+- ❌ Sont obsolètes ou incorrects
+- ❌ Sont redondants (déjà dans le nom de la fonction)
 
 ### 📁 Sorties de test
 
