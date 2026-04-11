@@ -5,21 +5,78 @@
 
 ---
 
-## ✅ Session précédente — TERMINÉE
+## ⚠️ AVERTISSEMENT — Session 29 (ERREUR DE PROCÉDURE)
 
-**Tâche** : Documentation Mécanisme de Proposition de Méthodologie  
+> **❌ Erreur** : Optimisation **sans mesurer le temps**
+> 
+> **✅ Correction obligatoire** :
+> ```bash
+> # ÉTAPE 1 : Mesurer AVANT (obligatoire)
+> time ./gradlew functionalTest --tests "plantuml.NomDuTest"
+> 
+> # ... optimisations ...
+> 
+> # ÉTAPE 2 : Mesurer APRÈS (obligatoire)
+> time ./gradlew functionalTest --tests "plantuml.NomDuTest"
+> ```
+> 
+> **📊 Métrique** : Secondes gagnées (pas lignes)
+
+---
+
+## ✅ Sessions précédentes — TERMINÉES
+
+### Session 32 — 2026-04-11 : Création STRATEGIE.md
+- ✅ **STRATEGIE.md** créé (460 lignes) — Vue globale, cycle TDD/BDD
+- ✅ **AGENT_CHECKLISTS.md** créé (413 lignes) — 6 checklists
+- ✅ **AGENT_WARNINGS.md** mis à jour — Session 32 documentée
+- ✅ **Tests unitaires** : 129/129 passent (100%)
+
+### Session 31 — 2026-04-11 : Système d'Experts Virtuels
+- ✅ **AGENT_CHECKLISTS.md** créé — 6 experts virtuels (1 agent avec casquettes)
+- ✅ **Cycle d'injection de mémoire** documenté
+- ✅ **Tests unitaires** : 129/129 passent (100%)
+
+### Session 30 — 2026-04-11 : Analyse Rétrospective Session 29
+- ✅ **Mesures objectives** : Git vs Actuel (clone temporaire)
+- ✅ **Gain réel** : ~2s sur PlantumlPluginFunctionalTest
+- ✅ **Leçon** : Optimiser ≠ Nettoyer
+
+### Session 29 — 2026-04-11 : Optimisation PlantumlPluginIntegrationTest
+- ✅ **Code réduit** : 183 → 152 lignes (**-17%**)
+- ✅ **3 tests @Disabled** : Conception intentionnelle
+- ❌ **Gain de temps** : **NON MESURÉ** (tests skippés)
+- ⚠️ **Leçon** : Toujours mesurer AVANT de refactoriser
+
+---
+
+## ✅ Session 27 — TERMINÉE
+
+**Tâche** : Optimisation OptimizedPlantumlPluginFunctionalTest  
 **Statut** : ✅ **TERMINÉE**
 
-### Fichiers créés
-- `AGENT_METHODOLOGIES.md` : Documentation complète du mécanisme de détection et proposition
-
-### Fichiers modifiés
-- `AGENTS.md` : Section "🧭 Menu des méthodologies" ajoutée (lignes 299-366)
+### Fichier modifié
+- `OptimizedPlantumlPluginFunctionalTest.kt` : optimisé (@Ignore → @Disabled, code inline)
 
 ### Résultats
-- ✅ **Mécanisme documenté** : 6 types de sessions, règles de détection, format standardisé
-- ✅ **Approche just-in-time** : Fichiers spécialisés chargés uniquement sur confirmation
-- ✅ **Proactif mais non-intrusif** : Agent propose automatiquement selon mots-clés
+- ✅ **Code réduit** : 61 → 38 lignes (**-38%**)
+- ✅ **4 assertions préservées** : BUILD SUCCESSFUL + 3 tâches
+- ✅ **Tests unitaires** : 129/129 passent (100%)
+
+---
+
+## ✅ Session 26 — TERMINÉE
+
+**Tâche** : NetworkTimeoutTest — Activation et Optimisation  
+**Statut** : ✅ **TERMINÉE**
+
+### Fichier modifié
+- `NetworkTimeoutTest.kt` : 4 tests activés + optimisés
+
+### Résultats
+- ✅ **4/4 tests PASS** : timeout, connection refused, DNS failure, degrade gracefully
+- ✅ **Code réduit** : 266 → 169 lignes (**-36%**)
+- ✅ **Temps moyen** : ~29s (10 runs : 28-38s)
 - ✅ **Tests unitaires** : 129/129 passent (100%)
 
 ---
@@ -40,43 +97,76 @@
 
 ---
 
-## ✅ Session 23 — TERMINÉE
+## ✅ Session 24 — TERMINÉE
 
-**Tâche** : Optimisation LlmHandshakeTest  
+**Tâche** : Documentation Mécanisme de Proposition de Méthodologie  
 **Statut** : ✅ **TERMINÉE**
 
-### Fichiers modifiés
-- `LlmHandshakeTest.kt` : optimisé (code inline, maxIterations=1)
+### Fichiers créés
+- `AGENT_METHODOLOGIES.md` : Documentation complète du mécanisme
 
 ### Résultats
-- ✅ **Code réduit** : 94 → 56 lignes (**-40%**)
-- ✅ **Temps d'exécution** : ~38s
+- ✅ **Mécanisme documenté** : 6 types de sessions, règles de détection
 - ✅ **Tests unitaires** : 129/129 passent (100%)
-- ✅ **Couverture préservée** : Handshake Ollama sans authentification complète
 
 ---
 
 ## 🎯 TOP PRIORITÉ — Session Suivante
 
-**Mission** : _À définir_ (backlog vide — tests prioritaires terminés)
+**Mission** : Optimiser `SuperOptimizedFunctionalTest.kt`
+
+### 📋 Procédure Obligatoire (AGENT_WARNINGS.md Session 29-30)
+
+```bash
+# ÉTAPE 0 : Consulter STRATEGIE.md (Niveau 0)
+# → Où on est dans le cycle TDD/BDD ?
+# → Gain potentiel > 10s ?
+# → Tests @Disabled ? → Gain = 0, ne pas optimiser
+
+# ÉTAPE 1 : Mesurer AVANT (clone temporaire si besoin)
+cd /tmp && rm -rf plantuml-compare && git clone /chemin/repo plantuml-compare
+cd plantuml-compare && git checkout HEAD -- NomDuTest.kt
+time ./gradlew -p plantuml-plugin functionalTest --tests "plantuml.SuperOptimizedFunctionalTest"
+# → Noter temps : Xs
+
+# ÉTAPE 2 : Mesurer APRÈS (repo original)
+cd /chemin/repo
+time ./gradlew -p plantuml-plugin functionalTest --tests "plantuml.SuperOptimizedFunctionalTest"
+# → Noter temps : Ys
+
+# ÉTAPE 3 : Calculer gain
+# Gain = Xs - Ys = Z secondes (-Z%)
+# ✅ Si gain > 10s → Optimisation justifiée
+# ❌ Si gain < 5s → Pas justifié
+```
+
+### ✅ Checklist de Succès
+
+- [ ] ⏱️ **Mesuré AVANT** (temps noté : __s)
+- [ ] ⏱️ **Mesuré APRÈS** (temps noté : __s)
+- [ ] 📊 **Gain réel** : __s (-__%)
+- [ ] ✅ **Gain > 10s** ? (sinon → pas justifié)
+- [ ] 📝 **Commentaires préservés** ?
+- [ ] ✅ **Couverture préservée** ? (mêmes assertions)
 
 **Backlog potentiel** :
-- Debug tests fonctionnels restants (NetworkTimeoutTest 3/4 SKIP)
+- Optimiser `PerformanceTest.kt` (après SuperOptimizedFunctionalTest)
+- Debug tests fonctionnels restants (si besoin)
 - Documentation des providers LLM (7 providers supportés)
-- Tests fonctionnels avec vrais providers (Ollama, Gemini, Mistral, etc.)
 
 **Fichiers de référence** :
-- `AGENTS.md` — Section "État actuel"
-- `COMPLETED_TASKS_ARCHIVE.md` — Sessions 24 & 25 documentées
-- `TEST_COVERAGE_ANALYSIS.md` — Couverture 100%
+- `AGENTS.md` — Section "📏 Méthodologie d'optimisation des tests fonctionnels"
+- `AGENT_WARNINGS.md` — Sessions 29-32 (erreurs, experts, stratégie)
+- `STRATEGIE.md` — Niveau 0 (vue globale, décision expert)
+- `AGENT_CHECKLISTS.md` — Checklist optimisation
 
 ---
 
 ## 📚 Fichiers de référence
 
-- `AGENTS.md` — Section "État actuel"
-- `COMPLETED_TASKS_ARCHIVE.md` — Session 16 documentée
-- `TEST_COVERAGE_ANALYSIS.md` — Couverture des tests
+- `AGENTS.md` — Architecture, décisions, état actuel
+- `COMPLETED_TASKS_ARCHIVE.md` — Sessions 24-26 documentées
+- `TEST_COVERAGE_ANALYSIS.md` — Couverture 100%
 
 ---
 
