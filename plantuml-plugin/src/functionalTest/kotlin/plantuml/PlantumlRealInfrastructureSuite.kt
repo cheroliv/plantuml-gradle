@@ -5,6 +5,7 @@ package plantuml
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assumptions.assumeTrue
+import org.junit.jupiter.api.ClassOrderer.OrderAnnotation
 import org.junit.jupiter.api.io.TempDir
 import plantuml.service.LlmService
 import java.io.File
@@ -39,7 +40,7 @@ import kotlin.test.assertTrue
  * processus pour chaque test.
  */
 @Tag("real-llm")
-@TestClassOrder(ClassOrderer.OrderAnnotation::class)
+@TestClassOrder(OrderAnnotation::class)
 class PlantumlRealInfrastructureSuite {
 
     companion object {
@@ -219,9 +220,9 @@ class PlantumlRealInfrastructureSuite {
 
             assertTrue(
                 result.output.contains("Connection refused", ignoreCase = true) ||
-                    result.output.contains("connect", ignoreCase = true) ||
-                    result.output.contains("refused", ignoreCase = true) ||
-                    result.output.contains("timeout", ignoreCase = true),
+                        result.output.contains("connect", ignoreCase = true) ||
+                        result.output.contains("refused", ignoreCase = true) ||
+                        result.output.contains("timeout", ignoreCase = true),
             )
         }
     }
@@ -256,8 +257,8 @@ class PlantumlRealInfrastructureSuite {
 
                 assertTrue(
                     result.output.contains("Permission denied", ignoreCase = true) ||
-                        result.output.contains("Unable to read", ignoreCase = true) ||
-                        result.output.contains("does not exist", ignoreCase = true),
+                            result.output.contains("Unable to read", ignoreCase = true) ||
+                            result.output.contains("does not exist", ignoreCase = true),
                 )
             } finally {
                 file.setReadable(true)
