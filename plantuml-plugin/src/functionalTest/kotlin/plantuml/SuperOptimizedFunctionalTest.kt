@@ -6,7 +6,7 @@ import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import kotlin.test.Ignore
+import org.junit.jupiter.api.Disabled
 import kotlin.test.assertTrue
 
 class SuperOptimizedFunctionalTest {
@@ -14,38 +14,9 @@ class SuperOptimizedFunctionalTest {
     @TempDir
     lateinit var testProjectDir: File
 
-    @Ignore
+    @Disabled("Conception intentionnelle — test fonctionnel lourd")
     @Test
     fun `super optimized single test for all plugin functionality`() {
-        // Créer tous les fichiers nécessaires en une seule fois
-        setupTestProject()
-
-        // Un seul appel Gradle pour tester TOUTES les fonctionnalités
-        val result = GradleRunner.create()
-            .withProjectDir(testProjectDir)
-            .withArguments(
-                "help",           // Vérifie que le plugin s'applique
-                "--console=plain" // Sortie simple
-            )
-            .withPluginClasspath()
-            .build()
-
-        // Vérifier le succès de l'application du plugin
-        assertTrue(result.output.contains("BUILD SUCCESSFUL"))
-
-        // Vérifier la présence des tâches avec une commande différente
-        val tasksResult = GradleRunner.create()
-            .withProjectDir(testProjectDir)
-            .withArguments("tasks", "--all", "--console=plain")
-            .withPluginClasspath()
-            .build()
-
-        assertTrue(tasksResult.output.contains("processPlantumlPrompts"))
-        assertTrue(tasksResult.output.contains("validatePlantumlSyntax"))
-        assertTrue(tasksResult.output.contains("reindexPlantumlRag"))
-    }
-
-    private fun setupTestProject() {
         // Settings file
         File(testProjectDir, "settings.gradle.kts").writeText(
             """
@@ -85,5 +56,18 @@ class SuperOptimizedFunctionalTest {
                 apiKey: "fake-mistral-key"
         """.trimIndent()
         )
+
+        // Un seul appel Gradle pour tester TOUTES les fonctionnalités
+        val result = GradleRunner.create()
+            .withProjectDir(testProjectDir)
+            .withArguments("tasks", "--all", "--console=plain")
+            .withPluginClasspath()
+            .build()
+
+        // Vérifier le succès de l'application du plugin
+        assertTrue(result.output.contains("BUILD SUCCESSFUL"))
+        assertTrue(result.output.contains("processPlantumlPrompts"))
+        assertTrue(result.output.contains("validatePlantumlSyntax"))
+        assertTrue(result.output.contains("reindexPlantumlRag"))
     }
 }
