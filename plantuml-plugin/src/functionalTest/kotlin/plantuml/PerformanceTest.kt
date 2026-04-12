@@ -1,6 +1,10 @@
 package plantuml
 
+import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import org.gradle.testkit.runner.GradleRunner
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -12,8 +16,36 @@ class PerformanceTest {
     @TempDir
     lateinit var testProjectDir: File
 
+    private lateinit var wireMockServer: WireMockServer
+
+    @BeforeEach
+    fun setup() {
+        wireMockServer = WireMockServer(0)
+        wireMockServer.start()
+    }
+
+    @AfterEach
+    fun teardown() {
+        wireMockServer.stop()
+    }
+
+    private fun stubOllamaChatResponse() {
+        wireMockServer.stubFor(
+            post(urlEqualTo("/api/chat"))
+                .willReturn(
+                    aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("""{"model":"smollm:135m","created_at":"2026-04-12T00:00:00Z","message":{"role":"assistant","content":"@startuml\nclass Test\n@enduml"},"done_reason":"stop","done":true}""")
+                )
+        )
+    }
+
     @Test
     fun `should process single prompt quickly`() {
+        stubOllamaChatResponse()
+        val port = wireMockServer.port()
+
         File(testProjectDir, "settings.gradle.kts").writeText("rootProject.name = \"plantuml-performance-test\"")
         File(testProjectDir, "build.gradle.kts").writeText("plugins { id(\"com.cheroliv.plantuml\") }")
 
@@ -21,7 +53,7 @@ class PerformanceTest {
             langchain4j:
               model: "ollama"
               ollama:
-                baseUrl: "http://localhost:11434"
+                baseUrl: "http://localhost:$port"
                 modelName: "smollm:135m"
               validation: false
               maxIterations: 1
@@ -48,7 +80,7 @@ class PerformanceTest {
             assertTrue(result.output.contains("BUILD SUCCESSFUL"), "Build should succeed")
         }
 
-        assertTrue(duration < 120000, "Processing should complete within 2 minutes: ${duration}ms")
+        assertTrue(duration < 30000, "Processing should complete within 30s: ${duration}ms")
     }
 
     @Test
@@ -99,6 +131,9 @@ class PerformanceTest {
 
     @Test
     fun `should handle concurrent tasks efficiently`() {
+        stubOllamaChatResponse()
+        val port = wireMockServer.port()
+
         File(testProjectDir, "settings.gradle.kts").writeText("rootProject.name = \"plantuml-performance-test\"")
         File(testProjectDir, "build.gradle.kts").writeText("plugins { id(\"com.cheroliv.plantuml\") }")
 
@@ -106,7 +141,7 @@ class PerformanceTest {
             langchain4j:
               model: "ollama"
               ollama:
-                baseUrl: "http://localhost:11434"
+                baseUrl: "http://localhost:$port"
                 modelName: "smollm:135m"
               validation: false
               maxIterations: 1
@@ -133,6 +168,6 @@ class PerformanceTest {
             assertTrue(result.output.contains("BUILD SUCCESSFUL"), "Build should succeed")
         }
 
-        assertTrue(duration < 120000, "Should complete within 2 minutes: ${duration}ms")
+        assertTrue(duration < 30000, "Should complete within 30s: ${duration}ms")
     }
 }
