@@ -1,0 +1,105 @@
+        {
+            "entries": [
+                            {
+                "iteration": 0,
+                "prompt": "Simple diagram",
+                "response": "Here is a simple PlantUML diagram:
+```
+          +---------------+
+          |  Plant UML  |
+          +---------------+
+                  |
+                  |
+                  v
+          +---------------+
+          |    Plant UML  |
+          +---------------+
+                  |
+                  |
+                  v
+          +---------------+
+          |  Plant UML  |
+          +---------------+
+                  |
+                  |
+                  v
+          +---------------+
+          |    Plant UML  |
+          +---------------+
+```",
+                "isValid": false,
+                "errorMessage": "null",
+                "timestamp": "2026-04-12T22:39:18.418850487"
+            },
+            {
+                "iteration": 1,
+                "prompt": "Correction attempt #1",
+                "response": "The plant UML diagram above is not a simple Plant UML diagram, but rather a complex diagram that requires some understanding of UML notation rules. The basic structure of the diagram consists of an `@startuml` tag, followed by a `@enduml` tag with a description of the node and its content. The `@startuml` tag is optional, but it's recommended to add one if you want to use a specific type of annotation (e.g., `@leaf-leaf-tree`).
+
+Here's an example of a simple plant UML diagram:
+```
+          +---------------+
+          |  Plant UML  |
+       ...
+                 
+    +---------------+
+        +---------------+
+            +---------------+
+              +---------------+
+                  |
+                  |
+                  v
+          +---------------+
+          |    Plant UML  |
+          +---------------+
+                  |
+                  |
+                  v
+          +---------------+
+        +---------------+
+            +---------------+
+                 v
+          +---------------+
+        +---------------+
+```
+The code above is not a simple PlantUML diagram, but rather a complex one that requires some understanding of UML notation rules. The basic structure consists of an `@startuml` tag with an optional description (e.g., `@leaf-leaf-tree`) and a `@enduml` tag with a description of the node itself. This allows for flexibility in modifying the code and returning only valid PlantUML code wrapped in @startuml and @enduml tags, or just a simple plant UML diagram without any annotations.
+
+Here's an example of a simple plant UML diagram without any annotations:
+```
+          +---------------+
+          |  Plant UML  |
+       ...
+                 
+    +---------------+
+        +---------------+
+            +---------------+
+              +---------------+
+                  |
+                  |
+                  v
+          +---------------+
+          |    Plant UML  |
+          +---------------+
+                  |
+                  |
+                  v
+          +---------------+
+        +---------------+
+```
+In order to make this diagram more readable and maintainable, it's recommended to:
+
+1. Use a `@leaf-leaf-tree` tag that contains the actual leaf node value (e.g., `@leaf-leaf-root`) instead of simply adding a `@leaf-leaf-node` tag if you want to use a specific type of annotation (e.g., `@leaf-leaf-comment`).
+2. Remove or modify any errors that are not relevant to the diagram, such as missing labels or incorrect descriptions of nodes.
+3. Keep the code and annotations consistent throughout the diagram to avoid confusion over what is and isn't annotated with.
+4. Use a `@enduml` tag for complex or abstract diagrams that require additional effort in modifying the code and annotations.
+5. Use a combination of different UML notation rules (e.g., UML 2, UML 3, UML 4) to create a more comprehensive and flexible diagram.
+
+By following these guidelines, you can make your PlantUML diagram more readable, maintainable, and easy to understand, making it an ideal tool for creating informative and visually appealing diagrams of plants in various fields (e.g., biology, ecology, computer science).",
+                "isValid": false,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-12T22:39:32.832525251"
+            }
+            ],
+            "totalAttempts": 2,
+            "timestamp": "2026-04-12T22:39:32.83698814"
+        }
