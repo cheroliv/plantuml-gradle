@@ -9,9 +9,9 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.api.ClassOrderer.OrderAnnotation
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import org.junit.jupiter.api.Disabled
 
 /**
  * Suite fonctionnelle consolidée du plugin PlantUML.
@@ -40,7 +40,6 @@ import kotlin.test.assertTrue
  *   — c'est-à-dire que même un crash était accepté.
  *   Ici, les stubs /api/chat et /api/generate sont correctement configurés.
  */
-@Ignore
 @TestClassOrder(OrderAnnotation::class)
 class PlantumlFunctionalSuite {
 
@@ -349,7 +348,6 @@ class PlantumlFunctionalSuite {
     //      sur la connexion (le LLM est appelé en mode stub interne)        //
     // ==================================================================== //
 
-    @Ignore
     @Nested
     @Order(2)
     @DisplayName("LLM provider configuration")
@@ -392,116 +390,110 @@ class PlantumlFunctionalSuite {
         }
 
         /**
-         * Gemini avec fake key → doit échouer avec message d'erreur explicite.
-         * Renforce les assertions de l'original pour documenter les codes d'erreur attendus.
+         * Gemini avec fake key — nécessite de vrais credentials pour tester l'appel API.
          */
         @Test
         @Order(2)
+        @Disabled("Requires real Gemini API credentials — 401 expected with fake key")
         fun `should handle Gemini configuration and report meaningful auth error`() {
             writeConfigYaml(model = "gemini")
 
             val result = runner("processPlantumlPrompts", "--stacktrace").buildAndFail()
 
             assertTrue(
-                result.output.contains("Config loaded", ignoreCase = true) ||
-                        result.output.contains("API key", ignoreCase = true) ||
-                        result.output.contains("authentication", ignoreCase = true) ||
-                        result.output.contains("401") ||
-                        result.output.contains("403") ||
-                        result.output.contains("UNAUTHENTICATED") ||
-                        result.output.contains("Connection refused", ignoreCase = true) ||
-                        result.output.contains("UnknownHostException"),
-                "Le plugin doit produire un message d'erreur compréhensible pour Gemini\n${result.output}",
+                result.output.contains("401") ||
+                        result.output.contains("API key", ignoreCase = true),
+                "Le plugin doit produire une erreur 401 pour Gemini\n${result.output}",
             )
         }
 
+        /**
+         * Mistral avec fake key — nécessite de vrais credentials pour tester l'appel API.
+         */
         @Test
         @Order(3)
+        @Disabled("Requires real Mistral API credentials — 401 expected with fake key")
         fun `should handle Mistral configuration and report meaningful auth error`() {
             writeConfigYaml(model = "mistral")
 
             val result = runner("processPlantumlPrompts", "--stacktrace").buildAndFail()
 
             assertTrue(
-                result.output.contains("Config loaded", ignoreCase = true) ||
-                        result.output.contains("API key", ignoreCase = true) ||
-                        result.output.contains("authentication", ignoreCase = true) ||
-                        result.output.contains("401") ||
-                        result.output.contains("Unauthorized", ignoreCase = true) ||
-                        result.output.contains("connect", ignoreCase = true),
-                "Le plugin doit produire un message d'erreur compréhensible pour Mistral\n${result.output}",
+                result.output.contains("401") ||
+                        result.output.contains("Unauthorized", ignoreCase = true),
+                "Le plugin doit produire une erreur 401 pour Mistral\n${result.output}",
             )
         }
 
+        /**
+         * OpenAI avec fake key — nécessite de vrais credentials pour tester l'appel API.
+         */
         @Test
         @Order(4)
+        @Disabled("Requires real OpenAI API credentials — 401 expected with fake key")
         fun `should handle OpenAI configuration and report meaningful auth error`() {
             writeConfigYaml(model = "openai")
 
             val result = runner("processPlantumlPrompts", "--stacktrace").buildAndFail()
 
             assertTrue(
-                result.output.contains("Config loaded", ignoreCase = true) ||
-                        result.output.contains("API key", ignoreCase = true) ||
-                        result.output.contains("authentication", ignoreCase = true) ||
-                        result.output.contains("Incorrect API key", ignoreCase = true) ||
-                        result.output.contains("401") ||
-                        result.output.contains("connect", ignoreCase = true),
-                "Le plugin doit produire un message d'erreur compréhensible pour OpenAI\n${result.output}",
+                result.output.contains("401") ||
+                        result.output.contains("Incorrect API key", ignoreCase = true),
+                "Le plugin doit produire une erreur 401 pour OpenAI\n${result.output}",
             )
         }
 
+        /**
+         * Claude avec fake key — nécessite de vrais credentials pour tester l'appel API.
+         */
         @Test
         @Order(5)
+        @Disabled("Requires real Claude API credentials — 401 expected with fake key")
         fun `should handle Claude configuration and report meaningful auth error`() {
             writeConfigYaml(model = "claude")
 
             val result = runner("processPlantumlPrompts", "--stacktrace").buildAndFail()
 
             assertTrue(
-                result.output.contains("Config loaded", ignoreCase = true) ||
-                        result.output.contains("API key", ignoreCase = true) ||
-                        result.output.contains("authentication", ignoreCase = true) ||
-                        result.output.contains("x-api-key", ignoreCase = true) ||
-                        result.output.contains("401") ||
-                        result.output.contains("connect", ignoreCase = true),
-                "Le plugin doit produire un message d'erreur compréhensible pour Claude\n${result.output}",
+                result.output.contains("401") ||
+                        result.output.contains("x-api-key", ignoreCase = true),
+                "Le plugin doit produire une erreur 401 pour Claude\n${result.output}",
             )
         }
 
+        /**
+         * HuggingFace avec fake key — nécessite de vrais credentials pour tester l'appel API.
+         */
         @Test
         @Order(6)
+        @Disabled("Requires real HuggingFace API credentials — 401 expected with fake key")
         fun `should handle HuggingFace configuration and report meaningful auth error`() {
             writeConfigYaml(model = "huggingface")
 
             val result = runner("processPlantumlPrompts", "--stacktrace").buildAndFail()
 
             assertTrue(
-                result.output.contains("Config loaded", ignoreCase = true) ||
-                        result.output.contains("API key", ignoreCase = true) ||
-                        result.output.contains("authentication", ignoreCase = true) ||
-                        result.output.contains("router.huggingface.co", ignoreCase = true) ||
-                        result.output.contains("401") ||
-                        result.output.contains("connect", ignoreCase = true),
-                "Le plugin doit produire un message d'erreur compréhensible pour HuggingFace\n${result.output}",
+                result.output.contains("401") ||
+                        result.output.contains("router.huggingface.co", ignoreCase = true),
+                "Le plugin doit produire une erreur 401 pour HuggingFace\n${result.output}",
             )
         }
 
+        /**
+         * Groq avec fake key — nécessite de vrais credentials pour tester l'appel API.
+         */
         @Test
         @Order(7)
+        @Disabled("Requires real Groq API credentials — 401 expected with fake key")
         fun `should handle Groq configuration and report meaningful auth error`() {
             writeConfigYaml(model = "groq")
 
             val result = runner("processPlantumlPrompts", "--stacktrace").buildAndFail()
 
             assertTrue(
-                result.output.contains("Config loaded", ignoreCase = true) ||
-                        result.output.contains("API key", ignoreCase = true) ||
-                        result.output.contains("authentication", ignoreCase = true) ||
-                        result.output.contains("api.groq.com", ignoreCase = true) ||
-                        result.output.contains("401") ||
-                        result.output.contains("connect", ignoreCase = true),
-                "Le plugin doit produire un message d'erreur compréhensible pour Groq\n${result.output}",
+                result.output.contains("401") ||
+                        result.output.contains("api.groq.com", ignoreCase = true),
+                "Le plugin doit produire une erreur 401 pour Groq\n${result.output}",
             )
         }
 
