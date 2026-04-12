@@ -1,0 +1,24 @@
+        {
+            "entries": [
+                            {
+                "iteration": 0,
+                "prompt": "Simple diagram",
+                "response": "Here is a sample PlantUML diagram based on the following description:
+This is a simple diagram with two nodes, Node1 represents the root of a tree, and Node2 represents a leaf node in the tree. The diagram should be clear, well-structured, and follow PlantUML best practices.",
+                "isValid": false,
+                "errorMessage": "null",
+                "timestamp": "2026-04-12T19:38:48.901236866"
+            },
+            {
+                "iteration": 1,
+                "prompt": "Correction attempt #1",
+                "response": "To make this diagram clear, here is a sample PlantUML diagram based on the following description:
+Here is a sample PlantUML diagram with two nodes, Node1 represents the root of a tree, and Node2 represents a leaf node in the tree. The diagram should be clearly written to avoid repeating the same mistakes.",
+                "isValid": false,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-12T19:38:50.386119754"
+            }
+            ],
+            "totalAttempts": 2,
+            "timestamp": "2026-04-12T19:38:50.38637966"
+        }

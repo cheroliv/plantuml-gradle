@@ -1,0 +1,118 @@
+        {
+            "entries": [
+                            {
+                "iteration": 0,
+                "prompt": "Y",
+                "response": "Here is a sample PlantUML diagram generated using the `@startuml` tag:
+```
+X <- PlantUML code -> Y
+```
+This diagram shows the following code in the form of a PlantUML tree:
+```
+          +---------------+
+          |  Plant UML code     |
+          +---------------+
+                  |
+                  |
+                  v  |
+                  v  |
+                  v  |
+                  v  |
+                  v  |
+                  v  |
+                  v  |
+                  v  |
+                  v  |
+                  v  |
+                  v  |
+                  v  |
+                  v  |
+                  v  |
+                  v  |
+                  v  |
++---------------+
+|  Plant UML code  |
++---------------+
+|  Node |  Y |
+|    |  PlantUML |
+|  |  PlantUML |
+|  |  PlantUML |
+|  |  PlantUML |
++---------------+
+```",
+                "isValid": false,
+                "errorMessage": "null",
+                "timestamp": "2026-04-12T20:40:08.087300465"
+            },
+            {
+                "iteration": 1,
+                "prompt": "Correction attempt #1",
+                "response": "To generate a plant UML diagram, we can follow these steps:
+
+1. Define the diagram structure: We need to create a tree that represents the PlantUML code. This tree should have the following structure:
+    +---------------+
+     |  Node     |
+     |  Y      |
+     |  PlantUML    |
+     +---------------+
+2. Create the nodes: We will need to create some nodes in the diagram, which are represented by @startuml tags. These nodes can be single or multiple elements with different syntax and semantics.
+3. Add the node for each element of the code: For each element of the code, we will add a node to represent it. This node should have the following syntax and semantics:
+    +---------------+
+     |   Y       |
+     |  PlantUML    |
+     +---------------+
+          |  Node      |
+          |  Y      |
+          +---------------+
+4. Add the node for each element of the code: For each element, we will add the corresponding @startuml tag to the node in the diagram structure. This tag can be a single or multiple elements with different syntax and semantics.
+5. Write the diagram logic: We will write the logic that generates the diagram by using the `@enduml` tag on the node for each element of the code. For example, if we have two elements with @startuml tags, one is represented by a single element with a single @startuml tag and another by multiple elements with different syntax and semantics:
+    +---------------+
+     |   Y       |
+     |  PlantUML    |
+     +---------------+
+          |  Node      |
+          |  Y      |
+          +---------------+
+6. Add the logic to generate the diagram: We will write the logic that generates the diagram by using the `@startuml` tag on the node for each element of the code. For example, if we have two elements with @startuml tags, one is represented by a single element with a single @startuml tag and another by multiple elements with different syntax and semantics:
+    +---------------+
+     |   Y       |
+     |  PlantUML    |
+     +---------------+
+          |  Node      |
+          |  Y      |
+          +---------------+
+7. Generate the diagram logic: We will generate the logic in a way that generates the diagrams correctly, such as using the `@startuml` tag with multiple elements and different syntax and semantics. For example, if we have two elements with @startuml tags, one is represented by a single element with a single @startuml tag and another by multiple elements with different syntax and semantics:
+    +---------------+
+     |   Y       |
+     |  PlantUML    |
+     +---------------+
+          |  Node      |
+          |  Y      |
+          +---------------+
+8. Generate the diagram logic: We will generate the logic in a way that generates the diagrams correctly, such as using the `@startuml` tag with multiple elements and different syntax and semantics:
+    +---------------+
+     |   Y       |
+     |  PlantUML    |
+     +---------------+
+          |  Node      |
+          |  Y      |
+          +---------------+
+9. Generate the diagram logic: We will generate the diagrams correctly, such as using the `@startuml` tag with multiple elements and different syntax and semantics:
+    +---------------+
+     |   Y       |
+     |  PlantUML    |
+     +---------------+
+          |  Node      |
+          |  Y      |
+          +---------------+
+10. Add the diagram logic to a diagram file: We can add this diagram logic to a diagram file, such as a diagram file or a diagram tool like DiTOS (DiTOS is an open source diagram software). This will make it possible to generate diagrams dynamically from a diagram file.
+
+Once we have generated the diagram logic in a way that generates the diagrams correctly, we can export them into a diagram format such as Edf, DVI, or PDL and import them into other diagram editors like DiTOS, DiTOS Core CLI, or others.",
+                "isValid": false,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-12T20:41:20.632025165"
+            }
+            ],
+            "totalAttempts": 2,
+            "timestamp": "2026-04-12T20:41:20.635804718"
+        }

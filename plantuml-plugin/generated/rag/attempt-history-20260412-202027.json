@@ -1,0 +1,74 @@
+        {
+            "entries": [
+                            {
+                "iteration": 0,
+                "prompt": "Create a diagram",
+                "response": "Here is a sample PlantUI diagram that uses the @startuml tag for a plant:
+```
+          +---------------+
+          |  **FLOWER**  |
+          |  (a single flower in the middle of the diagram)  |
+          +---------------+
+           |    *    *    *    *    *    |
+           |  *            *  *            *  *    |
+           |  *            *  *            *  *    |
+           |  *            *  *            *  *    |
+           |  *            *  *            *  *    |
+           |  *            *  *            *  *    |
+           |  *            *  *            *  *    |
+           +---------------+
+          |  **CUT TO FLOWER**  |
+          |  (a single flower in the middle of the diagram)  |
+          +---------------+
+                  |  **EXTREME**  |
+                  |  (the next flower in the middle of the diagram) |
+                  +---------------+
+                  |  **DRAWN LATER**     |
+                  |  (another flower in the middle of the diagram)  |
+                  +---------------+
+                  |  **GRAVATION**  |
+                  |  (a slight bump or curve to the left of the first flower in the diagram) |
+                  +---------------+
+```",
+                "isValid": false,
+                "errorMessage": "null",
+                "timestamp": "2026-04-12T20:20:10.064999382"
+            },
+            {
+                "iteration": 1,
+                "prompt": "Correction attempt #1",
+                "response": "Here is a sample PlantUI diagram that uses @startuml tag for a plant:
+```
+          +-----------...
+                    
+                    The following PlantUI diagram has syntax errors:
+                    Here is a sample PlantUI diagram that uses the @startuml tag for a plant:
+```
+          +---------------+
+          |  **FLOWER**  |
+          |  (a single flower in the middle of the diagram)  |
+          +---------------+
+           |    *    *    *    *    |
+           |  *            *  *            *  *    |
+           |  *            *  *            *  *    |
+           |            *        *    *        *        *    |
+           |            *        *        *        *        *    |
+           |            *        *        *        *        *    |
+           |            *        *        *        *        *    |
+           +---------------+
+                  |  **EXTREME**  |
+                  |  (the next flower in the middle of the diagram)  |
+                  +---------------+
+```
+                    
+                    Error: Missing @startuml or @enduml tags
+                    
+                    Please correct the code and return ONLY valid PlantUML code wrapped in @startuml and @enduml tags.",
+                "isValid": true,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-12T20:20:27.253750908"
+            }
+            ],
+            "totalAttempts": 2,
+            "timestamp": "2026-04-12T20:20:27.265917929"
+        }
