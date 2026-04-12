@@ -1,6 +1,9 @@
 package plantuml
 
+import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import org.gradle.testkit.runner.GradleRunner.create
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -14,6 +17,7 @@ class LargeFileAndPathTest {
 
     private lateinit var buildFile: File
     private lateinit var settingsFile: File
+    private lateinit var wireMockServer: WireMockServer
 
     @BeforeEach
     fun setup() {
@@ -22,8 +26,24 @@ class LargeFileAndPathTest {
 
         settingsFile.writeText("rootProject.name = \"plantuml-large-file-test\"")
 
-        // Common plugin configuration
         buildFile.writeText("plugins { id(\"com.cheroliv.plantuml\")}")
+
+        wireMockServer = WireMockServer(0)
+        wireMockServer.start()
+        wireMockServer.stubFor(
+            post(urlEqualTo("/api/chat"))
+                .willReturn(
+                    aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("""{"model":"smollm:135m","created_at":"2026-04-12T00:00:00Z","message":{"role":"assistant","content":"@startuml\nclass Test\n@enduml"},"done_reason":"stop","done":true}""")
+                )
+        )
+    }
+
+    @AfterEach
+    fun teardown() {
+        wireMockServer.stop()
     }
 
     @Test
@@ -76,9 +96,17 @@ class LargeFileAndPathTest {
     }
 
     private fun testDeeplyNestedPaths() {
+        val port = wireMockServer.port()
         val configFile = File(testProjectDir, "plantuml-context.yml")
         configFile.writeText(
             """
+            langchain4j:
+              model: "ollama"
+              ollama:
+                baseUrl: "http://localhost:$port"
+                modelName: "smollm:135m"
+              validation: false
+              maxIterations: 1
             input:
               prompts: "deep/path/prompts"
             output:
