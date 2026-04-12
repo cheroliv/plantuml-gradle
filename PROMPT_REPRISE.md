@@ -26,6 +26,18 @@
 
 ## ✅ Sessions précédentes — TERMINÉES
 
+### Session 34 — 2026-04-11 : Debug LargeFileAndPathTest
+- ✅ **4/4 tests PASS** : large file, unicode, special chars, deeply nested paths
+- ✅ **Temps d'exécution** : 1m 10s
+- ✅ **Problème résolu** : Clean build requis pour éviter fichiers corrompus
+- ✅ **Tests unitaires** : 129/129 passent (100%)
+
+### Session 33 — 2026-04-11 : Analyse SuperOptimizedFunctionalTest
+- ✅ **SuperOptimizedFunctionalTest.kt** analysé (73 lignes, @Disabled)
+- ✅ **Décision** : NE PAS OPTIMISER (déjà optimal — 1 appel Gradle, code inline)
+- ✅ **Gain potentiel** : 0s (test @Disabled)
+- ✅ **Tests unitaires** : 129/129 passent (100%)
+
 ### Session 32 — 2026-04-11 : Création STRATEGIE.md
 - ✅ **STRATEGIE.md** créé (460 lignes) — Vue globale, cycle TDD/BDD
 - ✅ **AGENT_CHECKLISTS.md** créé (413 lignes) — 6 checklists
@@ -47,6 +59,14 @@
 - ✅ **3 tests @Disabled** : Conception intentionnelle
 - ❌ **Gain de temps** : **NON MESURÉ** (tests skippés)
 - ⚠️ **Leçon** : Toujours mesurer AVANT de refactoriser
+
+---
+
+## ✅ Session 34 — 2026-04-11 : Debug LargeFileAndPathTest
+- ✅ **4/4 tests PASS** : large file, unicode, special chars, deeply nested paths
+- ✅ **Temps d'exécution** : 1m 10s
+- ✅ **Problème résolu** : Clean build requis pour éviter fichiers corrompus
+- ✅ **Tests unitaires** : 129/129 passent (100%)
 
 ---
 
@@ -113,52 +133,21 @@
 
 ## 🎯 TOP PRIORITÉ — Session Suivante
 
-**Mission** : Optimiser `SuperOptimizedFunctionalTest.kt`
-
-### 📋 Procédure Obligatoire (AGENT_WARNINGS.md Session 29-30)
-
-```bash
-# ÉTAPE 0 : Consulter STRATEGIE.md (Niveau 0)
-# → Où on est dans le cycle TDD/BDD ?
-# → Gain potentiel > 10s ?
-# → Tests @Disabled ? → Gain = 0, ne pas optimiser
-
-# ÉTAPE 1 : Mesurer AVANT (clone temporaire si besoin)
-cd /tmp && rm -rf plantuml-compare && git clone /chemin/repo plantuml-compare
-cd plantuml-compare && git checkout HEAD -- NomDuTest.kt
-time ./gradlew -p plantuml-plugin functionalTest --tests "plantuml.SuperOptimizedFunctionalTest"
-# → Noter temps : Xs
-
-# ÉTAPE 2 : Mesurer APRÈS (repo original)
-cd /chemin/repo
-time ./gradlew -p plantuml-plugin functionalTest --tests "plantuml.SuperOptimizedFunctionalTest"
-# → Noter temps : Ys
-
-# ÉTAPE 3 : Calculer gain
-# Gain = Xs - Ys = Z secondes (-Z%)
-# ✅ Si gain > 10s → Optimisation justifiée
-# ❌ Si gain < 5s → Pas justifié
-```
-
-### ✅ Checklist de Succès
-
-- [ ] ⏱️ **Mesuré AVANT** (temps noté : __s)
-- [ ] ⏱️ **Mesuré APRÈS** (temps noté : __s)
-- [ ] 📊 **Gain réel** : __s (-__%)
-- [ ] ✅ **Gain > 10s** ? (sinon → pas justifié)
-- [ ] 📝 **Commentaires préservés** ?
-- [ ] ✅ **Couverture préservée** ? (mêmes assertions)
+**Tâche #11 — Debug test + functionalTest ensemble** :
+- ❌ **Erreur** : `Timeout has been exceeded`
+- ❌ **Commande** : `./gradlew -p plantuml-plugin -i test functionalTest --rerun-tasks`
+- 🔍 **Objectif** : Identifier pourquoi l'exécution combinée (test + functionalTest) timeout
+- 📁 **Fichiers à investiguer** : Tous les tests fonctionnels
 
 **Backlog potentiel** :
-- Optimiser `PerformanceTest.kt` (après SuperOptimizedFunctionalTest)
-- Debug tests fonctionnels restants (si besoin)
-- Documentation des providers LLM (7 providers supportés)
+- Documentation des providers LLM (7 providers supportés) — Tâche backlog #3
+- Tests avec vrais providers — Tâche backlog #4
 
 **Fichiers de référence** :
-- `AGENTS.md` — Section "📏 Méthodologie d'optimisation des tests fonctionnels"
-- `AGENT_WARNINGS.md` — Sessions 29-32 (erreurs, experts, stratégie)
+- `AGENTS.md` — Section "🔴 TOP PRIORITÉ — Debug tests fonctionnels un par un" (Tâche #11)
+- `AGENT_WARNINGS.md` — Sessions 29-34 (erreurs, experts, stratégie)
 - `STRATEGIE.md` — Niveau 0 (vue globale, décision expert)
-- `AGENT_CHECKLISTS.md` — Checklist optimisation
+- `AGENT_CHECKLISTS.md` — Checklist debug
 
 ---
 
