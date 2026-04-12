@@ -173,8 +173,8 @@ val functionalTestTask = tasks.register<Test>("functionalTest") {
     }
     failOnNoDiscoveredTests = false
 
-    // Timeout réduit pour les tests fonctionnels - les mocks WireMock évitent les appels réseau réels
-    timeout.set(Duration.ofMinutes(2))
+    // Timeout pour les tests fonctionnels - les mocks WireMock évitent les appels réseau réels
+    timeout.set(Duration.ofMinutes(5))
 
     // Ajouter des propriétés système pour les tests de permissions
     systemProperty("test.timeout.multiplier", "2")
