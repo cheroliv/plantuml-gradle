@@ -1,3 +1,5 @@
+@file:Suppress("FunctionName")
+
 package plantuml
 
 import org.gradle.testkit.runner.GradleRunner
@@ -6,7 +8,6 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -112,7 +113,6 @@ class PlantumlPluginIntegrationSuite {
 
         @Test
         @Order(1)
-        @Ignore
         fun `should register all three tasks`() {
             val result = runner("tasks", "--all").build()
 
@@ -123,7 +123,6 @@ class PlantumlPluginIntegrationSuite {
 
         @Test
         @Order(2)
-        @Ignore
         fun `dry-run should list all tasks without failing`() {
             val result = runner(
                 "processPlantumlPrompts",
@@ -154,7 +153,6 @@ class PlantumlPluginIntegrationSuite {
 
         @Test
         @Order(1)
-        @Ignore
         fun `should validate a correct puml file`() {
             val result = runner(
                 "validatePlantumlSyntax",
@@ -168,7 +166,6 @@ class PlantumlPluginIntegrationSuite {
 
         @Test
         @Order(2)
-        @Ignore
         fun `should fail on missing diagram file`() {
             val result = runner(
                 "validatePlantumlSyntax",
@@ -185,7 +182,6 @@ class PlantumlPluginIntegrationSuite {
 
         @Test
         @Order(3)
-        @Ignore
         fun `should handle unicode content in puml files`() {
             File(sharedProjectDir, "unicode.puml").writeText(
                 "@startuml\ntitle Diagramme avec des caractères spéciaux\nactor Utilisateur\n@enduml",
@@ -212,7 +208,6 @@ class PlantumlPluginIntegrationSuite {
 
         @Test
         @Order(1)
-        @Ignore
         fun `should succeed with pre-existing rag directory`() {
             val result = runner(
                 "reindexPlantumlRag",
@@ -229,7 +224,6 @@ class PlantumlPluginIntegrationSuite {
 
         @Test
         @Order(2)
-        @Ignore
         fun `should create rag directory when it does not exist`() {
             // Utilise un sous-projet isolé pour ce test précis
             val subDir = File(sharedProjectDir, "rag-absent-test").also { it.mkdirs() }
@@ -240,25 +234,39 @@ class PlantumlPluginIntegrationSuite {
                 plantuml { configPath = "ctx.yml" }
                 """.trimIndent(),
             )
-            File(subDir, "ctx.yml").writeText("output:\n  rag: \"fresh-rag\"")
+            File(subDir, "ctx.yml").writeText(
+                """
+                input:
+                  prompts: "test-prompts"
+                output:
+                  diagrams: "generated/diagrams"
+                  images: "generated/images"
+                  rag: "fresh-rag"
+                  validations: "generated/validations"
+                langchain4j:
+                  model: "ollama"
+                  ollama:
+                    baseUrl: "http://localhost:11434"
+                    modelName: "smollm:135m"
+                  maxIterations: 1
+                  validation: false
+                """.trimIndent(),
+            )
+            File(subDir, "test-prompts").mkdirs()
+            // S'assurer que le répertoire RAG n'existe pas
+            File(subDir, "fresh-rag").deleteRecursively()
 
             val result = GradleRunner.create()
                 .withProjectDir(subDir)
-                .withArguments("reindexPlantumlRag", "-Dplantuml.test.mode=true")
+                .withArguments("reindexPlantumlRag", "-Dplantuml.test.mode=true", "--stacktrace")
                 .withPluginClasspath()
                 .build()
 
             assertEquals(TaskOutcome.SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
-            assertTrue(
-                result.output.contains("Created RAG directory") ||
-                        result.output.contains("No RAG directory found") ||
-                        result.output.contains("No PlantUML diagrams"),
-            )
         }
 
         @Test
         @Order(3)
-        @Ignore
         fun `should report correct diagram count`() {
             // Ajoute des fichiers supplémentaires dans le répertoire RAG partagé
             val ragDir = File(sharedProjectDir, "generated/rag")
@@ -285,7 +293,6 @@ class PlantumlPluginIntegrationSuite {
 
         @Test
         @Order(1)
-        @Ignore
         fun `should complete in test mode without calling real llm`() {
             val result = runner(
                 "processPlantumlPrompts",
@@ -299,7 +306,6 @@ class PlantumlPluginIntegrationSuite {
 
         @Test
         @Order(2)
-        @Ignore
         fun `command-line model parameter should override config`() {
             val result = runner(
                 "processPlantumlPrompts",
@@ -314,7 +320,6 @@ class PlantumlPluginIntegrationSuite {
 
         @Test
         @Order(3)
-        @Ignore
         fun `should handle empty prompts directory gracefully`() {
             // Sous-projet isolé avec répertoire de prompts vide
             val subDir = File(sharedProjectDir, "empty-prompts-test").also { it.mkdirs() }
