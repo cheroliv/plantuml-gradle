@@ -84,7 +84,8 @@ plantuml-plugin/src/main/kotlin/plantuml/
 - **OptimizedPlantumlPluginFunctionalTest optimisé** : 61 → 38 lignes (-38%), @Ignore → @Disabled
 - **PlantumlPluginFunctionalTest optimisé** : 116 → 91 lignes (-22%), 3 méthodes privées supprimées
 - **PlantumlPluginIntegrationTest optimisé** : 183 → 152 lignes (-17%), @Ignore → @Disabled, code inline
-- **Sessions 30-32** : Système de mémoire agent (AGENT_WARNINGS.md, AGENT_CHECKLISTS.md, STRATEGIE.md)
+- **Sessions 30-33** : Système de mémoire agent (AGENT_WARNINGS.md, AGENT_CHECKLISTS.md, STRATEGIE.md)
+- **Session 33** : SuperOptimizedFunctionalTest analysé (déjà optimal — @Disabled, 1 appel Gradle)
 - Voir : `TEST_COVERAGE_ANALYSIS.md`
 
 ### 🔄 TOP PRIORITÉ — Tests manquants
@@ -103,6 +104,8 @@ plantuml-plugin/src/main/kotlin/plantuml/
 
 | # | Tâche | Description | Estimation | Statut |
 |---|-------|-------------|------------|--------|
+| 11 | **Debug test + functionalTest ensemble** | Timeout avec `./gradlew -p plantuml-plugin -i test functionalTest --rerun-tasks` | 2h | 📋 **PROCHAINE SESSION** |
+| 10 | **Debug LargeFileAndPathTest** | Exécuter et corriger les 4 tests | 1h | ✅ **TERMINÉ** |
 | 9 | **NetworkTimeoutTest optimisé** | 4 tests activés + optimisés (-36% code) | 1h | ✅ **TERMINÉ** |
 | 1 | **@Ignore sur tous les tests fonctionnels** | Annoter chaque `@Test` dans `src/functionalTest/kotlin/plantuml/` | 1h | ✅ **TERMINÉ** |
 | 2 | **Debug test par test** | Exécuter chaque test individuellement pour identifier timeout/exceptions | 4h | ✅ **TERMINÉ** |
@@ -119,13 +122,14 @@ plantuml-plugin/src/main/kotlin/plantuml/
 ```
 
 **Résultats** :
-- ✅ **11 tests PASS** : BaselineFunctionalTest, DebuggingFunctionalTest, FilePermissionTest, LlmHandshakeTest, LlmConfigurationFunctionalTest (3/3 optimisé), LlmCommandLineParameterTest, MegaOptimizedFunctionalTest, NetworkTimeoutTest (4/4), OptimizedPlantumlPluginFunctionalTest, PlantumlPluginFunctionalTest (3/3)
+- ✅ **15 tests PASS** : BaselineFunctionalTest, DebuggingFunctionalTest, FilePermissionTest (4/4), LargeFileAndPathTest (4/4), LlmHandshakeTest, LlmConfigurationFunctionalTest (3/3 optimisé), LlmCommandLineParameterTest, MegaOptimizedFunctionalTest, NetworkTimeoutTest (4/4), OptimizedPlantumlPluginFunctionalTest, PlantumlPluginFunctionalTest (3/3)
 - ⚠️ **46 tests SKIP** : Tests annotés @Disabled (conception intentionnelle)
-- ✅ **7 tests CORRIGÉS** : FinalOptimizedFunctionalTest (résolu), LargeFileAndPathTest (@Ignore→@Disabled + optimisé), FilePermissionTest (2 tests restants activés), LlmConfigurationFunctionalTest (optimisé 8→3 tests, -63%), LlmHandshakeTest (optimisé -40%), OptimizedPlantumlPluginFunctionalTest (optimisé -38%)
+- ✅ **8 tests CORRIGÉS** : FinalOptimizedFunctionalTest (résolu), LargeFileAndPathTest (4 tests PASS), FilePermissionTest (2 tests restants activés), LlmConfigurationFunctionalTest (optimisé 8→3 tests, -63%), LlmHandshakeTest (optimisé -40%), OptimizedPlantumlPluginFunctionalTest (optimisé -38%)
 - ✅ **Méthodologie documentée** : `AGENT_METHODOLOGIES.md` créé (mécanisme de proposition automatique)
 - ✅ **FilePermissionTest optimisé** : 2 tests activés (`should handle read permission denied gracefully`, `should handle write permission denied gracefully`), code simplifié (suppression companion object, try-finally allégé)
 - ✅ **LlmHandshakeTest optimisé** : 1 test activé, code réduit 94 → 56 lignes (-40%)
 - ✅ **NetworkTimeoutTest optimisé** : 4 tests activés, code réduit 266 → 169 lignes (-36%), ~29s moyen
+- ✅ **LargeFileAndPathTest** : 4/4 tests PASS (1m 11s) — Clean build requis
 
 #### 🔴 PRIORITÉ MAX — Sécurité & Confort (ARCHIVÉ)
 
