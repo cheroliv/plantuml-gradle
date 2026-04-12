@@ -1,0 +1,104 @@
+        {
+            "entries": [
+                            {
+                "iteration": 0,
+                "prompt": "Y",
+                "response": "Here is a sample PlantUML diagram with the description:
+```
+          +---------------+
+          |  Node 1:  |
+          |  (Node_1)    |
+          |  Node 2:  |
+          |  Node 3:  |
+          |  Node 4:  |
+          |  Node 5:  |
+          |  Node 6:  |
+          |  Node 7:  |
+          +---------------+
+                  |
+                  |  (Node_1)
+                  |
+                  |  (node_1)
+                  |
+                  |  (node_2)
+                  |
+                  |  (node_3)
+                  |
+                  |  (node_4)
+                  |
+                  |  (node_5)
+                  |
+                  |  (node_6)
+                  +---------------+
+                  |  Node 0:  |
+                  |  Node 1:  |
+                  |  Node 2:  |
+                  |  Node 3:  |
+                  |  Node 4:  |
+                  |  Node 5:  |
+                  |  Node 6:  |
+                  +---------------+
+```
+This diagram represents a simple PlantUML node with the following inputs:
+Node_1 (node_1): Node_2(node_3)
+Node_0: Node_1: Node_2(node_5)
+```
+          +---------------+
+          |  Node 1:  |
+          |  Node 2:  |
+          |  Node 3:  |
+          |  Node 4:  |
+          |  Node 5:  |
+          |  Node 6:  |
+          +---------------+
+                  |
+                  |  (Node_1)
+                  |
+                  |  (node_1)
+                  |
+                  |  (node_2)
+                  |
+                  |  (node_3)
+```",
+                "isValid": false,
+                "errorMessage": "null",
+                "timestamp": "2026-04-12T23:52:47.557366564"
+            },
+            {
+                "iteration": 1,
+                "prompt": "Correction attempt #1",
+                "response": "Here is a sample PlantUML diagram with the explanation:
+```
+          +---------------+
+          |  Node 1:  |
+          |  (Node_1)    |
+          |  Node_2(node_3): Node_4      |
+          |  Node_5: Node_6                |
+          |  Node_7:  Node_8        |
+          |  Node_9:  Node_a           |
+          +---------------+
+                  |
+                  |  (Node_1)
+                  |
+                  |  (node_1):  |
+                  |  (node_2(node_3)): Node_4      |
+                  |  Node_5: Node_6                |
+                  |  Node_7: Node_8         |
+                  +---------------+
+                  |  Node 0:  |
+                  |  Node 1:  |
+                  |  Node 2:  |
+                  |  Node 3:  |
+                  |  Node 4:  |
+                  |  Node 5:  |
+                  |  Node 6:  |
+                  +---------------+
+```",
+                "isValid": false,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-12T23:52:59.669154106"
+            }
+            ],
+            "totalAttempts": 2,
+            "timestamp": "2026-04-12T23:52:59.681581305"
+        }
