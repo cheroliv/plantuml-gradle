@@ -62,11 +62,11 @@ class PlantumlServiceTest {
 
         // Then
         assertTrue(outputFile.exists())
-        // Le fichier devrait contenir des données (pas vide)
+        // The file should contain data (not empty)
         assertTrue(outputFile.length() > 0)
     }
 
-    // Méthode utilitaire pour créer un PlantUML minimal valide
+    // Utility method to create a minimal valid PlantUML
     private fun createMinimalValidPlantUml(): String {
         return """
             @startuml
