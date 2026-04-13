@@ -1,25 +1,93 @@
-# 🔄 Prompt de reprise — Session 52
+# 🔄 Prompt de reprise — Session 55
 
 > **EPIC** : `ROADMAP.md` — EPIC 1 : Performance & Stabilité  
-> **Statut** : Session 51 TERMINÉE — Double appel `validateDiagram()` fixé  
-> **Prochaine mission** : Session 52 — EPIC 1.2 (à définir dans ROADMAP.md)
+> **Statut** : Session 54 TERMINÉE — Analyse couverture Kover (74,4%)  
+> **Prochaine mission** : Session 55 — Tests classes non couvertes (PlantumlManager, ConfigMerger branches)
 
 ---
 
-## 🎯 Mission — Session 51 (TERMINÉE)
+## 🎯 Mission — Session 54 (TERMINÉE)
 
 **Résultats** :
-- ✅ **Double appel `validateDiagram()` fixé** — `ProcessPlantumlPromptsTask.kt:156-187`
-- ✅ **134 tests unitaires** : 134/134 PASS (100%)
+- ✅ **147 tests unitaires** : 147/147 PASS (100%)
 - ✅ **42 tests fonctionnels** : 42 PASS, 6 SKIP, 0 FAIL (100%)
-- ✅ **Gain de performance** : `-50%` temps de traitement sur validation LLM
-- ✅ **AGENTS.md mis à jour** — Commandes utiles ajoutées
+- ✅ **Analyse Kover détaillée** : Rapport HTML + XML générés
+- ⚠️ **Couverture** : 74,4% (objectif 75% non atteint)
 
-**Tâche réalisée** : Fixer le double appel à `validateDiagram()` qui ralentissait le traitement des prompts
+**Tâche réalisée** : Analyser rapport Kover pour identifier classes/méthodes non couvertes
+
+**Points critiques identifiés** :
+| Classe | Problème | Couverture |
+|--------|----------|------------|
+| PlantumlManager (nested) | Classe non testée | 0% |
+| ConfigMerger.getOrDefault() | Méthode privée non couverte | 0% |
+| ConfigMerger branches | 71/194 branches non couvertes | 63,4% |
+| DiagramProcessor | Branches retry non couvertes | 66,7% |
 
 ---
 
-## 📋 Session 52 — Prochaine Mission
+## 📋 Session 55 — Prochaine Mission
+
+### EPIC 1.5 : Tester ConfigMerger.getOrDefault() et branches manquantes
+
+**Priorité** : 🟡 **IMPORTANT**  
+**Impact** : Couverture 74,4% → 75%+  
+**Fichier** : `ConfigMerger.kt:260-263`  
+**Durée estimée** : 1 session (15-30 minutes)
+
+#### Problème
+
+Méthode privée `getOrDefault()` non testée (ligne 262) :
+```kotlin
+private fun <T> getOrDefault(cli: Map<String, Any?>, key: String, default: T): T {
+    @Suppress("UNCHECKED_CAST")
+    return cli[key] as? T ?: default  // ❌ 0% couverture
+}
+```
+
+#### Solution attendue
+
+Ajouter tests unitaires dans `ConfigMergerEdgeCasesTest.kt` :
+- ✅ Test avec clé présente dans CLI
+- ✅ Test avec clé absente (fallback default)
+- ✅ Test avec valeur null dans CLI
+
+#### Critères d'acceptation
+
+- ✅ **getOrDefault()** couverte à 100%
+- ✅ **Branches manquantes** : conditions `if (yaml.xxx != default)` testées
+- ✅ **147+ tests unitaires** : 100% PASS
+- ✅ **42 tests fonctionnels** : 100% PASS/SKIP
+- ✅ **Couverture globale** : ≥ 75%
+
+---
+
+### EPIC 1.6 : Tester PlantumlManager nested class
+
+**Priorité** : 🟡 **IMPORTANT**  
+**Impact** : Couverture PlantumlManager 0% → 100%  
+**Fichier** : `PlantumlManager.kt` (nested objects)  
+**Durée estimée** : 1 session (15-30 minutes)
+
+#### Problème
+
+`PlantumlManager` nested class principale non testée (0% coverage) :
+- Configuration (nested object) — ✅ Déjà testé via PlantumlManagerTest
+- Tasks (nested object) — ✅ Déjà testé via PlantumlManagerTest
+- Extensions (nested object) — ✅ Déjà testé via PlantumlManagerTest
+
+**Note** : Vérifier si des méthodes spécifiques restent non testées
+
+#### Solution attendue
+
+Ajouter tests unitaires pour méthodes manquantes dans `PlantumlManagerTest.kt`
+
+#### Critères d'acceptation
+
+- ✅ **PlantumlManager** couverture 100%
+- ✅ **147+ tests unitaires** : 100% PASS
+- ✅ **42 tests fonctionnels** : 100% PASS/SKIP
+- ✅ **Couverture globale** : ≥ 75%
 
 ### EPIC 1.1 : Fixer le double appel `validateDiagram()`
 
