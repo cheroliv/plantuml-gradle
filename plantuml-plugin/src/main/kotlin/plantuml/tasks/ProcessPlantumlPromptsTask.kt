@@ -152,10 +152,11 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
                 logger.lifecycle("    Warning: Failed to generate image - ${e.message}")
             }
 
-            // Request LLM validation with scoring
+            // Request LLM validation with scoring (call once, reuse result)
+            var validation: plantuml.ValidationFeedback? = null
             if (config.langchain4j.validation) {
                 logger.lifecycle("  → Requesting LLM validation...")
-                val validation = diagramProcessor.validateDiagram(diagram)
+                validation = diagramProcessor.validateDiagram(diagram)
 
                 // Save validation feedback
                 val validationsDir = project.file(config.output.validations)
@@ -182,9 +183,8 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
                 diagramFile.writeText(diagram.plantuml.code)
 
                 // Save validation feedback for RAG if validation is enabled
-                if (config.langchain4j.validation) {
-                    val validation = diagramProcessor.validateDiagram(diagram)
-                    diagramProcessor.saveForRagTraining(diagram, validation)
+                if (config.langchain4j.validation && validation != null) {
+                    diagramProcessor.saveForRagTraining(diagram, validation!!)
                 }
             } catch (e: Exception) {
                 logger.lifecycle("    Warning: Failed to save diagrams for RAG training - ${e.message}")
