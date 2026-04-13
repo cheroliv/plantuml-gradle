@@ -2,6 +2,44 @@
 
 ## Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+### Session 47 — 2026-04-13 : Consolidation Tests Fonctionnels (Suite)
+
+#### ✅ Contexte
+- **Problème** : `PlantumlRealInfrastructureSuite.kt` et `ReindexPlantumlRagTaskTest.kt` sont des classes séparées
+- **Objectif** : Migrer ces 2 classes en nested classes de `PlantumlFunctionalSuite.kt`
+- **Solution** : 2 nested classes ajoutées (@Order 9 et 10) + suppression fichiers sources
+
+#### ✅ Tâches réalisées
+
+**Fichiers migrés** :
+- ✅ `PlantumlRealInfrastructureSuite.kt` → Nested class `RealInfrastructure` (@Order 9, @Tag "real-llm")
+- ✅ `ReindexPlantumlRagTaskTest.kt` → Nested class `RagTask` (@Order 10, @Tag "rag-heavy")
+
+**Fichiers supprimés** :
+- ✅ `PlantumlRealInfrastructureSuite.kt`
+- ✅ `ReindexPlantumlRagTaskTest.kt`
+- ✅ `FunctionalTestTemplate.kt` (inutilisé)
+- ✅ Dossier `task/` (vide)
+
+**Corrections appliquées** :
+- ✅ Import dupliqué `TaskOutcome` supprimé
+- ✅ `companion object` → `object` dans `RealInfrastructure` (interdit dans `inner class`)
+- ✅ Ajout `@TestInstance(TestInstance.Lifecycle.PER_CLASS)` pour `@BeforeAll` non-static
+- ✅ Renommage constantes `OLLAMA_URL`/`OLLAMA_MODEL` → variables d'instance
+
+#### ✅ Résultats
+- ✅ **134 tests unitaires** : 134/134 PASS (100%)
+- ✅ **42 tests fonctionnels** : 40 PASS, 6 SKIP, 0 FAIL
+- ✅ **AGENTS.md** : 94 lignes (stable)
+- ✅ **Architecture consolidée** : 10 nested classes dans 1 seul fichier
+- ✅ **Nettoyage** : 3 fichiers + 1 dossier supprimés
+
+#### 📝 Fichiers modifiés
+- `PlantumlFunctionalSuite.kt` — 2 nested classes ajoutées
+- `AGENTS.md` — État actuel mis à jour
+
+---
+
 ### Session 46 — 2026-04-13 : Procédure Fin de Session + Vérification Systématique
 
 #### ✅ Contexte
