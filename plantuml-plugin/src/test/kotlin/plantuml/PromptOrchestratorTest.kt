@@ -17,17 +17,17 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * Tests unitaires de PromptOrchestrator.
+ * Unit tests for PromptOrchestrator.
  *
- * Deux stratégies coexistent ici selon le niveau de test voulu :
+ * Two strategies coexist here depending on the test level:
  *
- * 1. [WithMockDiagramProcessor] — Mockito mock le DiagramProcessor entier.
- *    Parfait pour tester la logique de fichiers / répertoires / comptage.
- *    Exécution : < 10 ms par test.
+ * 1. [WithMockDiagramProcessor] — Mocks the entire DiagramProcessor with Mockito.
+ *    Perfect for testing file/directory/counting logic.
+ *    Execution: < 10 ms per test.
  *
- * 2. [WithWireMockLlm] — WireMock intercepte les vraies requêtes HTTP vers Ollama.
- *    Teste le chemin complet du réseau jusqu'au parsing de réponse,
- *    sans démarrer de vrai modèle. Exécution : < 50 ms par test.
+ * 2. [WithWireMockLlm] — WireMock intercepts real HTTP requests to Ollama.
+ *    Tests the complete path from network to response parsing,
+ *    without starting a real model. Execution: < 50 ms per test.
  */
 class PromptOrchestratorTest {
 
@@ -35,7 +35,7 @@ class PromptOrchestratorTest {
     lateinit var tempDir: File
 
     // ------------------------------------------------------------------ //
-    //  Cas 1 : DiagramProcessor complètement mocké (Mockito)              //
+    //  Case 1: DiagramProcessor fully mocked (Mockito)                     //
     // ------------------------------------------------------------------ //
 
     @Nested
@@ -104,7 +104,7 @@ class PromptOrchestratorTest {
 
             assertEquals(1, result.totalPrompts)
             assertEquals(0, result.succeeded)
-            // null = pas de diagramme généré, skipped plutôt que failed
+            // null = no diagram generated, skipped rather than failed
             assertTrue(result.messages.any { it.contains("Could not generate") })
         }
 
@@ -158,7 +158,7 @@ class PromptOrchestratorTest {
     }
 
     // ------------------------------------------------------------------ //
-    //  Cas 2 : WireMock intercepte les appels HTTP au LLM                 //
+    //  Case 2: WireMock intercepts HTTP calls to LLM                       //
     // ------------------------------------------------------------------ //
 
     @Suppress("JUnitMalformedDeclaration")
@@ -177,7 +177,7 @@ class PromptOrchestratorTest {
         fun setup() {
             mockPlantumlService = mock(PlantumlService::class.java)
 
-            // Réponse Ollama simulée — format JSON de l'API /api/chat
+            // Simulated Ollama response — JSON format of /api/chat API
             wireMock.stubFor(
                 post(urlEqualTo("/api/chat"))
                     .willReturn(
@@ -198,8 +198,8 @@ class PromptOrchestratorTest {
                 ),
             )
 
-            // Le DiagramProcessor réel est instancié ici avec le vrai LlmService
-            // pointant vers WireMock — on teste le chemin HTTP complet.
+            // The real DiagramProcessor is instantiated here with the real LlmService
+            // pointing to WireMock — we test the complete HTTP path.
             val llmService = LlmService(config)
             val chatModel = llmService.createChatModel()
             val plantumlSvc = PlantumlService()
@@ -215,7 +215,7 @@ class PromptOrchestratorTest {
 
             val result = orchestrator.process()
 
-            // Au moins une tentative a été faite vers WireMock
+            // At least one attempt was made to WireMock
             wireMock.verify(1, postRequestedFor(urlEqualTo("/api/chat")))
             assertEquals(1, result.totalPrompts)
         }
@@ -232,7 +232,7 @@ class PromptOrchestratorTest {
 
             val result = orchestrator.process()
 
-            // Pas de succès possible si le LLM renvoie 503
+            // No success possible if LLM returns 503
             assertTrue(result.succeeded == 0 || result.failed > 0 || result.messages.any { it.contains("Could not generate") })
         }
 
