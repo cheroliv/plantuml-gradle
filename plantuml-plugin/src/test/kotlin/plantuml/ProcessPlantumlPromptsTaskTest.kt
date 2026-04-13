@@ -16,14 +16,14 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
- * Tests unitaires pour ProcessPlantumlPromptsTask
+ * Unit tests for ProcessPlantumlPromptsTask
  * 
- * Tests couverts:
- * - Sortie anticipée quand le répertoire prompts n'existe pas
- * - Sortie anticipée quand aucun fichier .prompt n'est trouvé
- * - Traitement des fichiers prompt avec WireMock LLM
- * - Override de plantuml.prompts.dir
- * - Override de plantuml.langchain4j.model
+ * Tests covered:
+ * - Early exit when prompts directory does not exist
+ * - Early exit when no .prompt files are found
+ * - Processing prompt files with WireMock LLM
+ * - Override of plantuml.prompts.dir
+ * - Override of plantuml.langchain4j.model
  */
 class ProcessPlantumlPromptsTaskTest {
 
@@ -72,36 +72,36 @@ class ProcessPlantumlPromptsTaskTest {
 
     @Test
     fun `should exit early when prompts directory does not exist`() {
-        // Given: prompts directory n'existe pas (non créé)
+        // Given: prompts directory does not exist (not created)
         
-        // When: on exécute la tâche
+        // When: execute the task
         task.processPrompts()
         
-        // Then: pas d'appel à WireMock (sortie anticipée)
+        // Then: no WireMock call (early exit)
         wireMock.verify(0, postRequestedFor(urlEqualTo("/api/chat")))
         assertTrue(true, "Task should complete without throwing exception")
     }
 
     @Test
     fun `should exit early when no prompt files found`() {
-        // Given: répertoire prompts vide
+        // Given: empty prompts directory
         val promptsDir = File(tempDir, "prompts")
         promptsDir.mkdirs()
         
-        // Fichier non-.prompt (doit être ignoré)
+        // Non-.prompt file (should be ignored)
         File(promptsDir, "readme.txt").writeText("This is not a prompt file")
         
-        // When: on exécute la tâche
+        // When: execute the task
         task.processPrompts()
         
-        // Then: pas d'appel à WireMock (pas de fichiers .prompt)
+        // Then: no WireMock call (no .prompt files)
         wireMock.verify(0, postRequestedFor(urlEqualTo("/api/chat")))
         assertTrue(true, "Task should complete without processing non-prompt files")
     }
 
     @Test
     fun `should process all prompt files in directory`() {
-        // Given: répertoire prompts avec 2 fichiers .prompt
+        // Given: prompts directory with 2 .prompt files
         val promptsDir = File(tempDir, "prompts")
         promptsDir.mkdirs()
         val promptFile1 = File(promptsDir, "test1.prompt")
@@ -109,45 +109,45 @@ class ProcessPlantumlPromptsTaskTest {
         promptFile1.writeText("Create a class diagram")
         promptFile2.writeText("Create a sequence diagram")
         
-        // Configuration avec WireMock
+        // Configure with WireMock
         setupProjectConfig()
         
-        // When: on exécute la tâche
+        // When: execute the task
         task.processPrompts()
         
-        // Then: les fichiers prompt ont été supprimés
+        // Then: prompt files have been deleted
         assertFalse(promptFile1.exists(), "First prompt should be deleted")
         assertFalse(promptFile2.exists(), "Second prompt should be deleted")
         
-        // Et: WireMock appelé 2 fois
+        // And: WireMock called 2 times
         wireMock.verify(2, postRequestedFor(urlEqualTo("/api/chat")))
     }
 
     @Test
     fun `should respect plantuml prompts dir property override`() {
-        // Given: répertoire prompts personnalisé
+        // Given: custom prompts directory
         val customPromptsDir = File(tempDir, "custom-prompts")
         customPromptsDir.mkdirs()
         val promptFile = File(customPromptsDir, "test.prompt")
         promptFile.writeText("Create a class diagram")
         
-        // Override du répertoire prompts
+        // Override prompts directory
         project.extensions.extraProperties.set("plantuml.prompts.dir", "custom-prompts")
         
-        // Configuration avec WireMock
+        // Configure with WireMock
         setupProjectConfig()
         
-        // When: on exécute la tâche
+        // When: execute the task
         task.processPrompts()
         
-        // Then: le fichier a été traité (supprimé)
+        // Then: file has been processed (deleted)
         assertFalse(promptFile.exists(), "Custom prompt should be processed")
         wireMock.verify(1, postRequestedFor(urlEqualTo("/api/chat")))
     }
 
     @Test
     fun `should override LLM model name from command line property`() {
-        // Given: configuration avec ollama comme modèle par défaut
+        // Given: configuration with ollama as default model
         val configPath = File(tempDir, "plantuml-context.yml")
         configPath.writeText("""
             langchain4j:
@@ -159,24 +159,24 @@ class ProcessPlantumlPromptsTaskTest {
                 modelName: "smollm:135m"
         """.trimIndent())
         
-        // Given: un fichier prompt
+        // Given: a prompt file
         val promptsDir = File(tempDir, "prompts")
         promptsDir.mkdirs()
         val promptFile = File(promptsDir, "test.prompt")
         promptFile.writeText("Create a diagram")
         
-        // Override du nom du modèle ollama
-        // Doit être fait APRÈS l'écriture du fichier YAML
+        // Override ollama model name
+        // Must be done AFTER writing the YAML file
         project.extensions.extraProperties.set("plantuml.langchain4j.ollama.modelName", "llama2")
         
-        // When: on exécute la tâche
+        // When: execute the task
         task.processPrompts()
         
-        // Then: le fichier a été traité
+        // Then: file has been processed
         assertFalse(promptFile.exists(), "Prompt should be processed with model override")
         wireMock.verify(1, postRequestedFor(urlEqualTo("/api/chat")))
         
-        // Et: le modèle envoyé est "llama2" (override)
+        // And: the model sent is "llama2" (override)
         wireMock.verify(
             postRequestedFor(urlEqualTo("/api/chat"))
                 .withRequestBody(matchingJsonPath("$.model", equalTo("llama2"))),
