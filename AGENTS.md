@@ -57,6 +57,15 @@ plantuml-plugin/src/main/kotlin/plantuml/
 
 ## 📊 État actuel
 
+**Session 46 TERMINÉE** — Procédure fin de session mise à jour + vérification systématique
+
+**Résultats** :
+- ✅ **SESSION_PROCEDURE.md mis à jour** : Procédure de nettoyage AGENTS.md (5 étapes)
+- ✅ **134 tests unitaires** : 134/134 PASS (100%)
+- ✅ **42 tests fonctionnels** : 40 PASS, 6 SKIP, 0 FAIL
+- ✅ **AGENTS.md stable** : 94 lignes (aucun transfert supplémentaire nécessaire)
+- ✅ **Nouveau modus operandi** : Vérification systématique en fin de session
+
 **Voir** : `SESSIONS_HISTORY.md` pour l'historique complet des sessions
 **Voir** : `COMPLETED_TASKS_ARCHIVE.md` pour les tâches terminées
 
@@ -64,50 +73,22 @@ plantuml-plugin/src/main/kotlin/plantuml/
 
 ## 🛠 Décisions techniques
 
-**Voir** : `AGENT_REFERENCE.md` pour :
-- Commandes de référence
-- Providers LLM supportés
-- Configuration YAML
-- Sorties de test
+**Voir** : `AGENT_REFERENCE.md`
 
 ---
 
 ## 🚀 Optimisation des tests
 
-**Voir** : `AGENT_REFERENCE.md` pour :
-- Types de tests et règles par type
-- Pièges connus
-- Méthodologie d'optimisation complète
-- Exemples de gains réels
+**Voir** : `AGENT_REFERENCE.md`
 
 ---
 
 ## 📝 Méthodologie de travail
 
-**Voir** : `AGENT_REFERENCE.md` pour :
-- Sessions atomiques
-- Processus itératif
-- Quand changer de session
-- Procédure de fin de session (5 étapes)
-- Démarrage de nouvelle session
+**Voir** : `AGENT_REFERENCE.md`
 
 ---
 
-## 📚 Références
+## 📚 Références & Procédures
 
-| Fichier | Rôle | Chargement |
-|---------|------|------------|
-| `AGENTS.md` | Architecture, décisions, méthodologie | **Toujours** |
-| `AGENT_REFERENCE.md` | Référence rapide (commandes, providers, pièges) | **Sur besoin** |
-| `PROMPT_REPRISE.md` | Mission session en cours | **Début session** |
-| `SESSIONS_HISTORY.md` | Historique complet sessions | **Sur besoin** |
-| `COMPLETED_TASKS_ARCHIVE.md` | Archive tâches terminées | **Fin session** |
-
----
-
-## 📝 Mise à jour
-
-En fin de session :
-1. Déplacer le terminé vers `COMPLETED_TASKS_ARCHIVE.md`
-2. Mettre à jour "État actuel"
-3. Ne pas modifier "Architecture" et "Décisions techniques" sauf décision explicite
+**Voir** : `SESSION_PROCEDURE.md`
