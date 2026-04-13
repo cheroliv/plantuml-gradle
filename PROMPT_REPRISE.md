@@ -1,19 +1,21 @@
-# 🔄 Prompt de reprise — Session 48
+# 🔄 Prompt de reprise — Session 50
 
 > **EPIC** : `EPIC_CONSOLIDATION_TESTS_FONCTIONNELS.md` — **100% TERMINÉ**  
 > **Prérequis** : `AGENTS.md` est déjà chargé dans le contexte  
-> **Statut** : Session 47 TERMINÉE — Consolidation tests fonctionnels terminée
+> **Statut** : Session 49 TERMINÉE — Sérialisation tests fonctionnels
 
 ---
 
-## 🎯 Mission — Session 47 (TERMINÉE)
+## 🎯 Mission — Session 49 (TERMINÉE)
 
 **Résultats** :
 - ✅ **134 tests unitaires** : 134/134 PASS (100%)
 - ✅ **42 tests fonctionnels** : 40 PASS, 6 SKIP, 0 FAIL
-- ✅ **AGENTS.md** : 94 lignes (stable)
-- ✅ **Consolidation** : `PlantumlRealInfrastructureSuite.kt` + `ReindexPlantumlRagTaskTest.kt` → `PlantumlFunctionalSuite.kt`
-- ✅ **Nettoyage** : `FunctionalTestTemplate.kt` supprimé, dossier `task/` supprimé
+- ✅ **1 test Cucumber** : PASS
+- ✅ **Sérialisation** : `maxParallelForks = 1` (évite OOM)
+- ✅ **Stabilité** : 1 seule JVM Gradle à la fois (~500MB)
+
+**Tâche réalisée** : Désactivation parallélisation tests fonctionnels (protection OOM)
 
 ---
 
