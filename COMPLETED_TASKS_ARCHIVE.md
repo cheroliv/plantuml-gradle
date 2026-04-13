@@ -2,7 +2,99 @@
 
 ## Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
-### Session 49 — 2026-04-13 : Sérialisation Stricte des Tests Fonctionnels
+### Session 51 — 2026-04-13 : Fix du Double Appel `validateDiagram()`
+
+#### ✅ Contexte
+- **Problème** : `validateDiagram()` était appelé 2 fois pour chaque diagramme (lignes 158 et 187)
+- **Impact** : +50% de temps de traitement sur la validation LLM
+- **Fichier** : `ProcessPlantumlPromptsTask.kt:156-189`
+
+#### ✅ Tâches réalisées
+
+**Modification appliquée** :
+- ✅ Déclaration de `validation: ValidationFeedback?` comme variable nullable
+- ✅ Appel unique à `diagramProcessor.validateDiagram(diagram)` ligne 158
+- ✅ Réutilisation de la variable `validation` ligne 187 (au lieu de 2e appel)
+- ✅ Garde-fou : `if (config.langchain4j.validation && validation != null)`
+
+**Code avant** :
+```kotlin
+if (config.langchain4j.validation) {
+    val validation = diagramProcessor.validateDiagram(diagram)  // 1ère fois
+    // Sauvegarder validation...
+}
+
+// ... plus loin
+if (config.langchain4j.validation) {
+    val validation = diagramProcessor.validateDiagram(diagram)  // 2e fois!
+    diagramProcessor.saveForRagTraining(diagram, validation)
+}
+```
+
+**Code après** :
+```kotlin
+var validation: ValidationFeedback? = null
+if (config.langchain4j.validation) {
+    validation = diagramProcessor.validateDiagram(diagram)
+    // Sauvegarder validation...
+}
+
+// ... plus loin
+if (config.langchain4j.validation && validation != null) {
+    diagramProcessor.saveForRagTraining(diagram, validation)
+}
+```
+
+#### ✅ Résultats
+- ✅ **Compilation** : BUILD SUCCESSFUL
+- ✅ **134 tests unitaires** : 134/134 PASS (100%)
+- ✅ **42 tests fonctionnels** : 42 PASS, 6 SKIP, 0 FAIL (100%)
+- ✅ **Gain de performance** : `-50%` sur le temps de validation LLM
+- ✅ **AGENTS.md** : Commandes utiles ajoutées
+
+#### 📝 Fichiers modifiés
+- `plantuml-plugin/src/main/kotlin/plantuml/tasks/ProcessPlantumlPromptsTask.kt` — Double appel fixé
+- `AGENTS.md` — Section "⚡ Commandes utiles" ajoutée
+- `PROMPT_REPRISE.md` — Session 51 documentée
+
+---
+
+### Session 49 — 2026-04-13 : Séparation des Fichiers de Test du Dossier Git
+
+#### ✅ Contexte
+- **Problème** : Les tests fonctionnels généraient des fichiers mocks dans `plantuml-plugin/generated/rag` qui est tracké par git
+- **Résultat** : 173 fichiers `attempt-history-*.json` mélangés entre tests et production
+- **Solution** : Surcharge du dossier de sortie via paramètre Gradle `-Pplantuml.output.rag`
+
+#### ✅ Tâches réalisées
+
+**Modifications de code** :
+- ✅ `PlantumlFunctionalSuite.kt` (ligne 205) : Ajout automatique de `-Pplantuml.output.rag=<dir>/build/plantuml-plugin/generated/rag`
+- ✅ `PlantumlWorld.kt` (ligne 168) : Ajout du paramètre pour les tests Cucumber BDD
+- ✅ Hiérarchie respectée : CLI > YAML > gradle.properties
+
+**Nettoyage git** :
+- ✅ Suppression de 173 fichiers JSON de `generated/rag/`
+- ✅ Suppression de 12 fichiers JSON de `generated/diagrams/`
+- ✅ Suppression du dossier `generated/mock-smollm-training/` (62 fichiers)
+- ✅ Ajout de `.gitignore` dans `diagrams/` et `rag/` (ignore `*.json`)
+
+#### ✅ Résultats
+- ✅ Dossier `generated/rag/` maintenant propre pour un usage production
+- ✅ Tests isolés dans `build/plantuml-plugin/generated/rag/`
+- ✅ Protection future via `.gitignore` dans chaque sous-dossier
+- ✅ Possibilité de surcharge manuelle : `-Pplantuml.output.rag=custom/path`
+
+#### 📝 Fichiers modifiés
+- `plantuml-plugin/src/functionalTest/kotlin/plantuml/PlantumlFunctionalSuite.kt`
+- `plantuml-plugin/src/test/scenarios/plantuml/scenarios/PlantumlWorld.kt`
+- `plantuml-plugin/generated/diagrams/.gitignore` (nouveau)
+- `plantuml-plugin/generated/rag/.gitignore` (nouveau)
+- `plantuml-plugin/build.gradle.kts` — Support paramètres CLI
+
+---
+
+### Session 48 — 2026-04-13 : Sérialisation Stricte des Tests Fonctionnels
 
 #### ✅ Contexte
 - **Problème** : La parallélisation des tests fonctionnels risque de provoquer des OOM (Out Of Memory)
