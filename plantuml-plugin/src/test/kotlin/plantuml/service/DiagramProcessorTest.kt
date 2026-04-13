@@ -36,9 +36,9 @@ class DiagramProcessorTest {
 
         // Then
         assertNotNull(result)
-        // Vérifier que la conversation contient au moins une entrée
+        // Check that the conversation contains at least one entry
         assertTrue(result.conversation.isNotEmpty())
-        // Vérifier que le code PlantUML contient les éléments attendus
+        // Check that the PlantUML code contains the expected elements
         assertTrue(result.plantuml.code.contains("@startuml"))
         assertTrue(result.plantuml.code.contains("@enduml"))
         assertTrue(result.plantuml.description.contains("Auto-generated diagram based on prompt: $prompt"))
@@ -63,7 +63,7 @@ class DiagramProcessorTest {
 
         // Then
         assertNotNull(result)
-        // Vérifier que l'historique des tentatives est inclus dans la conversation
+        // Check that the attempt history is included in the conversation
         assertTrue(result.conversation.size > 1)
         assertTrue(result.conversation.any { it.contains("->") })
     }
@@ -78,7 +78,7 @@ class DiagramProcessorTest {
 
         // Then
         assertNull(result)
-        // Vérifier que les appels de validation ont été effectués
+        // Check that validation calls were made
         verify(mockPlantumlService, times(1)).validateSyntax(anyString())
     }
 
@@ -122,10 +122,10 @@ class DiagramProcessorTest {
         diagramProcessor.saveForRagTraining(diagram, validation)
 
         // Then
-        // Le test passe si aucune exception n'est levée
+        // The test passes if no exception is thrown
     }
 
-    // Méthodes utilitaires pour la configuration des mocks
+    // Utility methods for mock configuration
     private fun setupValidSyntaxMock() {
         `when`(mockPlantumlService.validateSyntax(anyString()))
             .thenReturn(PlantumlService.SyntaxValidationResult.Valid)
