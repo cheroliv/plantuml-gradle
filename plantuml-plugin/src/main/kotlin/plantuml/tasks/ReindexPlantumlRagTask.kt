@@ -36,8 +36,14 @@ abstract class ReindexPlantumlRagTask : DefaultTask() {
     fun reindexRag() {
         logger.lifecycle("Rebuilding RAG index with PlantUML diagrams...")
 
-        // Load configuration
-        val config = PlantumlManager.Configuration.load(project)
+        // Extract CLI parameters from project properties and strip "plantuml." prefix
+        val cliParams = project.properties
+            .filterKeys { it.startsWith("plantuml.") }
+            .mapKeys { it.key.removePrefix("plantuml.") }
+            .mapValues { it.value }
+
+        // Load configuration with CLI overrides
+        val config = PlantumlManager.Configuration.load(project, cliParams)
 
         // Load valid PlantUML diagrams from the RAG collection directory
         val ragDir = File(config.output.rag)
