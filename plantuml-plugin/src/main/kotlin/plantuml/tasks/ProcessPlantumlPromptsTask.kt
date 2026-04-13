@@ -1,5 +1,8 @@
 package plantuml.tasks
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
@@ -29,9 +32,13 @@ import java.io.File
 @DisableCachingByDefault(because = "PlantUML generation involves randomness and AI interaction")
 abstract class ProcessPlantumlPromptsTask : DefaultTask() {
 
+    private val objectMapper: ObjectMapper = ObjectMapper()
+        .registerModule(JavaTimeModule())
+        .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+
     init {
         group = "plantuml"
-        description = "Processes PlantUML prompts and generates diagrams"
+        description = "processPlantumlPrompts"
     }
 
     @TaskAction
@@ -158,19 +165,18 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
                 logger.lifecycle("  → Requesting LLM validation...")
                 validation = diagramProcessor.validateDiagram(diagram)
 
-                // Save validation feedback
+                // Save validation feedback using Jackson serialization
                 val validationsDir = project.file(config.output.validations)
                 validationsDir.mkdirs()
                 val validationFile = File(validationsDir, "${promptFile.nameWithoutExtension}.json")
+                val validationData = mapOf(
+                    "prompt" to promptFile.name,
+                    "score" to validation.score,
+                    "feedback" to validation.feedback,
+                    "recommendations" to validation.recommendations
+                )
                 validationFile.writeText(
-                    """
-                    {
-                      "prompt": "${promptFile.name}",
-                      "score": ${validation.score},
-                      "feedback": "${validation.feedback}",
-                      "recommendations": [${validation.recommendations.joinToString(", ") { "\"$it\"" }}]
-                    }
-                """.trimIndent()
+                    objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(validationData)
                 )
             }
 
