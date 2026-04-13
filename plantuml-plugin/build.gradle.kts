@@ -94,9 +94,11 @@ tasks.withType<Test> {
         showStandardStreams = true
     }
 
-    // Optimisation des performances des tests
-    maxParallelForks = Runtime.getRuntime().availableProcessors()
-    forkEvery = 10 // Redémarrer le worker tous les 10 tests
+    // OPTIMISATION : 1 seul worker JVM pour maximiser le partage
+    // Les nested classes partagent WireMock + GradleRunner + sharedProjectDir
+    // via le companion object de PlantumlFunctionalSuite
+    maxParallelForks = 1 // ← 1 seule JVM : réutilisation maximale
+    forkEvery = 0 // ← Ne jamais redémarrer le worker (0 = illimité)
 
     // Timeout stricte pour éviter les blocages
     timeout.set(Duration.ofSeconds(60))
@@ -179,9 +181,10 @@ val functionalTestTask = tasks.register<Test>("functionalTest") {
     // Ajouter des propriétés système pour les tests de permissions
     systemProperty("test.timeout.multiplier", "2")
 
-    // Optimisations de performance
-    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
-    forkEvery = 4 // Redémarrer le worker tous les 4 tests fonctionnels
+    // OPTIMISATION : 1 seul worker JVM pour tous les tests fonctionnels
+    // Les nested classes partagent déjà WireMock + GradleRunner via companion object
+    maxParallelForks = 1 // ← CHANGEMENT CRITIQUE : 1 seule JVM pour tous les tests
+    forkEvery = 0 // ← Ne jamais redémarrer le worker (0 = illimité)
     jvmArgs("-XX:+UseSerialGC")
     jvmArgs("-XX:MaxMetaspaceSize=256m")
     jvmArgs("-XX:TieredStopAtLevel=1")
@@ -259,9 +262,9 @@ val cucumberTest = tasks.register<Test>("cucumberTest") {
     // S'assurer que main est compilé avant
     dependsOn(tasks.classes)
 
-    // Optimisations de performance
-    maxParallelForks = 4
-    forkEvery = 20
+    // OPTIMISATION : 1 seul worker JVM pour les tests Cucumber
+    maxParallelForks = 1 // ← 1 seule JVM pour état partagé
+    forkEvery = 0 // ← Ne jamais redémarrer le worker
     jvmArgs("-XX:+UseSerialGC")
     jvmArgs("-XX:MaxMetaspaceSize=256m")
     jvmArgs("-XX:TieredStopAtLevel=1")
