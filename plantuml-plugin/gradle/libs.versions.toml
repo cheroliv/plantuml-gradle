@@ -32,6 +32,7 @@ logback = "1.5.32"
 groovy = "4.0.29"
 groovy-nio = "4.0.29"
 wiremock = "3.9.1"
+kover = "0.9.1"
 
 [libraries]
 
@@ -93,6 +94,7 @@ wiremock = { module = "org.wiremock:wiremock", version.ref = "wiremock" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 publish = { id = "com.gradle.plugin-publish", version.ref = "plugin-publish" }
 plantuml = { id = "com.cheroliv.plantuml", version.ref = "plantuml" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 
 
 [bundles]
