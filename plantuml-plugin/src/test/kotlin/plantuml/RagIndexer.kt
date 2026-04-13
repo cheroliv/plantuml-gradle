@@ -3,9 +3,9 @@ package plantuml
 import java.io.File
 
 /**
- * Logique métier d'indexation RAG, extraite de ReindexPlantumlRagTask.
+ * Business logic for RAG indexing, extracted from ReindexPlantumlRagTask.
  *
- * Reçoit uniquement le répertoire RAG — pas de référence à Project ou à Task.
+ * Receives only the RAG directory — no reference to Project or Task.
  */
 class RagIndexer(private val ragDir: File) {
     data class IndexingResult(
@@ -59,10 +59,10 @@ class RagIndexer(private val ragDir: File) {
     }
 
     private fun indexDiagram(file: File) {
-        // Implémentation réelle : embeddings, stockage vectoriel, etc.
-        // Stub pour que les tests vérifient le comportement sans dépendance DB.
+        // Real implementation: embeddings, vector storage, etc.
+        // Stub so tests verify behavior without DB dependency.
         val content = file.readText()
         if (content.isBlank()) return
-        // TODO: appel au service d'embedding
+        // TODO: call embedding service
     }
 }
