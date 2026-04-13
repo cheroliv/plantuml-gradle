@@ -1,0 +1,155 @@
+        {
+            "entries": [
+                            {
+                "iteration": 0,
+                "prompt": "Create a simple class diagram with one class named Car",
+                "response": "Here is a sample PlantUML diagram:
+```
++    +---------------+
+     |  Class     |
+     |  (Car)      |
+     +---------------+
+                  |
+                  |
+                  v
+          +---------------+
+           |  Attributes|
+           |           |
+           +---------------+
++---------------+
+|  Name    |  Position      |
++---------------+
+           |
+           |
+           v
+          +---------------+
+           |  Id     |
+           |           |
+           +---------------+
++---------------+
+|  Name       |  Position      |
++---------------+
+           |
+           |
+           v
+          +---------------+
+           |  Id     |
+           |           |
+           +---------------+
+```",
+                "isValid": false,
+                "errorMessage": "null",
+                "timestamp": "2026-04-13T01:29:04.699863952"
+            },
+            {
+                "iteration": 1,
+                "prompt": "Correction attempt #1",
+                "response": "To create a Plant UML diagram, we need to follow these steps:
+
+1. Define the PlantUML class: Create a new class in the GraphQL library with the following name and attributes: `Car`, `Position`, `Id`.
+2. Define the Attributes for each Class: Add the necessary attributes to the class, such as `Name`, `Position`, `Id`, and `Description` (with an @startuml or @enduml tag).
+3. Define the Class Body: Wrap the class in a single line of code with the `@startuml` or `@enduml` tags.
+4. Add proper class attributes to the class body: For example, if we want to create a PlantUML diagram for the `Car`, we would add the following attributes: `Name`, `Position`, `Id`.
+5. Define the Diagram Body: Wrap the class in two lines of code with the `@startuml` or `@enduml` tags and the `Description` attribute to represent the diagram's text content (with a @startuml tag).
+6. Add proper class attributes to the Diagram Body: For example, if we want to create a PlantUML diagram for the `Car`, we would add the following attributes: `Name`, `Position`, `Id`.
+7. Define the Diagram Body in GraphQL metadata: Include metadata about the diagram in the GraphQL metadata using the `@startuml` or `@enduml` tags to describe the diagram's layout and content (with a @startuml tag).
+8. Validate the diagram by checking for validity errors: Use the `@startuml` or `@enduml` tags to validate the diagram's layout, text content, and other essential attributes against the graphQL schema.
+9. Create additional diagrams with proper class attributes (for example, a DiagramUML diagram with an @startuml tag for the `Car`)
+10. Add code comments to the diagram body: Include code comments in the diagram body to explain the logic behind the diagram's creation and maintainability.
+
+Here is a sample Plant UML diagram with proper class attributes:
+```
++    +---------------+
+     |  Class     |
+     |  (Car)     ...
+                    
+                    The following PlantUML code has syntax errors:
+                    Here is a sample PlantUML diagram with proper class attributes wrapping in @startuml and @enduml tags:
+                    Here is a sample PlantUML diagram with proper class attributes wrapping in @startuml and @enduml tags:
+```
++    +---------------+
+     |  Attributes     |
+     |  (Car)      ...
+                    
+    The following PlantUML code has syntax errors:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
++    +---------------+
+     |  Attributes      |
+     |  (Car)      ...
+                    
+    The following PlantUML code has syntax errors:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
++    +---------------+
+     |  Attributes      |
+     |  (Car)      ...
+                    
+    The following PlantUML code has syntax errors:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
++    +---------------+
+     |  Attributes      |
+     |  (Car)      ...
+                    
+    The following PlantUML code has syntax errors:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
++    +---------------+
+     |  Attributes      |
+     |  (Car)      ...
+                    
+    The following PlantUML code has syntax errors:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
++    +---------------+
+     |  Attributes      |
+     |  (Car)      ...
+                    
+    The following PlantUML code has syntax errors:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
+    Here is a sample PlantUML diagram with proper attribute references:
++    +---------------+
+     |  Attributes      |
+     |  (Car)      ...
+                    
+        The following PlantUML code has syntax errors:
+            For example, we can add the `Name` attribute to the `Car` class and then add the `Description` attribute to the `Car` class in order to create a more accurate annotation of the diagram's text content.
+```
++    +---------------+
+     |  Attributes      |
+     |  (Car)      ...
+                    
+        The following PlantUML code has syntax errors:
+            For example, we can add the `Name` attribute to the `Car` class in order to create a more accurate annotation of the diagram's text content.
+```
+",
+                "isValid": false,
+                "errorMessage": "Missing @startuml or @enduml tags",
+                "timestamp": "2026-04-13T01:30:34.032458208"
+            }
+            ],
+            "totalAttempts": 2,
+            "timestamp": "2026-04-13T01:30:34.03917008"
+        }
