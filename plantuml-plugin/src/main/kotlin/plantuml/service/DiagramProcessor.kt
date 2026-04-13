@@ -1,5 +1,8 @@
 package plantuml.service
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import dev.langchain4j.model.chat.ChatModel
 import plantuml.PlantumlCode
 import plantuml.PlantumlConfig
@@ -30,6 +33,10 @@ class DiagramProcessor(
     private val chatModel: ChatModel?,
     private val config: PlantumlConfig?
 ) {
+
+    private val objectMapper: ObjectMapper = ObjectMapper()
+        .registerModule(JavaTimeModule())
+        .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
 
     /**
      * Processes a prompt through the LLM interaction loop (max 5 iterations).
@@ -210,28 +217,12 @@ class DiagramProcessor(
      * Converts attempt history to JSON format for storage
      */
     private fun convertHistoryToJson(history: List<AttemptEntry>): String {
-        val entries = history.joinToString(",\n") { entry ->
-            """
-            {
-                "iteration": ${entry.iteration},
-                "prompt": "${entry.prompt.replace("\"", "\\\"")}",
-                "response": "${entry.response.replace("\"", "\\\"")}",
-                "isValid": ${entry.isValid},
-                "errorMessage": "${entry.errorMessage?.replace("\"", "\\\"") ?: "null"}",
-                "timestamp": "${entry.timestamp.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
-            }
-            """.trimIndent()
-        }
-
-        return """
-        {
-            "entries": [
-                $entries
-            ],
-            "totalAttempts": ${history.size},
-            "timestamp": "${LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
-        }
-        """.trimIndent()
+        val output = mapOf(
+            "entries" to history,
+            "totalAttempts" to history.size,
+            "timestamp" to LocalDateTime.now()
+        )
+        return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(output)
     }
 
     /**
