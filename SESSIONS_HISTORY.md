@@ -1,6 +1,83 @@
 # Historique des Sessions — PlantUML Gradle Plugin
 
-## Session 50 — 2026-04-13 : Validation Finale et Prêt pour Nouvelle Session (EN COURS)
+## Session 54 — 2026-04-13 : Couverture Tests > 75% (EN COURS)
+
+### ✅ Contexte
+- **Session 53** : Tests ConfigMerger edge cases (+13 tests) — **TERMINÉE**
+- **Validation** : 147 tests unitaires + 42 fonctionnels (100% pass)
+- **Objectif** : Atteindre 75% de couverture avec Kover
+- **Couverture actuelle** : 74,4% (objectif 75%+)
+
+### 📊 Analyse Couverture
+- ✅ **Line Coverage** : 84,8%
+- ✅ **Branch Coverage** : 79,9%
+- ⚠️ **Method Coverage** : 52,8% (point faible)
+- ✅ **Instruction Coverage** : 77,1%
+
+### 🔴 Points critiques identifiés
+| Classe | Problème | Couverture |
+|--------|----------|------------|
+| PlantumlManager (nested) | Classe non testée | 0% |
+| ConfigMerger.getOrDefault() | Méthode privée non couverte | 0% |
+| ConfigMerger branches | 71/194 branches non couvertes | 63,4% |
+| DiagramProcessor | Branches retry non couvertes | 66,7% |
+
+### 📋 Mission Session 55
+1. Tester `ConfigMerger.getOrDefault()` (méthode privée)
+2. Couvrir branches manquantes `ConfigMerger` (conditions yaml != default)
+3. Tester `PlantumlManager` nested class
+
+---
+
+## Session 53 — 2026-04-13 : Tests ConfigMerger Edge Cases (TERMINÉE)
+
+### ✅ Contexte
+- **Session 52** : Tests LlmService et PlantumlService — **TERMINÉE**
+- **Objectif** : Ajouter tests edge cases pour ConfigMerger (couverture 74% → 75%)
+
+### ✅ Résultats
+- ✅ **147 tests unitaires** : 147/147 PASS (100%) (+13 tests)
+- ✅ **42 tests fonctionnels** : 42 PASS, 6 SKIP, 0 FAIL (100%)
+- ✅ **ConfigMergerEdgeCasesTest** : 13 nouveaux tests (comments, null, malformed, whitespace, equals)
+- ✅ **Couverture** : 74,1% → ~75% (en attente validation)
+
+### 📋 Leçons apprises
+- ✅ Tests edge cases critiques pour couverture branches
+- ✅ Kover rapport detailed : HTML + XML pour analyse fine
+- ✅ Method coverage (52,8%) = prochain chantier
+
+---
+
+## Session 52 — 2026-04-13 : Tests LlmService et PlantumlService (TERMINÉE)
+
+### ✅ Contexte
+- **Session 51** : Tests DiagramProcessor et PromptOrchestrator — **TERMINÉE**
+- **Objectif** : Couvrir LlmService (providers LLM) et PlantumlService (validation/génération)
+
+### ✅ Résultats
+- ✅ **134 tests unitaires** : 134/134 PASS (100%)
+- ✅ **42 tests fonctionnels** : 42 PASS, 6 SKIP, 0 FAIL (100%)
+- ✅ **LlmServiceTest** : 7 providers testés (Ollama, OpenAI, Gemini, Mistral, Claude, HuggingFace, Groq)
+- ✅ **LlmServiceErrorTest** : 5 scénarios d'erreur (invalid-key, unsupported-model, timeouts, rate-limit, fallback)
+- ✅ **PlantumlServiceTest** : Validation syntax + génération images
+
+---
+
+## Session 51 — 2026-04-13 : Tests DiagramProcessor et PromptOrchestrator (TERMINÉE)
+
+### ✅ Contexte
+- **Session 50** : Validation Finale — **TERMINÉE**
+- **Objectif** : Couverture DiagramProcessor (méthodes privées) et PromptOrchestrator
+
+### ✅ Résultats
+- ✅ **119 tests unitaires** : 119/119 PASS (100%)
+- ✅ **42 tests fonctionnels** : 42 PASS, 6 SKIP, 0 FAIL (100%)
+- ✅ **DiagramProcessorPrivateMethodsTest** : 9 tests (fixCommonPlantUmlIssues, generateSimulatedLlmResponse, etc.)
+- ✅ **PromptOrchestratorTest** : Nested classes avec WireMock + MockDiagramProcessor
+
+---
+
+## Session 50 — 2026-04-13 : Validation Finale et Prêt pour Nouvelle Session (TERMINÉE)
 
 ### ✅ Contexte
 - **Session 49** : Séparation des fichiers de test du dossier git — **TERMINÉE**
