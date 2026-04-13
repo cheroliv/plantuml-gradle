@@ -11,7 +11,7 @@ import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-//Tests are quick
+// Tests are quick
 class PlantumlConfigTest {
 
     companion object {
