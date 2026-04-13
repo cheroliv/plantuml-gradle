@@ -22,31 +22,31 @@ import kotlin.test.Ignore
 import org.junit.jupiter.api.Disabled
 
 /**
- * Suite fonctionnelle consolidée du plugin PlantUML.
+ * Consolidated functional test suite for the PlantUML plugin.
  *
- * Remplace les 9 fichiers originaux du source set functionalTest :
+ * Replaces the original 9 files from the functionalTest source set:
  *   BaselineFunctionalTest            → PluginLifecycle
- *   DebuggingFunctionalTest           → supprimé (code de debug pur)
- *   FinalOptimizedFunctionalTest      → PluginLifecycle (doublon)
- *   LlmConfigurationFunctionalTest    → LlmProviderConfiguration (WireMock corrigé)
- *   MegaOptimizedFunctionalTest       → PluginLifecycle (doublon)
- *   OptimizedPlantumlPluginFunctionalTest → PluginLifecycle (doublon)
- *   PlantumlPluginFunctionalTest      → PluginLifecycle (@Ignore réactivés)
- *   SharedGradleInstanceFunctionalTest → GradleSharedInstance (@JvmField corrigé en @JvmStatic)
- *   SuperOptimizedFunctionalTest      → PluginLifecycle (doublon)
+ *   DebuggingFunctionalTest           → removed (pure debug code)
+ *   FinalOptimizedFunctionalTest      → PluginLifecycle (duplicate)
+ *   LlmConfigurationFunctionalTest    → LlmProviderConfiguration (fixed WireMock)
+ *   MegaOptimizedFunctionalTest       → PluginLifecycle (duplicate)
+ *   OptimizedPlantumlPluginFunctionalTest → PluginLifecycle (duplicate)
+ *   PlantumlPluginFunctionalTest      → PluginLifecycle (@Ignore reactivated)
+ *   SharedGradleInstanceFunctionalTest → GradleSharedInstance (@JvmField fixed to @JvmStatic)
+ *   SuperOptimizedFunctionalTest      → PluginLifecycle (duplicate)
  *
- * Architecture :
- *   - UN WireMockServer démarré une seule fois pour toute la suite
- *   - UN projet Gradle partagé créé une seule fois dans @BeforeAll
- *   - Trois classes @Nested jouent leur partition sur la même JVM Gradle
- *   - De 22 cold starts Gradle → 1 daemon réutilisé entre les nested
+ * Architecture:
+ *   - ONE WireMockServer started once for the entire suite
+ *   - ONE shared Gradle project created once in @BeforeAll
+ *   - Three @Nested classes play their part on the same Gradle JVM
+ *   - From 22 Gradle cold starts → 1 daemon reused across nested
  *
- * Correction du bug WireMock original :
- *   L'original créait WireMockServer dans @BeforeEach sans configurer de stubs.
- *   Le test Ollama passait "par miracle" parce que l'assertion était
+ * Fix for the original WireMock bug:
+ *   The original created WireMockServer in @BeforeEach without configuring stubs.
+ *   The Ollama test passed "by miracle" because the assertion was
  *   result.output.contains("model") OR result.output.contains("not found")
- *   — c'est-à-dire que même un crash était accepté.
- *   Ici, les stubs /api/chat et /api/generate sont correctement configurés.
+ *   — meaning even a crash was accepted.
+ *   Here, /api/chat and /api/generate stubs are properly configured.
  */
 @TestClassOrder(OrderAnnotation::class)
 class PlantumlFunctionalSuite {
@@ -60,7 +60,7 @@ class PlantumlFunctionalSuite {
         private lateinit var wireMockServer: WireMockServer
 
         // ---------------------------------------------------------------- //
-        //  Setup / teardown de la suite                                     //
+        //  Setup / teardown for the suite                                    //
         // ---------------------------------------------------------------- //
 
         @BeforeAll
@@ -77,7 +77,7 @@ class PlantumlFunctionalSuite {
         }
 
         // ---------------------------------------------------------------- //
-        //  WireMock — stubs correctement configurés                        //
+        //  WireMock — properly configured stubs                            //
         // ---------------------------------------------------------------- //
 
         private fun startWireMock() {
@@ -134,7 +134,7 @@ class PlantumlFunctionalSuite {
         }
 
         // ---------------------------------------------------------------- //
-        //  Projet Gradle partagé                                            //
+        //  Shared Gradle project                                            //
         // ---------------------------------------------------------------- //
 
         private fun setupSharedProject() {
@@ -158,11 +158,11 @@ class PlantumlFunctionalSuite {
         }
 
         /**
-         * Réécrit le fichier plantuml-context.yml du projet partagé.
-         * Appelé par les tests qui changent de provider avant de lancer Gradle.
+         * Rewrites the plantuml-context.yml file of the shared project.
+         * Called by tests that change provider before running Gradle.
          *
-         * @param model     provider actif (ollama, gemini, openai…)
-         * @param ollamaUrl URL de l'endpoint Ollama — WireMock par défaut
+         * @param model     active provider (ollama, gemini, openai…)
+         * @param ollamaUrl URL of the Ollama endpoint — WireMock by default
          */
         fun writeConfigYaml(
             model: String = "ollama",
@@ -198,21 +198,21 @@ class PlantumlFunctionalSuite {
             )
         }
 
-        /** Crée un GradleRunner configuré sur le projet partagé. */
+        /** Creates a configured GradleRunner on the shared project. */
         fun runner(vararg args: String): GradleRunner =
             GradleRunner.create()
                 .withProjectDir(sharedProjectDir)
-                .withArguments(*args)
+                .withArguments(*args, "-Pplantuml.output.rag=${sharedProjectDir.absolutePath}/build/plantuml-plugin/generated/rag")
                 .withPluginClasspath()
     }
 
     // ==================================================================== //
-    //  Nested 1 : cycle de vie du plugin                                   //
+    //  Nested 1 : plugin lifecycle                                          //
     //                                                                        //
-    //  Consolide : BaselineFunctionalTest, DebuggingFunctionalTest,         //
+    //  Consolidates: BaselineFunctionalTest, DebuggingFunctionalTest,       //
     //  FinalOptimizedFunctionalTest, MegaOptimizedFunctionalTest,           //
     //  OptimizedPlantumlPluginFunctionalTest, SuperOptimizedFunctionalTest, //
-    //  PlantumlPluginFunctionalTest (3 tests @Ignore réactivés)             //
+    //  PlantumlPluginFunctionalTest (3 reactivated @Ignore tests)           //
     // ==================================================================== //
 
     @Nested
@@ -227,7 +227,7 @@ class PlantumlFunctionalSuite {
         }
 
         /**
-         * PlantumlPluginFunctionalTest.should apply plugin successfully (@Ignore réactivé)
+         * PlantumlPluginFunctionalTest.should apply plugin successfully (reactivated @Ignore)
          * BaselineFunctionalTest (BUILD SUCCESSFUL)
          */
         @Test
@@ -238,14 +238,14 @@ class PlantumlFunctionalSuite {
             assertEquals(
                 TaskOutcome.SUCCESS,
                 result.task(":tasks")?.outcome,
-                "La tâche :tasks doit se terminer avec SUCCESS",
+                "The :tasks task must complete with SUCCESS",
             )
         }
 
         /**
-         * PlantumlPluginFunctionalTest.should register all tasks (@Ignore réactivé)
-         * BaselineFunctionalTest + tous les doublons (tasks + assertions)
-         * DebuggingFunctionalTest (assertions extraites, println supprimés)
+         * PlantumlPluginFunctionalTest.should register all tasks (reactivated @Ignore)
+         * BaselineFunctionalTest + all duplicates (tasks + assertions)
+         * DebuggingFunctionalTest (assertions extracted, println removed)
          */
         @Test
         @Order(2)
@@ -255,26 +255,26 @@ class PlantumlFunctionalSuite {
             assertTrue(result.output.contains("BUILD SUCCESSFUL"))
             assertTrue(
                 result.output.contains("processPlantumlPrompts"),
-                "processPlantumlPrompts doit être enregistrée",
+                "processPlantumlPrompts must be registered",
             )
             assertTrue(
                 result.output.contains("validatePlantumlSyntax"),
-                "validatePlantumlSyntax doit être enregistrée",
+                "validatePlantumlSyntax must be registered",
             )
             assertTrue(
                 result.output.contains("reindexPlantumlRag"),
-                "reindexPlantumlRag doit être enregistrée",
+                "reindexPlantumlRag must be registered",
             )
         }
 
         /**
-         * PlantumlPluginFunctionalTest.should configure extension properly (@Ignore réactivé)
-         * Le fichier YAML existe déjà (écrit dans setupSharedProject/restoreBaseConfig).
+         * PlantumlPluginFunctionalTest.should configure extension properly (reactivated @Ignore)
+         * The YAML file already exists (written in setupSharedProject/restoreBaseConfig).
          */
         @Test
         @Order(3)
         fun `should configure extension with yaml file`() {
-            // Crée un YAML avec un chemin absolu comme dans l'original @Ignore
+            // Create a YAML with an absolute path as in the original @Ignore
             val configFile = File(sharedProjectDir, "plantuml-context.yml")
             File(sharedProjectDir, "build.gradle.kts").writeText(
                 """
@@ -287,7 +287,7 @@ class PlantumlFunctionalSuite {
 
             assertEquals(TaskOutcome.SUCCESS, result.task(":tasks")?.outcome)
 
-            // Restaure le build file nominal
+            // Restore the nominal build file
             File(sharedProjectDir, "build.gradle.kts").writeText(
                 """
                 plugins { id("com.cheroliv.plantuml") }
@@ -298,7 +298,7 @@ class PlantumlFunctionalSuite {
 
         /**
          * FinalOptimizedFunctionalTest + SharedGradleInstanceFunctionalTest.test03
-         * (properties expose l'extension plantuml)
+         * (properties exposes the plantuml extension)
          */
         @Test
         @Order(4)
@@ -308,13 +308,13 @@ class PlantumlFunctionalSuite {
             assertTrue(result.output.contains("BUILD SUCCESSFUL"))
             assertTrue(
                 result.output.contains("plantuml"),
-                "La commande properties doit mentionner l'extension plantuml",
+                "The properties command must mention the plantuml extension",
             )
         }
 
         /**
          * MegaOptimizedFunctionalTest + SuperOptimizedFunctionalTest
-         * (help réussit = plugin s'applique correctement)
+         * (help succeeds = plugin applies correctly)
          */
         @Test
         @Order(5)
@@ -325,8 +325,8 @@ class PlantumlFunctionalSuite {
         }
 
         /**
-         * Dry-run vérifie que les tâches sont listées sans les exécuter.
-         * Couvre l'assertion de OptimizedPlantumlPluginFunctionalTest.
+         * Dry-run verifies that tasks are listed without executing them.
+         * Covers the assertion from OptimizedPlantumlPluginFunctionalTest.
          */
         @Test
         @Order(6)
@@ -346,14 +346,14 @@ class PlantumlFunctionalSuite {
     }
 
     // ==================================================================== //
-    //  Nested 2 : configuration des providers LLM                         //
+    //  Nested 2 : LLM provider configuration                               //
     //                                                                        //
-    //  Consolide : LlmConfigurationFunctionalTest (8 tests)                 //
-    //  Corrections :                                                         //
-    //    - WireMock démarré UNE fois (@BeforeAll), stubs vraiment configurés //
-    //    - Assertions cloud renforcées avec les codes d'erreur HTTP réels   //
-    //    - Test Ollama utilise -Dplantuml.test.mode=true pour ne pas bloquer //
-    //      sur la connexion (le LLM est appelé en mode stub interne)        //
+    //  Consolidates: LlmConfigurationFunctionalTest (8 tests)               //
+    //  Corrections:                                                          //
+    //    - WireMock started ONCE (@BeforeAll), stubs truly configured       //
+    //    - Cloud assertions strengthened with real HTTP error codes         //
+    //    - Ollama test uses -Dplantuml.test.mode=true to avoid blocking    //
+    //      on connection (LLM is called in internal stub mode)              //
     // ==================================================================== //
 
     @Nested
@@ -368,10 +368,10 @@ class PlantumlFunctionalSuite {
         }
 
         /**
-         * Ollama via WireMock — stubs correctement configurés.
-         * L'original passait "par miracle" (WireMock sans stubs = 404,
-         * assertion acceptait n'importe quelle sortie).
-         * Ici, POST /api/chat répond 200 avec un diagramme valide.
+         * Ollama via WireMock — properly configured stubs.
+         * The original passed "by miracle" (WireMock without stubs = 404,
+         * assertion accepted anything).
+         * Here, POST /api/chat responds 200 with a valid diagram.
          */
         @Test
         @Order(1)
@@ -384,7 +384,7 @@ class PlantumlFunctionalSuite {
                 "--stacktrace",
             ).build()
 
-            // WireMock doit avoir reçu au moins une requête vers /api/chat ou /api/generate
+            // WireMock must have received at least one request to /api/chat or /api/generate
             assertTrue(
                 wireMockServer.allServeEvents.any { e ->
                     e.request.url.startsWith("/api/chat") ||
@@ -393,12 +393,12 @@ class PlantumlFunctionalSuite {
                         result.output.contains("Processing") ||
                         result.output.contains("Completed") ||
                         result.output.contains("prompt"),
-                "Le plugin doit avoir tenté d'appeler l'endpoint Ollama ou traiter les prompts",
+                "The plugin must have attempted to call the Ollama endpoint or process prompts",
             )
         }
 
         /**
-         * Gemini avec fake key — nécessite de vrais credentials pour tester l'appel API.
+         * Gemini with fake key — requires real credentials to test API call.
          */
         @Test
         @Order(2)
@@ -411,12 +411,12 @@ class PlantumlFunctionalSuite {
             assertTrue(
                 result.output.contains("401") ||
                         result.output.contains("API key", ignoreCase = true),
-                "Le plugin doit produire une erreur 401 pour Gemini\n${result.output}",
+                "The plugin must produce a 401 error for Gemini\n${result.output}",
             )
         }
 
         /**
-         * Mistral avec fake key — nécessite de vrais credentials pour tester l'appel API.
+         * Mistral with fake key — requires real credentials to test API call.
          */
         @Test
         @Order(3)
@@ -429,12 +429,12 @@ class PlantumlFunctionalSuite {
             assertTrue(
                 result.output.contains("401") ||
                         result.output.contains("Unauthorized", ignoreCase = true),
-                "Le plugin doit produire une erreur 401 pour Mistral\n${result.output}",
+                "The plugin must produce a 401 error for Mistral\n${result.output}",
             )
         }
 
         /**
-         * OpenAI avec fake key — nécessite de vrais credentials pour tester l'appel API.
+         * OpenAI with fake key — requires real credentials to test API call.
          */
         @Test
         @Order(4)
@@ -447,12 +447,12 @@ class PlantumlFunctionalSuite {
             assertTrue(
                 result.output.contains("401") ||
                         result.output.contains("Incorrect API key", ignoreCase = true),
-                "Le plugin doit produire une erreur 401 pour OpenAI\n${result.output}",
+                "The plugin must produce a 401 error for OpenAI\n${result.output}",
             )
         }
 
         /**
-         * Claude avec fake key — nécessite de vrais credentials pour tester l'appel API.
+         * Claude with fake key — requires real credentials to test API call.
          */
         @Test
         @Order(5)
@@ -465,12 +465,12 @@ class PlantumlFunctionalSuite {
             assertTrue(
                 result.output.contains("401") ||
                         result.output.contains("x-api-key", ignoreCase = true),
-                "Le plugin doit produire une erreur 401 pour Claude\n${result.output}",
+                "The plugin must produce a 401 error for Claude\n${result.output}",
             )
         }
 
         /**
-         * HuggingFace avec fake key — nécessite de vrais credentials pour tester l'appel API.
+         * HuggingFace with fake key — requires real credentials to test API call.
          */
         @Test
         @Order(6)
@@ -483,12 +483,12 @@ class PlantumlFunctionalSuite {
             assertTrue(
                 result.output.contains("401") ||
                         result.output.contains("router.huggingface.co", ignoreCase = true),
-                "Le plugin doit produire une erreur 401 pour HuggingFace\n${result.output}",
+                "The plugin must produce a 401 error for HuggingFace\n${result.output}",
             )
         }
 
         /**
-         * Groq avec fake key — nécessite de vrais credentials pour tester l'appel API.
+         * Groq with fake key — requires real credentials to test API call.
          */
         @Test
         @Order(7)
@@ -501,18 +501,18 @@ class PlantumlFunctionalSuite {
             assertTrue(
                 result.output.contains("401") ||
                         result.output.contains("api.groq.com", ignoreCase = true),
-                "Le plugin doit produire une erreur 401 pour Groq\n${result.output}",
+                "The plugin must produce a 401 error for Groq\n${result.output}",
             )
         }
 
         /**
-         * Config mixte avec tous les providers configurés — le provider actif est ollama.
+         * Mixed config with all providers configured — active provider is ollama.
          * LlmConfigurationFunctionalTest.should handle mixed provider configurations correctly.
          */
         @Test
         @Order(8)
         fun `should use active model when multiple providers are configured`() {
-            // Tous les providers déclarés, mais seul ollama est actif
+            // All providers declared, but only ollama is active
             writeConfigYaml(model = "ollama")
 
             val result = runner(
@@ -525,16 +525,16 @@ class PlantumlFunctionalSuite {
                 result.output.contains("BUILD SUCCESSFUL") ||
                         result.output.contains("Processing") ||
                         result.output.contains("Completed"),
-                "La config mixte avec ollama actif doit réussir\n${result.output}",
+                "Mixed config with ollama active must succeed\n${result.output}",
             )
         }
     }
 
     // ==================================================================== //
-    //  Nested 3 : instance Gradle partagée                                 //
+    //  Nested 3 : shared Gradle instance                                   //
     //                                                                        //
-    //  Consolide : SharedGradleInstanceFunctionalTest (4 tests)             //
-    //  Correction : @JvmField → @JvmStatic sur @TempDir                    //
+    //  Consolidates: SharedGradleInstanceFunctionalTest (4 tests)           //
+    //  Correction: @JvmField → @JvmStatic on @TempDir                       //
     // ==================================================================== //
 
     @Nested
@@ -579,7 +579,7 @@ class PlantumlFunctionalSuite {
 
         /**
          * SharedGradleInstanceFunctionalTest.test04
-         * Mise à jour du YAML de config → le build suivant en tient compte.
+         * YAML config update → next build takes it into account.
          */
         @Test
         @Order(4)
@@ -593,13 +593,13 @@ class PlantumlFunctionalSuite {
             assertEquals(
                 TaskOutcome.SUCCESS,
                 result.task(":help")?.outcome,
-                "Le build doit réussir après mise à jour du YAML",
+                "Build must succeed after YAML update",
             )
         }
     }
 
     // ==================================================================== //
-    //  Nested 4 : intégration du plugin (ex-PlantumlPluginIntegrationSuite) //
+    //  Nested 4 : plugin integration (ex-PlantumlPluginIntegrationSuite)    //
     // ==================================================================== //
 
     @Nested
@@ -615,10 +615,10 @@ class PlantumlFunctionalSuite {
                 input:
                   prompts: "test-prompts"
                 output:
-                  diagrams: "generated/diagrams"
-                  images:   "generated/images"
-                  rag:      "generated/rag"
-                  validations: "generated/validations"
+                  diagrams: "build/plantuml-plugin/generated/diagrams"
+                  images:   "build/plantuml-plugin/generated/images"
+                  rag:      "build/plantuml-plugin/generated/rag"
+                  validations: "build/plantuml-plugin/generated/validations"
                 langchain4j:
                   model: "ollama"
                   ollama:
@@ -631,7 +631,7 @@ class PlantumlFunctionalSuite {
             File(sharedProjectDir, "test-prompts").mkdirs()
             File(sharedProjectDir, "test-prompts/sample.prompt")
                 .writeText("Create a simple class diagram with one class named Car")
-            val ragDir = File(sharedProjectDir, "generated/rag").also { it.mkdirs() }
+            val ragDir = File(sharedProjectDir, "build/plantuml-plugin/generated/rag").also { it.mkdirs() }
             File(ragDir, "sample.puml").writeText(
                 "@startuml\nclass Car {\n  - String brand\n}\n@enduml",
             )
@@ -756,7 +756,7 @@ class PlantumlFunctionalSuite {
         @Test
         @Order(8)
         fun `should report correct diagram count`() {
-            val ragDir = File(sharedProjectDir, "generated/rag")
+            val ragDir = File(sharedProjectDir, "build/plantuml-plugin/generated/rag")
             File(ragDir, "extra1.puml").writeText("@startuml\nclass Extra1\n@enduml")
             File(ragDir, "extra2.puml").writeText("@startuml\nclass Extra2\n@enduml")
             val result = runner(
@@ -810,7 +810,7 @@ class PlantumlFunctionalSuite {
     }
 
     // ==================================================================== //
-    //  Nested 5 : permissions de fichiers (ex-FilePermissionTest)          //
+    //  Nested 5 : file permissions (ex-FilePermissionTest)                  //
     // ==================================================================== //
 
     @Nested
@@ -956,7 +956,11 @@ class PlantumlFunctionalSuite {
             }
 
             try {
-                val result = runner("reindexPlantumlRag").build()
+                val result = GradleRunner.create()
+                    .withProjectDir(sharedProjectDir)
+                    .withArguments("reindexPlantumlRag", "-Dplantuml.test.mode=true")
+                    .withPluginClasspath()
+                    .build()
 
                 assertContainsPermissionOrNotFoundMessage(
                     result.output,
@@ -987,7 +991,11 @@ class PlantumlFunctionalSuite {
 
             writeConfig("nonexistent-rag")
 
-            val result = runner("reindexPlantumlRag").build()
+            val result = GradleRunner.create()
+                .withProjectDir(sharedProjectDir)
+                .withArguments("reindexPlantumlRag", "-Dplantuml.test.mode=true")
+                .withPluginClasspath()
+                .build()
 
             assertTrue(
                 result.output.contains("No RAG directory found", true) ||
@@ -999,7 +1007,7 @@ class PlantumlFunctionalSuite {
     }
 
     // ==================================================================== //
-    //  Nested 6 : fichiers volumineux et chemins complexes                  //
+    //  Nested 6 : large files and complex paths                             //
     //              (ex-LargeFileAndPathTest)                               //
     // ==================================================================== //
 
@@ -1130,7 +1138,7 @@ class PlantumlFunctionalSuite {
     }
 
     // ==================================================================== //
-    //  Nested 7 : timeouts réseau (ex-NetworkTimeoutTest)                  //
+    //  Nested 7 : network timeouts (ex-NetworkTimeoutTest)                  //
     // ==================================================================== //
 
     @Nested
