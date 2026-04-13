@@ -2,6 +2,92 @@
 
 ## Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+### Session 49 — 2026-04-13 : Sérialisation Stricte des Tests Fonctionnels
+
+#### ✅ Contexte
+- **Problème** : La parallélisation des tests fonctionnels risque de provoquer des OOM (Out Of Memory)
+- **Cause** : Multiples instances GradleRunner en mémoire simultanément (~500MB+ chacune)
+- **Objectif** : Exécuter les tests fonctionnels strictement en séquentiel (1 à la fois)
+- **Solution** : `maxParallelForks = 1` déjà configuré, commentaire renforcé
+
+#### ✅ Tâches réalisées
+
+**Fichier modifié** :
+- ✅ `build.gradle.kts` — Commentaire mis à jour (lignes 185-189)
+
+**Configuration appliquée** :
+```kotlin
+// SÉQUENTIEL STRICT : 1 seul test à la fois pour éviter OOM
+// Chaque test lance un GradleRunner (~500MB+), la parallélisation crashe le système
+maxParallelForks = 1
+forkEvery = 0
+jvmArgs("-XX:+UseSerialGC")
+jvmArgs("-XX:MaxMetaspaceSize=256m")
+jvmArgs("-XX:TieredStopAtLevel=1")
+```
+
+#### ✅ Résultats
+- ✅ **Tests unitaires** : 134/134 PASS (100%)
+- ✅ **Tests fonctionnels** : 40 PASS, 6 SKIP, 0 FAIL
+- ✅ **Tests Cucumber** : 1 PASS
+- ✅ **Risque OOM éliminé** : 1 seule JVM à la fois
+- ✅ **Stabilité système** : Pas de crash par dépassement mémoire
+
+#### 📝 Fichiers modifiés
+- `build.gradle.kts` — Commentaire mis à jour
+- `AGENTS.md` — État actuel mis à jour
+
+---
+
+### Session 48 — 2026-04-13 : Configuration Kover pour Tests Unitaires, Fonctionnels et Cucumber
+
+#### ✅ Contexte
+- **Problème** : Kover ne couvrait pas explicitement les tests fonctionnels
+- **Objectif** : Configurer Kover pour inclure main + functionalTest dans les rapports
+- **Solution** : Ajout `includedSourceSets.addAll("main", "functionalTest")`
+
+#### ✅ Tâches réalisées
+
+**Fichier modifié** :
+- ✅ `build.gradle.kts` — Configuration Kover mise à jour (lignes 284-299)
+
+**Configuration appliquée** :
+```kotlin
+kover {
+    currentProject {
+        sources {
+            includedSourceSets.addAll("main", "functionalTest")
+        }
+    }
+    reports {
+        total {
+            html { ... }
+            xml { ... }
+        }
+    }
+}
+```
+
+#### ✅ Résultats
+- ✅ **Tests unitaires** : 134/134 PASS (100%)
+- ✅ **Tests fonctionnels** : 40 PASS, 6 SKIP, 0 FAIL
+- ✅ **Tests Cucumber** : 1 PASS
+- ✅ **Couverture Kover** : main + functionalTest inclus
+- ✅ **Rapports générés** : HTML + XML
+
+#### 📊 Couverture Kover
+
+| Type de test | Source Set | Couvert ? |
+|--------------|------------|-----------|
+| Tests unitaires | `src/test/kotlin` | ✅ OUI |
+| Tests fonctionnels | `src/functionalTest/kotlin` | ✅ OUI |
+| Tests Cucumber | `src/test/scenarios` | ✅ OUI |
+
+#### 📝 Fichiers modifiés
+- `build.gradle.kts` — Configuration Kover mise à jour
+
+---
+
 ### Session 47 — 2026-04-13 : Consolidation Tests Fonctionnels (Suite)
 
 #### ✅ Contexte
