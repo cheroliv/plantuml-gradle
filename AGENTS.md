@@ -57,14 +57,15 @@ plantuml-plugin/src/main/kotlin/plantuml/
 
 ## 📊 État actuel
 
-**Session 47 TERMINÉE** — Consolidation tests fonctionnels
+**Session 49 TERMINÉE** — Séparation des fichiers de test du dossier git
 
 **Résultats** :
 - ✅ **134 tests unitaires** : 134/134 PASS (100%)
 - ✅ **42 tests fonctionnels** : 40 PASS, 6 SKIP, 0 FAIL
+- ✅ **Sérialisation** : `maxParallelForks = 1` dans `functionalTest` (évite OOM)
+- ✅ **Generated/rag** : Nettoyé (173 fichiers JSON supprimés)
+- ✅ **Protection** : `.gitignore` ajoutés dans `diagrams/` et `rag/`
 - ✅ **AGENTS.md** : 94 lignes (stable)
-- ✅ **Consolidation** : `PlantumlRealInfrastructureSuite.kt` + `ReindexPlantumlRagTaskTest.kt` → `PlantumlFunctionalSuite.kt`
-- ✅ **Nettoyage** : `FunctionalTestTemplate.kt` supprimé, dossier `task/` supprimé
 
 **Voir** : `SESSIONS_HISTORY.md` pour l'historique complet des sessions
 **Voir** : `COMPLETED_TASKS_ARCHIVE.md` pour les tâches terminées
