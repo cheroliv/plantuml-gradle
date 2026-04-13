@@ -9,6 +9,7 @@ plugins {
     `java-gradle-plugin`
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.publish)
+    alias(libs.plugins.kover)
 }
 
 group = "com.cheroliv"
@@ -181,10 +182,10 @@ val functionalTestTask = tasks.register<Test>("functionalTest") {
     // Ajouter des propriétés système pour les tests de permissions
     systemProperty("test.timeout.multiplier", "2")
 
-    // OPTIMISATION : 1 seul worker JVM pour tous les tests fonctionnels
-    // Les nested classes partagent déjà WireMock + GradleRunner via companion object
-    maxParallelForks = 1 // ← CHANGEMENT CRITIQUE : 1 seule JVM pour tous les tests
-    forkEvery = 0 // ← Ne jamais redémarrer le worker (0 = illimité)
+    // SÉQUENTIEL STRICT : 1 seul test à la fois pour éviter OOM
+    // Chaque test lance un GradleRunner (~500MB+), la parallélisation crashe le système
+    maxParallelForks = 1
+    forkEvery = 0
     jvmArgs("-XX:+UseSerialGC")
     jvmArgs("-XX:MaxMetaspaceSize=256m")
     jvmArgs("-XX:TieredStopAtLevel=1")
@@ -278,6 +279,29 @@ tasks.withType<Test>().configureEach {
 tasks.check {
     dependsOn(functionalTestTask)
     dependsOn(cucumberTest)
+}
+
+kover {
+    currentProject {
+        sources {
+            // Inclure main + functionalTest dans la couverture
+            // Par défaut, Kover inclut déjà 'main' et exclut 'test'
+            // On ajoute explicitement functionalTest
+            includedSourceSets.addAll("main", "functionalTest")
+        }
+    }
+    reports {
+        total {
+            html {
+                onCheck.set(true)
+                htmlDir.set(layout.buildDirectory.dir("reports/kover/html"))
+            }
+            xml {
+                onCheck.set(true)
+                xmlFile.set(layout.buildDirectory.file("reports/kover/xml/report.xml"))
+            }
+        }
+    }
 }
 
 gradlePlugin {
