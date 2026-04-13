@@ -1,6 +1,40 @@
 # Historique des Sessions — PlantUML Gradle Plugin
 
-## Session 43 — 2026-04-13 : Consolidation Tests Fonctionnels - Migration + Nettoyage (TERMINÉE)
+## Session 49 — 2026-04-13 : Séparation des fichiers de test du dossier git (TERMINÉE)
+
+### ✅ Contexte
+- **Problème** : Les tests fonctionnels généraient des fichiers mocks dans `plantuml-plugin/generated/rag` qui est tracké par git
+- **Résultat** : 173 fichiers `attempt-history-*.json` mélangés entre tests et production
+- **Solution** : Surcharge du dossier de sortie via paramètre Gradle `-Pplantuml.output.rag`
+
+### ✅ Tâches réalisées
+
+**Modifications de code** :
+- ✅ `PlantumlFunctionalSuite.kt` (ligne 205) : Ajout automatique de `-Pplantuml.output.rag=<dir>/build/plantuml-plugin/generated/rag`
+- ✅ `PlantumlWorld.kt` (ligne 168) : Ajout du paramètre pour les tests Cucumber BDD
+- ✅ Hiérarchie respectée : CLI > YAML > gradle.properties
+
+**Nettoyage git** :
+- ✅ Suppression de 173 fichiers JSON de `generated/rag/`
+- ✅ Suppression de 12 fichiers JSON de `generated/diagrams/`
+- ✅ Suppression du dossier `generated/mock-smollm-training/` (62 fichiers)
+- ✅ Ajout de `.gitignore` dans `diagrams/` et `rag/` (ignore `*.json`)
+
+### ✅ Résultats
+- ✅ Dossier `generated/rag/` maintenant propre pour un usage production
+- ✅ Tests isolés dans `build/plantuml-plugin/generated/rag/`
+- ✅ Protection future via `.gitignore` dans chaque sous-dossier
+- ✅ Possibilité de surcharge manuelle : `-Pplantuml.output.rag=custom/path`
+
+### 📁 Fichiers modifiés
+- `plantuml-plugin/src/functionalTest/kotlin/plantuml/PlantumlFunctionalSuite.kt`
+- `plantuml-plugin/src/test/scenarios/plantuml/scenarios/PlantumlWorld.kt`
+- `plantuml-plugin/generated/diagrams/.gitignore` (nouveau)
+- `plantuml-plugin/generated/rag/.gitignore` (nouveau)
+
+---
+
+## Session 48 — 2026-04-13 : Consolidation Tests Fonctionnels - Migration + Nettoyage (TERMINÉE)
 
 ### ✅ Contexte
 - **Objectif** : Migrer 5 classes de tests fonctionnels en nested classes dans `PlantumlFunctionalSuite.kt`
