@@ -8,12 +8,12 @@ import java.nio.file.Path
 enum class ProcessResult { SUCCESS, SKIPPED, FAILED }
 
 /**
- * Logique métier de traitement des prompts, extraite de ProcessPlantumlPromptsTask.
+ * Business logic for prompt processing, extracted from ProcessPlantumlPromptsTask.
  *
- * Cette classe ne connaît pas Gradle — elle reçoit ses dépendances par injection,
- * ce qui la rend testable directement en JUnit sans démarrer de processus Gradle.
+ * This class knows nothing about Gradle — it receives its dependencies via injection,
+ * making it directly testable with JUnit without starting a Gradle process.
  *
- * La tâche Gradle devient une fine wrapper qui instancie et délègue.
+ * The Gradle task becomes a thin wrapper that instantiates and delegates.
  */
 class PromptOrchestrator(
     private val config: PlantumlConfig,
