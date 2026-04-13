@@ -10,11 +10,11 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * Tests unitaires de RagIndexer.
+ * Unit tests for RagIndexer.
  *
- * Pas de GradleRunner, pas de réseau — chaque test démarre en quelques ms.
- * On teste ici toute la logique qui était auparavant enfouie dans la tâche Gradle
- * et visible seulement via l'output texte de GradleRunner.
+ * No GradleRunner, no network — each test runs in a few ms.
+ * We test all the logic that was previously buried in the Gradle task
+ * and only visible via GradleRunner text output.
  */
 class RagIndexerTest {
 
@@ -74,8 +74,8 @@ class RagIndexerTest {
 
         val result = RagIndexer(ragDir).index()
 
-        // Le test trouve 2 diagrammes (root.puml + deep.puml)
-        // Le répertoire 'sub' n'est pas compté comme un diagramme
+        // The test finds 2 diagrams (root.puml + deep.puml)
+        // The 'sub' directory is not counted as a diagram
         assertEquals(2, result.diagramsFound)
     }
 
@@ -87,7 +87,7 @@ class RagIndexerTest {
 
         val result = RagIndexer(ragDir).index()
 
-        // Les deux fichiers sont trouvés, l'indexation ne crashe pas sur le vide
+        // Both files are found, indexing doesn't crash on empty
         assertEquals(2, result.diagramsFound)
     }
 
@@ -106,7 +106,7 @@ class RagIndexerTest {
 
     @Test
     fun `should report error when ragDir is a file not a directory`() {
-        // Crée un fichier à la place du répertoire
+        // Create a file instead of a directory
         ragDir.parentFile.mkdirs()
         ragDir.createNewFile()
 
