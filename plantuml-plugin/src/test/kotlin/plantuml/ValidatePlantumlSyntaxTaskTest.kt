@@ -12,9 +12,9 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 /**
- * Tests unitaires pour ValidatePlantumlSyntaxTask
+ * Unit tests for ValidatePlantumlSyntaxTask
  * 
- * Tests la tâche de validation de syntaxe PlantUML
+ * Tests the PlantUML syntax validation task
  */
 class ValidatePlantumlSyntaxTaskTest {
 
