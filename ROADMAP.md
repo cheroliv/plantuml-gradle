@@ -49,6 +49,8 @@
 | **1.2** | Remplacer sérialisation JSON manuelle par Jackson/Kotlin Serialization | 🔴 CRITIQUE | 2 sessions | ⏳ À FAIRE |
 | **1.3** | Nettoyer ou conditionner les DEBUG logs (lifecycle → debug) | 🟡 IMPORTANT | 1 session | ⏳ À FAIRE |
 | **1.4** | Ajouter seuil Kover obligatoire (75% min) dans `build.gradle.kts` | 🟡 IMPORTANT | 1 session | ⏳ À FAIRE |
+| **1.5** | Tester `ConfigMerger.getOrDefault()` et branches manquantes | 🟡 IMPORTANT | 1 session | ⏳ À FAIRE |
+| **1.6** | Tester `PlantumlManager` nested class (méthode non couverte) | 🟡 IMPORTANT | 1 session | ⏳ À FAIRE |
 
 #### Critères d'acceptation
 
@@ -56,6 +58,8 @@
 - ✅ `0 crash JSON` avec caractères spéciaux (accents, emojis)
 - ✅ `-70%` output verbeux en production
 - ✅ Build fail si couverture < 75%
+- ✅ Couverture méthode `ConfigMerger.getOrDefault()` = 100%
+- ✅ Couverture `PlantumlManager` nested class = 100%
 
 ---
 
