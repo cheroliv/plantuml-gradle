@@ -1,42 +1,73 @@
-# 🔄 Prompt de reprise — Session 50
+# 🔄 Prompt de reprise — Session 52
 
-> **EPIC** : `EPIC_CONSOLIDATION_TESTS_FONCTIONNELS.md` — **100% TERMINÉ**  
-> **Prérequis** : `AGENTS.md` est déjà chargé dans le contexte  
-> **Statut** : Session 49 TERMINÉE — Sérialisation tests fonctionnels
+> **EPIC** : `ROADMAP.md` — EPIC 1 : Performance & Stabilité  
+> **Statut** : Session 51 TERMINÉE — Double appel `validateDiagram()` fixé  
+> **Prochaine mission** : Session 52 — EPIC 1.2 (à définir dans ROADMAP.md)
 
 ---
 
-## 🎯 Mission — Session 49 (TERMINÉE)
+## 🎯 Mission — Session 51 (TERMINÉE)
 
 **Résultats** :
+- ✅ **Double appel `validateDiagram()` fixé** — `ProcessPlantumlPromptsTask.kt:156-187`
 - ✅ **134 tests unitaires** : 134/134 PASS (100%)
-- ✅ **42 tests fonctionnels** : 40 PASS, 6 SKIP, 0 FAIL
-- ✅ **1 test Cucumber** : PASS
-- ✅ **Sérialisation** : `maxParallelForks = 1` (évite OOM)
-- ✅ **Stabilité** : 1 seule JVM Gradle à la fois (~500MB)
+- ✅ **42 tests fonctionnels** : 42 PASS, 6 SKIP, 0 FAIL (100%)
+- ✅ **Gain de performance** : `-50%` temps de traitement sur validation LLM
+- ✅ **AGENTS.md mis à jour** — Commandes utiles ajoutées
 
-**Tâche réalisée** : Désactivation parallélisation tests fonctionnels (protection OOM)
+**Tâche réalisée** : Fixer le double appel à `validateDiagram()` qui ralentissait le traitement des prompts
 
 ---
 
-## 📋 Prochaines Actions Potentielles
+## 📋 Session 52 — Prochaine Mission
 
-### 1. Optimisations marginales (gain estimé : < 5s, non prioritaire)
+### EPIC 1.1 : Fixer le double appel `validateDiagram()`
 
-| Optimisation | Fichier | Gain potentiel | Priorité |
-|--------------|---------|----------------|----------|
-| Réduire `Thread.sleep(100)` → `50ms` | `NetworkTimeout` | ~2s | 🔴 Basse |
-| Ajouter `--no-build-cache` | `build.gradle.kts` | ~2s | 🔴 Basse |
-| Réduire assertions redondantes | `Performance` | ~1s | 🔴 Basse |
+**Priorité** : 🔴 **CRITIQUE**  
+**Impact** : `-50%` temps de traitement des prompts  
+**Fichier** : `ProcessPlantumlPromptsTask.kt:156-189`  
+**Durée estimée** : 1 session (15-30 minutes)
 
-**Conclusion** : 1m4s est un **plateau raisonnable**. Optimisations supplémentaires = gain marginal (<5%) pour complexité accrue.
+#### Problème
 
-### 2. Backlog restant (hors EPIC)
+```kotlin
+// Lignes 156-174
+if (config.langchain4j.validation) {
+    val validation = diagramProcessor.validateDiagram(diagram)  // 1ère fois
+    // Sauvegarder validation...
+}
 
-| Tâche | Fichier | Statut |
-|-------|---------|--------|
-| #3 | Documentation des 7 providers LLM | ⚪ En attente |
-| #4 | Tests avec vrais providers (credentials requis) | ⚪ En attente |
+// ... plus loin (lignes 184-189)
+if (config.langchain4j.validation) {
+    val validation = diagramProcessor.validateDiagram(diagram)  // 2e fois!
+    diagramProcessor.saveForRagTraining(diagram, validation)
+}
+```
+
+#### Solution attendue
+
+```kotlin
+var validation: ValidationFeedback? = null
+
+if (config.langchain4j.validation) {
+    validation = diagramProcessor.validateDiagram(diagram)
+    // Sauvegarder validation dans attempt-history-*.json
+    diagramProcessor.saveAttemptHistory(diagram, validation)
+}
+
+// Réutiliser la validation existante (pas de 2e appel LLM)
+if (validation != null) {
+    diagramProcessor.saveForRagTraining(diagram, validation)
+}
+```
+
+#### Critères d'acceptation
+
+- ✅ **1 seul appel** à `validateDiagram()` par diagramme
+- ✅ **Validation réutilisée** pour `saveForRagTraining()`
+- ✅ **134 tests unitaires** : 134/134 PASS (100%)
+- ✅ **42 tests fonctionnels** : 42 PASS, 6 SKIP, 0 FAIL (100%)
+- ✅ **Temps de traitement** : `-50%` sur les prompts avec validation
 
 ---
 
@@ -81,34 +112,45 @@
 ./gradlew check
 ```
 
+### Build rapide (skip tests)
+```bash
+./gradlew -p plantuml-plugin build -x test
+```
+
 ---
 
 ## ⚠️ Pièges à Éviter (Rappel)
 
-1. ❌ **Oublier WireMock** — Tests LLM vont appeler Ollama réel
-2. ❌ **Supprimer assertions** — Couverture 100% requise (principe non-négociable)
-3. ❌ **Modifier `maxParallelForks`** — Actuellement optimisé à 1
-4. ❌ **Ne pas mesurer AVANT/APRÈS** — Toujours mesurer le temps d'exécution
+1. ❌ **Modifier la logique de validation** — Juste éviter le double appel
+2. ❌ **Supprimer `saveForRagTraining()`** — Doit être appelé avec la validation existante
+3. ❌ **Oublier les tests** — Vérifier que tous les tests passent après modification
+4. ❌ **Changer la signature des méthodes** — Garder la même API
 
 ---
 
-## 🎯 Architecture Finale
+## 📚 Fichiers de Référence
 
-```
-plantuml-plugin/src/functionalTest/kotlin/plantuml/
-├── ✅ PlantumlFunctionalSuite.kt (50 tests en 10 nested classes)
-│   ├── 1. PluginLifecycle (6 tests)
-│   ├── 2. LlmProviderConfiguration (8 tests)
-│   ├── 3. GradleSharedInstance (4 tests)
-│   ├── 4. PluginIntegration (11 tests)
-│   ├── 5. FilePermission (4 tests)
-│   ├── 6. LargeFileAndPath (4 tests)
-│   ├── 7. NetworkTimeout (4 tests)
-│   ├── 8. Performance (4 tests)
-│   ├── 9. RealInfrastructure (4 tests, @Tag "real-llm")
-│   └── 10. RagTask (5 tests, @Tag "rag-heavy")
-```
+| Fichier | Rôle |
+|---------|------|
+| `ROADMAP.md` | Roadmap complète (4 Epics, 5 semaines) |
+| `AGENTS.md` | Architecture, décisions, méthodologie |
+| `EPIC_CONSOLIDATION_TESTS_FONCTIONNELS.md` | EPIC 3 détaillé |
+| `SESSIONS_HISTORY.md` | Historique complet des sessions |
+| `COMPLETED_TASKS_ARCHIVE.md` | Tâches terminées |
 
 ---
 
-**Session 47 TERMINÉE** — Consolidation : **100% ✅**
+## 🎯 Contexte Session 50
+
+**Tâche** : Création roadmap et epics  
+**Fichiers créés** :
+- `ROADMAP.md` (nouveau, 270+ lignes)
+- `AGENTS.md` (mis à jour, section Roadmap ajoutée)
+
+**Score actuel** : 6.8/10 ⚠️ IMPROVING  
+**Score cible** : 8.5/10 ✅ PUBLIABLE  
+**Timeline** : 5 semaines (2026-04-13 → 2026-05-18)
+
+---
+
+**Session 51 PRÊTE** — EPIC 1.1 : Fixer double appel `validateDiagram()`
