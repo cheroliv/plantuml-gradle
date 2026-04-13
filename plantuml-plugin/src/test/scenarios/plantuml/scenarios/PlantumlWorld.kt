@@ -162,7 +162,9 @@ class PlantumlWorld {
     ): Deferred<BuildResult> {
         require(projectDir != null) { "Project directory must be initialized" }
         val propArgs = properties.map { (k, v) -> "-P$k=$v" }
-        val allArgs = tasks.toList() + propArgs + "--stacktrace"
+        val allArgs = tasks.toList() + propArgs + 
+            "-Pplantuml.output.rag=${projectDir!!.absolutePath}/build/plantuml-plugin/generated/rag" +
+            "--stacktrace"
         log.info("Starting async Gradle execution: $allArgs")
         return scope.async {
             try {
