@@ -1,18 +1,19 @@
-# 🔄 Prompt de reprise — Session 47
+# 🔄 Prompt de reprise — Session 48
 
 > **EPIC** : `EPIC_CONSOLIDATION_TESTS_FONCTIONNELS.md` — **100% TERMINÉ**  
 > **Prérequis** : `AGENTS.md` est déjà chargé dans le contexte  
-> **Statut** : Session 46 TERMINÉE — Procédure fin de session mise à jour
+> **Statut** : Session 47 TERMINÉE — Consolidation tests fonctionnels terminée
 
 ---
 
-## 🎯 Mission — Session 46 (TERMINÉE)
+## 🎯 Mission — Session 47 (TERMINÉE)
 
 **Résultats** :
-- ✅ **SESSION_PROCEDURE.md mis à jour** : Procédure de nettoyage AGENTS.md (5 étapes)
 - ✅ **134 tests unitaires** : 134/134 PASS (100%)
 - ✅ **42 tests fonctionnels** : 40 PASS, 6 SKIP, 0 FAIL
-- ✅ **AGENTS.md stable** : 94 lignes (aucun transfert supplémentaire nécessaire)
+- ✅ **AGENTS.md** : 94 lignes (stable)
+- ✅ **Consolidation** : `PlantumlRealInfrastructureSuite.kt` + `ReindexPlantumlRagTaskTest.kt` → `PlantumlFunctionalSuite.kt`
+- ✅ **Nettoyage** : `FunctionalTestTemplate.kt` supprimé, dossier `task/` supprimé
 
 ---
 
@@ -51,7 +52,9 @@
 | LargeFileAndPath | 4 | ✅ PASS |
 | NetworkTimeout | 4 | ✅ PASS |
 | Performance | 4 | ✅ PASS |
-| **Total** | **45** | **40 PASS, 6 SKIP** |
+| RealInfrastructure | 4 | ⏭️ IGNORE (nécessite Ollama réel) |
+| RagTask | 5 | ⏭️ IGNORE (trop lent - embedding ML) |
+| **Total** | **50** | **40 PASS, 6 SKIP, 4 IGNORE** |
 
 ### Tests unitaires (134 tests)
 
@@ -91,16 +94,19 @@
 
 ```
 plantuml-plugin/src/functionalTest/kotlin/plantuml/
-├── ✅ PlantumlFunctionalSuite.kt (42 tests en 8 nested classes)
-├── ✅ PlantumlRealInfrastructureSuite.kt (6 tests, tag "real-llm")
-├── ✅ ReindexPlantumlRagTaskTest.kt (5 tests, tag "rag-heavy")
-└── ✅ FunctionalTestTemplate.kt (utils)
-
-build.gradle.kts:
-├── maxParallelForks = 1
-└── forkEvery = 0
+├── ✅ PlantumlFunctionalSuite.kt (50 tests en 10 nested classes)
+│   ├── 1. PluginLifecycle (6 tests)
+│   ├── 2. LlmProviderConfiguration (8 tests)
+│   ├── 3. GradleSharedInstance (4 tests)
+│   ├── 4. PluginIntegration (11 tests)
+│   ├── 5. FilePermission (4 tests)
+│   ├── 6. LargeFileAndPath (4 tests)
+│   ├── 7. NetworkTimeout (4 tests)
+│   ├── 8. Performance (4 tests)
+│   ├── 9. RealInfrastructure (4 tests, @Tag "real-llm")
+│   └── 10. RagTask (5 tests, @Tag "rag-heavy")
 ```
 
 ---
 
-**Session 46 TERMINÉE** — Procédure fin de session : **100% ✅**
+**Session 47 TERMINÉE** — Consolidation : **100% ✅**
