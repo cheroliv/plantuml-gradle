@@ -12,9 +12,9 @@ import kotlin.test.assertFalse
 import kotlin.test.assertFailsWith
 
 /**
- * Tests unitaires pour ReindexPlantumlRagTask
+ * Unit tests for ReindexPlantumlRagTask
  * 
- * Tests la tâche de ré-indexation RAG (mode simulation, sans base de données)
+ * Tests the RAG re-indexing task (simulation mode, without database)
  */
 class ReindexPlantumlRagTaskUnitTest {
 
