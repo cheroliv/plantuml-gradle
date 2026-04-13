@@ -34,6 +34,11 @@ dependencies {
     api(libs.commons.io)
     api(libs.bundles.plantuml.ai)
 
+    // Jackson for JSON serialization
+    api(libs.jackson.module.kotlin)
+    api(libs.jackson.dataformat.yaml)
+    api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2")
+
     // Coroutines - IMPORTANT for the asynchronous tests
     testImplementation(libs.bundles.coroutines)
 
