@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-//Tests are quick
+// Tests are quick
 class PlantumlPluginTest {
 
     @Test
@@ -31,7 +31,7 @@ class PlantumlPluginTest {
         project.pluginManager.apply("com.cheroliv.plantuml")
 
         // Then
-        // Si on arrive ici sans exception, le plugin s'est appliqué correctement
+        // If we get here without exception, the plugin was applied correctly
         assertTrue(project.plugins.hasPlugin("com.cheroliv.plantuml"))
     }
 }
