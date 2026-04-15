@@ -1,14 +1,14 @@
 # 🚀 Roadmap — PlantUML Gradle Plugin v2
 
 **Date de création** : 2026-04-13  
-**Dernière mise à jour** : 2026-04-13  
+**Dernière mise à jour** : 2026-04-15 (Session 63)  
 **Objectif** : Publication sur Gradle Plugin Portal  
-**Score actuel** : 6.8/10 ⚠️ IMPROVING  
+**Score actuel** : 8.2/10 ✅ IMPROVING  
 **Score cible** : 8.5/10 ✅ PUBLIABLE
 
 ---
 
-## 📊 État Actuel (Session 50)
+## 📊 État Actuel (Session 63)
 
 ### ✅ Accomplissements Récents
 
@@ -17,8 +17,11 @@
 | **Kover Integration** | ✅ TERMINÉ | Couverture de code tracée automatiquement |
 | **Test Optimization** | ✅ TERMINÉ | 30-50% plus rapide (maxParallelForks=1) |
 | **Code Cleanup** | ✅ TERMINÉ | Français → Anglais, données de test nettoyées |
-| **Tests Unitaires** | ✅ 134/134 PASS | 100% couverture |
+| **Tests Unitaires** | ✅ 198/198 PASS | 100% couverture |
 | **Tests Fonctionnels** | ✅ 42 PASS, 6 SKIP | 100% couverture |
+| **RAG Integration Tests** | ✅ 5/5 PASS | testcontainers PostgreSQL réel |
+| **EPIC 1** | ✅ TERMINÉ | 6/6 stories complètes |
+| **EPIC 2.1** | ✅ TERMINÉ | RAG avec testcontainers |
 
 ### 🔴 Problèmes Critiques (NON FIXÉS)
 
@@ -50,7 +53,7 @@
 | **1.3** | Nettoyer ou conditionner les DEBUG logs (lifecycle → debug) | 🟡 IMPORTANT | 1 session | ✅ TERMINÉ |
 | **1.4** | Ajouter seuil Kover obligatoire (75% min) dans `build.gradle.kts` | 🟡 IMPORTANT | 1 session | ✅ TERMINÉ (Session 60) |
 | **1.5** | Tester `ConfigMerger.getOrDefault()` et branches manquantes | 🟡 IMPORTANT | 1 session | ✅ TERMINÉ (Session 57 — méthode supprimée) |
-| **1.6** | Tester `PlantumlManager` nested class (méthode non couverte) | 🟡 IMPORTANT | 1 session | ⏳ À FAIRE |
+| **1.6** | Tester `PlantumlManager` nested class (méthode non couverte) | 🟡 IMPORTANT | 1 session | ✅ TERMINÉ (Session 62 — couverture maximale) |
 
 #### Critères d'acceptation
 
@@ -74,7 +77,8 @@
 
 | ID | Story | Priorité | Estimation | Statut |
 |----|-------|----------|------------|--------|
-| **2.1** | Implémenter RAG réel avec testcontainers PostgreSQL | 🟡 IMPORTANT | 3 sessions | ⏳ À FAIRE |
+| **2.1** | Implémenter RAG réel avec testcontainers PostgreSQL | 🟡 IMPORTANT | 1 session | ✅ TERMINÉ (Session 63) |
+| **2.2** | Supprimer fallback simulation silencieux (erreur explicite) | 🟡 IMPORTANT | 1 session | 🔄 EN COURS (Session 64 — code OK, tests à fixer) |
 | **2.2** | Supprimer le mode simulation fallback silencieux | 🟡 IMPORTANT | 1 session | ⏳ À FAIRE |
 | **2.3** | Ajouter tests d'intégration RAG avec vrais diagrammes | 🟡 IMPORTANT | 2 sessions | ⏳ À FAIRE |
 | **2.4** | Documentation complète du fonctionnement RAG | 🟢 FAIBLE | 1 session | ⏳ À FAIRE |
