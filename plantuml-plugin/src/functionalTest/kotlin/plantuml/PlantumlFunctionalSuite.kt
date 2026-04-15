@@ -1,10 +1,12 @@
+@file:Suppress("FunctionName")
+
 package plantuml
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import org.gradle.testkit.runner.GradleRunner
-import org.gradle.testkit.runner.TaskOutcome
+import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.ClassOrderer.OrderAnnotation
@@ -16,11 +18,9 @@ import java.io.File
 import java.net.HttpURLConnection
 import java.net.URI
 import java.net.URI.create
+import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlin.test.Ignore
-import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.Tag
 
 /**
  * Consolidated functional test suite for the PlantUML plugin.
@@ -238,7 +238,7 @@ class PlantumlFunctionalSuite {
             val result = runner("tasks", "--console=plain").build()
 
             assertEquals(
-                TaskOutcome.SUCCESS,
+                SUCCESS,
                 result.task(":tasks")?.outcome,
                 "The :tasks task must complete with SUCCESS",
             )
@@ -289,7 +289,7 @@ class PlantumlFunctionalSuite {
 
             val result = runner("tasks", "--console=plain").build()
 
-            assertEquals(TaskOutcome.SUCCESS, result.task(":tasks")?.outcome)
+            assertEquals(SUCCESS, result.task(":tasks")?.outcome)
 
             // Restore the nominal build file
             File(sharedProjectDir, "build.gradle.kts").writeText(
@@ -327,7 +327,7 @@ class PlantumlFunctionalSuite {
         fun `help task should succeed with plugin applied`() {
             val result = runner("help", "--console=plain").build()
 
-            assertEquals(TaskOutcome.SUCCESS, result.task(":help")?.outcome)
+            assertEquals(SUCCESS, result.task(":help")?.outcome)
         }
 
         /**
@@ -562,7 +562,7 @@ class PlantumlFunctionalSuite {
         @Tag("quick")
         fun `help task should succeed with shared project`() {
             val result = runner("help", "--console=plain").build()
-            assertEquals(TaskOutcome.SUCCESS, result.task(":help")?.outcome)
+            assertEquals(SUCCESS, result.task(":help")?.outcome)
         }
 
         /** SharedGradleInstanceFunctionalTest.test02 */
@@ -603,7 +603,7 @@ class PlantumlFunctionalSuite {
 
             val result = runner("help", "--console=plain").build()
             assertEquals(
-                TaskOutcome.SUCCESS,
+                SUCCESS,
                 result.task(":help")?.outcome,
                 "Build must succeed after YAML update",
             )
@@ -684,7 +684,7 @@ class PlantumlFunctionalSuite {
                 "-Pplantuml.diagram=sample.puml",
                 "-Dplantuml.test.mode=true",
             ).build()
-            assertEquals(TaskOutcome.SUCCESS, result.task(":validatePlantumlSyntax")?.outcome)
+            assertEquals(SUCCESS, result.task(":validatePlantumlSyntax")?.outcome)
             assertTrue(result.output.contains("PlantUML syntax is valid"))
         }
 
@@ -716,7 +716,7 @@ class PlantumlFunctionalSuite {
                 "-Pplantuml.diagram=unicode.puml",
                 "-Dplantuml.test.mode=true",
             ).build()
-            assertEquals(TaskOutcome.SUCCESS, result.task(":validatePlantumlSyntax")?.outcome)
+            assertEquals(SUCCESS, result.task(":validatePlantumlSyntax")?.outcome)
         }
 
         @Test
@@ -727,7 +727,7 @@ class PlantumlFunctionalSuite {
                 "reindexPlantumlRag",
                 "-Dplantuml.test.mode=true",
             ).build()
-            assertEquals(TaskOutcome.SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
+            assertEquals(SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
             assertTrue(
                 result.output.contains("Found") ||
                         result.output.contains("Indexed") ||
@@ -769,7 +769,7 @@ class PlantumlFunctionalSuite {
             File(subDir, "fresh-rag").deleteRecursively()
 
             val result = runner("reindexPlantumlRag", "-Dplantuml.test.mode=true").build()
-            assertEquals(TaskOutcome.SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
+            assertEquals(SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
         }
 
         @Test
@@ -783,7 +783,7 @@ class PlantumlFunctionalSuite {
                 "reindexPlantumlRag",
                 "-Dplantuml.test.mode=true",
             ).build()
-            assertEquals(TaskOutcome.SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
+            assertEquals(SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
         }
 
         @Test
@@ -795,7 +795,7 @@ class PlantumlFunctionalSuite {
                 "-Dplantuml.test.mode=true",
                 "--stacktrace",
             ).build()
-            assertEquals(TaskOutcome.SUCCESS, result.task(":processPlantumlPrompts")?.outcome)
+            assertEquals(SUCCESS, result.task(":processPlantumlPrompts")?.outcome)
             assertTrue(result.output.contains("Processing 1 prompt files"))
         }
 
@@ -808,7 +808,7 @@ class PlantumlFunctionalSuite {
                 "-Pplantuml.langchain4j.model=ollama",
                 "-Dplantuml.test.mode=true",
             ).build()
-            assertEquals(TaskOutcome.SUCCESS, result.task(":processPlantumlPrompts")?.outcome)
+            assertEquals(SUCCESS, result.task(":processPlantumlPrompts")?.outcome)
             assertTrue(!result.output.contains("Invalid model configuration"))
         }
 
@@ -828,7 +828,7 @@ class PlantumlFunctionalSuite {
             File(subDir, "empty-prompts").mkdirs()
 
             val result = runner("processPlantumlPrompts", "-Dplantuml.test.mode=true").build()
-            assertEquals(TaskOutcome.SUCCESS, result.task(":processPlantumlPrompts")?.outcome)
+            assertEquals(SUCCESS, result.task(":processPlantumlPrompts")?.outcome)
         }
     }
 
@@ -1790,14 +1790,14 @@ class PlantumlFunctionalSuite {
 
             val result = runner("reindexPlantumlRag", "--stacktrace").build()
 
-            assertEquals(TaskOutcome.SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
+            assertEquals(SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
             assertTrue(result.output.contains("→ Found 5 PlantUML diagrams and 0 training histories for indexing"))
         }
 
         private fun testEmptyDirectory() {
             val result = runner("reindexPlantumlRag", "--info").build()
 
-            assertEquals(TaskOutcome.SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
+            assertEquals(SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
             assertTrue(
                 result.output.contains("RAG") ||
                         result.output.contains("No PlantUML") ||
@@ -1813,7 +1813,7 @@ class PlantumlFunctionalSuite {
 
             val result = runner("reindexPlantumlRag", "--info").build()
 
-            assertEquals(TaskOutcome.SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
+            assertEquals(SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
         }
 
         private fun testSubdirectories() {
@@ -1830,7 +1830,7 @@ class PlantumlFunctionalSuite {
 
             val result = runner("reindexPlantumlRag", "--info").build()
 
-            assertEquals(TaskOutcome.SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
+            assertEquals(SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
         }
 
         private fun testEmptyFiles() {
@@ -1841,7 +1841,7 @@ class PlantumlFunctionalSuite {
 
             val result = runner("reindexPlantumlRag", "--info").build()
 
-            assertEquals(TaskOutcome.SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
+            assertEquals(SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
         }
 
         @Test
@@ -1853,7 +1853,7 @@ class PlantumlFunctionalSuite {
 
             val result = runner("reindexPlantumlRag", "-Prag.mode=testcontainers").build()
 
-            assertEquals(TaskOutcome.SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
+            assertEquals(SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
             assertTrue(result.output.contains("Using testcontainers PostgreSQL"))
             assertTrue(result.output.contains("PostgreSQL container started"))
         }
@@ -1902,7 +1902,7 @@ class PlantumlFunctionalSuite {
 
             val result = runner("reindexPlantumlRag").build()
 
-            assertEquals(TaskOutcome.SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
+            assertEquals(SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
         }
     }
 }
