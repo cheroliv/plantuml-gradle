@@ -309,6 +309,36 @@ kover {
     }
 }
 
+// Kover verification - fail build if coverage < 75%
+tasks.register("koverThresholdCheck") {
+    doLast {
+        val reportFile = layout.buildDirectory.file("reports/kover/xml/report.xml").get().asFile
+        if (!reportFile.exists()) {
+            throw GradleException("Kover report not found. Run 'koverXmlReport' first.")
+        }
+        val xml = reportFile.readText()
+        // Aggregate all INSTRUCTION counters from the report
+        val coverageRegex = Regex("""<counter type="INSTRUCTION" missed="(\d+)" covered="(\d+)"/>""")
+        val matches = coverageRegex.findAll(xml)
+        var totalMissed = 0L
+        var totalCovered = 0L
+        for (match in matches) {
+            totalMissed += match.groupValues[1].toLong()
+            totalCovered += match.groupValues[2].toLong()
+        }
+        val total = totalMissed + totalCovered
+        val coverage = if (total > 0) (totalCovered.toDouble() / total) * 100 else 0.0
+        println("Instruction coverage: ${String.format("%.2f", coverage)}% (missed=$totalMissed, covered=$totalCovered)")
+        if (coverage < 75.0) {
+            throw GradleException("Coverage ${String.format("%.2f", coverage)}% is below threshold 75%")
+        }
+    }
+}
+
+tasks.check {
+    dependsOn("koverThresholdCheck")
+}
+
 gradlePlugin {
     plugins {
         vcsUrl = "https://github.com/cheroliv/plantuml-gradle.git"
