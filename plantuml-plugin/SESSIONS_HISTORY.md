@@ -1,5 +1,87 @@
 # Historique des Sessions — PlantUML Gradle Plugin
 
+## Session 69 — 2026-04-15 : Story 4.2 — Guide Troubleshooting (TERMINÉE)
+
+### ✅ Contexte
+- **Session 68** : Story 4.1 (README Update) — **TERMINÉE**
+- **Objectif** : EPIC 4 — Story 4.2 (Guide Troubleshooting — FAQ 10 questions)
+- **Fichiers cibles** : `TROUBLESHOOTING.md`, `TROUBLESHOOTING_fr.md`
+- **Critère** : 10 questions/réponses (erreurs fréquentes), bilingue EN/FR
+
+### ✅ Résultats
+- ✅ **TROUBLESHOOTING.md** : 10 questions FAQ (EN)
+- ✅ **TROUBLESHOOTING_fr.md** : 10 questions FAQ (FR)
+- ✅ **Story 4.2** : ✅ TERMINÉE (Guide Troubleshooting complet)
+- ✅ **Score Roadmap** : 8.8/10 → 9.0/10 ✅ **OPTIMAL ATTEINT**
+
+### 📊 Modifications Session 69
+| Fichier | Action | Impact |
+|--------|--------|--------|
+| `TROUBLESHOOTING.md` | ✅ Créé (10 questions) | Guide dépannage (EN) |
+| `TROUBLESHOOTING_fr.md` | ✅ Créé (10 questions) | Guide dépannage (FR) |
+| `ROADMAP.md` | Story 4.2 marquée ✅ TERMINÉ | Roadmap à jour |
+| `SESSIONS_HISTORY.md` | Entrée Session 69 ajoutée | Historique à jour |
+
+### 📋 Questions FAQ couvertes
+1. **"Plugin not found"** — Comment appliquer le plugin ?
+2. **"Task not found"** — Pourquoi les tâches n'apparaissent pas ?
+3. **"Connection refused"** — LLM ne répond pas (Ollama, etc.)
+4. **"Timeout"** — Requête LLM trop lente
+5. **"RAG directory not found"** — Index RAG manquant
+6. **"Permission denied"** — Fichiers non lisibles
+7. **"JSON parsing error"** — Prompt mal formaté
+8. **"PlantUML syntax error"** — Diagramme invalide
+9. **"Out of memory"** — Gradle manque de mémoire
+10. **"Configuration not loaded"** — YAML/properties ignorés
+
+### 📋 Solutions incluses
+- ✅ **Étapes concrètes** (commands, configs, workarounds)
+- ✅ **Exemples de code** (YAML, Kotlin, Groovy, bash, PowerShell)
+- ✅ **Liens utiles** (validateurs en ligne, docs)
+- ✅ **Bilingue** (EN + FR)
+
+### 🎯 Prochaine Session (70)
+- **Objectif** : EPIC 4 — Story 4.3 (Documentation API complète avec KDoc)
+- **Score Roadmap** : 9.0/10 ✅ **OPTIMAL**
+
+---
+
+## Session 68 — 2026-04-15 : Story 4.1 — README Update (TERMINÉE)
+
+### ✅ Contexte
+- **Session 67** : Story 2.3 (Tests RAG Avancés) — **TERMINÉE**
+- **Objectif** : EPIC 4 — Story 4.1 (Mettre à jour README avec exemples complets)
+- **Fichiers cibles** : `README_truth.adoc`, `README_truth_fr.adoc`
+- **Critère** : README contributeur complet (architecture, DSL, tâches, RAG, 7 providers LLM)
+
+### ✅ Résultats
+- ✅ **README_truth.adoc** : 760 lignes — Documentation complète (EN)
+- ✅ **README_truth_fr.adoc** : 760 lignes — Documentation complète (FR)
+- ✅ **Story 4.1** : ✅ TERMINÉE (README contributeur PlantUML)
+- ✅ **Score Roadmap** : 8.6/10 → 8.8/10 ✅
+
+### 📊 Modifications Session 68
+| Fichier | Action | Impact |
+|--------|--------|--------|
+| `README_truth.adoc` | ✅ Créé (760 lignes) | Documentation contributeur (EN) |
+| `README_truth_fr.adoc` | ✅ Créé (760 lignes) | Documentation contributeur (FR) |
+
+### 📋 Contenu des README
+- ✅ Architecture PlantUML (diagrammes internes + C4 + hexagonale)
+- ✅ 7 fournisseurs LLM documentés (Ollama, OpenAI, Gemini, Mistral, HF, Groq, Claude)
+- ✅ Pipeline RAG expliqué (pgvector, embeddings, lifecycle)
+- ✅ DSL, tâches, dépendances, workflows
+- ✅ Décisions techniques clés (`--no-daemon`, `sslmode=disable`, `OUT_OF_PROCESS`)
+- ✅ Modèle de données (PlantumlConfig, InputConfig, OutputConfig, PlantumlDiagram)
+- ✅ Architecture hexagonale (ports & adapters)
+- ✅ Nomenclature `_truth_` préservée
+
+### 🎯 Prochaine Session (69)
+- **Objectif** : EPIC 4 — Story 4.2 (Guide Troubleshooting — FAQ 10 questions)
+- **Score Roadmap** : 8.8/10 ✅
+
+---
+
 ## Session 67 — 2026-04-15 : Story 2.3 — Tests RAG Avancés (TERMINÉE)
 
 ### ✅ Contexte
