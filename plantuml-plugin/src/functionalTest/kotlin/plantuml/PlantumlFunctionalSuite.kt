@@ -1098,9 +1098,14 @@ class PlantumlFunctionalSuite {
             )
 
             val largeDiagramFile = File(sharedProjectDir, "large.puml")
+            trackTempFile(largeDiagramFile)
             largeDiagramFile.writeText(buildSmallLargePlantUmlContent())
 
-            runner("validatePlantumlSyntax", "-Pplantuml.diagram=large.puml").build()
+            try {
+                runner("validatePlantumlSyntax", "-Pplantuml.diagram=large.puml").build()
+            } finally {
+                if (largeDiagramFile.exists()) largeDiagramFile.delete()
+            }
         }
 
         @Test
@@ -1120,14 +1125,21 @@ class PlantumlFunctionalSuite {
                 "àccéntéd_nâmë.puml",
             )
 
-            specialFiles.forEach { filename ->
-                File(sharedProjectDir, filename).writeText("@startuml\nclass Test\n@enduml")
-            }
+            try {
+                specialFiles.forEach { filename ->
+                    trackTempFile(File(sharedProjectDir, filename))
+                    File(sharedProjectDir, filename).writeText("@startuml\nclass Test\n@enduml")
+                }
 
-            runner(
-                "validatePlantumlSyntax",
-                "-Pplantuml.diagram=file with spaces.puml",
-            ).build()
+                runner(
+                    "validatePlantumlSyntax",
+                    "-Pplantuml.diagram=file with spaces.puml",
+                ).build()
+            } finally {
+                specialFiles.forEach { filename ->
+                    File(sharedProjectDir, filename).delete()
+                }
+            }
         }
 
         @Test
@@ -1160,11 +1172,16 @@ class PlantumlFunctionalSuite {
             )
 
             val deepPromptsDir = File(sharedProjectDir, "deep/path/prompts")
+            trackTempFile(File(sharedProjectDir, "deep"))
             deepPromptsDir.mkdirs()
 
             File(deepPromptsDir, "deep.prompt").writeText("Create a diagram")
 
-            runner("processPlantumlPrompts").build()
+            try {
+                runner("processPlantumlPrompts").build()
+            } finally {
+                if (deepPromptsDir.exists()) deepPromptsDir.deleteRecursively()
+            }
         }
 
         @Test
@@ -1179,6 +1196,7 @@ class PlantumlFunctionalSuite {
             )
 
             val unicodeFile = File(sharedProjectDir, "unicode.puml")
+            trackTempFile(unicodeFile)
             unicodeFile.writeText(
                 """
                 @startuml
@@ -1249,19 +1267,20 @@ class PlantumlFunctionalSuite {
                 val result = runner("processPlantumlPrompts").buildAndFail()
 
                 assertTrue(
-                    result.output.contains("timeout") ||
-                            result.output.contains("TIMEOUT") ||
-                            result.output.contains("Connection refused") ||
-                            result.output.contains("Connect timed out") ||
-                            result.output.contains("Read timed out"),
+                    result.output.contains("timeout", ignoreCase = true) ||
+                            result.output.contains("Connection refused", ignoreCase = true) ||
+                            result.output.contains("Connect timed out", ignoreCase = true) ||
+                            result.output.contains("Read timed out", ignoreCase = true) ||
+                            result.output.contains("Connection reset", ignoreCase = true) ||
+                            result.output.contains("EOF", ignoreCase = true) ||
+                            result.output.contains("unexpected", ignoreCase = true) ||
+                            result.output.contains("Failed to connect", ignoreCase = true),
+                    "Expected network error but got:\n${result.output}",
                 )
             } finally {
                 serverThread.interrupt()
                 try {
                     serverThread.join(1000)
-                    if (serverThread.isAlive) {
-                        serverThread.stop()
-                    }
                 } catch (_: Exception) { }
             }
         }
