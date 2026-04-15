@@ -48,14 +48,14 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
         val promptsDir = project.findProperty("plantuml.prompts.dir") as? String
             ?: config.input.prompts
 
-        logger.lifecycle("DEBUG: promptsDir from config: ${config.input.prompts}")
-        logger.lifecycle("DEBUG: promptsDir from property: ${project.findProperty("plantuml.prompts.dir")}")
-        logger.lifecycle("DEBUG: final promptsDir: $promptsDir")
+        logger.debug("DEBUG: promptsDir from config: ${config.input.prompts}")
+        logger.debug("DEBUG: promptsDir from property: ${project.findProperty("plantuml.prompts.dir")}")
+        logger.debug("DEBUG: final promptsDir: $promptsDir")
 
         // Resolve prompts directory relative to project directory
         val promptsDirectory = project.file(promptsDir)
-        logger.lifecycle("DEBUG: promptsDirectory absolute path: ${promptsDirectory.absolutePath}")
-        logger.lifecycle("DEBUG: promptsDirectory exists: ${promptsDirectory.exists()}")
+        logger.debug("DEBUG: promptsDirectory absolute path: ${promptsDirectory.absolutePath}")
+        logger.debug("DEBUG: promptsDirectory exists: ${promptsDirectory.exists()}")
 
         if (!promptsDirectory.exists()) {
             logger.lifecycle("Prompts directory does not exist: ${promptsDirectory.absolutePath}")
