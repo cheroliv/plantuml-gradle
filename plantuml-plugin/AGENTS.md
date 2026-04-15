@@ -70,7 +70,7 @@ plantuml-plugin/src/main/kotlin/plantuml/
 - ✅ `ROADMAP.md` : Story 1.4 marquée ✅ TERMINÉ (Session 60)
 - ✅ Vérification : `koverThresholdCheck` fonctionne (77,10% > 75%)
 
-**Prochaine session (61)** : EPIC 1 — Story 1.5 (Tester ConfigMerger.getOrDefault())
+**Prochaine session (61)** : EPIC 1 — Story 1.6 (Tester PlantumlManager nested class)
 
 **Voir** : `SESSIONS_HISTORY.md` pour l'historique complet des sessions
 **Voir** : `COMPLETED_TASKS_ARCHIVE.md` pour les tâches terminées

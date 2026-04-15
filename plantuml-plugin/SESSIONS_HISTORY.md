@@ -31,9 +31,9 @@
 - ✅ 77,10% est un bon équilibre (≥ 75% sans testcontainers)
 
 ### 🎯 Prochaine Session (61)
-- **Objectif** : EPIC 1 — Story 1.5 (Tester `ConfigMerger.getOrDefault()`)
-- **Fichier cible** : `ConfigMerger.kt` + tests unitaires
-- **Critère** : Couverture méthode = 100%
+- **Objectif** : EPIC 1 — Story 1.6 (Tester `PlantumlManager` nested class)
+- **Fichier cible** : `PlantumlManager.kt` + tests unitaires
+- **Critère** : Couverture méthodes non couvertes = 100%
 
 ---
 
