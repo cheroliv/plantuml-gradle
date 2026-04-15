@@ -66,6 +66,7 @@ data class ApiKeyConfig(
 
 data class RagConfig(
     val databaseUrl: String = "",
+    val port: Int = 5432,
     val username: String = "",
     val password: String = "",
     val tableName: String = "embeddings"

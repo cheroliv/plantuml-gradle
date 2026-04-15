@@ -94,6 +94,7 @@ object ConfigMerger {
             ),
             rag = RagConfig(
                 databaseUrl = props["plantuml.rag.databaseUrl"] ?: "",
+                port = props["plantuml.rag.port"]?.toIntOrNull() ?: 5432,
                 username = props["plantuml.rag.username"] ?: "",
                 password = props["plantuml.rag.password"] ?: "",
                 tableName = props["plantuml.rag.tableName"] ?: "embeddings"
@@ -150,6 +151,7 @@ object ConfigMerger {
     private fun mergeRagConfig(props: RagConfig, yaml: RagConfig, cli: Map<String, Any?>): RagConfig {
         return RagConfig(
             databaseUrl = cli["rag.databaseUrl"]?.toString() ?: (if (yaml.databaseUrl.isNotEmpty()) yaml.databaseUrl else props.databaseUrl),
+            port = cli["rag.port"] as? Int ?: (if (yaml.port != 5432) yaml.port else props.port),
             username = cli["rag.username"]?.toString() ?: (if (yaml.username.isNotEmpty()) yaml.username else props.username),
             password = cli["rag.password"]?.toString() ?: (if (yaml.password.isNotEmpty()) yaml.password else props.password),
             tableName = cli["rag.tableName"]?.toString() ?: (if (yaml.tableName != "embeddings") yaml.tableName else props.tableName)
