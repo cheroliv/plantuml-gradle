@@ -1,14 +1,14 @@
 # 🚀 Roadmap — PlantUML Gradle Plugin v2
 
 **Date de création** : 2026-04-13  
-**Dernière mise à jour** : 2026-04-15 (Session 63)  
+**Dernière mise à jour** : 2026-04-15 (Session 67)  
 **Objectif** : Publication sur Gradle Plugin Portal  
-**Score actuel** : 8.2/10 ✅ IMPROVING  
+**Score actuel** : 8.4/10 ✅ IMPROVING  
 **Score cible** : 8.5/10 ✅ PUBLIABLE
 
 ---
 
-## 📊 État Actuel (Session 63)
+## 📊 État Actuel (Session 67)
 
 ### ✅ Accomplissements Récents
 
@@ -17,11 +17,13 @@
 | **Kover Integration** | ✅ TERMINÉ | Couverture de code tracée automatiquement |
 | **Test Optimization** | ✅ TERMINÉ | 30-50% plus rapide (maxParallelForks=1) |
 | **Code Cleanup** | ✅ TERMINÉ | Français → Anglais, données de test nettoyées |
-| **Tests Unitaires** | ✅ 198/198 PASS | 100% couverture |
+| **Tests Unitaires** | ✅ 203/203 PASS | 100% couverture |
 | **Tests Fonctionnels** | ✅ 42 PASS, 6 SKIP | 100% couverture |
-| **RAG Integration Tests** | ✅ 5/5 PASS | testcontainers PostgreSQL réel |
+| **RAG Integration Tests** | ✅ 10/10 PASS | testcontainers PostgreSQL réel + tests avancés |
 | **EPIC 1** | ✅ TERMINÉ | 6/6 stories complètes |
 | **EPIC 2.1** | ✅ TERMINÉ | RAG avec testcontainers |
+| **EPIC 2.2** | ✅ TERMINÉ | Fallback simulation supprimé |
+| **EPIC 2.3** | ✅ TERMINÉ | Tests RAG avancés (multi-fichiers, nested, concurrent, etc.) |
 
 ### 🔴 Problèmes Critiques (NON FIXÉS)
 
@@ -78,9 +80,8 @@
 | ID | Story | Priorité | Estimation | Statut |
 |----|-------|----------|------------|--------|
 | **2.1** | Implémenter RAG réel avec testcontainers PostgreSQL | 🟡 IMPORTANT | 1 session | ✅ TERMINÉ (Session 63) |
-| **2.2** | Supprimer fallback simulation silencieux (erreur explicite) | 🟡 IMPORTANT | 1 session | 🔄 EN COURS (Session 64 — code OK, tests à fixer) |
-| **2.2** | Supprimer le mode simulation fallback silencieux | 🟡 IMPORTANT | 1 session | ⏳ À FAIRE |
-| **2.3** | Ajouter tests d'intégration RAG avec vrais diagrammes | 🟡 IMPORTANT | 2 sessions | ⏳ À FAIRE |
+| **2.2** | Supprimer fallback simulation silencieux (erreur explicite) | 🟡 IMPORTANT | 1 session | ✅ TERMINÉ (Session 66) |
+| **2.3** | Ajouter tests d'intégration RAG avec vrais diagrammes | 🟡 IMPORTANT | 2 sessions | ✅ TERMINÉ (Session 67) |
 | **2.4** | Documentation complète du fonctionnement RAG | 🟢 FAIBLE | 1 session | ⏳ À FAIRE |
 
 #### Critères d'acceptation

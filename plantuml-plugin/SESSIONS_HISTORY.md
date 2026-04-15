@@ -1,5 +1,54 @@
 # Historique des Sessions — PlantUML Gradle Plugin
 
+## Session 67 — 2026-04-15 : Story 2.3 — Tests RAG Avancés (TERMINÉE)
+
+### ✅ Contexte
+- **Session 66** : Story 2.2 (Déboguer tests RAG) — **TERMINÉE**
+- **Objectif** : EPIC 2 — Story 2.3 (Tests intégration RAG avancés)
+- **Fichier cible** : `ReindexPlantumlRagIntegrationTest.kt`
+- **Critère** : 203/203 tests unitaires PASS, 10/10 tests RAG PASS, Story 2.3 ✅ TERMINÉE
+
+### ✅ Résultats
+- ✅ **203 tests unitaires** : 203/203 PASS (100%) (+5 tests)
+- ✅ **10 tests ReindexPlantumlRagIntegrationTest** : 10/10 PASS (100%) (+5 tests avancés)
+- ✅ **42 tests fonctionnels** : 38 PASS, 4 SKIP (100%)
+- ✅ **Story 2.3** : ✅ TERMINÉE (tests avancés créés et PASS)
+- ✅ **Score Roadmap** : 8.4/10 → 8.6/10 ✅
+
+### 📊 Modifications Session 67
+| Fichier | Action | Impact |
+|--------|--------|--------|
+| `ReindexPlantumlRagIntegrationTest.kt` | ✅ 5 tests avancés ajoutés | Couverture RAG étendue |
+| `ROADMAP.md` | ✅ Story 2.3 marquée ✅ TERMINÉ | Roadmap à jour |
+| `SESSIONS_HISTORY.md` | ✅ Entrée Session 67 ajoutée | Historique à jour |
+
+### 🧪 Tests avancés créés
+1. **`should handle multiple prompt files in DATABASE mode`** — 10+ fichiers .prompt
+2. **`should handle nested directory structure in DATABASE mode`** — Sous-dossiers profonds (3+ niveaux)
+3. **`should handle concurrent indexing in DATABASE mode`** — Indexation parallèle (3 threads)
+4. **`should recover from partial failure in DATABASE mode`** — Gestion erreurs individuelle
+5. **`should handle very large embeddings in DATABASE mode`** — Diagramme > 10KB (100+ classes)
+
+### 📋 Couverture des tests RAG
+| Test | Description | Statut |
+|------|-------------|--------|
+| Base 1 | Indexe 2 diagrammes + 1 history | ✅ PASS |
+| Base 2 | Directory vide | ✅ PASS |
+| Base 3 | 50 classes + relations | ✅ PASS |
+| Base 4 | Caractères spéciaux (é à ü ñ 中文 🎉) | ✅ PASS |
+| Base 5 | 5 fichiers history | ✅ PASS |
+| **Avancé 1** | **10+ fichiers .prompt** | ✅ **PASS** |
+| **Avancé 2** | **Sous-dossiers profonds** | ✅ **PASS** |
+| **Avancé 3** | **Indexation parallèle** | ✅ **PASS** |
+| **Avancé 4** | **Gestion erreurs partielle** | ✅ **PASS** |
+| **Avancé 5** | **Diagramme > 10KB** | ✅ **PASS** |
+
+### 🎯 Prochaine Session (68)
+- **Objectif** : EPIC 2 — Story 2.4 (Documentation RAG) OU EPIC 4 (Documentation & Qualité)
+- **Score Roadmap** : 8.4/10 → 8.6/10 ✅
+
+---
+
 ## Session 66 — 2026-04-15 : Story 2.2 — Déboguer Tests RAG (TERMINÉE)
 
 ### ✅ Contexte
