@@ -12,10 +12,20 @@ import plantuml.service.PlantumlService
 /**
  * Gradle task: `validatePlantumlSyntax`
  *
- * Validates PlantUML syntax for debugging purposes.
+ * Validates PlantUML syntax for a single diagram file for debugging purposes.
  *
- * Usage:
- *   ./gradlew validatePlantumlSyntax -Pplantuml.diagram=file.puml
+ * Uses PlantUML's SourceStringReader to parse and validate the diagram syntax.
+ * Reports validation errors with detailed stack traces for troubleshooting.
+ *
+ * **Usage**:
+ * ```bash
+ * ./gradlew validatePlantumlSyntax -Pplantuml.diagram=path/to/diagram.puml
+ * ```
+ *
+ * **Exit behavior**:
+ * - Valid syntax: Logs success message
+ * - Invalid syntax: Logs errors and throws [GradleException]
+ * - Missing file parameter: Logs usage instructions
  */
 @DisableCachingByDefault(because = "Validation results depend on file content which may change")
 abstract class ValidatePlantumlSyntaxTask : DefaultTask() {
@@ -29,6 +39,14 @@ abstract class ValidatePlantumlSyntaxTask : DefaultTask() {
     @get:Optional
     abstract val diagramFile: Property<String>
 
+    /**
+     * Main task action: validates PlantUML syntax for the specified diagram file.
+     *
+     * Reads the diagram file, parses it with PlantUML, and reports validation results.
+     * Throws an exception if the file does not exist or syntax is invalid.
+     *
+     * @throws GradleException if diagram file does not exist or syntax is invalid
+     */
     @TaskAction
     fun validateSyntax() {
         val diagramPath = project.findProperty("plantuml.diagram") as? String

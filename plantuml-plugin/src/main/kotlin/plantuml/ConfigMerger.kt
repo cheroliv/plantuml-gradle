@@ -121,10 +121,11 @@ object ConfigMerger {
     }
 
     private fun mergeLangchain4jConfig(props: LangchainConfig, yaml: LangchainConfig, cli: Map<String, Any?>): LangchainConfig {
+        @Suppress("KotlinConstantConditions")
         return LangchainConfig(
             maxIterations = cli["langchain4j.maxIterations"] as? Int ?: (if (yaml.maxIterations != 5) yaml.maxIterations else props.maxIterations),
             model = cli["langchain4j.model"]?.toString() ?: (if (yaml.model != "ollama") yaml.model else props.model),
-            validation = cli["langchain4j.validation"] as? Boolean ?: (if (yaml.validation != true) yaml.validation else props.validation),
+            validation = cli["langchain4j.validation"] as? Boolean ?: (if (!yaml.validation) yaml.validation else props.validation),
             validationPrompt = cli["langchain4j.validationPrompt"]?.toString() ?: yaml.validationPrompt,
             ollama = OllamaConfig(
                 baseUrl = cli["langchain4j.ollama.baseUrl"]?.toString() ?: (if (yaml.ollama.baseUrl != "http://localhost:11434") yaml.ollama.baseUrl else props.ollama.baseUrl),
@@ -140,6 +141,7 @@ object ConfigMerger {
     }
 
     private fun mergeGitConfig(props: GitConfig, yaml: GitConfig, cli: Map<String, Any?>): GitConfig {
+        @Suppress("UNCHECKED_CAST")
         return GitConfig(
             userName = cli["git.userName"]?.toString() ?: (if (yaml.userName != "github-actions[bot]") yaml.userName else props.userName),
             userEmail = cli["git.userEmail"]?.toString() ?: (if (yaml.userEmail != "github-actions[bot]@users.noreply.github.com") yaml.userEmail else props.userEmail),
@@ -150,7 +152,7 @@ object ConfigMerger {
 
     private fun mergeRagConfig(props: RagConfig, yaml: RagConfig, cli: Map<String, Any?>): RagConfig {
         return RagConfig(
-            databaseUrl = cli["rag.databaseUrl"]?.toString() ?: (if (yaml.databaseUrl.isNotEmpty()) yaml.databaseUrl else props.databaseUrl),
+            databaseUrl = cli["rag.databaseUrl"]?.toString() ?: (yaml.databaseUrl.ifEmpty { props.databaseUrl }),
             port = cli["rag.port"] as? Int ?: (if (yaml.port != 5432) yaml.port else props.port),
             username = cli["rag.username"]?.toString() ?: (if (yaml.username.isNotEmpty()) yaml.username else props.username),
             password = cli["rag.password"]?.toString() ?: (if (yaml.password.isNotEmpty()) yaml.password else props.password),

@@ -18,21 +18,49 @@ import plantuml.PlantumlConfig
 import plantuml.PlantumlManager
 import java.io.File
 
+/**
+ * RAG (Retrieval-Augmented Generation) execution mode.
+ *
+ * Determines how vector embeddings are stored during RAG indexing:
+ * - [SIMULATION]: Generates embeddings without persisting (for testing/demo)
+ * - [DATABASE]: Stores embeddings in PostgreSQL with pgvector extension
+ * - [TESTCONTAINERS]: Uses ephemeral PostgreSQL container for integration tests
+ */
 enum class RagMode { SIMULATION, DATABASE, TESTCONTAINERS }
 
 /**
  * Gradle task: `reindexPlantumlRag`
  *
- * Rebuilds the RAG index with collected PlantUML diagrams.
+ * Rebuilds the RAG (Retrieval-Augmented Generation) index from collected PlantUML diagrams.
  *
- * Usage:
- *   ./gradlew reindexPlantumlRag
+ * **Workflow**:
+ * 1. Loads PlantUML diagrams from RAG directory (`.puml` files)
+ * 2. Loads attempt history files (`.json` from LLM corrections)
+ * 3. Splits documents into segments using LangChain4j DocumentSplitter
+ * 4. Generates 384-dimensional embeddings using All-MiniLM-L6-v2 model
+ * 5. Stores embeddings in vector database based on RAG mode
  *
- * RAG Mode configuration (priority order):
- *   1. CLI parameter: -Prag.mode=simulation|database|testcontainers
- *   2. Environment variable: RAG_MODE=simulation|database|testcontainers
- *   3. Gradle property: rag.mode=simulation|database|testcontainers
- *   4. Config file: rag.databaseUrl (if set → database, else → simulation)
+ * **RAG Modes** (priority: CLI > env > gradle prop > config):
+ * - `simulation` — Generates embeddings without storage (default)
+ * - `database` — PostgreSQL with pgvector extension
+ * - `testcontainers` — Ephemeral PostgreSQL container for tests
+ *
+ * **Configuration**:
+ * ```bash
+ * # CLI parameter (highest priority)
+ * ./gradlew reindexPlantumlRag -Prag.mode=database
+ *
+ * # Environment variable
+ * RAG_MODE=database ./gradlew reindexPlantumlRag
+ *
+ * # Gradle property
+ * ./gradlew reindexPlantumlRag -Prag.mode=database
+ * ```
+ *
+ * **Usage**:
+ * ```bash
+ * ./gradlew reindexPlantumlRag
+ * ```
  */
 @DisableCachingByDefault(because = "RAG indexing processes all files and results depend on current state")
 abstract class ReindexPlantumlRagTask : DefaultTask() {
@@ -42,6 +70,14 @@ abstract class ReindexPlantumlRagTask : DefaultTask() {
         description = "Rebuilds the RAG index with collected PlantUML diagrams"
     }
 
+    /**
+     * Main task action: rebuilds RAG index from PlantUML diagrams and training data.
+     *
+     * Determines RAG mode, loads diagrams and attempt history files, initializes
+     * embedding model and document splitter, then executes indexing based on mode.
+     *
+     * @throws RuntimeException if RAG directory is inaccessible or not a directory
+     */
     @TaskAction
     fun reindexRag() {
         logger.lifecycle("Rebuilding RAG index with PlantUML diagrams...")
@@ -146,6 +182,19 @@ abstract class ReindexPlantumlRagTask : DefaultTask() {
         }
     }
 
+    /**
+     * Determines RAG execution mode from multiple configuration sources.
+     *
+     * Priority order (highest to lowest):
+     * 1. CLI parameter (`-Prag.mode`)
+     * 2. Environment variable (`RAG_MODE`)
+     * 3. Gradle property (`rag.mode`)
+     * 4. Config file (presence of database credentials → database, else simulation)
+     *
+     * @param cliParams CLI parameters extracted from project properties
+     * @param config PlantUML configuration with RAG database settings
+     * @return Determined [RagMode] for this execution
+     */
     private fun determineRagMode(cliParams: Map<String, Any?>, config: PlantumlConfig): RagMode {
         // Priority 1: CLI parameter (-Prag.mode)
         val cliMode = cliParams["rag.mode"]?.toString()?.lowercase()
@@ -182,6 +231,17 @@ abstract class ReindexPlantumlRagTask : DefaultTask() {
         }
     }
 
+    /**
+     * Executes RAG indexing using a production PostgreSQL database with pgvector extension.
+     *
+     * Connects to the configured PostgreSQL server and stores embeddings in the specified table.
+     *
+     * @param diagramFiles Array of PlantUML diagram files to index
+     * @param historyFiles Array of LLM attempt history JSON files
+     * @param config PlantUML configuration with database connection details
+     * @param embeddingModel Model for generating 384-dimensional embeddings
+     * @param documentSplitter Splitter for chunking documents into segments
+     */
     private fun executeDatabaseMode(
         diagramFiles: Array<File>,
         historyFiles: Array<File>,
@@ -209,6 +269,17 @@ abstract class ReindexPlantumlRagTask : DefaultTask() {
         logger.lifecycle("  → Embeddings stored in PostgreSQL database")
     }
 
+    /**
+     * Executes RAG indexing using a testcontainers PostgreSQL instance.
+     *
+     * Starts an ephemeral PostgreSQL container with pgvector extension,
+     * indexes all diagrams, then stops the container. Ideal for integration tests.
+     *
+     * @param diagramFiles Array of PlantUML diagram files to index
+     * @param historyFiles Array of LLM attempt history JSON files
+     * @param embeddingModel Model for generating 384-dimensional embeddings
+     * @param documentSplitter Splitter for chunking documents into segments
+     */
     private fun executeTestcontainersMode(
         diagramFiles: Array<File>,
         historyFiles: Array<File>,
@@ -242,6 +313,22 @@ abstract class ReindexPlantumlRagTask : DefaultTask() {
         logger.lifecycle("  → Embeddings stored in testcontainers PostgreSQL")
     }
 
+    /**
+     * Indexes PlantUML diagrams and training history files into the embedding store.
+     *
+     * For each file:
+     * 1. Reads content
+     * 2. Creates LangChain4j Document with metadata
+     * 3. Splits into segments using [documentSplitter]
+     * 4. Generates embeddings using [embeddingModel]
+     * 5. Stores in [embeddingStore]
+     *
+     * @param diagramFiles PlantUML diagram files (`.puml`)
+     * @param historyFiles LLM attempt history files (`.json`)
+     * @param embeddingModel Model for generating embeddings
+     * @param documentSplitter Splitter for chunking documents
+     * @param embeddingStore Vector store for persisting embeddings
+     */
     private fun indexDiagrams(
         diagramFiles: Array<File>,
         historyFiles: Array<File>,
@@ -294,6 +381,18 @@ abstract class ReindexPlantumlRagTask : DefaultTask() {
         }
     }
 
+    /**
+     * Simulates RAG indexing without persisting embeddings to a database.
+     *
+     * Processes all diagrams and history files through the embedding pipeline
+     * (document creation, splitting, embedding generation) but does not store
+     * the results. Useful for testing and demonstration purposes.
+     *
+     * @param diagramFiles Array of PlantUML diagram files to process
+     * @param historyFiles Array of LLM attempt history JSON files
+     * @param embeddingModel Model for generating 384-dimensional embeddings
+     * @param documentSplitter Splitter for chunking documents into segments
+     */
     private fun simulateIndexing(
         diagramFiles: Array<File>,
         historyFiles: Array<File>,

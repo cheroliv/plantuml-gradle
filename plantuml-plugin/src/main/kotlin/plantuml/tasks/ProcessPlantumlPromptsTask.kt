@@ -16,18 +16,27 @@ import java.io.File
 /**
  * Gradle task: `processPlantumlPrompts`
  *
- * Processes prompt files in the prompts directory to generate PlantUML diagrams.
- * Monitors the prompts directory for new .prompt files, processes each through
- * LLM interaction loop, validates syntax, generates images, collects RAG training data,
- * and deletes processed prompt files.
+ * Processes `.prompt` files to generate PlantUML diagrams through AI-powered LLM interaction.
  *
- * Usage:
- *   ./gradlew processPlantumlPrompts
+ * **Workflow**:
+ * 1. Scans the prompts directory for `.prompt` files
+ * 2. For each prompt:
+ *    - Sends to LLM for PlantUML code generation (with iterative refinement)
+ *    - Validates syntax using PlantUML parser
+ *    - Generates PNG image from valid code
+ *    - Requests LLM validation with scoring (1-10)
+ *    - Saves diagram and validation for RAG training
+ *    - Deletes the processed prompt file
  *
- * Optional properties:
- *   -Pplantuml.prompts.dir=custom/prompts/path
- *   -Pplantuml.langchain4j.model=gemini
- *   -Pplantuml.langchain4j.maxIterations=3
+ * **Configuration** (via CLI properties):
+ * - `-Pplantuml.prompts.dir=custom/path` — Custom prompts directory
+ * - `-Pplantuml.langchain4j.model=gemini` — Override LLM provider
+ * - `-Pplantuml.langchain4j.maxIterations=3` — Max correction attempts
+ *
+ * **Usage**:
+ * ```bash
+ * ./gradlew processPlantumlPrompts
+ * ```
  */
 @DisableCachingByDefault(because = "PlantUML generation involves randomness and AI interaction")
 abstract class ProcessPlantumlPromptsTask : DefaultTask() {
@@ -41,6 +50,12 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
         description = "processPlantumlPrompts"
     }
 
+    /**
+     * Main task action: processes all `.prompt` files in the prompts directory.
+     *
+     * Loads configuration, initializes services (PlantUML, LLM, DiagramProcessor),
+     * and processes each prompt file through the LLM generation pipeline.
+     */
     @TaskAction
     fun processPrompts() {
         // Load configuration
@@ -85,7 +100,18 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
     }
 
     /**
-     * Charge la configuration en tenant compte des paramètres LLM en ligne de commande
+     * Loads PlantUML configuration with support for CLI parameter overrides.
+     *
+     * Priority order for configuration sources:
+     * 1. CLI parameters (`-Pplantuml.langchain4j.*`)
+     * 2. YAML configuration file (`plantuml-context.yml`)
+     * 3. Default values from [PlantumlConfig]
+     *
+     * Supports overriding:
+     * - `plantuml.langchain4j.model` — LLM provider name
+     * - `plantuml.langchain4j.ollama.modelName` — Ollama model name
+     *
+     * @return Merged [PlantumlConfig] with CLI overrides applied
      */
     private fun loadConfiguration(): PlantumlConfig {
         // Vérifier si un modèle LLM est spécifié en ligne de commande
@@ -117,6 +143,22 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
         return config
     }
 
+    /**
+     * Processes a single `.prompt` file through the complete generation pipeline.
+     *
+     * **Steps**:
+     * 1. Reads prompt content from file
+     * 2. Calls LLM via [DiagramProcessor.processPrompt] (max [maxIterations])
+     * 3. Validates PlantUML syntax
+     * 4. Generates PNG image
+     * 5. Requests LLM validation with scoring (if enabled in config)
+     * 6. Saves diagram to RAG training directory
+     * 7. Deletes the processed prompt file
+     *
+     * @param promptFile The `.prompt` file to process
+     * @param config PlantUML configuration with output directories and settings
+     * @param diagramProcessor Service for LLM-based diagram generation
+     */
     private fun processSinglePrompt(
         promptFile: File,
         config: plantuml.PlantumlConfig,
@@ -190,7 +232,7 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
 
                 // Save validation feedback for RAG if validation is enabled
                 if (config.langchain4j.validation && validation != null) {
-                    diagramProcessor.saveForRagTraining(diagram, validation!!)
+                    diagramProcessor.saveForRagTraining(diagram, validation)
                 }
             } catch (e: Exception) {
                 logger.lifecycle("    Warning: Failed to save diagrams for RAG training - ${e.message}")

@@ -4,6 +4,16 @@ import java.io.File
 
 /**
  * Main configuration model for the PlantUML plugin.
+ *
+ * Contains all configuration settings for input/output directories, LLM providers,
+ * Git integration, and RAG (Retrieval-Augmented Generation) database settings.
+ * Configuration can be loaded from YAML files or overridden via CLI parameters.
+ *
+ * @property input Input configuration for prompts directory and language
+ * @property output Output configuration for diagrams, images, validations, and RAG
+ * @property langchain4j LLM configuration including provider selection and API keys
+ * @property git Git configuration for automated commits
+ * @property rag RAG database configuration for vector embeddings storage
  */
 data class PlantumlConfig(
     val input: InputConfig = InputConfig(),
@@ -13,6 +23,12 @@ data class PlantumlConfig(
     val rag: RagConfig = RagConfig()
 ) {
     companion object {
+        /**
+         * Loads PlantUML configuration from a YAML file.
+         *
+         * @param configFile The YAML configuration file to load
+         * @return A [PlantumlConfig] instance with loaded settings
+         */
         fun load(configFile: File): PlantumlConfig {
             // In a real implementation, this would load from YAML
             return PlantumlConfig()
@@ -20,11 +36,30 @@ data class PlantumlConfig(
     }
 }
 
+/**
+ * Input configuration for the PlantUML plugin.
+ *
+ * @property prompts Directory containing `.prompt` files to process (default: "prompts")
+ * @property defaultLang Default language for prompts (default: "en")
+ */
 data class InputConfig(
     val prompts: String = "prompts",
     val defaultLang: String = "en"
 )
 
+/**
+ * Output configuration for generated artifacts.
+ *
+ * Defines directories and formats for generated diagrams, images, validation reports,
+ * and RAG training data.
+ *
+ * @property diagrams Directory for generated PlantUML diagram files (default: "generated/diagrams")
+ * @property images Directory for rendered diagram images (default: "generated/images")
+ * @property validations Directory for LLM validation reports in JSON format (default: "generated/validations")
+ * @property rag Directory for RAG training data and embeddings (default: "generated/rag")
+ * @property format Image output format (default: "png")
+ * @property theme PlantUML theme for diagram rendering (default: "default")
+ */
 data class OutputConfig(
     val diagrams: String = "generated/diagrams",
     val images: String = "generated/images",
@@ -34,6 +69,24 @@ data class OutputConfig(
     val theme: String = "default"
 )
 
+/**
+ * LangChain4j LLM provider configuration.
+ *
+ * Supports multiple LLM providers: Ollama (local), OpenAI, Gemini, Mistral, Claude,
+ * HuggingFace, and Groq. Includes validation settings and iteration limits.
+ *
+ * @property maxIterations Maximum LLM correction iterations (default: 5)
+ * @property model Active LLM provider name (default: "ollama")
+ * @property validation Enable LLM-based diagram validation (default: true)
+ * @property validationPrompt Prompt template for LLM validation
+ * @property ollama Ollama-specific configuration (baseUrl, modelName)
+ * @property gemini Google Gemini API configuration
+ * @property mistral Mistral AI API configuration
+ * @property openai OpenAI API configuration
+ * @property claude Anthropic Claude API configuration
+ * @property huggingface HuggingFace API configuration
+ * @property groq Groq API configuration
+ */
 data class LangchainConfig(
     val maxIterations: Int = 5,
     val model: String = "ollama",
@@ -48,6 +101,16 @@ data class LangchainConfig(
     val groq: ApiKeyConfig = ApiKeyConfig()
 )
 
+/**
+ * Git integration configuration.
+ *
+ * Settings for automated Git commits when diagrams are updated.
+ *
+ * @property userName Git commit author name (default: "github-actions[bot]")
+ * @property userEmail Git commit author email (default: "github-actions[bot]@users.noreply.github.com")
+ * @property commitMessage Git commit message template (default: "chore: update PlantUML diagrams [skip ci]")
+ * @property watchedBranches List of branches to watch for automated updates (default: ["main", "develop"])
+ */
 data class GitConfig(
     val userName: String = "github-actions[bot]",
     val userEmail: String = "github-actions[bot]@users.noreply.github.com",
@@ -55,15 +118,37 @@ data class GitConfig(
     val watchedBranches: List<String> = listOf("main", "develop")
 )
 
+/**
+ * Ollama LLM provider configuration.
+ *
+ * @property baseUrl Ollama server base URL (default: "http://localhost:11434")
+ * @property modelName Ollama model name to use (default: "smollm:135m")
+ */
 data class OllamaConfig(
     val baseUrl: String = "http://localhost:11434",
     val modelName: String = "smollm:135m"
 )
 
+/**
+ * API key configuration for cloud LLM providers.
+ *
+ * @property apiKey API key for the LLM provider (default: empty)
+ */
 data class ApiKeyConfig(
     val apiKey: String = ""
 )
 
+/**
+ * RAG (Retrieval-Augmented Generation) database configuration.
+ *
+ * PostgreSQL connection settings for storing vector embeddings using pgvector extension.
+ *
+ * @property databaseUrl PostgreSQL host URL (default: empty)
+ * @property port PostgreSQL port (default: 5432)
+ * @property username PostgreSQL database username (default: empty)
+ * @property password PostgreSQL database password (default: empty)
+ * @property tableName Table name for embeddings storage (default: "embeddings")
+ */
 data class RagConfig(
     val databaseUrl: String = "",
     val port: Int = 5432,
@@ -73,7 +158,12 @@ data class RagConfig(
 )
 
 /**
- * Data model representing a PlantUML diagram generated by the LLM.
+ * Represents a complete PlantUML diagram with conversation history.
+ *
+ * Contains the full LLM conversation trail and the final PlantUML code.
+ *
+ * @property conversation List of conversation turns (prompt → response) showing the LLM interaction history
+ * @property plantuml The final PlantUML code with description
  */
 data class PlantumlDiagram(
     val conversation: List<String>,
@@ -81,7 +171,10 @@ data class PlantumlDiagram(
 )
 
 /**
- * Data model representing PlantUML code with description.
+ * Represents PlantUML code with a human-readable description.
+ *
+ * @property code The raw PlantUML source code
+ * @property description Human-readable description of what the diagram represents
  */
 data class PlantumlCode(
     val code: String,
@@ -89,7 +182,11 @@ data class PlantumlCode(
 )
 
 /**
- * Data model representing validation feedback from the LLM.
+ * Represents LLM-based validation feedback for a diagram.
+ *
+ * @property score Quality score from 1 to 10 (10 = excellent)
+ * @property feedback Detailed textual feedback about diagram quality
+ * @property recommendations List of actionable improvement suggestions
  */
 data class ValidationFeedback(
     val score: Int,

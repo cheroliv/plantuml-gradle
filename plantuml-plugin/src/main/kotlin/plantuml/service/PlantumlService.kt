@@ -6,12 +6,25 @@ import java.io.File
 
 /**
  * Service responsible for PlantUML diagram processing and validation.
+ *
+ * Provides core PlantUML functionality:
+ * - Syntax validation (checks for @startuml/@enduml tags and parsing)
+ * - Image generation (PNG rendering from PlantUML code)
+ *
+ * Uses PlantUML's SourceStringReader for parsing and rendering.
  */
 class PlantumlService {
 
     /**
-     * Validates PlantUML syntax and returns true if valid, false otherwise.
-     * If invalid, returns error details.
+     * Validates PlantUML syntax and returns validation result.
+     *
+     * Performs basic validation:
+     * 1. Checks for required @startuml and @enduml tags
+     * 2. Attempts to parse with PlantUML SourceStringReader
+     *
+     * @param plantumlCode The PlantUML source code to validate
+     * @return [SyntaxValidationResult.Valid] if syntax is correct,
+     *         [SyntaxValidationResult.Invalid] with error details otherwise
      */
     fun validateSyntax(plantumlCode: String): SyntaxValidationResult {
         return try {
@@ -35,7 +48,14 @@ class PlantumlService {
     }
 
     /**
-     * Generates an image from valid PlantUML code.
+     * Generates a PNG image from valid PlantUML code.
+     *
+     * Attempts to render the PlantUML diagram as a PNG image. If image generation
+     * fails, falls back to writing the source code as a text file.
+     *
+     * @param plantumlCode Valid PlantUML source code
+     * @param outputFile Destination file for the generated image (or text fallback)
+     * @throws Exception if both image generation and text fallback fail
      */
     fun generateImage(plantumlCode: String, outputFile: File) {
         try {
@@ -58,9 +78,23 @@ class PlantumlService {
 
     /**
      * Represents the result of PlantUML syntax validation.
+     *
+     * Sealed class with two possible outcomes:
+     * - [Valid]: Syntax is correct
+     * - [Invalid]: Syntax errors detected with detailed error message
      */
     sealed class SyntaxValidationResult {
+        /**
+         * Indicates valid PlantUML syntax with no errors.
+         */
         object Valid : SyntaxValidationResult()
+        
+        /**
+         * Indicates invalid PlantUML syntax with error details.
+         *
+         * @property errorMessage Human-readable description of the syntax error
+         * @property stackTrace Full stack trace for debugging
+         */
         data class Invalid(val errorMessage: String, val stackTrace: String) : SyntaxValidationResult()
     }
 }

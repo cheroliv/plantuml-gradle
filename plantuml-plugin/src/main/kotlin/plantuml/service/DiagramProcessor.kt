@@ -14,7 +14,17 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 /**
- * Data class to store attempt history for RAG training
+ * Represents a single attempt in the LLM diagram generation conversation.
+ *
+ * Stores the complete history of prompt → response exchanges for RAG training
+ * and debugging purposes. Each entry captures the state of one iteration.
+ *
+ * @property prompt The input prompt sent to the LLM
+ * @property response The LLM's generated response
+ * @property iteration Iteration number (0 = initial attempt, 1+ = corrections)
+ * @property isValid Whether the response contains valid PlantUML syntax
+ * @property errorMessage Syntax error message if [isValid] is false
+ * @property timestamp When this attempt was made
  */
 data class AttemptEntry(
     val prompt: String,
@@ -26,7 +36,19 @@ data class AttemptEntry(
 )
 
 /**
- * Service responsible for processing PlantUML diagrams through the LLM interaction loop.
+ * Service responsible for processing PlantUML diagrams through LLM interaction.
+ *
+ * Implements an iterative refinement loop:
+ * 1. Sends prompt to LLM to generate initial PlantUML code
+ * 2. Validates syntax using [PlantumlService]
+ * 3. If invalid, sends error back to LLM for correction (up to maxIterations)
+ * 4. Archives all attempts for RAG training
+ *
+ * Supports both real LLM inference and test mode (simulated responses).
+ *
+ * @param plantumlService Service for PlantUML syntax validation and image generation
+ * @param chatModel LangChain4j chat model for LLM inference (null for test mode)
+ * @param config PlantUML configuration for output directories and settings
  */
 class DiagramProcessor(
     internal val plantumlService: PlantumlService,
@@ -39,9 +61,22 @@ class DiagramProcessor(
         .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
 
     /**
-     * Processes a prompt through the LLM interaction loop (max 5 iterations).
-     * Returns a valid PlantUML diagram or null if processing fails.
-     * Maintains attempt history for RAG training.
+     * Processes a natural language prompt through an LLM interaction loop.
+     *
+     * The process:
+     * 1. Sends prompt to LLM with instructions to generate PlantUML code
+     * 2. Validates syntax using [PlantumlService.validateSyntax]
+     * 3. If invalid, sends error details back to LLM for correction
+     * 4. Repeats up to [maxIterations] times until valid syntax is achieved
+     * 5. Archives all attempts (success or failure) for RAG training
+     *
+     * **Test mode**: If [chatModel] is null, generates a simulated response
+     * with basic diagram structure.
+     *
+     * @param prompt Natural language description of the desired diagram
+     * @param maxIterations Maximum correction attempts (default: 5)
+     * @return A [PlantumlDiagram] with conversation history and valid code,
+     *         or null if all iterations fail
      */
     fun processPrompt(prompt: String, maxIterations: Int = 5): PlantumlDiagram? {
         // Initialize attempt history
@@ -166,7 +201,13 @@ class DiagramProcessor(
     }
 
     /**
-     * Builds a contextual history string from previous attempts
+     * Builds a context string from recent LLM attempts for correction prompts.
+     *
+     * Formats the last N attempts to provide the LLM with conversation history,
+     * helping it avoid repeating the same mistakes.
+     *
+     * @param history List of recent attempts (typically last 3)
+     * @return Formatted string showing previous attempts and their responses
      */
     private fun buildHistoryContext(history: List<AttemptEntry>): String {
         if (history.isEmpty()) return ""
@@ -177,7 +218,16 @@ class DiagramProcessor(
     }
 
     /**
-     * Archives attempt history for RAG training
+     * Archives LLM attempt history to JSON files for RAG training.
+     *
+     * Saves the complete conversation history (all prompts, responses, and errors)
+     * as JSON files in the RAG directory. These files serve as training data for
+     * improving future diagram generation.
+     *
+     * Only archives if there were multiple attempts (indicating corrections were needed).
+     * In test mode, saves to diagrams directory; otherwise saves to RAG directory.
+     *
+     * @param history Complete list of [AttemptEntry] from prompt processing
      */
     private fun archiveAttemptHistory(history: List<AttemptEntry>) {
         // Only archive if there were multiple attempts (indicating corrections were needed)
@@ -214,7 +264,13 @@ class DiagramProcessor(
     }
 
     /**
-     * Converts attempt history to JSON format for storage
+     * Converts attempt history to JSON format for file storage.
+     *
+     * Serializes the list of [AttemptEntry] objects with metadata (total attempts, timestamp)
+     * into a pretty-printed JSON structure suitable for RAG training data.
+     *
+     * @param history List of [AttemptEntry] to serialize
+     * @return JSON string representation of the attempt history
      */
     private fun convertHistoryToJson(history: List<AttemptEntry>): String {
         val output = mapOf(
@@ -226,7 +282,14 @@ class DiagramProcessor(
     }
 
     /**
-     * Simulates an LLM response with PlantUML code.
+     * Generates a simulated LLM response for test mode (no real LLM).
+     *
+     * Creates a basic PlantUML diagram structure when running in test mode
+     * (chatModel is null). Useful for unit tests and development without
+     * requiring a running LLM.
+     *
+     * @param prompt The input prompt (used for diagram title)
+     * @return Basic PlantUML code with simple actor-system structure
      */
     private fun generateSimulatedLlmResponse(prompt: String): String {
         return """
@@ -241,7 +304,14 @@ class DiagramProcessor(
     }
 
     /**
-     * Fixes common PlantUML syntax issues (simplified for demo).
+     * Fixes common PlantUML syntax issues automatically.
+     *
+     * Applies basic corrections to improve syntax validity:
+     * - Adds missing @startuml tag at the beginning
+     * - Adds missing @enduml tag at the end
+     *
+     * @param code PlantUML code to fix
+     * @return Corrected PlantUML code with proper wrapper tags
      */
     private fun fixCommonPlantUmlIssues(code: String): String {
         // Simple fixes for demonstration
@@ -259,7 +329,17 @@ class DiagramProcessor(
     }
 
     /**
-     * Requests LLM validation of a diagram with scoring and feedback.
+     * Requests LLM-based validation with scoring and feedback for a diagram.
+     *
+     * Sends the generated diagram to the LLM with a validation prompt to obtain:
+     * - Quality score (1-10)
+     * - Detailed feedback on clarity and best practices
+     * - Actionable improvement recommendations
+     *
+     * **Test mode**: Returns simulated feedback when [chatModel] is null.
+     *
+     * @param diagram The [PlantumlDiagram] to validate
+     * @return [ValidationFeedback] with score, feedback, and recommendations
      */
     fun validateDiagram(diagram: PlantumlDiagram): ValidationFeedback {
         // For testing purposes, return a simulated response when chatModel is null
@@ -300,7 +380,17 @@ class DiagramProcessor(
     }
 
     /**
-     * Saves a valid diagram for RAG training.
+     * Saves a validated diagram to the RAG training data directory.
+     *
+     * Stores the diagram along with its validation feedback for use in
+     * Retrieval-Augmented Generation (RAG) training. This enables the LLM
+     * to learn from high-quality examples during future diagram generation.
+     *
+     * **Note**: Current implementation is a placeholder that logs the operation.
+     * A full implementation would persist the diagram and validation to the RAG directory.
+     *
+     * @param diagram The validated [PlantumlDiagram] to save
+     * @param validation The [ValidationFeedback] with quality score and recommendations
      */
     fun saveForRagTraining(diagram: PlantumlDiagram, validation: ValidationFeedback) {
         // In a real implementation, this would save the diagram and validation
