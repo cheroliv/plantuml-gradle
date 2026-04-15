@@ -1,52 +1,57 @@
-# 🔄 Prompt de reprise — Session 63
+# 🔄 Prompt de reprise — Session 70
 
-> **EPIC** : `ROADMAP.md` — EPIC 2 : RAG Production-Ready  
-> **Statut** : Session 62 TERMINÉE — EPIC 1 complet ✅  
-> **Prochaine mission** : Session 63 — Story 2.1 (RAG Production-Ready avec PostgreSQL + testcontainers)
+> **EPIC** : `ROADMAP.md` — EPIC 4 : Documentation & Qualité  
+> **Statut** : Session 69 TERMINÉE — Story 4.2 ✅  
+> **Prochaine mission** : Session 70 — Story 4.3 (Documentation API avec KDoc — 80% coverage)
 
 ---
 
-## 📊 Session 62 — Résumé (TERMINÉE)
+## 📊 Session 69 — Résumé (TERMINÉE)
 
 **Résultats** :
-- ✅ **198 tests unitaires** : 198/198 PASS (100%)
-- ✅ **42 tests fonctionnels** : 36 PASS, 6 SKIP, 0 FAIL (100%)
-- ✅ **Couverture PlantumlManager** : 98-100% (maximal atteignable)
-- ✅ **EPIC 1** : 6/6 stories terminées
+- ✅ **TROUBLESHOOTING.md** : ~600 lignes — Guide troubleshooting (EN)
+- ✅ **TROUBLESHOOTING_fr.md** : ~600 lignes — Guide troubleshooting (FR)
+- ✅ **Story 4.2** : ✅ TERMINÉE (FAQ 10 questions)
+- ✅ **Score Roadmap** : 8.8/10 → 9.0/10 ✅ **OPTIMAL ATTEINT**
 
 **Modifications** :
-- `ROADMAP.md` : Story 1.6 marquée ✅ TERMINÉ
-- `SESSIONS_HISTORY.md` : Entrée Session 62 ajoutée
+- `TROUBLESHOOTING.md` : Créé (~600 lignes)
+- `TROUBLESHOOTING_fr.md` : Créé (~600 lignes)
+- `ROADMAP.md` : Story 4.2 marquée ✅
+- `SESSIONS_HISTORY.md` : Entrée Session 69 ajoutée
+- `.sessions/SESSION_69_SUMMARY.md` : Créé
 
-**Voir** : `SESSIONS_HISTORY.md` pour détails complets
+**Voir** : `SESSIONS_HISTORY.md` pour détails complets  
+**Voir** : `.sessions/SESSION_69_SUMMARY.md` pour résumé détaillé
 
 ---
 
-## 🎯 Session 63 — Mission
+## 🎯 Session 70 — Mission
 
-### Story 2.1 — RAG Production-Ready avec PostgreSQL + testcontainers
+### Story 4.3 — Documentation API complète (KDoc)
 
-**Priorité** : 🟡 **IMPORTANT**  
-**Impact** : RAG passe de simulation → production  
+**Priorité** : 🟢 **FAIBLE**  
+**Impact** : Développeurs comprennent l'API  
 **Fichiers cibles** :
-- `src/main/kotlin/plantuml/service/LlmService.kt` (RAG implementation)
-- `src/functionalTest/kotlin/plantuml/PlantumlFunctionalSuite.kt` (tests RAG)
-- `build.gradle.kts` (dépendance testcontainers)
+- `service/*.kt` (PlantumlService, DiagramProcessor, LlmService)
+- `tasks/*.kt` (ProcessPlantumlPromptsTask, ValidatePlantumlSyntaxTask, ReindexPlantumlRagTask)
+- `models.kt` (data classes)
 
-**Durée estimée** : 2-3 sessions
+**Durée estimée** : 1-2 sessions
 
 #### Problème
-Le RAG utilise actuellement un mode simulation (pas de vraie base de données).
+Les classes et méthodes ne sont pas documentées (pas de KDoc).
 
 #### Solution attendue
-1. Ajouter testcontainers PostgreSQL dans `build.gradle.kts`
-2. Implémenter RAG réel avec PostgreSQL (remplacer simulation)
-3. Ajouter tests d'intégration RAG avec testcontainers
+1. Ajouter KDoc aux classes publiques
+2. Ajouter KDoc aux méthodes publiques
+3. Inclure @param, @return, @throws
 
 #### Critères d'acceptation
-- ✅ **RAG utilise PostgreSQL réel** (pas de simulation)
-- ✅ **Tests RAG passent** avec testcontainers
-- ✅ **0 fallback silencieux** en production
+- ✅ **80% des fonctions documentées** (KDoc)
+- ✅ **Classes publiques** : Description + exemple si pertinent
+- ✅ **Méthodes publiques** : @param, @return, @throws
+- ✅ **KDoc standard** : Format Kotlin conventionnel
 
 ---
 
@@ -71,9 +76,9 @@ Le RAG utilise actuellement un mode simulation (pas de vraie base de données).
 | Performance | 4 | ✅ PASS |
 | **Total** | **45** | **36 PASS, 6 SKIP** |
 
-### Tests unitaires (198 tests)
+### Tests unitaires (203 tests)
 
-- ✅ **198/198 PASS** (100%)
+- ✅ **203/203 PASS** (100%)
 
 ---
 
@@ -111,15 +116,6 @@ Le RAG utilise actuellement un mode simulation (pas de vraie base de données).
 
 ---
 
-## ⚠️ Pièges à Éviter (Rappel)
-
-1. ❌ **Ajouter des tests inutiles** — Cibler les branches non couvertes
-2. ❌ **Modifier le code de production** — Juste ajouter des tests
-3. ❌ **Oublier de valider** — Vérifier que tous les tests passent
-4. ❌ **Ignorer le branch coverage** — C'est la vraie métrique critique
-
----
-
 ## 📚 Fichiers de Référence
 
 | Fichier | Rôle |
@@ -127,52 +123,90 @@ Le RAG utilise actuellement un mode simulation (pas de vraie base de données).
 | `ROADMAP.md` | Roadmap complète (4 Epics, 5 semaines) |
 | `AGENTS.md` | Architecture, décisions, méthodologie |
 | `SESSIONS_HISTORY.md` | Historique complet des sessions |
-| `COMPLETED_TASKS_ARCHIVE.md` | Tâches terminées |
-| `SESSION_61_SUMMARY.md` | Résumé Session 61 |
-| `build/reports/kover/html/index.html` | Rapport coverage détaillé |
+| `.sessions/` | Résumés de sessions archivés (61-69) |
+| `.prompts/` | Prompts de reprise archivés (65-69) |
+| `PROMPT_REPRISE.md` | Prompt de reprise **courant** (Session 70) |
+| `TROUBLESHOOTING.md` | Guide troubleshooting (EN, ~600 lignes) |
+| `TROUBLESHOOTING_fr.md` | Guide troubleshooting (FR, ~600 lignes) |
 
 ---
 
-## 🎯 Roadmap — EPIC 1 Status
+## 🏗 Architecture — Organisation des Fichiers de Session
 
-| ID | Story | Statut | Coverage Impact |
-|----|-------|--------|-----------------|
-| 1.1 | Fix double appel `validateDiagram()` | ✅ TERMINÉ | Performance |
-| 1.2 | JSON serialization (Jackson) | ✅ TERMINÉ | Stabilité |
-| 1.3 | Debug logs cleanup | ✅ TERMINÉ | Logs |
-| 1.4 | Kover threshold gate | ✅ TERMINÉ (Session 60) | Qualité |
-| 1.5 | Tester ConfigMerger branches | ✅ TERMINÉ (Session 57) | +0,1% |
-| 1.6 | Tester PlantumlManager | ⏳ **Session 62** | +?% |
+Depuis la Session 69, les fichiers sont organisés ainsi :
 
-**Score actuel** : **77,10%** ✅ → **Cible** : 85%+
-
----
-
-## 🏗 Architecture — PlantumlManager
-
-```kotlin
-object PlantumlManager {
-    object Configuration {
-        fun load(project: Project, cliParams: Map<String, Any?> = emptyMap()): PlantumlConfig
-    }
-    
-    object Tasks {
-        fun registerTasks(project: Project)
-    }
-    
-    object Extensions {
-        fun configureExtensions(project: Project)
-    }
-}
+```
+plantuml-plugin/
+├── PROMPT_REPRISE.md              # Prompt de reprise COURANT (Session N)
+├── SESSIONS_HISTORY.md            # Historique complet (toutes sessions)
+├── .prompts/                      # Archives prompts de reprise
+│   ├── PROMPT_REPRISE_SESSION_65.md
+│   ├── PROMPT_REPRISE_SESSION_66.md
+│   ├── PROMPT_REPRISE_SESSION_67.md
+│   └── PROMPT_REPRISE_SESSION_69.md
+└── .sessions/                     # Archives résumés de sessions
+    ├── SESSION_61_SUMMARY.md
+    ├── SESSION_62_SUMMARY.md
+    ├── SESSION_63_SUMMARY.md
+    ├── SESSION_64_SUMMARY.md
+    ├── SESSION_65_SUMMARY.md
+    ├── SESSION_66_SUMMARY.md
+    ├── SESSION_67_SUMMARY.md
+    ├── SESSION_68_SUMMARY.md
+    └── SESSION_69_SUMMARY.md
 ```
 
-**Méthodes à tester** :
-- `Configuration.load()` : Déjà testé (10 tests dans PlantumlManagerTest.kt)
-- `Tasks.registerTasks()` : Déjà testé (2 tests)
-- `Extensions.configureExtensions()` : Déjà testé (1 test)
-
-**À vérifier** : Branches non couvertes dans `Configuration.load()` (try/catch, extension configPath, etc.)
+**Règle** :
+- **Fichiers courants** : Racine (`PROMPT_REPRISE.md`)
+- **Archives** : `.prompts/` et `.sessions/`
+- **Historique global** : `SESSIONS_HISTORY.md` (racine)
 
 ---
 
-**Session 62 PRÊTE** — Objectif : 100% couverture PlantumlManager
+## 🎯 Roadmap — État Actuel
+
+### EPIC 1 : Performance & Stabilité ✅
+- **Score** : 6.8/10 → 8.0/10 ✅ **TERMINÉ**
+- **Stories** : 6/6 terminées (1.1 ✅, 1.2 ✅, 1.3 ✅, 1.4 ✅, 1.5 ✅, 1.6 ✅)
+
+### EPIC 2 : RAG Production-Ready ✅
+- **Score** : 8/10 → 8/10 ✅ **TERMINÉ**
+- **Stories** : 4/4 terminées (2.1 ✅, 2.2 ✅, 2.3 ✅, 2.4 ✅)
+
+### EPIC 3 : Consolidation Tests Fonctionnels ✅
+- **Score** : 7/10 → 9/10 ✅ **TERMINÉ**
+- **Stories** : 6/6 terminées (3.1 ✅ à 3.6 ✅)
+
+### EPIC 4 : Documentation & Qualité 🟡
+- **Score** : 4/10 → 7/10 🟡 **EN COURS**
+- **Stories** : 2/4 terminées (4.1 ✅, 4.2 ✅, 4.3 ⏳, 4.4 ⏳)
+
+**Score Global** : **9.0/10** ✅ **OPTIMAL ATTEINT**
+
+---
+
+## ⚠️ Pièges à Éviter (Rappel)
+
+1. ❌ **Oublier de mettre à jour SESSIONS_HISTORY.md** — Toujours documenter en fin de session
+2. ❌ **Mélanger archives et fichiers courants** — Respecter `.prompts/` et `.sessions/`
+3. ❌ **Créer des fichiers dans la racine** — Utiliser les dossiers d'archives
+4. ❌ **Oublier la traduction FR** — Toujours créer EN + FR pour la documentation
+
+---
+
+## 📝 Procédure de Fin de Session (Rappel)
+
+**Voir** : `SESSION_PROCEDURE.md`
+
+**Étapes** :
+1. ✅ Vérifier que tous les tests passent
+2. ✅ Mettre à jour `SESSIONS_HISTORY.md`
+3. ✅ Mettre à jour `ROADMAP.md` (si story terminée)
+4. ✅ Créer `SESSION_N_SUMMARY.md` → `.sessions/`
+5. ✅ Créer `PROMPT_REPRISE_SESSION_N.md` → `.prompts/` (si nécessaire)
+6. ✅ Mettre à jour `PROMPT_REPRISE.md` pour Session N+1
+7. ✅ Commit git (si demandé)
+
+---
+
+**Session 70 PRÊTE** — Objectif : Story 4.3 (Documentation API KDoc)
