@@ -127,7 +127,7 @@ class ReindexPlantumlRagTaskBranchTest {
     }
 
     @Test
-    fun `should handle database configuration and connection error gracefully`() {
+    fun `should fail explicitly when database connection fails`() {
         // Given: RAG directory with a diagram file
         val ragDir = File(tempDir, "rag-with-diagram")
         ragDir.mkdirs()
@@ -146,38 +146,71 @@ class ReindexPlantumlRagTaskBranchTest {
               tableName: "embeddings"
         """.trimIndent())
         
-        // When: execute the task (will fail to connect and fallback to simulation)
-        task.reindexRag()
+        // When: execute the task (will fail to connect - no fallback)
+        val exception = assertFailsWith<Exception> {
+            task.reindexRag()
+        }
         
-        // Then: task completes (fallback to simulation mode)
-        assertTrue(true, "Task should fallback to simulation mode on database connection error")
+        // Then: task fails with explicit error (no silent fallback)
+        // Exception can be RuntimeException wrapping PSQLException
+        val allMessages = sequenceOf(
+            exception.message,
+            exception.cause?.message,
+            exception.cause?.cause?.message
+        ).filterNotNull().joinToString(" ").lowercase()
+        
+        assertTrue(
+            allMessages.contains("connection") || 
+            allMessages.contains("connect") ||
+            allMessages.contains("refused") ||
+            allMessages.contains("postgresql"),
+            "Expected connection error but got: ${exception.message}"
+        )
     }
 
     @Test
-    fun `should use database mode when credentials are complete`() {
+    fun `should fail explicitly when database mode with invalid host`() {
         // Given: RAG directory with a diagram file
         val ragDir = File(tempDir, "rag-db-test")
         ragDir.mkdirs()
         val diagramFile = File(ragDir, "test.puml")
         diagramFile.writeText("@startuml\nclass DatabaseTest\n@enduml")
         
-        // Configure with complete database credentials (will fail - no PostgreSQL running)
+        // Configure with complete database credentials (will fail - invalid host)
         val configPath = File(tempDir, "plantuml-context.yml")
         configPath.writeText("""
             output:
               rag: "${ragDir.absolutePath}"
             rag:
-              databaseUrl: "jdbc:postgresql://nonexistent-host:5432/plantuml_rag"
+              databaseUrl: "nonexistent-host"
+              port: 5432
               username: "testuser"
               password: "testpass"
               tableName: "embeddings"
         """.trimIndent())
         
-        // When: execute the task (will try database mode then fallback)
-        task.reindexRag()
+        // When: execute the task (will fail - no silent fallback)
+        val exception = assertFailsWith<Exception> {
+            task.reindexRag()
+        }
         
-        // Then: task completes (tries database, fails, falls back to simulation)
-        assertTrue(true, "Task should attempt database mode with complete credentials")
+        // Then: task fails with explicit error
+        // Exception can be RuntimeException wrapping PSQLException - check all nested causes
+        fun collectAllMessages(t: Throwable?): Sequence<String> {
+            return generateSequence(t) { it.cause }.mapNotNull { it.message }
+        }
+        
+        val allMessages = collectAllMessages(exception).joinToString(" ").lowercase()
+        
+        assertTrue(
+            allMessages.contains("connection") || 
+            allMessages.contains("connect") ||
+            allMessages.contains("refused") ||
+            allMessages.contains("postgresql") ||
+            allMessages.contains("unknown host") ||
+            allMessages.contains("host"),
+            "Expected connection error but got: ${exception.message}"
+        )
     }
 
     @Test

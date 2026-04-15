@@ -102,7 +102,7 @@ class ModelsDataClassTest {
             output = OutputConfig("out/diagrams", "out/images", "out/validations", "out/rag", "svg", "dark"),
             langchain4j = LangchainConfig(3, "openai", true, "", OllamaConfig("http://custom:11434", "llama2"), ApiKeyConfig("sk-key")),
             git = GitConfig("user", "user@email.com", "custom message", listOf("main")),
-            rag = RagConfig("jdbc:postgresql://localhost:5432/rag", "user", "pass", "custom_table")
+            rag = RagConfig("jdbc:postgresql://localhost:5432/rag", 5432, "user", "pass", "custom_table")
         )
         assertEquals("custom-prompts", config.input.prompts)
         assertEquals("fr", config.input.defaultLang)
