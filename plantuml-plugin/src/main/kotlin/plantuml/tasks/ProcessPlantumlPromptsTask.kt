@@ -64,7 +64,7 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
             ?: config.input.prompts
 
         logger.debug("DEBUG: promptsDir from config: ${config.input.prompts}")
-        logger.debug("DEBUG: promptsDir from property: ${project.findProperty("plantuml.prompts.dir")}")
+        logger.debug("DEBUG: promptsDir from property: {}", project.findProperty("plantuml.prompts.dir"))
         logger.debug("DEBUG: final promptsDir: $promptsDir")
 
         // Resolve prompts directory relative to project directory

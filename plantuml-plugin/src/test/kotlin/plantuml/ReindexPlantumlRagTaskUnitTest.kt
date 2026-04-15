@@ -7,9 +7,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import plantuml.tasks.ReindexPlantumlRagTask
 import java.io.File
-import kotlin.test.assertTrue
-import kotlin.test.assertFalse
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 /**
  * Unit tests for ReindexPlantumlRagTask
@@ -29,7 +28,7 @@ class ReindexPlantumlRagTaskUnitTest {
         project = ProjectBuilder.builder()
             .withProjectDir(tempDir)
             .build()
-        
+
         task = project.tasks.register("reindexPlantumlRag", ReindexPlantumlRagTask::class.java).get()
     }
 
@@ -37,8 +36,9 @@ class ReindexPlantumlRagTaskUnitTest {
     fun `should create RAG directory when not exists`() {
         // Arrange: Configure non-existent RAG directory (isolated in tempDir)
         val ragDir = File(tempDir, "isolated-rag")
-        val configDir = File(tempDir, "plantuml-context.yml").apply {
-            writeText("""
+        File(tempDir, "plantuml-context.yml").apply {
+            writeText(
+                """
                 output:
                   rag: "${ragDir.absolutePath}"
                 rag:
@@ -46,7 +46,8 @@ class ReindexPlantumlRagTaskUnitTest {
                   username: ""
                   password: ""
                   tableName: "embeddings"
-            """.trimIndent())
+            """.trimIndent()
+            )
         }
 
         // Act: Task should create directory
@@ -63,8 +64,9 @@ class ReindexPlantumlRagTaskUnitTest {
         val ragFile = File(tempDir, "isolated-rag").apply {
             writeText("This is a file, not a directory")
         }
-        val configDir = File(tempDir, "plantuml-context.yml").apply {
-            writeText("""
+        File(tempDir, "plantuml-context.yml").apply {
+            writeText(
+                """
                 output:
                   rag: "${ragFile.absolutePath}"
                 rag:
@@ -72,7 +74,8 @@ class ReindexPlantumlRagTaskUnitTest {
                   username: ""
                   password: ""
                   tableName: "embeddings"
-            """.trimIndent())
+            """.trimIndent()
+            )
         }
 
         // Act & Assert: Should throw exception
@@ -86,8 +89,9 @@ class ReindexPlantumlRagTaskUnitTest {
     fun `should report no diagrams when RAG directory is empty`() {
         // Arrange: Create empty RAG directory (isolated in tempDir)
         val ragDir = File(tempDir, "isolated-rag").apply { mkdirs() }
-        val configDir = File(tempDir, "plantuml-context.yml").apply {
-            writeText("""
+        File(tempDir, "plantuml-context.yml").apply {
+            writeText(
+                """
                 output:
                   rag: "${ragDir.absolutePath}"
                 rag:
@@ -95,7 +99,8 @@ class ReindexPlantumlRagTaskUnitTest {
                   username: ""
                   password: ""
                   tableName: "embeddings"
-            """.trimIndent())
+            """.trimIndent()
+            )
         }
 
         // Act: Task should report no diagrams
@@ -115,8 +120,9 @@ class ReindexPlantumlRagTaskUnitTest {
         val diagram2 = File(ragDir, "diagram2.puml").apply {
             writeText("@startuml\nBob -> Alice\n@enduml")
         }
-        val configDir = File(tempDir, "plantuml-context.yml").apply {
-            writeText("""
+        File(tempDir, "plantuml-context.yml").apply {
+            writeText(
+                """
                 output:
                   rag: "${ragDir.absolutePath}"
                 rag:
@@ -124,7 +130,8 @@ class ReindexPlantumlRagTaskUnitTest {
                   username: ""
                   password: ""
                   tableName: "embeddings"
-            """.trimIndent())
+            """.trimIndent()
+            )
         }
 
         // Act: Task should scan files
@@ -148,8 +155,9 @@ class ReindexPlantumlRagTaskUnitTest {
         val history2 = File(ragDir, "attempt-history-20260409-130000.json").apply {
             writeText("""{"attempts": 2, "success": true}""")
         }
-        val configDir = File(tempDir, "plantuml-context.yml").apply {
-            writeText("""
+        File(tempDir, "plantuml-context.yml").apply {
+            writeText(
+                """
                 output:
                   rag: "${ragDir.absolutePath}"
                 rag:
@@ -157,7 +165,8 @@ class ReindexPlantumlRagTaskUnitTest {
                   username: ""
                   password: ""
                   tableName: "embeddings"
-            """.trimIndent())
+            """.trimIndent()
+            )
         }
 
         // Act: Task should scan history files
@@ -176,8 +185,9 @@ class ReindexPlantumlRagTaskUnitTest {
         val minimalDiagram = File(ragDir, "minimal.puml").apply {
             writeText("@startuml\n@enduml")
         }
-        val configDir = File(tempDir, "plantuml-context.yml").apply {
-            writeText("""
+        File(tempDir, "plantuml-context.yml").apply {
+            writeText(
+                """
                 output:
                   rag: "${ragDir.absolutePath}"
                 rag:
@@ -185,7 +195,8 @@ class ReindexPlantumlRagTaskUnitTest {
                   username: ""
                   password: ""
                   tableName: "embeddings"
-            """.trimIndent())
+            """.trimIndent()
+            )
         }
 
         // Act: Task should handle minimal files gracefully
@@ -208,8 +219,9 @@ class ReindexPlantumlRagTaskUnitTest {
         val config = File(ragDir, "config.yml").apply {
             writeText("some: config")
         }
-        val configDir = File(tempDir, "plantuml-context.yml").apply {
-            writeText("""
+        File(tempDir, "plantuml-context.yml").apply {
+            writeText(
+                """
                 output:
                   rag: "${ragDir.absolutePath}"
                 rag:
@@ -217,7 +229,8 @@ class ReindexPlantumlRagTaskUnitTest {
                   username: ""
                   password: ""
                   tableName: "embeddings"
-            """.trimIndent())
+            """.trimIndent()
+            )
         }
 
         // Act: Task should only process .puml and attempt-history*.json files
