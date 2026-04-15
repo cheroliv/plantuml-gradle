@@ -20,6 +20,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.Ignore
 import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Tag
 
 /**
  * Consolidated functional test suite for the PlantUML plugin.
@@ -232,6 +233,7 @@ class PlantumlFunctionalSuite {
          */
         @Test
         @Order(1)
+        @Tag("quick")
         fun `should apply plugin successfully`() {
             val result = runner("tasks", "--console=plain").build()
 
@@ -249,6 +251,7 @@ class PlantumlFunctionalSuite {
          */
         @Test
         @Order(2)
+        @Tag("quick")
         fun `should register all three tasks`() {
             val result = runner("tasks", "--all", "--console=plain").build()
 
@@ -273,6 +276,7 @@ class PlantumlFunctionalSuite {
          */
         @Test
         @Order(3)
+        @Tag("quick")
         fun `should configure extension with yaml file`() {
             // Create a YAML with an absolute path as in the original @Ignore
             val configFile = File(sharedProjectDir, "plantuml-context.yml")
@@ -302,6 +306,7 @@ class PlantumlFunctionalSuite {
          */
         @Test
         @Order(4)
+        @Tag("quick")
         fun `should expose plantuml extension in properties`() {
             val result = runner("properties", "--console=plain").build()
 
@@ -318,6 +323,7 @@ class PlantumlFunctionalSuite {
          */
         @Test
         @Order(5)
+        @Tag("quick")
         fun `help task should succeed with plugin applied`() {
             val result = runner("help", "--console=plain").build()
 
@@ -330,6 +336,7 @@ class PlantumlFunctionalSuite {
          */
         @Test
         @Order(6)
+        @Tag("quick")
         fun `dry-run should list all plantuml tasks without executing them`() {
             val result = runner(
                 "processPlantumlPrompts",
@@ -375,6 +382,7 @@ class PlantumlFunctionalSuite {
          */
         @Test
         @Order(1)
+        @Tag("quick")
         fun `should handle Ollama configuration correctly via WireMock`() {
             writeConfigYaml(model = "ollama")
 
@@ -551,6 +559,7 @@ class PlantumlFunctionalSuite {
         /** SharedGradleInstanceFunctionalTest.test01 */
         @Test
         @Order(1)
+        @Tag("quick")
         fun `help task should succeed with shared project`() {
             val result = runner("help", "--console=plain").build()
             assertEquals(TaskOutcome.SUCCESS, result.task(":help")?.outcome)
@@ -559,6 +568,7 @@ class PlantumlFunctionalSuite {
         /** SharedGradleInstanceFunctionalTest.test02 */
         @Test
         @Order(2)
+        @Tag("quick")
         fun `tasks --all should list all plantuml tasks`() {
             val result = runner("tasks", "--all", "--console=plain").build()
             assertTrue(result.output.contains("processPlantumlPrompts"))
@@ -569,6 +579,7 @@ class PlantumlFunctionalSuite {
         /** SharedGradleInstanceFunctionalTest.test03 */
         @Test
         @Order(3)
+        @Tag("quick")
         fun `properties should include plantuml extension`() {
             val result = runner("properties", "--console=plain").build()
             assertTrue(
@@ -583,6 +594,7 @@ class PlantumlFunctionalSuite {
          */
         @Test
         @Order(4)
+        @Tag("slow")
         fun `config yaml update should be picked up by subsequent build`() {
             writeConfigYaml(
                 model = "ollama",
@@ -639,6 +651,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(1)
+        @Tag("quick")
         fun `should register all three tasks`() {
             val result = runner("tasks", "--all").build()
             assertTrue(result.output.contains("processPlantumlPrompts"))
@@ -648,6 +661,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(2)
+        @Tag("quick")
         fun `dry-run should list all tasks without failing`() {
             val result = runner(
                 "processPlantumlPrompts",
@@ -660,6 +674,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(3)
+        @Tag("quick")
         fun `should validate a correct puml file`() {
             File(sharedProjectDir, "sample.puml").writeText(
                 "@startuml\nclass Car {\n  - String brand\n}\n@enduml",
@@ -675,6 +690,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(4)
+        @Tag("quick")
         fun `should fail on missing diagram file`() {
             val result = runner(
                 "validatePlantumlSyntax",
@@ -690,6 +706,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(5)
+        @Tag("quick")
         fun `should handle unicode content in puml files`() {
             File(sharedProjectDir, "unicode.puml").writeText(
                 "@startuml\ntitle Diagramme avec des caractères spéciaux\nactor Utilisateur\n@enduml",
@@ -704,6 +721,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(6)
+        @Tag("slow")
         fun `should succeed with pre-existing rag directory`() {
             val result = runner(
                 "reindexPlantumlRag",
@@ -719,6 +737,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(7)
+        @Tag("slow")
         fun `should create rag directory when it does not exist`() {
             val subDir = File(sharedProjectDir, "rag-absent-test").also { it.mkdirs() }
             File(subDir, "settings.gradle.kts").writeText("""rootProject.name = "rag-absent"""")
@@ -755,6 +774,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(8)
+        @Tag("slow")
         fun `should report correct diagram count`() {
             val ragDir = File(sharedProjectDir, "build/plantuml-plugin/generated/rag")
             File(ragDir, "extra1.puml").writeText("@startuml\nclass Extra1\n@enduml")
@@ -768,6 +788,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(9)
+        @Tag("slow")
         fun `should complete in test mode without calling real llm`() {
             val result = runner(
                 "processPlantumlPrompts",
@@ -780,6 +801,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(10)
+        @Tag("slow")
         fun `command-line model parameter should override config`() {
             val result = runner(
                 "processPlantumlPrompts",
@@ -792,6 +814,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(11)
+        @Tag("slow")
         fun `should handle empty prompts directory gracefully`() {
             val subDir = File(sharedProjectDir, "empty-prompts-test").also { it.mkdirs() }
             File(subDir, "settings.gradle.kts").writeText("""rootProject.name = "empty-prompts"""")
@@ -866,6 +889,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(1)
+        @Tag("slow")
         fun `should handle read permission denied gracefully`() {
             File(sharedProjectDir, "settings.gradle.kts").writeText(
                 """rootProject.name = "plantuml-permission-test"""".trimIndent(),
@@ -903,6 +927,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(2)
+        @Tag("slow")
         fun `should handle write permission denied gracefully`() {
             File(sharedProjectDir, "settings.gradle.kts").writeText(
                 """rootProject.name = "plantuml-permission-test"""".trimIndent(),
@@ -932,6 +957,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(3)
+        @Tag("slow")
         fun `should handle directory permission denied gracefully`() {
             File(sharedProjectDir, "settings.gradle.kts").writeText(
                 """rootProject.name = "plantuml-permission-test"""".trimIndent(),
@@ -980,6 +1006,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(4)
+        @Tag("slow")
         fun `should handle nonexistent directory gracefully`() {
             File(sharedProjectDir, "settings.gradle.kts").writeText(
                 """rootProject.name = "plantuml-permission-test"""".trimIndent(),
@@ -1034,6 +1061,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(1)
+        @Tag("slow")
         fun `should handle large PlantUML file`() {
             File(sharedProjectDir, "settings.gradle.kts").writeText(
                 """rootProject.name = "plantuml-large-file-test"""".trimIndent(),
@@ -1050,6 +1078,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(2)
+        @Tag("quick")
         fun `should handle special characters in filename`() {
             File(sharedProjectDir, "settings.gradle.kts").writeText(
                 """rootProject.name = "plantuml-special-chars-test"""".trimIndent(),
@@ -1076,6 +1105,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(3)
+        @Tag("slow")
         fun `should handle deeply nested paths`() {
             File(sharedProjectDir, "settings.gradle.kts").writeText(
                 """rootProject.name = "plantuml-deep-path-test"""".trimIndent(),
@@ -1112,6 +1142,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(4)
+        @Tag("quick")
         fun `should handle unicode characters`() {
             File(sharedProjectDir, "settings.gradle.kts").writeText(
                 """rootProject.name = "plantuml-unicode-test"""".trimIndent(),
@@ -1149,6 +1180,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(1)
+        @Tag("slow")
         fun `should handle network timeout gracefully with slow server`() {
             File(sharedProjectDir, "settings.gradle.kts").writeText(
                 """rootProject.name = "plantuml-network-test" """,
@@ -1203,6 +1235,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(2)
+        @Tag("quick")
         fun `should handle connection refused gracefully`() {
             File(sharedProjectDir, "settings.gradle.kts").writeText(
                 """rootProject.name = "plantuml-network-test" """,
@@ -1240,6 +1273,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(3)
+        @Tag("quick")
         fun `should handle DNS resolution failure gracefully`() {
             File(sharedProjectDir, "settings.gradle.kts").writeText(
                 """rootProject.name = "plantuml-network-test" """,
@@ -1281,6 +1315,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(4)
+        @Tag("quick")
         fun `should degrade gracefully with network issues`() {
             File(sharedProjectDir, "settings.gradle.kts").writeText(
                 """rootProject.name = "plantuml-network-test" """,
@@ -1329,6 +1364,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(1)
+        @Tag("slow")
         fun `should process single prompt quickly`() {
             stubOllamaChatResponse()
 
@@ -1373,6 +1409,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(2)
+        @Tag("quick")
         fun `should validate syntax extremely quickly`() {
             File(sharedProjectDir, "settings.gradle.kts").writeText(
                 """rootProject.name = "plantuml-performance-test"""",
@@ -1398,6 +1435,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(3)
+        @Tag("slow")
         fun `should validate multiple files quickly`() {
             File(sharedProjectDir, "settings.gradle.kts").writeText(
                 """rootProject.name = "plantuml-performance-test"""",
@@ -1436,6 +1474,7 @@ class PlantumlFunctionalSuite {
 
         @Test
         @Order(4)
+        @Tag("slow")
         fun `should handle concurrent tasks efficiently`() {
             stubOllamaChatResponse()
 
@@ -1801,6 +1840,67 @@ class PlantumlFunctionalSuite {
             createDiagramFile("valid.puml", "@startuml\nclass Valid\n@enduml")
 
             val result = runner("reindexPlantumlRag", "--info").build()
+
+            assertEquals(TaskOutcome.SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
+        }
+
+        @Test
+        @Tag("slow")
+        @Disabled("Requires Docker/testcontainers infrastructure - enabled in CI/CD")
+        fun `should use testcontainers mode when specified`() {
+            createRagDirectory()
+            createDiagramFile("test.puml", "@startuml\nclass TestContainer\n@enduml")
+
+            val result = runner("reindexPlantumlRag", "-Prag.mode=testcontainers").build()
+
+            assertEquals(TaskOutcome.SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
+            assertTrue(result.output.contains("Using testcontainers PostgreSQL"))
+            assertTrue(result.output.contains("PostgreSQL container started"))
+        }
+
+        @Test
+        @Tag("slow")
+        @Disabled("Requires PostgreSQL with pgvector - enabled in CI/CD")
+        fun `should use database mode when pgvector available`() {
+            File(sharedProjectDir, "plantuml-context.yml").writeText(
+                """
+                output:
+                  rag: "generated/rag"
+                rag:
+                  databaseUrl: "localhost"
+                  username: "test"
+                  password: "test"
+                  tableName: "embeddings"
+                """.trimIndent(),
+            )
+
+            createRagDirectory()
+            createDiagramFile("test.puml", "@startuml\nclass DatabaseMode\n@enduml")
+
+            val result = runner("reindexPlantumlRag").buildAndFail()
+
+            assertTrue(result.output.contains("BUILD FAILED") || result.output.contains("FAILURE"))
+        }
+
+        @Test
+        @Tag("slow")
+        @Disabled("Requires Docker/testcontainers infrastructure - enabled in CI/CD")
+        fun `should fail with explicit error when database connection fails`() {
+            createRagDirectory()
+            createDiagramFile("test.puml", "@startuml\nclass Fallback\n@enduml")
+
+            val result = runner("reindexPlantumlRag", "-Prag.mode=database", "-Pplantuml.rag.databaseUrl=invalid-host", "-Pplantuml.rag.username=invalid", "-Pplantuml.rag.password=invalid").buildAndFail()
+
+            assertTrue(result.output.contains("BUILD FAILED") || result.output.contains("FAILURE"))
+        }
+
+        @Test
+        @Tag("quick")
+        fun `should use simulation mode by default`() {
+            createRagDirectory()
+            createDiagramFile("test.puml", "@startuml\nclass Simulation\n@enduml")
+
+            val result = runner("reindexPlantumlRag").build()
 
             assertEquals(TaskOutcome.SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
         }
