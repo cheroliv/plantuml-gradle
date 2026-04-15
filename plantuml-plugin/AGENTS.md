@@ -57,20 +57,20 @@ plantuml-plugin/src/main/kotlin/plantuml/
 
 ## 📊 État actuel
 
-**Session 60 TERMINÉE** — Couverture 77,10% (stable) ✅
+**Session 62 TERMINÉE** — EPIC 1 complet ✅
 
-**Résultats Session 60** :
+**Résultats Session 62** :
 - ✅ **198 tests unitaires** : 198/198 PASS (100%)
-- ✅ **42 tests fonctionnels** : 42 PASS, 6 SKIP, 0 FAIL (100%)
-- ✅ **Couverture Kover** : **77,10%** (stable)
-- ✅ **EPIC 1** : 4/6 stories terminées (1.1 ✅, 1.2 ✅, 1.3 ✅, 1.4 ✅, 1.5 ✅, 1.6 ✅)
-- ✅ **Score Roadmap** : 7.5/10
+- ✅ **42 tests fonctionnels** : 36 PASS, 6 SKIP, 0 FAIL (100%)
+- ✅ **Couverture PlantumlManager** : 98-100% (maximal atteignable)
+- ✅ **EPIC 1** : 6/6 stories terminées (1.1 ✅, 1.2 ✅, 1.3 ✅, 1.4 ✅, 1.5 ✅, 1.6 ✅)
+- ✅ **Score Roadmap** : 8.0/10 (EPIC 1 complet)
 
-**Modifications Session 60** :
-- ✅ `ROADMAP.md` : Story 1.4 marquée ✅ TERMINÉ (Session 60)
-- ✅ Vérification : `koverThresholdCheck` fonctionne (77,10% > 75%)
+**Modifications Session 62** :
+- ✅ `ROADMAP.md` : Story 1.6 marquée ✅ TERMINÉ
+- ✅ `SESSIONS_HISTORY.md` : Entrée Session 62 ajoutée
 
-**Prochaine session (61)** : EPIC 1 — Story 1.6 (Tester PlantumlManager nested class)
+**Prochaine session (63)** : EPIC 2 — Story 2.1 (RAG Production-Ready avec PostgreSQL + testcontainers)
 
 **Voir** : `SESSIONS_HISTORY.md` pour l'historique complet des sessions
 **Voir** : `COMPLETED_TASKS_ARCHIVE.md` pour les tâches terminées
@@ -105,12 +105,26 @@ plantuml-plugin/src/main/kotlin/plantuml/
 ## ⚡ Commandes utiles
 
 ```bash
-# Lancer les tests fonctionnels
-./gradlew -i functionalTest
+# Lancer les tests fonctionnels (CI - tous les tests)
+./gradlew functionalTest                    # ~30s
+
+# Lancer les tests fonctionnels rapides (dév quotidien)
+./gradlew functionalTest --tests "*quick*"  # ~23s
+
+# Lancer les tests fonctionnels lents (RAG, permissions, network)
+./gradlew functionalTest --tests "*slow*"
 
 # Lancer les tests unitaires
 ./gradlew test
 
 # Lancer tous les tests
 ./gradlew check
+
+# Avec configuration cache (plus rapide après 1er run)
+./gradlew functionalTest --configuration-cache
 ```
+
+**Tags de tests** :
+- `@Tag("quick")` : 18 tests (< 5s) — dév quotidien
+- `@Tag("slow")` : 18 tests (> 10s) — validation complète
+- `@Disabled` : 6 tests cloud (requièrent credentials)
