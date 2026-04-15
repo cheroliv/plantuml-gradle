@@ -84,7 +84,7 @@ package plantuml.scenarios
 //            }
 //        }.toTypedArray()
 //
-//        // Si nous avons moins de résultats que maxIterations, remplir avec des échecs
+//        // If we have fewer results than maxIterations, fill with failures
 //        val paddedResponses = if (mockResponses.size < maxIterations) {
 //            mockResponses.plus(Array(maxIterations - mockResponses.size) {
 //                PlantumlService.SyntaxValidationResult.Invalid(

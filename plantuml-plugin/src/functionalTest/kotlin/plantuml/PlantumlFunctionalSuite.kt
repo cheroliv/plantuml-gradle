@@ -55,10 +55,12 @@ class PlantumlFunctionalSuite {
     companion object {
 
         @TempDir
-        @JvmStatic                          // @JvmField était incorrect dans l'original
+        @JvmStatic                          // @JvmField was incorrect in the original
         lateinit var sharedProjectDir: File
 
         private lateinit var wireMockServer: WireMockServer
+
+        private val tempFiles = mutableListOf<File>()
 
         // ---------------------------------------------------------------- //
         //  Setup / teardown for the suite                                    //
@@ -74,7 +76,22 @@ class PlantumlFunctionalSuite {
         @AfterAll
         @JvmStatic
         fun tearDownSuite() {
-            if (::wireMockServer.isInitialized) wireMockServer.stop()
+            try {
+                if (::wireMockServer.isInitialized) wireMockServer.stop()
+            } finally {
+                tempFiles.clear()
+            }
+        }
+
+        @AfterEach
+        fun cleanupTempFiles() {
+            tempFiles.forEach { file ->
+                try {
+                    if (file.exists()) file.deleteRecursively()
+                } catch (_: Exception) {
+                }
+            }
+            tempFiles.clear()
         }
 
         // ---------------------------------------------------------------- //
@@ -152,10 +169,15 @@ class PlantumlFunctionalSuite {
             // Config initiale pointant vers WireMock
             writeConfigYaml(model = "ollama")
 
-            // Répertoires nécessaires à processPlantumlPrompts
+            // Directories required for processPlantumlPrompts
             File(sharedProjectDir, "test-prompts").mkdirs()
             File(sharedProjectDir, "test-prompts/test.prompt")
                 .writeText("Create a simple class diagram with one class named Car")
+        }
+
+        private fun trackTempFile(file: File): File {
+            tempFiles.add(file)
+            return file
         }
 
         /**
@@ -584,7 +606,7 @@ class PlantumlFunctionalSuite {
             val result = runner("properties", "--console=plain").build()
             assertTrue(
                 result.output.contains("plantuml"),
-                "La sortie de 'properties' doit mentionner l'extension plantuml",
+                "The output of 'properties' must mention the plantuml extension",
             )
         }
 
@@ -740,6 +762,7 @@ class PlantumlFunctionalSuite {
         @Tag("slow")
         fun `should create rag directory when it does not exist`() {
             val subDir = File(sharedProjectDir, "rag-absent-test").also { it.mkdirs() }
+            trackTempFile(subDir)
             File(subDir, "settings.gradle.kts").writeText("""rootProject.name = "rag-absent"""")
             File(subDir, "build.gradle.kts").writeText(
                 """
@@ -766,7 +789,8 @@ class PlantumlFunctionalSuite {
                 """.trimIndent(),
             )
             File(subDir, "test-prompts").mkdirs()
-            File(subDir, "fresh-rag").deleteRecursively()
+            val freshRag = File(subDir, "fresh-rag")
+            if (freshRag.exists()) freshRag.deleteRecursively()
 
             val result = runner("reindexPlantumlRag", "-Dplantuml.test.mode=true").build()
             assertEquals(SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
@@ -922,6 +946,7 @@ class PlantumlFunctionalSuite {
             } finally {
                 diagramFile.setReadable(true)
                 diagramFile.setWritable(true)
+                if (diagramFile.exists()) diagramFile.delete()
             }
         }
 
@@ -952,6 +977,7 @@ class PlantumlFunctionalSuite {
                 )
             } finally {
                 diagramFile.setWritable(true)
+                if (diagramFile.exists()) diagramFile.delete()
             }
         }
 
@@ -996,6 +1022,7 @@ class PlantumlFunctionalSuite {
                 if (File.separator == "/") {
                     ragDir.setReadable(true, false)
                     ragDir.setExecutable(true, false)
+                    if (ragDir.exists()) ragDir.deleteRecursively()
                 } else {
                     val tempDir = File(sharedProjectDir, "temp-rag")
                     if (tempDir.exists()) tempDir.renameTo(ragDir)
@@ -1214,6 +1241,7 @@ class PlantumlFunctionalSuite {
                     }
                 } catch (_: Exception) { }
             }
+            serverThread.isDaemon = true
             serverThread.start()
 
             try {
@@ -1229,7 +1257,12 @@ class PlantumlFunctionalSuite {
                 )
             } finally {
                 serverThread.interrupt()
-                try { serverThread.join(500) } catch (_: Exception) { }
+                try {
+                    serverThread.join(1000)
+                    if (serverThread.isAlive) {
+                        serverThread.stop()
+                    }
+                } catch (_: Exception) { }
             }
         }
 
@@ -1519,7 +1552,7 @@ class PlantumlFunctionalSuite {
     }
 
     // ==================================================================== //
-    //  Nested 9 : infrastructure réelle (ex-PlantumlRealInfrastructureSuite) //
+    //  Nested 9 : real infrastructure (ex-PlantumlRealInfrastructureSuite) //
     // ==================================================================== //
 
     @Nested

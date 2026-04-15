@@ -1,8 +1,8 @@
-# 🔄 Prompt de reprise — Session 73
+# 🔄 Prompt de reprise — Session 72 (ARCHIVÉ)
 
-> **EPIC** : `.agents/ROADMAP.md` — EPIC 1 : Performance & Stabilité  
-> **Statut** : Session 72 TERMINÉE — Traduction commentaires ✅  
-> **Session 73** : Debug crash tâche functionalTest (CRITIQUE)
+> **EPIC** : `.agents/ROADMAP.md` — EPIC 4 : Documentation & Qualité  
+> **Statut** : Session 71 TERMINÉE — Organisation fichiers agents ✅  
+> **Mission** : Session 72 — Traduction commentaires FR → EN (code uniquement)
 
 ---
 
@@ -25,84 +25,38 @@
 
 ---
 
-## 🎯 Session 73 — Mission (EN COURS)
+## 🎯 Session 72 — Mission
 
-### Debug crash tâche functionalTest — Optimisation des tests
+### Traduction des commentaires français → anglais (code uniquement)
 
-**Priorité** : 🔴 **CRITIQUE**  
-**Impact** : Bloque l'exécution des tests fonctionnels  
-**Symptôme** : La tâche `functionalTest` fait crasher le système
+**Priorité** : 🟢 **MOYENNE**  
+**Impact** : Code base 100% en anglais (cohérence)  
+**Fichiers cibles** :
+- `src/main/kotlin/**/*.kt` (code source)
+- `src/test/kotlin/**/*.kt` (tests unitaires)
+- `src/functionalTest/kotlin/**/*.kt` (tests fonctionnels)
+- `src/test/scenarios/**/*.kt` (scénarios Cucumber)
+
+**EXCLU** :
+- ❌ Fichiers `.md` (documentation)
+- ❌ Fichiers `.adoc` (documentation)
+- ❌ Fichiers de configuration (YAML, properties)
+
+**Durée estimée** : 1-2 sessions
 
 #### Problème
-La tâche `functionalTest` provoque un crash système (freeze ou OutOfMemoryError).
+Certains fichiers de code contiennent des commentaires en français.
 
-#### Analyse Préliminaire
-- ✅ **Rapports existants** : 51 tests, 0 échec, 11 ignorés, 100% succès
-- ✅ **Fichier de tests** : `PlantumlFunctionalSuite.kt` (1907 lignes, 10 nested classes)
-- ⚠️ **Problèmes identifiés** :
+#### Solution attendue
+1. Identifier tous les commentaires en français dans le code
+2. Traduire uniquement les commentaires (pas le code)
+3. Préserver la structure et le format des commentaires
 
-**1. WireMockServer — Nettoyage incertain**
-```kotlin
-@AfterAll
-@JvmStatic
-fun tearDownSuite() {
-    if (::wireMockServer.isInitialized) wireMockServer.stop()
-}
-```
-Problème : Si un test échoue avant `@AfterAll`, le serveur peut rester ouvert.
-
-**2. Thread + ServerSocket — Test de timeout (ligne 1208)**
-```kotlin
-val serverThread = Thread {
-    java.net.ServerSocket(12345).use { server ->
-        server.accept().use { client ->
-            Thread.sleep(100)
-        }
-    }
-}
-serverThread.start()
-// ...
-serverThread.interrupt()  // Pas de join() garanti
-```
-Problème : Le thread peut ne pas être nettoyé correctement, laissant un socket ouvert.
-
-**3. deleteRecursively — Test RAG (ligne 769)**
-```kotlin
-File(subDir, "fresh-rag").deleteRecursively()
-```
-Problème : Suppression récursive peut causer des fuites de fichiers temporaires.
-
-**4. Tests de permissions — Fichiers non nettoyés**
-Plusieurs tests modifient les permissions de fichiers sans nettoyage garanti dans `finally`.
-
-#### Solution Attendue
-1. **Encapsuler WireMock** :try-finally autour de chaque test qui l'utilise
-2. **Remplacer ServerSocket** : Utiliser WireMock pour les tests de timeout
-3. **Ajouter @AfterEach** : Nettoyage systématique des fichiers temporaires
-4. **Sécuriser deleteRecursively** : Vérifier que les fichiers sont fermés avant suppression
-
-#### Critères d'Acceptation
-- ✅ **WireMock arrêté proprement** (même après échec)
-- ✅ **Aucun thread orphelin** (ServerSocket remplacé)
-- ✅ **Fichiers temporaires nettoyés** (@AfterEach)
-- ✅ **functionalTest exécutable** sans crash
-- ✅ **Tests passent** (51/51 ou proche)
-
-#### ⚠️ AVERTISSEMENT
-**NE PAS EXÉCUTER** `./gradlew functionalTest` avant d'avoir appliqué les correctifs.
-
----
-
-## 📝 Notes pour Session 74
-
-**À faire** :
-1. Remplacer `ServerSocket` par WireMock (test timeout, ligne 1208)
-2. Ajouter `@AfterEach` pour nettoyage fichiers temporaires
-3. Sécuriser `WireMockServer` avec try-finally par nested class
-4. Vérifier threads avec `Thread.join()` au lieu de `interrupt()`
-5. Tester progressivement : `--tests "*quick*"` → `--tests "*slow*"` → tous
-
-**Fichier cible** : `src/functionalTest/kotlin/plantuml/PlantumlFunctionalSuite.kt`
+#### Critères d'acceptation
+- ✅ **100% des commentaires en anglais** dans le code
+- ✅ **Aucune modification du code** (seuls commentaires changés)
+- ✅ **Tests passent** après traduction
+- ✅ **KDoc préservé** (format et structure)
 
 ---
 
@@ -189,7 +143,7 @@ Depuis la Session 71, les fichiers sont organisés ainsi :
 ```
 plantuml-plugin/
 ├── INDEX.md                       # Index léger (chargé par défaut)
-├── PROMPT_REPRISE.md              # Prompt de reprise COURANT (Session N)
+├── PROMPT_REPRISE.md              # Prompt de reprise COURANT (Session 72)
 ├── COMPLETED_TASKS_ARCHIVE.md     # Archive tâches terminées
 ├── .prompts/                      # Archives prompts de reprise
 │   ├── PROMPT_REPRISE_SESSION_65.md
@@ -231,7 +185,7 @@ plantuml-plugin/
 
 **Règle** :
 - **Fichiers courants** : Racine (`INDEX.md`, `PROMPT_REPRISE.md`, `COMPLETED_TASKS_ARCHIVE.md`)
-- **Documentation détaillée** : `.agents/` (chargé sur besoin)
+- **Documentation détaillée** : `.agents/` (chargée sur besoin)
 - **Archives sessions** : `.prompts/` et `.sessions/`
 
 ---

@@ -48,7 +48,7 @@ class ProcessPlantumlPromptsTaskTest {
         project.pluginManager.apply("com.cheroliv.plantuml")
         task = project.tasks.getByName("processPlantumlPrompts") as ProcessPlantumlPromptsTask
         
-        // Configurer WireMock pour retourner une réponse valide
+        // Configure WireMock to return a valid response
         wireMock.stubFor(
             post(urlEqualTo("/api/chat"))
                 .willReturn(

@@ -9,11 +9,11 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
- * Tests pour couvrir les branches error handling de DiagramProcessor
- * Cible : boucle do-while avec vrai ChatModel (lignes 220-251)
+ * Tests to cover error handling branches in DiagramProcessor
+ * Target: do-while loop with real ChatModel (lines 220-251)
  * 
- * Couvre les branches non couvertes :
- * - if (validationResult is SyntaxValidationResult.Invalid) — branche true
+ * Covers uncovered branches:
+ * - if (validationResult is SyntaxValidationResult.Invalid) — true branch
  * - correctionPrompt + chatModel.chat()
  * - while (iterations < maxIterations)
  */
@@ -26,10 +26,10 @@ class DiagramProcessorErrorHandlingTest {
         val mockConfig = mock(PlantumlConfig::class.java)
         val mockLangchainConfig = mock(plantuml.LangchainConfig::class.java)
 
-        // Setup : première réponse invalide, deuxième réponse valide
+        // Setup: first response invalid, second response valid
         `when`(mockChatModel.chat(anyString()))
-            .thenReturn("@startuml\nInvalid syntax")  // Première réponse invalide
-            .thenReturn("@startuml\nFixed\n@enduml")  // Deuxième réponse valide
+            .thenReturn("@startuml\nInvalid syntax")  // First response invalid
+            .thenReturn("@startuml\nFixed\n@enduml")  // Second response valid
 
         // Setup validation : d'abord invalide, puis valide
         `when`(mockPlantumlService.validateSyntax("@startuml\nInvalid syntax"))
@@ -44,10 +44,10 @@ class DiagramProcessorErrorHandlingTest {
         val processor = DiagramProcessor(mockPlantumlService, mockChatModel, mockConfig)
         val result = processor.processPrompt("Test prompt with error handling")
 
-        // Verify : le ChatModel a été appelé 2 fois (initial + correction)
+        // Verify: ChatModel was called 2 times (initial + correction)
         verify(mockChatModel, times(2)).chat(anyString())
         
-        // Verify : la validation a été appelée 2 fois
+        // Verify: validation was called 2 times
         verify(mockPlantumlService, times(2)).validateSyntax(anyString())
         
         assertNotNull(result)
@@ -61,7 +61,7 @@ class DiagramProcessorErrorHandlingTest {
         val mockConfig = mock(PlantumlConfig::class.java)
         val mockLangchainConfig = mock(plantuml.LangchainConfig::class.java)
 
-        // Setup : 2 réponses invalides, puis valide
+        // Setup: 2 invalid responses, then valid
         `when`(mockChatModel.chat(anyString()))
             .thenReturn("@startuml\nInvalid 1")
             .thenReturn("@startuml\nInvalid 2")
@@ -80,7 +80,7 @@ class DiagramProcessorErrorHandlingTest {
         val processor = DiagramProcessor(mockPlantumlService, mockChatModel, mockConfig)
         val result = processor.processPrompt("Test with multiple corrections")
 
-        // Verify : le ChatModel a été appelé 3 fois
+        // Verify: ChatModel was called 3 times
         verify(mockChatModel, times(3)).chat(anyString())
         
         assertNotNull(result)
@@ -94,7 +94,7 @@ class DiagramProcessorErrorHandlingTest {
         val mockConfig = mock(PlantumlConfig::class.java)
         val mockLangchainConfig = mock(plantuml.LangchainConfig::class.java)
 
-        // Setup : ChatModel retourne toujours des réponses invalides
+        // Setup: ChatModel always returns invalid responses
         `when`(mockChatModel.chat(anyString()))
             .thenReturn("@startuml\nAlways invalid")
 
@@ -107,10 +107,10 @@ class DiagramProcessorErrorHandlingTest {
         val processor = DiagramProcessor(mockPlantumlService, mockChatModel, mockConfig)
         val result = processor.processPrompt("Test that always fails", maxIterations = 2)
 
-        // Verify : le ChatModel a été appelé 3 fois (1 initial + 2 retries)
+        // Verify: ChatModel was called 3 times (1 initial + 2 retries)
         verify(mockChatModel, times(3)).chat(anyString())
         
-        assertNull(result, "Devrait retourner null après maxIterations")
+        assertNull(result, "Should return null after maxIterations")
     }
 
     @Test
@@ -120,7 +120,7 @@ class DiagramProcessorErrorHandlingTest {
         val mockConfig = mock(PlantumlConfig::class.java)
         val mockLangchainConfig = mock(plantuml.LangchainConfig::class.java)
 
-        // Setup pour forcer l'appel à buildHistoryContext
+        // Setup to force call to buildHistoryContext
         `when`(mockChatModel.chat(anyString()))
             .thenReturn("@startuml\nFirst attempt")
             .thenReturn("@startuml\nSecond attempt")
@@ -139,7 +139,7 @@ class DiagramProcessorErrorHandlingTest {
         val processor = DiagramProcessor(mockPlantumlService, mockChatModel, mockConfig)
         val result = processor.processPrompt("Test with history context")
 
-        // Verify : le ChatModel a été appelé 3 fois, incluant les correction prompts avec history
+        // Verify: ChatModel was called 3 times, including correction prompts with history
         verify(mockChatModel, times(3)).chat(anyString())
         
         assertNotNull(result)
@@ -153,7 +153,7 @@ class DiagramProcessorErrorHandlingTest {
         val mockConfig = mock(PlantumlConfig::class.java)
         val mockLangchainConfig = mock(plantuml.LangchainConfig::class.java)
 
-        // Setup : échec initial puis succès
+        // Setup: initial failure then success
         `when`(mockChatModel.chat(anyString()))
             .thenReturn("@startuml\nInitial invalid")
             .thenReturn("@startuml\nCorrected\n@enduml")
@@ -170,7 +170,7 @@ class DiagramProcessorErrorHandlingTest {
         val result = processor.processPrompt("Test with archiving")
 
         assertNotNull(result)
-        // L'historique devrait être archivé car il y a eu plusieurs tentatives
+        // History should be archived because there were multiple attempts
         assertTrue(result.conversation.size >= 2)
     }
 

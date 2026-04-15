@@ -144,7 +144,7 @@ package plantuml.scenarios
 //        }
 //    }
 //
-//    // Nouvelles implémentations pour attempt history
+//    // New implementations for attempt history
 //
 //    @Given("a mock LLM that returns an invalid PlantUML diagram on first attempt")
 //    fun mockLlmReturnsInvalidOnFirstAttempt() {

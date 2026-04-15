@@ -114,11 +114,11 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
      * @return Merged [PlantumlConfig] with CLI overrides applied
      */
     private fun loadConfiguration(): PlantumlConfig {
-        // Vérifier si un modèle LLM est spécifié en ligne de commande
+        // Check if an LLM model is specified via command line
         val llmModel = project.findProperty("plantuml.langchain4j.model") as? String
         val ollamaModelName = project.findProperty("plantuml.langchain4j.ollama.modelName") as? String
         
-        // Charger la configuration de base
+        // Load base configuration
         val baseConfig = PlantumlManager.Configuration.load(project)
         
         // Appliquer les overrides
