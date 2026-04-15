@@ -155,9 +155,4 @@ object ConfigMerger {
             tableName = cli["rag.tableName"]?.toString() ?: (if (yaml.tableName != "embeddings") yaml.tableName else props.tableName)
         )
     }
-
-    private fun <T> getOrDefault(cli: Map<String, Any?>, key: String, default: T): T {
-        @Suppress("UNCHECKED_CAST")
-        return cli[key] as? T ?: default
-    }
 }
