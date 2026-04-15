@@ -34,6 +34,9 @@ dependencies {
     api(libs.commons.io)
     api(libs.bundles.plantuml.ai)
 
+    // Testcontainers for RAG integration tests
+    api(libs.testcontainers.pg)
+
     // Jackson for JSON serialization
     api(libs.jackson.module.kotlin)
     api(libs.jackson.dataformat.yaml)
@@ -52,6 +55,8 @@ dependencies {
     testImplementation(libs.mockito.junit.jupiter)
     testImplementation(libs.junit.platform.params)
     testImplementation(libs.wiremock)
+    testImplementation(libs.testcontainers.pg)
+    testImplementation(libs.testcontainers.junit5)
 
     // Cucumber dependencies
     testImplementation(libs.bundles.cucumber)
@@ -165,6 +170,9 @@ dependencies {
 
     // CORRECTION: Ajouter la dépendance vers le code source principal pour accéder aux classes du plugin
     add(functionalTest.implementationConfigurationName, sourceSets.main.get().output)
+
+    // Add testcontainers for RAG integration tests
+    add(functionalTest.implementationConfigurationName, libs.testcontainers.pg)
 }
 
 // 3. Tâche pour les tests fonctionnels
@@ -187,9 +195,9 @@ val functionalTestTask = tasks.register<Test>("functionalTest") {
     // Ajouter des propriétés système pour les tests de permissions
     systemProperty("test.timeout.multiplier", "2")
 
-    // SÉQUENTIEL STRICT : 1 seul test à la fois pour éviter OOM
-    // Chaque test lance un GradleRunner (~500MB+), la parallélisation crashe le système
-    maxParallelForks = 1
+    // OPTIMISATION : Tests en parallèle pour réduire temps d'exécution
+    // Les tests sont isolés avec @TempDir, pas d'état partagé entre classes
+    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
     forkEvery = 0
     jvmArgs("-XX:+UseSerialGC")
     jvmArgs("-XX:MaxMetaspaceSize=256m")
