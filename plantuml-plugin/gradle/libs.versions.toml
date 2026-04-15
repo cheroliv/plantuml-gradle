@@ -84,6 +84,7 @@ langchain4j-minilm = { module = "dev.langchain4j:langchain4j-embeddings-all-mini
 docker-java = { module = "com.github.docker-java:docker-java-core", version.ref = "docker-java" }
 docker-java-transport-httpclient5 = { module = "com.github.docker-java:docker-java-transport-httpclient5", version.ref = "docker-java" }
 testcontainers-pg = { module = "org.testcontainers:postgresql", version.ref = "testcontainers-pg" }
+testcontainers-junit5 = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers-pg" }
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 wiremock = { module = "org.wiremock:wiremock", version.ref = "wiremock" }
