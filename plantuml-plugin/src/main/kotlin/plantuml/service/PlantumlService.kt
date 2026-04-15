@@ -15,7 +15,7 @@ class PlantumlService {
      */
     fun validateSyntax(plantumlCode: String): SyntaxValidationResult {
         return try {
-            val reader = SourceStringReader(plantumlCode)
+            SourceStringReader(plantumlCode)
 
             // Simple check for required tags
             if (!plantumlCode.contains("@startuml") || !plantumlCode.contains("@enduml")) {
