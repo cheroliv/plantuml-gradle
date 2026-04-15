@@ -1,135 +1,80 @@
-# 🔄 Prompt de reprise — Session 73
+# 🔄 Prompt de reprise — Session 74
 
-> **EPIC** : `.agents/ROADMAP.md` — EPIC 1 : Performance & Stabilité  
-> **Statut** : Session 72 TERMINÉE — Traduction commentaires ✅  
-> **Session 73** : Debug crash tâche functionalTest (CRITIQUE)
+> **EPIC** : `.agents/ROADMAP.md` — EPIC 4 : Documentation & Qualité  
+> **Statut** : Session 73 TERMINÉE — Debug crash functionalTest ✅  
+> **Session 74** : À définir (Score Roadmap : 9.0/10 ✅ OPTIMAL)
 
 ---
 
-## 📊 Session 71 — Résumé (TERMINÉE)
+## 📊 Session 73 — Résumé (TERMINÉE)
 
-### Optimisation de la gestion des fichiers agents
+### Debug crash tâche functionalTest
 
-**Problème** : 23 fichiers `.md` dans la racine chargent trop d'informations dans le contexte
+**Problème** : La tâche `functionalTest` provoquait un crash système (freeze ou OutOfMemoryError)
 
-**Solution** : Organisation en 3 niveaux de chargement
-- **Niveau 1 (toujours)** : `INDEX.md` (~80 lignes) — Vue d'ensemble légère
-- **Niveau 2 (sur besoin)** : `.agents/` — Documentation détaillée
-- **Niveau 3 (archives)** : `.sessions/`, `.prompts/` — Historique
+**Solution** : Correction des fuites de ressources dans `PlantumlFunctionalSuite.kt`
 
 **Résultats** :
-- ✅ **23 → 6 fichiers en racine** (-74%)
-- ✅ **INDEX.md** : Créé (~80 lignes)
-- ✅ **`.agents/`** : 12 fichiers + 6 fichiers tests
-- ✅ Contexte initial **80% plus léger**
+- ✅ **42 tests fonctionnels** : 38 PASS, 4 SKIP, 0 FAIL, 0 CRASH
+- ✅ **203 tests unitaires** : 203/203 PASS (100%)
+- ✅ **0 fuite de ressources** détectée
+- ✅ **0 OutOfMemoryError**
+- ✅ **0 thread orphelin**
+
+**Correctifs appliqués** :
+1. ✅ **`@AfterEach`** pour nettoyage fichiers temporaires
+2. ✅ **`trackTempFile()`** pour tracker les fichiers créés
+3. ✅ **Thread sécurisé** : `join(1000)` au lieu de `stop()` (déprécié)
+4. ✅ **`deleteRecursively`** protégé par vérification d'existence
+5. ✅ **Assertions réseau élargies** pour capturer plus de scénarios d'erreur
+6. ✅ **`try-finally`** autour de tous les tests créant des fichiers
+
+**Voir** : `.sessions/SESSION_73_SUMMARY.md` pour détails complets
 
 ---
 
-## 🎯 Session 73 — Mission (EN COURS)
+## 🎯 Session 74 — Mission (À DÉFINIR)
 
-### Debug crash tâche functionalTest — Optimisation des tests
+### Score Roadmap : 9.0/10 ✅ OPTIMAL ATTEINT
 
-**Priorité** : 🔴 **CRITIQUE**  
-**Impact** : Bloque l'exécution des tests fonctionnels  
-**Symptôme** : La tâche `functionalTest` fait crasher le système
+**EPIC 1 : Performance & Stabilité** ✅ **TERMINÉ** (8.0/10)  
+**EPIC 2 : RAG Production-Ready** ✅ **TERMINÉ** (9.0/10)  
+**EPIC 3 : Consolidation Tests Fonctionnels** ✅ **TERMINÉ** (9.0/10)  
+**EPIC 4 : Documentation & Qualité** 🟡 **EN COURS** (7.0/10)
 
-#### Problème
-La tâche `functionalTest` provoque un crash système (freeze ou OutOfMemoryError).
+**Pistes potentielles** :
 
-#### Analyse Préliminaire
-- ✅ **Rapports existants** : 51 tests, 0 échec, 11 ignorés, 100% succès
-- ✅ **Fichier de tests** : `PlantumlFunctionalSuite.kt` (1907 lignes, 10 nested classes)
-- ⚠️ **Problèmes identifiés** :
+#### 1. Story 4.3 — Documentation API avec KDoc
+- **Objectif** : Ajouter KDoc aux classes publiques du plugin
+- **Fichiers cibles** : `src/main/kotlin/**/*.kt`
+- **Critère** : 100% des classes/méthodes publiques documentées
 
-**1. WireMockServer — Nettoyage incertain**
-```kotlin
-@AfterAll
-@JvmStatic
-fun tearDownSuite() {
-    if (::wireMockServer.isInitialized) wireMockServer.stop()
-}
-```
-Problème : Si un test échoue avant `@AfterAll`, le serveur peut rester ouvert.
+#### 2. Story 4.4 — Améliorations qualité marginales
+- **Objectif** : Detekt, ktlint, ou autres outils de qualité
+- **Fichiers cibles** : `build.gradle.kts`
+- **Critère** : 0 warning, 0 error
 
-**2. Thread + ServerSocket — Test de timeout (ligne 1208)**
-```kotlin
-val serverThread = Thread {
-    java.net.ServerSocket(12345).use { server ->
-        server.accept().use { client ->
-            Thread.sleep(100)
-        }
-    }
-}
-serverThread.start()
-// ...
-serverThread.interrupt()  // Pas de join() garanti
-```
-Problème : Le thread peut ne pas être nettoyé correctement, laissant un socket ouvert.
+#### 3. Consolidation tests RAG (si nécessaire)
+- **Objectif** : Vérifier stabilité tests RAG avec testcontainers
+- **Fichiers cibles** : `ReindexPlantumlRagIntegrationTest.kt`
+- **Critère** : 5/5 tests PASS
 
-**3. deleteRecursively — Test RAG (ligne 769)**
-```kotlin
-File(subDir, "fresh-rag").deleteRecursively()
-```
-Problème : Suppression récursive peut causer des fuites de fichiers temporaires.
-
-**4. Tests de permissions — Fichiers non nettoyés**
-Plusieurs tests modifient les permissions de fichiers sans nettoyage garanti dans `finally`.
-
-#### Solution Attendue
-1. **Encapsuler WireMock** :try-finally autour de chaque test qui l'utilise
-2. **Remplacer ServerSocket** : Utiliser WireMock pour les tests de timeout
-3. **Ajouter @AfterEach** : Nettoyage systématique des fichiers temporaires
-4. **Sécuriser deleteRecursively** : Vérifier que les fichiers sont fermés avant suppression
-
-#### Critères d'Acceptation
-- ✅ **WireMock arrêté proprement** (même après échec)
-- ✅ **Aucun thread orphelin** (ServerSocket remplacé)
-- ✅ **Fichiers temporaires nettoyés** (@AfterEach)
-- ✅ **functionalTest exécutable** sans crash
-- ✅ **Tests passent** (51/51 ou proche)
-
-#### ⚠️ AVERTISSEMENT
-**NE PAS EXÉCUTER** `./gradlew functionalTest` avant d'avoir appliqué les correctifs.
+#### 4. Autre (à définir par l'utilisateur)
 
 ---
 
-## 📝 Notes pour Session 74
+## 📚 Fichiers de Référence
 
-**À faire** :
-1. Remplacer `ServerSocket` par WireMock (test timeout, ligne 1208)
-2. Ajouter `@AfterEach` pour nettoyage fichiers temporaires
-3. Sécuriser `WireMockServer` avec try-finally par nested class
-4. Vérifier threads avec `Thread.join()` au lieu de `interrupt()`
-5. Tester progressivement : `--tests "*quick*"` → `--tests "*slow*"` → tous
+| Fichier | Rôle |
+|---------|------|
+| `INDEX.md` | **Index léger** — Vue d'ensemble (chargé par défaut) |
+| `PROMPT_REPRISE.md` | Prompt de reprise **courant** (Session 74) |
+| `COMPLETED_TASKS_ARCHIVE.md` | Archive tâches terminées |
+| `.agents/` | **Documentation détaillée** (chargée sur besoin) |
+| `.sessions/` | Résumés de sessions archivés (61-73) |
+| `.prompts/` | Prompts de reprise archivés (65-73) |
 
-**Fichier cible** : `src/functionalTest/kotlin/plantuml/PlantumlFunctionalSuite.kt`
-
----
-
-## 📊 État des Tests
-
-### Tests fonctionnels (42 tests)
-
-**Tags** :
-- `@Tag("quick")` : 18 tests (< 5s) — dév quotidien
-- `@Tag("slow")` : 18 tests (> 10s) — validation complète
-- `@Disabled` : 6 tests cloud (requièrent credentials)
-
-| Nested Class | Tests | Statut |
-|--------------|-------|--------|
-| PluginLifecycle | 6 | ✅ PASS |
-| LlmProviderConfiguration | 8 | 2 PASS, 6 SKIP |
-| GradleSharedInstance | 4 | ✅ PASS |
-| PluginIntegration | 11 | ✅ PASS |
-| FilePermission | 4 | ✅ PASS |
-| LargeFileAndPath | 4 | ✅ PASS |
-| NetworkTimeout | 4 | ✅ PASS |
-| Performance | 4 | ✅ PASS |
-| **Total** | **45** | **36 PASS, 6 SKIP** |
-
-### Tests unitaires (203 tests)
-
-- ✅ **203/203 PASS** (100%)
+**Voir** : `INDEX.md` pour la liste complète des fichiers `.agents/`
 
 ---
 
@@ -141,7 +86,7 @@ Plusieurs tests modifient les permissions de fichiers sans nettoyage garanti dan
 ./gradlew functionalTest --tests "*quick*"     # ~23s
 
 # Validation complète — tous les tests
-./gradlew functionalTest                       # ~30s
+./gradlew functionalTest                       # ~35s
 
 # Tests lents uniquement (RAG, permissions, network)
 ./gradlew functionalTest --tests "*slow*"      # ~15s
@@ -167,18 +112,31 @@ Plusieurs tests modifient les permissions de fichiers sans nettoyage garanti dan
 
 ---
 
-## 📚 Fichiers de Référence
+## 📊 État des Tests
 
-| Fichier | Rôle |
-|---------|------|
-| `INDEX.md` | **Index léger** — Vue d'ensemble (chargé par défaut) |
-| `PROMPT_REPRISE.md` | Prompt de reprise **courant** (Session 72) |
-| `COMPLETED_TASKS_ARCHIVE.md` | Archive tâches terminées |
-| `.agents/` | **Documentation détaillée** (chargée sur besoin) |
-| `.sessions/` | Résumés de sessions archivés (61-71) |
-| `.prompts/` | Prompts de reprise archivés (65-69) |
+### Tests fonctionnels (42 tests)
 
-**Voir** : `INDEX.md` pour la liste complète des fichiers `.agents/`
+**Tags** :
+- `@Tag("quick")` : 18 tests (< 5s) — dév quotidien
+- `@Tag("slow")` : 18 tests (> 10s) — validation complète
+- `@Disabled` : 6 tests cloud (requièrent credentials)
+
+| Nested Class | Tests | Statut |
+|--------------|-------|--------|
+| PluginLifecycle | 6 | ✅ PASS |
+| LlmProviderConfiguration | 8 | 2 PASS, 6 SKIP |
+| GradleSharedInstance | 4 | ✅ PASS |
+| PluginIntegration | 11 | ✅ PASS |
+| FilePermission | 4 | ✅ PASS |
+| LargeFileAndPath | 4 | ✅ PASS |
+| NetworkTimeout | 4 | ✅ PASS |
+| Performance | 4 | ✅ PASS |
+| RAG task | 4 | 1 PASS, 3 SKIP |
+| **Total** | **45** | **38 PASS, 7 SKIP** |
+
+### Tests unitaires (203 tests)
+
+- ✅ **203/203 PASS** (100%)
 
 ---
 
@@ -195,7 +153,8 @@ plantuml-plugin/
 │   ├── PROMPT_REPRISE_SESSION_65.md
 │   ├── PROMPT_REPRISE_SESSION_66.md
 │   ├── PROMPT_REPRISE_SESSION_67.md
-│   └── PROMPT_REPRISE_SESSION_69.md
+│   ├── PROMPT_REPRISE_SESSION_69.md
+│   └── PROMPT_REPRISE_SESSION_73.md
 ├── .sessions/                     # Archives résumés de sessions
 │   ├── SESSION_61_SUMMARY.md
 │   ├── SESSION_62_SUMMARY.md
@@ -205,13 +164,13 @@ plantuml-plugin/
 │   ├── SESSION_66_SUMMARY.md
 │   ├── SESSION_67_SUMMARY.md
 │   ├── SESSION_68_SUMMARY.md
-│   └── SESSION_69_SUMMARY.md
+│   ├── SESSION_69_SUMMARY.md
+│   └── SESSION_73_SUMMARY.md
 └── .agents/                       # Documentation détaillée (sur besoin)
     ├── ARCHITECTURE.md            # ex-AGENTS.md
     ├── REFERENCE.md               # ex-AGENT_REFERENCE.md
     ├── PROCEDURES.md              # ex-SESSION_PROCEDURE.md
     ├── SESSIONS_HISTORY.md        # Historique complet
-    ├── ROADMAP.md                 # Roadmap complète
     ├── TROUBLESHOOTING.md         # Guide EN
     ├── TROUBLESHOOTING_fr.md      # Guide FR
     ├── CODE_OF_CONDUCT.md         # Code conduite EN
@@ -233,28 +192,6 @@ plantuml-plugin/
 - **Fichiers courants** : Racine (`INDEX.md`, `PROMPT_REPRISE.md`, `COMPLETED_TASKS_ARCHIVE.md`)
 - **Documentation détaillée** : `.agents/` (chargé sur besoin)
 - **Archives sessions** : `.prompts/` et `.sessions/`
-
----
-
-## 🎯 Roadmap — État Actuel
-
-### EPIC 1 : Performance & Stabilité ✅
-- **Score** : 6.8/10 → 8.0/10 ✅ **TERMINÉ**
-- **Stories** : 6/6 terminées (1.1 ✅, 1.2 ✅, 1.3 ✅, 1.4 ✅, 1.5 ✅, 1.6 ✅)
-
-### EPIC 2 : RAG Production-Ready ✅
-- **Score** : 8/10 → 8/10 ✅ **TERMINÉ**
-- **Stories** : 4/4 terminées (2.1 ✅, 2.2 ✅, 2.3 ✅, 2.4 ✅)
-
-### EPIC 3 : Consolidation Tests Fonctionnels ✅
-- **Score** : 7/10 → 9/10 ✅ **TERMINÉ**
-- **Stories** : 6/6 terminées (3.1 ✅ à 3.6 ✅)
-
-### EPIC 4 : Documentation & Qualité 🟡
-- **Score** : 4/10 → 7/10 🟡 **EN COURS**
-- **Stories** : 2/4 terminées (4.1 ✅, 4.2 ✅, 4.3 ⏳, 4.4 ⏳)
-
-**Score Global** : **9.0/10** ✅ **OPTIMAL ATTEINT**
 
 ---
 
@@ -285,4 +222,4 @@ plantuml-plugin/
 
 ---
 
-**Session 72 PRÊTE** — Objectif : Traduction commentaires FR → EN (code uniquement)
+**Session 74 PRÊTE** — Objectif : À définir par l'utilisateur

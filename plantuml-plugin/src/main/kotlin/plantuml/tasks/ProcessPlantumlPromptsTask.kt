@@ -120,17 +120,12 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
         
         // Load base configuration
         val baseConfig = PlantumlManager.Configuration.load(project)
-        
-        // Appliquer les overrides
+
+        // Apply CLI parameter overrides
         var config = baseConfig
-        if (llmModel != null) {
-            config = config.copy(
-                langchain4j = config.langchain4j.copy(
-                    model = llmModel
-                )
-            )
-        }
-        if (ollamaModelName != null) {
+        if (llmModel != null)
+            config = config.copy(langchain4j = config.langchain4j.copy(model = llmModel))
+        if (ollamaModelName != null)
             config = config.copy(
                 langchain4j = config.langchain4j.copy(
                     ollama = config.langchain4j.ollama.copy(
@@ -138,7 +133,6 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
                     )
                 )
             )
-        }
         
         return config
     }

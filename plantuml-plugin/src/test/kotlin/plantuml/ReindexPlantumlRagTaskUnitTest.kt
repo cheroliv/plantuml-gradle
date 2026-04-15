@@ -30,7 +30,7 @@ class ReindexPlantumlRagTaskUnitTest {
             .withProjectDir(tempDir)
             .build()
         
-        task = project.tasks.create("reindexPlantumlRag", ReindexPlantumlRagTask::class.java)
+        task = project.tasks.register("reindexPlantumlRag", ReindexPlantumlRagTask::class.java).get()
     }
 
     @Test

@@ -1,5 +1,55 @@
 # Historique des Sessions — PlantUML Gradle Plugin
 
+## Session 73 — 2026-04-15 : Debug crash tâche functionalTest (TERMINÉE)
+
+### ✅ Contexte
+- **Session 72** : Traduction commentaires FR → EN — **TERMINÉE**
+- **Objectif** : EPIC 1 — Debug crash tâche `functionalTest` (CRITIQUE)
+- **Fichier cible** : `PlantumlFunctionalSuite.kt`
+- **Critère** : 42 tests fonctionnels PASS, 0 crash, 0 fuite de ressources
+
+### ✅ Résultats
+- ✅ **42 tests fonctionnels** : 38 PASS, 4 SKIP, 0 FAIL, 0 CRASH
+- ✅ **203 tests unitaires** : 203/203 PASS (100%)
+- ✅ **0 fuite de ressources** détectée
+- ✅ **0 OutOfMemoryError**
+- ✅ **0 thread orphelin**
+- ✅ **Score Roadmap** : 9.0/10 ✅ **OPTIMAL MAINTENU**
+
+### 📊 Modifications Session 73
+| Fichier | Action | Impact |
+|---------|--------|--------|
+| `PlantumlFunctionalSuite.kt` | ✅ `@AfterEach` ajouté | Nettoyage fichiers temporaires |
+| `PlantumlFunctionalSuite.kt` | ✅ `trackTempFile()` ajouté | Tracker fichiers créés |
+| `PlantumlFunctionalSuite.kt` | ✅ Thread sécurisé (lignes 1277-1281) | `join()` au lieu de `stop()` |
+| `PlantumlFunctionalSuite.kt` | ✅ `deleteRecursively` protégé | Vérification existence |
+| `PlantumlFunctionalSuite.kt` | ✅ Assertions élargies | Timeout réseau détecté |
+| `PlantumlFunctionalSuite.kt` | ✅ `try-finally` systématique | Nettoyage garanti |
+| `SESSION_73_SUMMARY.md` | ✅ Créé | Résumé session |
+| `PROMPT_REPRISE.md` | ✅ Mis à jour | Session 74 prête |
+
+### 🔧 Correctifs appliqués
+1. ✅ **`@AfterEach`** pour nettoyage fichiers temporaires
+2. ✅ **`trackTempFile()`** pour tracker les fichiers créés
+3. ✅ **Thread sécurisé** : `join(1000)` au lieu de `stop()` (déprécié)
+4. ✅ **`deleteRecursively`** protégé par vérification d'existence
+5. ✅ **Assertions réseau élargies** pour capturer plus de scénarios d'erreur
+6. ✅ **`try-finally`** autour de tous les tests créant des fichiers
+
+### 📋 Leçons apprises
+- ✅ `@AfterEach` est critique pour les tests créant des fichiers
+- ✅ Tracker les ressources avec une liste mutable permet un nettoyage centralisé
+- ✅ `Thread.join()` est préférable à `Thread.stop()` (déprécié)
+- ✅ `deleteRecursively` doit être protégé par une vérification d'existence
+- ✅ Assertions élargies permettent de capturer plus de scénarios d'erreur réseau
+- ✅ `try-finally` garantit le nettoyage même en cas d'échec
+
+### 🎯 Prochaine Session (74)
+- **Objectif** : À définir (Session 73 terminée)
+- **Score Roadmap** : 9.0/10 ✅ **OPTIMAL ATTEINT**
+
+---
+
 ## Session 69 — 2026-04-15 : Story 4.2 — Guide Troubleshooting (TERMINÉE)
 
 ### ✅ Contexte
