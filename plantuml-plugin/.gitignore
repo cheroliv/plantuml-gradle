@@ -6,3 +6,10 @@ build
 local.properties
 doc
 plantuml-api
+
+# Dossiers de test et scripts de dev
+dev-tools/
+test-project/
+gen/
+generated/
+test-rag/
