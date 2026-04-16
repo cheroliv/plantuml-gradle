@@ -23,9 +23,10 @@ Ce document décrit le **mécanisme de détection automatique** qui permet à l'
 | 1 | **Optimisation test fonctionnel** | "optimiser", "réduire temps", "accélérer", `*FunctionalTest.kt` | "Veux-tu que j'applique la méthodologie d'optimisation ?" | `METHODOLOGIE_OPTIMISATION_TESTS.md` |
 | 2 | **Création test unitaire** | "créer test", "ajouter test", "couverture", `src/test/*Test.kt` | "Veux-tu que je consulte l'analyse de couverture ?" | `TEST_COVERAGE_ANALYSIS.md` |
 | 3 | **Debug test fonctionnel** | "debug", "exécuter test", "faire passer test", `*FunctionalTest.kt` | "Veux-tu que j'applique la méthodologie de debug ?" | `METHODOLOGIE_OPTIMISATION_TESTS.md` |
-| 4 | **Correction bug** | "corriger", "bug", "fix", "réparer" | Aucune — agir directement | — |
-| 5 | **Nouvelle feature** | "ajouter", "nouvelle", "feature", "implémenter" | Aucune — agir directement | — |
-| 6 | **Fin de session** | "nouvelle session", "je quitte", "session terminée", "à plus tard" | **PROCÉDURE AUTOMATIQUE** (5 étapes) | `COMPLETED_TASKS_ARCHIVE.md` |
+| 4 | **Tests BDD Cucumber** | "cucumber", "BDD", "feature", "scenario", `*.feature`, `*Steps.kt` | **MÉTHODOLOGIE TDD INCRÉMENTALE** (step-by-step) | `AGENT_PLAN.md` (section méthodologie BDD) |
+| 5 | **Correction bug** | "corriger", "bug", "fix", "réparer" | Aucune — agir directement | — |
+| 6 | **Nouvelle feature** | "ajouter", "nouvelle", "feature", "implémenter" | Aucune — agir directement | — |
+| 7 | **Fin de session** | "nouvelle session", "je quitte", "session terminée", "à plus tard" | **PROCÉDURE AUTOMATIQUE** (5 étapes) | `COMPLETED_TASKS_ARCHIVE.md` |
 
 ---
 
@@ -102,6 +103,117 @@ Je peux appliquer :
 
 Veux-tu que je charge ce fichier et applique cette méthodologie ?
 ```
+
+---
+
+## 🧪 Méthodologie TDD Incrémentale pour Tests BDD Cucumber
+
+**Contexte** : Lors du développement de tests BDD avec Cucumber, chaque scénario doit être activé **step par step** pour garantir que chaque step trouve son implémentation et s'exécute correctement.
+
+### Principe fondamental
+
+> **⚠️ JAMAIS décommenter un scénario complet d'un coup !**
+> 
+> Un développeur procède **élément par élément** :
+> 1. Décommenter un step dans le fichier `.feature`
+> 2. Vérifier que le step est trouvé (compilation)
+> 3. Exécuter le test (échec attendu si steps suivants manquants)
+> 4. Décommenter le step suivant
+> 5. Répéter jusqu'au dernier step
+> 6. Exécuter le scénario complet ✅
+
+### Procédure détaillée
+
+```
+Scénario dans 2_plantuml_processing.feature
+    ↓
+Étape 1 : Décommenter Given "a prompt file..."
+    ↓
+Étape 2 : ./gradlew cucumberTest --tests "*Process valid prompt*"
+    ↓ (compilation OK ?)
+Étape 3 : Décommenter And "a mock LLM..."
+    ↓
+Étape 4 : ./gradlew cucumberTest --tests "*Process valid prompt*"
+    ↓ (échec attendu - When manquant)
+Étape 5 : Décommenter When "I run processPlantumlPrompts task"
+    ↓
+Étape 6 : ./gradlew cucumberTest --tests "*Process valid prompt*"
+    ↓ (échec attendu - Then manquant)
+Étape 7 : Décommenter Then "a PlantUML diagram..."
+    ↓
+Étape 8 : ./gradlew cucumberTest --tests "*Process valid prompt*"
+    ↓
+... Répéter pour chaque step ...
+    ↓
+Étape N : Tous les steps décommentés
+    ↓
+Étape finale : ./gradlew cucumberTest --tests "*Process valid prompt*" ✅
+```
+
+### Avantages de cette approche
+
+| Avantage | Description |
+|----------|-------------|
+| **Feedback immédiat** | Chaque erreur est détectée dès qu'elle apparaît |
+| **Debug facilité** | Si un test échoue, on sait exactement quel step est en cause |
+| **Compilation progressive** | Les steps manquants sont identifiés un par un |
+| **Confiance accrue** | Chaque step validé renforce la confiance dans le scénario |
+
+### Exemple concret (Session 78)
+
+**Fichier** : `2_plantuml_processing.feature`
+
+**❌ MAUVAISE PRATIQUE** (à ne JAMAIS faire) :
+```gherkin
+# D'un coup, tous les steps décommentés
+Scenario: Process valid prompt file with mock LLM
+  Given a prompt file "simple-diagram.prompt" with content "Create a simple user diagram"
+  And a mock LLM that returns a valid PlantUML diagram
+  When I run processPlantumlPrompts task
+  Then a PlantUML diagram should be generated
+  And a PNG image should be created
+  And the prompt file should be deleted
+```
+→ Si échec : difficile d'identifier quel step pose problème
+
+**✅ BONNE PRATIQUE** (à TOUJOURS suivre) :
+```gherkin
+# Étape 1 : Given uniquement
+Scenario: Process valid prompt file with mock LLM
+  Given a prompt file "simple-diagram.prompt" with content "Create a simple user diagram"
+#  And a mock LLM that returns a valid PlantUML diagram
+#  When I run processPlantumlPrompts task
+#  Then a PlantUML diagram should be generated
+#  And a PNG image should be created
+#  And the prompt file should be deleted
+```
+→ Test, validation ✅
+
+```gherkin
+# Étape 2 : Given + And
+Scenario: Process valid prompt file with mock LLM
+  Given a prompt file "simple-diagram.prompt" with content "Create a simple user diagram"
+  And a mock LLM that returns a valid PlantUML diagram
+#  When I run processPlantumlPrompts task
+#  Then a PlantUML diagram should be generated
+#  And a PNG image should be created
+#  And the prompt file should be deleted
+```
+→ Test, validation ✅
+
+```gherkin
+# Étape 3 : Given + And + When
+Scenario: Process valid prompt file with mock LLM
+  Given a prompt file "simple-diagram.prompt" with content "Create a simple user diagram"
+  And a mock LLM that returns a valid PlantUML diagram
+  When I run processPlantumlPrompts task
+#  Then a PlantUML diagram should be generated
+#  And a PNG image should be created
+#  And the prompt file should be deleted
+```
+→ Test, validation ✅
+
+... continuer jusqu'au dernier step
 
 ---
 

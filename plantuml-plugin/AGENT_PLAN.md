@@ -36,6 +36,18 @@ Rendre fonctionnelle la suite complète des tests Cucumber pour couvrir toutes l
 ### **Phase 2 : Tests de traitement PlantUML** (2-3 sessions)
 **Objectif** : Activer `2_plantuml_processing.feature`
 
+**⚠️ MÉTHODOLOGIE : Approche TDD incrémentale**
+> **IMPORTANT** : Chaque scénario doit être décommenté **step par step**, en vérifiant la compilation et l'exécution après chaque step.
+> 
+> **Procédure pour chaque scénario** :
+> 1. Décommenter le premier step `Given` dans le `.feature`
+> 2. Vérifier que le step est trouvé (compilation)
+> 3. Exécuter le test (échec attendu si steps suivants manquants)
+> 4. Décommenter le step suivant
+> 5. Répéter jusqu'au dernier step
+> 6. Exécuter le scénario complet ✅
+> 7. Passer au scénario suivant
+
 | Tâche | Description | Critère d'acceptation |
 |-------|-------------|----------------------|
 | 2.1 | Décommenter `PlantumlSteps.kt` | Code compilé sans erreur |
@@ -44,9 +56,9 @@ Rendre fonctionnelle la suite complète des tests Cucumber pour couvrir toutes l
 | 2.4 | Implémenter step `"a mock LLM that returns..."` | Utilise `PlantumlWorld.startMockLlm()` |
 | 2.5 | Implémenter step `"I run processPlantumlPrompts task"` | Exécute le task avec mock |
 | 2.6 | Implémenter steps de vérification (diagram, PNG, suppression) | Assertions fonctionnelles |
-| 2.7 | Décommenter scénario 1 dans `2_plantuml_processing.feature` | Test passant ✅ |
-| 2.8 | Décommenter scénario 2 (correction syntaxe) | Test passant ✅ |
-| 2.9 | Décommenter scénario 3 (fichiers multiples) | Test passant ✅ |
+| 2.7 | **Scénario 1** : Décommenter step-by-step et valider | Test passant ✅ |
+| 2.8 | **Scénario 2** : Décommenter step-by-step et valider | Test passant ✅ |
+| 2.9 | **Scénario 3** : Décommenter step-by-step et valider | Test passant ✅ |
 
 **Livrable** : 3 scénarios fonctionnels dans `2_plantuml_processing.feature`
 
@@ -55,13 +67,17 @@ Rendre fonctionnelle la suite complète des tests Cucumber pour couvrir toutes l
 ### **Phase 3 : Tests de validation syntaxe** (1 session)
 **Objectif** : Activer `3_syntax_validation.feature`
 
+**⚠️ MÉTHODOLOGIE : Approche TDD incrémentale** (same as Phase 2)
+
 | Tâche | Description | Critère d'acceptation |
 |-------|-------------|----------------------|
 | 3.1 | Ajouter step `"a valid PlantUML file {string} with content {string}"` | Crée fichier `.puml` |
 | 3.2 | Ajouter step `"an invalid PlantUML file {string} with content {string}"` | Crée fichier invalide |
 | 3.3 | Ajouter step `"I run validatePlantumlSyntax task with file {string}"` | Exécute task validation |
 | 3.4 | Ajouter steps de vérification (valid/invalid/error details) | Assertions sur output |
-| 3.5 | Décommenter les 3 scénarios dans `3_syntax_validation.feature` | Tests passants ✅ |
+| 3.5 | **Scénario 1** : Décommenter step-by-step et valider | Test passant ✅ |
+| 3.6 | **Scénario 2** : Décommenter step-by-step et valider | Test passant ✅ |
+| 3.7 | **Scénario 3** : Décommenter step-by-step et valider | Test passant ✅ |
 
 **Livrable** : 3 scénarios fonctionnels dans `3_syntax_validation.feature`
 
@@ -69,6 +85,8 @@ Rendre fonctionnelle la suite complète des tests Cucumber pour couvrir toutes l
 
 ### **Phase 4 : Tests d'historique des tentatives** (2-3 sessions)
 **Objectif** : Refondre et activer `4_attempt_history.feature`
+
+**⚠️ MÉTHODOLOGIE : Approche TDD incrémentale** (same as Phase 2)
 
 | Tâche | Description | Critère d'acceptation |
 |-------|-------------|----------------------|
@@ -78,9 +96,9 @@ Rendre fonctionnelle la suite complète des tests Cucumber pour couvrir toutes l
 | 4.4 | Implémenter steps pour mock LLM multi-réponses (itératif) | Supporte séquence de réponses |
 | 4.5 | Corriger les chemins de sortie (`generated/diagrams` vs `generated/rag`) | Chemins cohérents |
 | 4.6 | Réécrire scénarios avec steps corrects | Feature file à jour |
-| 4.7 | Tester scénario 1 (succès après 2 tentatives) | Test passant ✅ |
-| 4.8 | Tester scénario 2 (échec après max iterations) | Test passant ✅ |
-| 4.9 | Tester scénario 3 (succès après 4 tentatives) | Test passant ✅ |
+| 4.7 | **Scénario 1** : Décommenter step-by-step (succès après 2 tentatives) | Test passant ✅ |
+| 4.8 | **Scénario 2** : Décommenter step-by-step (échec après max iterations) | Test passant ✅ |
+| 4.9 | **Scénario 3** : Décommenter step-by-step (succès après 4 tentatives) | Test passant ✅ |
 
 **Livrable** : 3 scénarios fonctionnels dans `4_attempt_history.feature`
 
@@ -153,6 +171,29 @@ Phase 5 (Consolidation)
 ---
 
 ## 📝 Historique des sessions
+
+### Session 78 — 17 Avril 2026 — Phase 1 (Fondation) + Début Phase 2 (PARTIELLE)
+**Objectif** : Phase 1 (Fondation & Infrastructure) + Début Phase 2 (PlantUML Processing)
+
+**Réalisé** :
+- ✅ **Phase 1.2-1.4** : Helpers ajoutés dans `PlantumlWorld` (`createPromptFile()`, `createPlantUmlFile()`, `verifyFileExists()`, `verifyDirectoryContainsFiles()`)
+- ✅ **Phase 1.5** : Template nettoyé (suppression `test-prompts` par défaut)
+- ✅ **Phase 2.1-2.2** : `PlantumlSteps.kt` décommenté et corrigé (mock LLM format Ollama)
+- ✅ **Phase 2.3-2.6** : Tous les steps implémentés
+- ✅ **Méthodologie** : Section TDD incrémentale ajoutée dans `AGENT_PLAN.md` et `AGENT_METHODOLOGIES.md`
+
+**En cours** :
+- ⏳ **Phase 2.7** : Décommenter scénario 1 step-by-step (arrêté au premier Given)
+- ⏳ **Compilation** : Erreur corrigée (`List<File>` → `Array<File>`)
+
+**À faire** :
+- 🔜 Exécuter `./gradlew cucumberTest` pour valider le premier step Given
+- 🔜 Décommenter les steps restants un par un (And, When, Then)
+- 🔜 Valider le scénario 1 complet
+
+**Prochaine session** : Session 79 — Suite Phase 2 (validation step-by-step des 3 scénarios)
+
+---
 
 ### Session 77 — 17 Avril 2026 — Initialisation Plan BDD Cucumber ✅
 **Objectif** : Initialisation du plan d'attaque pour les tests Cucumber

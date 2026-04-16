@@ -1,5 +1,46 @@
 # Historique des Sessions — PlantUML Gradle Plugin
 
+## Session 78 — 2026-04-17 : Phase 1 (Fondation) + Début Phase 2 (PARTIELLE)
+
+### ✅ Contexte
+- **Session 77** : Initialisation Plan BDD Cucumber — **TERMINÉE**
+- **Objectif** : Phase 1 (Fondation) + Début Phase 2 (PlantUML Processing)
+- **Fichiers cibles** : `PlantumlWorld.kt`, `PlantumlSteps.kt`, `2_plantuml_processing.feature`
+
+### ✅ Résultats
+- ✅ **Phase 1.2-1.4** : Helpers ajoutés dans `PlantumlWorld` (`createPromptFile()`, `createPlantUmlFile()`, `verifyFileExists()`, `verifyDirectoryContainsFiles()`)
+- ✅ **Phase 1.5** : Template nettoyé (suppression `test-prompts` par défaut)
+- ✅ **Phase 2.1-2.2** : `PlantumlSteps.kt` décommenté et corrigé (mock LLM format Ollama)
+- ✅ **Phase 2.3-2.6** : Tous les steps implémentés
+- ✅ **Méthodologie** : Section TDD incrémentale ajoutée dans `AGENT_PLAN.md` et `AGENT_METHODOLOGIES.md`
+
+### ⏳ En cours (à reprendre)
+- **Phase 2.7** : Décommenter scénario 1 step-by-step (arrêté au premier Given)
+- **Compilation** : Erreur corrigée (`List<File>` → `Array<File>` dans `verifyDirectoryContainsFiles()`)
+- **Test** : `./gradlew cucumberTest --tests "*Process valid prompt*"` à exécuter pour valider
+
+### 📊 Modifications Session 78
+| Fichier | Action | Impact |
+|--------|--------|--------|
+| `src/test/scenarios/plantuml/scenarios/PlantumlWorld.kt` | ✅ 4 helpers ajoutés | Infrastructure de test enrichie |
+| `src/test/scenarios/plantuml/scenarios/PlantumlSteps.kt` | ✅ Réécrit (décommenté) | Steps fonctionnels avec GradleRunner |
+| `src/test/features/2_plantuml_processing.feature` | ⏳ Partiel (1 Given décommenté) | Test en cours |
+| `AGENT_PLAN.md` | ✅ Méthodologie TDD ajoutée | Guide step-by-step |
+| `AGENT_METHODOLOGIES.md` | ✅ Section BDD Cucumber ajoutée | Méthodologie documentée |
+
+### 🎯 Prochaine Session (79)
+- **Objectif** : Suite Phase 2 — Validation step-by-step des scénarios
+- **Tâches** :
+  1. Exécuter test avec premier Given (validation compilation)
+  2. Décommenter And "a mock LLM..." → Test
+  3. Décommenter When "I run processPlantumlPrompts task" → Test
+  4. Décommenter Then (un par un) → Tests
+  5. Valider scénario 1 complet ✅
+  6. Répéter pour scénarios 2 et 3
+- **Score Roadmap** : 9.0/10 ✅
+
+---
+
 ## Session 77 — 2026-04-17 : Tests BDD Cucumber — Initialisation (TERMINÉE)
 
 ### ✅ Contexte

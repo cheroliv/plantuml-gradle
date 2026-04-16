@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpServer
 import com.sun.net.httpserver.HttpServer.create
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Default
+import org.assertj.core.api.Assertions.assertThat
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.BeforeAll
@@ -61,7 +62,7 @@ class PlantumlWorld {
             File(templateDir, "plantuml-context.yml").writeText(
                 """
                 input:
-                  prompts: "test-prompts"
+                  prompts: "prompts"
                 output:
                   images: "generated/images"
                   rag: "generated/rag"
@@ -75,10 +76,6 @@ class PlantumlWorld {
                   maxIterations: 1
                 """.trimIndent()
             )
-
-            val promptsDir = File(templateDir, "test-prompts")
-            promptsDir.mkdirs()
-            File(promptsDir, "test.prompt").writeText("Create a simple class diagram")
 
             templateDir.deleteOnExit()
             return templateDir
@@ -213,6 +210,63 @@ class PlantumlWorld {
 
         projectDir = testDir
         return testDir
+    }
+
+    /**
+     * Creates a prompt file in the project's prompts directory.
+     */
+    fun createPromptFile(fileName: String, content: String): File {
+        require(projectDir != null) { "Project directory must be initialized first" }
+        val promptsDir = File(projectDir, "prompts").apply { 
+            if (!exists()) mkdirs() 
+        }
+        val promptFile = File(promptsDir, fileName)
+        promptFile.writeText(content)
+        return promptFile
+    }
+
+    /**
+     * Creates a PlantUML file in the specified directory.
+     */
+    fun createPlantUmlFile(fileName: String, content: String, directory: String = "test-diagrams"): File {
+        require(projectDir != null) { "Project directory must be initialized first" }
+        val targetDir = File(projectDir, directory).apply { 
+            if (!exists()) mkdirs() 
+        }
+        val plantumlFile = File(targetDir, fileName)
+        plantumlFile.writeText(content)
+        return plantumlFile
+    }
+
+    /**
+     * Verifies that a file exists in the project directory.
+     */
+    fun verifyFileExists(relativePath: String, message: String = "File should exist") {
+        val file = File(projectDir, relativePath)
+        assertThat(file).`as`(message).exists()
+    }
+
+    /**
+     * Verifies that a file does not exist in the project directory.
+     */
+    fun verifyFileNotExists(relativePath: String, message: String = "File should not exist") {
+        val file = File(projectDir, relativePath)
+        assertThat(file).`as`(message).doesNotExist()
+    }
+
+    /**
+     * Verifies that a directory contains files matching a pattern.
+     */
+    fun verifyDirectoryContainsFiles(
+        relativePath: String, 
+        extension: String, 
+        message: String = "Directory should contain files"
+    ): Array<File> {
+        val dir = File(projectDir, relativePath)
+        assertThat(dir).`as`("Directory $relativePath should exist").exists()
+        val files = dir.listFiles { file -> file.extension == extension }
+        assertThat(files).`as`(message).isNotNull.isNotEmpty
+        return files!!
     }
 
     @Suppress("unused")

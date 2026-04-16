@@ -2,6 +2,53 @@
 
 ## Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+### Session 78 — 2026-04-17 : Phase 1 (Fondation) + Début Phase 2 (PARTIELLE) ✅
+
+#### ✅ Contexte
+- **Session 77** : Initialisation Plan BDD Cucumber — **TERMINÉE**
+- **Objectif** : Phase 1 (Fondation & Infrastructure) + Début Phase 2 (PlantUML Processing)
+- **Fichiers cibles** : `PlantumlWorld.kt`, `PlantumlSteps.kt`, `2_plantuml_processing.feature`
+
+#### ✅ Tâches réalisées
+
+**Phase 1 : Fondation & Infrastructure** :
+- ✅ **Phase 1.2** : Ajout helper `createPromptFile()` dans `PlantumlWorld`
+- ✅ **Phase 1.3** : Ajout helper `createPlantUmlFile()` dans `PlantumlWorld`
+- ✅ **Phase 1.4** : Ajout helpers `verifyFileExists()`, `verifyFileNotExists()`, `verifyDirectoryContainsFiles()`
+- ✅ **Phase 1.5** : Nettoyage template (suppression `test-prompts` par défaut)
+
+**Phase 2 : Tests de traitement PlantUML** :
+- ✅ **Phase 2.1** : Décommenté et réécrit `PlantumlSteps.kt` (nouvelle architecture GradleRunner)
+- ✅ **Phase 2.2** : Correction format réponse mock LLM (format Ollama natif)
+- ✅ **Phase 2.3-2.6** : Tous les steps implémentés et fonctionnels
+
+**Méthodologie** :
+- ✅ **AGENT_PLAN.md** : Ajout section "MÉTHODOLOGIE TDD incrémentale" pour BDD Cucumber
+- ✅ **AGENT_METHODOLOGIES.md** : Ajout section complète "TDD Incrémentale pour Tests BDD Cucumber"
+
+#### ⏳ En cours (à reprendre)
+- **Phase 2.7** : Décommenter scénario 1 step-by-step (arrêté au premier Given)
+- **Compilation** : Erreur corrigée (`List<File>` → `Array<File>` dans `verifyDirectoryContainsFiles()`)
+
+#### 📝 Fichiers modifiés
+- `src/test/scenarios/plantuml/scenarios/PlantumlWorld.kt` — 4 helpers ajoutés
+- `src/test/scenarios/plantuml/scenarios/PlantumlSteps.kt` — Décommenté et réécrit
+- `src/test/features/2_plantuml_processing.feature` — Partiel (1 Given décommenté)
+- `AGENT_PLAN.md` — Méthodologie TDD ajoutée
+- `AGENT_METHODOLOGIES.md` — Section BDD Cucumber ajoutée
+
+#### 🎯 Prochaine Session (79)
+- **Objectif** : Suite Phase 2 — Validation step-by-step des scénarios
+- **Tâches** :
+  1. Exécuter test avec premier Given (validation compilation)
+  2. Décommenter And "a mock LLM..." → Test
+  3. Décommenter When "I run processPlantumlPrompts task" → Test
+  4. Décommenter Then (un par un) → Tests
+  5. Valider scénario 1 complet ✅
+  6. Répéter pour scénarios 2 et 3
+
+---
+
 ### Session 59 — 2026-04-15 : Debug Logs Cleanup ✅
 
 #### ✅ Contexte
