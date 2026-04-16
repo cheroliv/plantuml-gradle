@@ -48,6 +48,12 @@ Rendre fonctionnelle la suite complète des tests Cucumber pour couvrir toutes l
 > 6. Exécuter le scénario complet ✅
 > 7. Passer au scénario suivant
 
+**📊 Session 79 — État d'avancement** :
+- ✅ Steps 1-3 validés (Given prompt, And mock LLM, When task)
+- ❌ Step 4 (Then diagram generated) — ÉCHEC : directory `generated/rag` n'existe pas
+- 🔍 **Problème identifié** : La tâche `processPlantumlPrompts` ne génère pas les fichiers attendus
+- 🔍 **Cause probable** : Mock LLM non atteint ou configuration incorrecte
+
 | Tâche | Description | Critère d'acceptation |
 |-------|-------------|----------------------|
 | 2.1 | Décommenter `PlantumlSteps.kt` | Code compilé sans erreur |
