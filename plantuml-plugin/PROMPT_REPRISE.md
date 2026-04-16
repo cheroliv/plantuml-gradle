@@ -1,222 +1,106 @@
 # 🔄 Prompt de reprise — Session 77
 
-> **EPIC** : EPIC 4 — Documentation & Qualité  
-> **Statut** : Session 76 TERMINÉE — Correction diagrammes PlantUML README ✅  
-> **Session 77** : À définir (Score Roadmap : 9.0/10 ✅ OPTIMAL)
+> **EPIC** : `EPIC_CONSOLIDATION_TESTS_FONCTIONNELS.md` — **EPIC Tests BDD Cucumber**  
+> **Statut** : Session 76 TERMINÉE ✅  
+> **Prochaine mission** : Session 77 — Phase 1 (Fondation & Infrastructure)
 
 ---
 
 ## 📊 Session 76 — Résumé (TERMINÉE)
 
-### Correction diagrammes PlantUML dans les README
-
-**Problème** : Diagrammes PlantUML à corriger dans la documentation
-
-**Solution** : Correction syntaxe PlantUML dans les blocs `[plantuml]`
-
+**Date** : 16 avr. 2026  
 **Résultats** :
-- ✅ **README_truth.adoc** : 802 lignes, diagrammes valides
-- ✅ **README_truth_fr.adoc** : 802 lignes, diagrammes valides
-- ✅ **Structure identique** : EN et FR parfaitement synchronisés
+- ✅ **README_truth.adoc** : 802 lignes — Diagrammes PlantUML corrigés (EN)
+- ✅ **README_truth_fr.adoc** : 802 lignes — Diagrammes PlantUML corrigés (FR)
 - ✅ **Commit** : `d96bccf fix plantuml diagrams in readmes`
+- ✅ **Score Roadmap** : 9.0/10 ✅ **OPTIMAL**
 
-**Fichiers modifiés** :
-- `README_truth.adoc` — Correction diagrammes PlantUML
-- `README_truth_fr.adoc` — Correction diagrammes PlantUML
+**Modifications** :
+- `README_truth.adoc` : Correction diagrammes PlantUML
+- `README_truth_fr.adoc` : Correction diagrammes PlantUML
 
 **Voir** : `.sessions/SESSION_76_SUMMARY.md` pour détails complets
 
 ---
 
-## 🎯 Session 77 — Mission (À DÉFINIR)
+## 🎯 Session 77 — Mission
 
-### Score Roadmap : 9.0/10 ✅ OPTIMAL ATTEINT
+### EPIC Tests BDD Cucumber — Phase 1 : Fondation & Infrastructure
 
-**EPIC 1 : Performance & Stabilité** ✅ **TERMINÉ** (9.0/10)  
-**EPIC 2 : RAG Production-Ready** ✅ **TERMINÉ** (9.0/10)  
-**EPIC 3 : Consolidation Tests Fonctionnels** ✅ **TERMINÉ** (9.0/10)  
-**EPIC 4 : Documentation & Qualité** 🟡 **EN PROGRÈS** (7.5/10)
+**Priorité** : 🟢 **ÉLEVÉE**  
+**Impact** : Tests fonctionnels pour toutes les fonctionnalités du plugin  
+**Fichiers cibles** :
+- `src/test/features/*.feature` (fichiers de scénarios)
+- `src/test/scenarios/plantuml/scenarios/PlantumlWorld.kt` (helpers de test)
+- `src/test/scenarios/plantuml/scenarios/PlantumlSteps.kt` (steps à activer)
 
-**Pistes potentielles** :
+**Durée estimée** : 1-2 sessions
 
-#### 1. Story 4.3 — Documentation API avec KDoc
-- **Objectif** : Ajouter KDoc aux classes publiques du plugin
-- **Fichiers cibles** : `src/main/kotlin/**/*.kt`
-- **Critère** : 100% des classes/méthodes publiques documentées
+#### Contexte
 
-#### 2. Story 4.4 — Améliorations qualité marginales
-- **Objectif** : Detekt, ktlint, ou autres outils de qualité
-- **Fichiers cibles** : `build.gradle.kts`
-- **Critère** : 0 warning, 0 error
+Les tests Cucumber sont partiellement implémentés :
+- ✅ `1_minimal.feature` : Test canaire fonctionnel
+- ❌ `2_plantuml_processing.feature` : Scénarios commentés (à activer)
+- ❌ `3_syntax_validation.feature` : Scénarios commentés (à activer)
+- ❌ `4_attempt_history.feature` : Scénarios commentés + steps obsolètes (à refondre)
 
-#### 3. Consolidation tests RAG (si nécessaire)
-- **Objectif** : Vérifier stabilité tests RAG avec testcontainers
-- **Fichiers cibles** : `ReindexPlantumlRagIntegrationTest.kt`
-- **Critère** : 10/10 tests PASS
+#### Problème
+Les fichiers `.feature` ont été écrits avant les dernières modifications du plugin et ne sont plus cohérents avec l'implémentation actuelle.
 
-#### 4. Autre (à définir par l'utilisateur)
+#### Solution attendue
+
+**Phase 1 (Session 77)** :
+1. Analyser `PlantumlWorld` pour identifier les helpers manquants
+2. Ajouter helper `createPromptFile()` dans `PlantumlWorld`
+3. Ajouter helper `createPlantUmlFile()` dans `PlantumlWorld`
+4. Ajouter helper `verifyFileExists()` / `verifyFileNotExists()`
+5. Nettoyer le template de projet (supprimer `test-prompts` par défaut)
+
+**Voir** : `AGENT_PLAN.md` pour le plan complet en 5 phases
+
+#### Critères d'acceptation
+
+- [ ] `PlantumlWorld` enrichi avec tous les helpers nécessaires
+- [ ] Template de projet minimaliste (pas de `test-prompts` par défaut)
+- [ ] Tests existants passent toujours (`./gradlew cucumberTest`)
+- [ ] Helpers testés unitairement
 
 ---
 
-## 📚 Fichiers de Référence
+## 📚 Fichiers de référence
 
 | Fichier | Rôle |
 |---------|------|
-| `INDEX.md` | **Index léger** — Vue d'ensemble (chargé par défaut) |
-| `PROMPT_REPRISE.md` | Prompt de reprise **courant** (Session 75) |
-| `COMPLETED_TASKS_ARCHIVE.md` | Archive tâches terminées |
-| `.agents/` | **Documentation détaillée** (chargée sur besoin) |
-| `.sessions/` | Résumés de sessions archivés (61-74) |
-| `.prompts/` | Prompts de reprise archivés (65-74) |
-
-**Voir** : `INDEX.md` pour la liste complète des fichiers `.agents/`
+| `AGENT_PLAN.md` | Plan d'attaque Epic BDD (5 phases) |
+| `src/test/features/` | Fichiers de scénarios Cucumber |
+| `src/test/scenarios/plantuml/scenarios/` | Steps definitions |
+| `SESSION_PROCEDURE.md` | Procédure de fin de session |
 
 ---
 
-## 🔧 Commandes de Référence
+## ⚠️ Points de vigilance
 
-### Tests fonctionnels
-```bash
-# Dév quotidien — tests rapides
-./gradlew functionalTest --tests "*quick*"     # ~23s
-
-# Validation complète — tous les tests
-./gradlew functionalTest                       # ~35s
-
-# Tests lents uniquement (RAG, permissions, network)
-./gradlew functionalTest --tests "*slow*"      # ~15s
-
-# Avec configuration cache (encore plus rapide)
-./gradlew functionalTest --configuration-cache
-```
-
-### Tests unitaires
-```bash
-./gradlew test
-```
-
-### Tous les tests
-```bash
-./gradlew check
-```
-
-### Générer rapport Kover
-```bash
-./gradlew koverHtmlReport
-```
+1. **Mock LLM** : Bien comprendre le format de réponse Ollama attendu par `LlmService`
+2. **Isolation des tests** : Chaque scénario doit avoir son propre dossier projet temporaire
+3. **Nettoyage** : S'assurer que `cleanup()` est appelé après chaque scénario
+4. **Tags** : Utiliser `@wip` pour les tests en développement
+5. **Git** : L'utilisateur gère Git manuellement (commit, push)
 
 ---
 
-## 📊 État des Tests
+## 🔄 Procédure de fin de session (Rappel)
 
-### Tests fonctionnels (45 tests)
+**Voir** : `SESSION_PROCEDURE.md`
 
-**Tags** :
-- `@Tag("quick")` : 18 tests (< 5s) — dév quotidien
-- `@Tag("slow")` : 18 tests (> 10s) — validation complète
-- `@Disabled` : 7 tests cloud (requièrent credentials)
+**Étapes obligatoires** :
+1. ✅ Vérifier les tests (`./gradlew cucumberTest`)
+2. ✅ Mettre à jour `AGENT_PLAN.md` avec le résumé de la session
+3. ✅ Mettre à jour `SESSIONS_HISTORY.md` avec l'entrée de la session
+4. ✅ Mettre à jour `COMPLETED_TASKS_ARCHIVE.md` avec les tâches terminées
+5. ✅ Mettre à jour ce fichier (`PROMPT_REPRISE.md`) pour la session N+1
 
-| Nested Class | Tests | Statut |
-|--------------|-------|--------|
-| PluginLifecycle | 6 | ✅ PASS |
-| LlmProviderConfiguration | 8 | 2 PASS, 6 SKIP |
-| GradleSharedInstance | 4 | ✅ PASS |
-| PluginIntegration | 11 | ✅ PASS |
-| FilePermission | 4 | ✅ PASS |
-| LargeFileAndPath | 4 | ✅ PASS |
-| NetworkTimeout | 4 | ✅ PASS |
-| Performance | 4 | ✅ PASS |
-| RAG task | 4 | 1 PASS, 3 SKIP |
-| **Total** | **45** | **38 PASS, 7 SKIP** |
-
-### Tests unitaires (203 tests)
-
-- ✅ **203/203 PASS** (100%)
+**⚠️ Git** : L'utilisateur gère Git manuellement (commit, push)
 
 ---
 
-## 🏗 Architecture — Organisation des Fichiers (Session 71)
-
-Depuis la Session 71, les fichiers sont organisés ainsi :
-
-```
-plantuml-plugin/
-├── INDEX.md                       # Index léger (chargé par défaut)
-├── PROMPT_REPRISE.md              # Prompt de reprise COURANT (Session N)
-├── COMPLETED_TASKS_ARCHIVE.md     # Archive tâches terminées
-├── .prompts/                      # Archives prompts de reprise
-│   ├── PROMPT_REPRISE_SESSION_65.md
-│   ├── PROMPT_REPRISE_SESSION_66.md
-│   ├── PROMPT_REPRISE_SESSION_67.md
-│   ├── PROMPT_REPRISE_SESSION_69.md
-│   ├── PROMPT_REPRISE_SESSION_72.md
-│   └── PROMPT_REPRISE_SESSION_74.md
-├── .sessions/                     # Archives résumés de sessions
-│   ├── SESSION_61_SUMMARY.md
-│   ├── SESSION_62_SUMMARY.md
-│   ├── SESSION_63_SUMMARY.md
-│   ├── SESSION_64_SUMMARY.md
-│   ├── SESSION_65_SUMMARY.md
-│   ├── SESSION_66_SUMMARY.md
-│   ├── SESSION_67_SUMMARY.md
-│   ├── SESSION_68_SUMMARY.md
-│   ├── SESSION_69_SUMMARY.md
-│   ├── SESSION_73_SUMMARY.md
-│   └── SESSION_74_SUMMARY.md
-└── .agents/                       # Documentation détaillée (sur besoin)
-    ├── ARCHITECTURE.md            # ex-AGENTS.md
-    ├── REFERENCE.md               # ex-AGENT_REFERENCE.md
-    ├── PROCEDURES.md              # ex-SESSION_PROCEDURE.md
-    ├── SESSIONS_HISTORY.md        # Historique complet
-    ├── TROUBLESHOOTING.md         # Guide EN
-    ├── TROUBLESHOOTING_fr.md      # Guide FR
-    ├── CODE_OF_CONDUCT.md         # Code conduite EN
-    ├── CODE_OF_CONDUCT_fr.md      # Code conduite FR
-    ├── CONTRIBUTING.md            # Contribution EN
-    ├── CONTRIBUTING_fr.md         # Contribution FR
-    ├── AGENT_METHODOLOGIES.md     # Méthodologies
-    ├── SESSION_CHECKLIST.md       # Checklist
-    └── tests/                     # Analyses tests
-        ├── OVERLAP_ANALYSIS.md
-        ├── TEST_COVERAGE_AFTER_CLEANUP.md
-        ├── TEST_COVERAGE_ANALYSIS.md
-        ├── METHODOLOGIE_OPTIMISATION_TESTS.md
-        ├── EPIC_FUNCTIONAL_TEST_CONSOLIDATION.md
-        └── EPIC_CONSOLIDATION_TESTS_FONCTIONNELS.md
-```
-
-**Règle** :
-- **Fichiers courants** : Racine (`INDEX.md`, `PROMPT_REPRISE.md`, `COMPLETED_TASKS_ARCHIVE.md`)
-- **Documentation détaillée** : `.agents/` (chargé sur besoin)
-- **Archives sessions** : `.prompts/` et `.sessions/`
-
----
-
-## ⚠️ Pièges à Éviter (Rappel)
-
-1. ❌ **Oublier de mettre à jour `.agents/SESSIONS_HISTORY.md`** — Toujours documenter en fin de session
-2. ❌ **Mélanger archives et fichiers courants** — Respecter `.prompts/`, `.sessions/`, `.agents/`
-3. ❌ **Créer des fichiers dans la racine** — Utiliser `INDEX.md` (racine) ou `.agents/` (détails)
-4. ❌ **Oublier la traduction FR** — Toujours créer EN + FR pour la documentation
-5. ❌ **Charger tous les fichiers `.agents/`** — Uniquement sur besoin contextuel
-6. ❌ **Traduire fichiers `.md` ou `.adoc`** — Uniquement le code (`.kt`)
-
----
-
-## 📝 Procédure de Fin de Session (Rappel)
-
-**Voir** : `.agents/PROCEDURES.md`
-
-**Étapes** :
-1. ✅ Vérifier que tous les tests passent
-2. ✅ Mettre à jour `.agents/SESSIONS_HISTORY.md`
-3. ✅ Mettre à jour `.agents/ROADMAP.md` (si story terminée)
-4. ✅ Créer `SESSION_N_SUMMARY.md` → `.sessions/`
-5. ✅ Créer `PROMPT_REPRISE_SESSION_N.md` → `.prompts/` (si nécessaire)
-6. ✅ Mettre à jour `PROMPT_REPRISE.md` pour Session N+1
-7. ✅ Mettre à jour `INDEX.md` (si changement majeur)
-8. ✅ Commit git (si demandé)
-
----
-
-**Session 75 PRÊTE** — Objectif : À définir par l'utilisateur
+**Session 77 — Prêt à démarrer** 🚀
