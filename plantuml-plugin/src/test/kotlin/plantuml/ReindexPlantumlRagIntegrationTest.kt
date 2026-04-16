@@ -224,12 +224,12 @@ class ReindexPlantumlRagIntegrationTest {
             writeText(
                 """
                 @startuml
-                class Utilisateur {
-                  +nom: String
-                  +prénom: String
+                class User {
+                  +name: String
+                  +firstName: String
                   +email: String
                 }
-                note "Création d'un utilisateur\navec des caractères spéciaux: é à ü ñ 中文 🎉"
+                note "User creation\nwith special characters: é à ü ñ 中文 🎉"
                 @enduml
                 """.trimIndent()
             )

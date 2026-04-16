@@ -25,7 +25,7 @@ package plantuml.scenarios
 //
 //    @Before
 //    fun setup() {
-//        // Initialisation avant chaque scénario
+//        // Setup before each scenario
 //        plantumlService = Mockito.mock(PlantumlService::class.java)
 //        diagramProcessor = DiagramProcessor(plantumlService, null, null)
 //        result = null
@@ -36,7 +36,7 @@ package plantuml.scenarios
 //
 //    @After
 //    fun tearDown() {
-//        // Nettoyage après chaque scénario
+//        // Cleanup after each scenario
 //    }
 //
 //    @Given("a prompt file {string} with content {string}")
@@ -46,17 +46,17 @@ package plantuml.scenarios
 //
 //    @Given("a mock LLM that returns an invalid PlantUML diagram on first attempt")
 //    fun given_mock_llm_returns_invalid_on_first_attempt() {
-//        attemptResults.add(false) // Premier essai invalide
+//        attemptResults.add(false) // First attempt invalid
 //    }
 //
 //    @Given("a mock LLM that returns a valid PlantUML diagram on second attempt")
 //    fun given_mock_llm_returns_valid_on_second_attempt() {
-//        attemptResults.add(true) // Deuxième essai valide
+//        attemptResults.add(true) // Second attempt valid
 //    }
 //
 //    @Given("a mock LLM that always returns invalid PlantUML diagrams")
 //    fun given_mock_llm_always_returns_invalid() {
-//        // Pour les tests avec 5 itérations, on ajoute 5 résultats invalides
+//        // For tests with 5 iterations, add 5 invalid results
 //        repeat(5) { attemptResults.add(false) }
 //    }
 //
@@ -67,12 +67,12 @@ package plantuml.scenarios
 //
 //    @Given("a mock LLM that returns a valid PlantUML diagram on fourth attempt")
 //    fun given_mock_llm_returns_valid_on_fourth_attempt() {
-//        attemptResults.add(true) // Quatrième essai valide
+//        attemptResults.add(true) // Fourth attempt valid
 //    }
 //
 //    @When("I run processPlantumlPrompts task")
 //    fun when_run_process_plantuml_prompts_task() {
-//        // Configurer le mock pour retourner les résultats selon la séquence définie
+//        // Configure mock to return results according to defined sequence
 //        val mockResponses = attemptResults.mapIndexed { index, isValid ->
 //            if (isValid) {
 //                PlantumlService.SyntaxValidationResult.Valid
@@ -113,22 +113,22 @@ package plantuml.scenarios
 //    @Then("attempt history should be tracked with {int} entries")
 //    fun then_attempt_history_should_be_tracked_with_entries(count: Int) {
 //        assertNotNull(result)
-//        // Vérifier que la conversation contient suffisamment d'entrées
+//        // Verify that conversation contains enough entries
 //        assertTrue(result!!.conversation.size >= count)
 //    }
 //
 //    @Then("the first entry should indicate syntax error")
 //    fun then_first_entry_should_indicate_syntax_error() {
 //        assertNotNull(result)
-//        // Avec notre implémentation actuelle, la conversation contient simplement le prompt initial
-//        // Dans une implémentation complète, on vérifierait ici le contenu détaillé de l'historique
+//        // With our current implementation, conversation simply contains the initial prompt
+//        // In a complete implementation, we would verify detailed history content here
 //        assertEquals("Processed prompt: $promptContent", result!!.conversation.first())
 //    }
 //
 //    @Then("the second entry should indicate success")
 //    fun then_second_entry_should_indicate_success() {
 //        assertNotNull(result)
-//        // Dans une implémentation complète, on vérifierait ici le contenu détaillé de l'historique
+//        // In a complete implementation, we would verify detailed history content here
 //    }
 //
 //    @Then("a valid diagram should be generated")
@@ -138,15 +138,15 @@ package plantuml.scenarios
 //
 //    @Then("a PNG image should be created")
 //    fun then_a_png_image_should_be_created() {
-//        // Ce test vérifierait la création du fichier dans une implémentation réelle
+//        // This test would verify file creation in a real implementation
 //        assertNotNull(result)
 //    }
 //
 //    @Then("attempt history should be archived with {int} entries")
 //    fun then_attempt_history_should_be_archived_with_entries(count: Int) {
 //        assertNull(result)
-//        // Dans une implémentation réelle, on vérifierait que l'historique a été archivé
-//        // Par exemple, en vérifiant la présence de fichiers d'historique ou des logs spécifiques
+//        // In a real implementation, we would verify that history was archived
+//        // For example, by checking for history files or specific logs
 //        Mockito.verify(plantumlService, Mockito.times(count)).validateSyntax(ArgumentMatchers.anyString())
 //    }
 //
@@ -157,23 +157,23 @@ package plantuml.scenarios
 //
 //    @Then("the prompt file should be deleted")
 //    fun then_the_prompt_file_should_be_deleted() {
-//        // Ce test vérifierait la suppression du fichier dans une implémentation réelle
+//        // This test would verify file deletion in a real implementation
 //    }
 //
 //    @Then("validation feedback should be saved")
 //    fun then_validation_feedback_should_be_saved() {
-//        // Ce test vérifierait la sauvegarde du feedback dans une implémentation réelle
+//        // This test would verify feedback saving in a real implementation
 //    }
 //
 //    @Then("the first three entries should indicate syntax errors")
 //    fun then_first_three_entries_should_indicate_syntax_errors() {
 //        assertNotNull(result)
-//        // Dans une implémentation complète, on vérifierait ici le contenu détaillé de l'historique
+//        // In a complete implementation, we would verify detailed history content here
 //    }
 //
 //    @Then("the fourth entry should indicate success")
 //    fun then_fourth_entry_should_indicate_success() {
 //        assertNotNull(result)
-//        // Dans une implémentation complète, on vérifierait ici le contenu détaillé de l'historique
+//        // In a complete implementation, we would verify detailed history content here
 //    }
 //}

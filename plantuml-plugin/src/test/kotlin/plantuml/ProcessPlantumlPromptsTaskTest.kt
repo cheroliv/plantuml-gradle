@@ -59,7 +59,7 @@ class ProcessPlantumlPromptsTaskTest {
                 ),
         )
         
-        // Configurer la validation syntaxe pour retourner valide
+        // Configure syntax validation to return valid
         wireMock.stubFor(
             post(urlPathMatching("/validate.*"))
                 .willReturn(

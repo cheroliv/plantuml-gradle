@@ -34,7 +34,7 @@ class DiagramProcessorErrorHandlingTest {
             .thenReturn("@startuml\nInvalid syntax")  // First response invalid
             .thenReturn("@startuml\nFixed\n@enduml")  // Second response valid
 
-        // Setup validation : d'abord invalide, puis valide
+        // Setup validation: first invalid, then valid
         `when`(mockPlantumlService.validateSyntax("@startuml\nInvalid syntax"))
             .thenReturn(PlantumlService.SyntaxValidationResult.Invalid("Syntax error", "stack"))
         `when`(mockPlantumlService.validateSyntax("@startuml\nFixed\n@enduml"))

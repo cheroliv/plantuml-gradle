@@ -154,7 +154,7 @@ dependencies {
     // CORRECTION: Add AssertJ for assertions
     add(functionalTest.implementationConfigurationName, libs.assertj.core)
 
-    // Ajouter Mockito si nécessaire
+    // Add Mockito if necessary
     add(functionalTest.implementationConfigurationName, libs.mockito.kotlin)
     add(functionalTest.implementationConfigurationName, libs.mockito.junit.jupiter)
     add(functionalTest.implementationConfigurationName, libs.wiremock)
@@ -212,7 +212,7 @@ tasks.named<ProcessResources>(functionalTest.processResourcesTaskName) {
 // 4. Configure source sets for Cucumber (standard test)
 sourceSets.test {
     resources.srcDir("src/test/features")
-    java.srcDir("src/test/scenarios")  // Steps dans scenarios/
+    java.srcDir("src/test/scenarios")  // Steps in scenarios/
 }
 
 
@@ -233,7 +233,7 @@ tasks.named<Test>("test") {
     // Ajouter le jar du plugin au classpath des tests
     classpath += files(tasks.named("jar"))
 
-    // Ajouter les propriétés système nécessaires
+    // Add required system properties
     systemProperty("gradle.plugin.repository", project.rootDir.resolve("build/libs").absolutePath)
 }
 

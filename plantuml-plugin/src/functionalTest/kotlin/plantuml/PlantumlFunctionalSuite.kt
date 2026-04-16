@@ -166,7 +166,7 @@ class PlantumlFunctionalSuite {
                 """.trimIndent(),
             )
 
-            // Config initiale pointant vers WireMock
+            // Initial config pointing to WireMock
             writeConfigYaml(model = "ollama")
 
             // Directories required for processPlantumlPrompts
@@ -731,7 +731,7 @@ class PlantumlFunctionalSuite {
         @Tag("quick")
         fun `should handle unicode content in puml files`() {
             File(sharedProjectDir, "unicode.puml").writeText(
-                "@startuml\ntitle Diagramme avec des caractères spéciaux\nactor Utilisateur\n@enduml",
+                "@startuml\ntitle Diagram with special characters\nactor User\n@enduml",
             )
             val result = runner(
                 "validatePlantumlSyntax",
@@ -901,7 +901,7 @@ class PlantumlFunctionalSuite {
                 output.contains("Permission denied", true) ||
                         output.contains("Access is denied", true) ||
                         output.contains("access denied", true) ||
-                        output.contains("Permission non accordée", true) ||
+                        output.contains("Permission denied", true) ||
                         output.contains("Unable to read", true) ||
                         output.contains("Failed to read", true) ||
                         output.contains("Directory not found", true) ||
@@ -1200,10 +1200,10 @@ class PlantumlFunctionalSuite {
             unicodeFile.writeText(
                 """
                 @startuml
-                title Diagramme avec des caractères spéciaux
-                actor Utilisateur
-                rectangle "Système" {
-                  Utilisateur --> (Fonctionnalité)
+                title Diagram with special characters
+                actor User
+                rectangle "System" {
+                  User --> (Feature)
                 }
                 @enduml
                 """.trimIndent(),
@@ -1821,7 +1821,7 @@ class PlantumlFunctionalSuite {
 
         @ParameterizedTest
         @ValueSource(strings = ["empty", "invalid_syntax", "subdirs", "empty_files"])
-        @Ignore("Tests trop lents - chargement du modèle d'embedding ML")
+        @Ignore("Tests too slow - loading ML embedding model")
         fun `should handle various RAG scenarios`(scenario: String) {
             when (scenario) {
                 "empty" -> testEmptyDirectory()

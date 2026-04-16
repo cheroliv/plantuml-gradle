@@ -102,27 +102,27 @@ package plantuml.scenarios
 //    @Then("the syntax should be reported as valid")
 //    fun verifySyntaxValid() {
 //        assertThat(world.buildResult).isNotNull
-//        // Vérifier que la sortie ne contient pas d'erreurs
+//        // Verify that output does not contain errors
 //        assertThat(world.buildResult!!.output).doesNotContain("Invalid")
 //    }
 //
 //    @Then("the syntax should be reported as invalid")
 //    fun verifySyntaxInvalid() {
 //        assertThat(world.buildResult).isNotNull
-//        // Vérifier que la sortie contient des erreurs
+//        // Verify that output contains errors
 //        assertThat(world.buildResult!!.output).containsAnyOf("Invalid", "Error")
 //    }
 //
 //    @Then("error details should be provided")
 //    fun verifyErrorDetailsProvided() {
 //        assertThat(world.buildResult).isNotNull
-//        // Vérifier que des détails d'erreur sont présents
+//        // Verify that error details are present
 //        assertThat(world.buildResult!!.output).isNotEmpty()
 //    }
 //
 //    @Then("the LLM should correct the syntax after iteration")
 //    fun verifyLlmCorrectsSyntax() {
-//        // Pour ce test, on suppose que le processus a réussi
+//        // For this test, we assume the process succeeded
 //        assertThat(world.buildResult).isNotNull
 //    }
 //

@@ -9,8 +9,8 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
- * Tests pour couvrir les branches retry de DiagramProcessor
- * Cible : boucles do-while avec itérations multiples (lignes 59-82, 115-150)
+ * Tests to cover retry branches of DiagramProcessor
+ * Target: do-while loops with multiple iterations (lines 59-82, 115-150)
  */
 class DiagramProcessorRetryTest {
     private val logger: Logger = LoggerFactory.getLogger(DiagramProcessorRetryTest::class.java)
@@ -27,7 +27,7 @@ class DiagramProcessorRetryTest {
         val result = processor.processPrompt("Test prompt with retries", logger = logger)
 
         assertNotNull(result)
-        assertTrue(result.conversation.size >= 3, "Devrait avoir au moins 3 tentatives")
+        assertTrue(result.conversation.size >= 3, "Should have at least 3 attempts")
     }
 
     @Test
@@ -39,7 +39,7 @@ class DiagramProcessorRetryTest {
         val processor = DiagramProcessor(mockPlantumlService, null, null)
         val result = processor.processPrompt("Test prompt that always fails", maxIterations = 3, logger = logger)
 
-        assertNull(result, "Devrait retourner null après 3 itérations")
+        assertNull(result, "Should return null after 3 iterations")
     }
 
     @Test
@@ -52,7 +52,7 @@ class DiagramProcessorRetryTest {
         val result = processor.processPrompt("Test prompt with immediate success", logger = logger)
 
         assertNotNull(result)
-        assertTrue(result.conversation.isNotEmpty(), "Devrait avoir au moins 1 tentative")
+        assertTrue(result.conversation.isNotEmpty(), "Should have at least 1 attempt")
     }
 
     @Test
@@ -66,7 +66,7 @@ class DiagramProcessorRetryTest {
         val result = processor.processPrompt("Test with error tracking", logger = logger)
 
         assertNotNull(result)
-        assertTrue(result.conversation.isNotEmpty(), "Devrait avoir au moins 1 tentative")
+        assertTrue(result.conversation.size >= 2, "Should have at least 2 attempts")
     }
 
     @Test
@@ -80,7 +80,7 @@ class DiagramProcessorRetryTest {
         val result = processor.processPrompt("Test with multiple attempts", logger = logger)
 
         assertNotNull(result)
-        assertTrue(result.conversation.size >= 2, "Devrait avoir au moins 2 tentatives")
+        assertTrue(result.conversation.size >= 2, "Should have at least 2 attempts")
     }
 
     @Test
