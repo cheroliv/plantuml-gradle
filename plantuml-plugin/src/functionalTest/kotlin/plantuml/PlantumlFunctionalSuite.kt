@@ -901,7 +901,8 @@ class PlantumlFunctionalSuite {
                 output.contains("Permission denied", true) ||
                         output.contains("Access is denied", true) ||
                         output.contains("access denied", true) ||
-                        output.contains("Permission denied", true) ||
+                        output.contains("Permission non accordée", true) ||
+                        output.contains("Accès refusé", true) ||
                         output.contains("Unable to read", true) ||
                         output.contains("Failed to read", true) ||
                         output.contains("Directory not found", true) ||

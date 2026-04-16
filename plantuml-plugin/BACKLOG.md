@@ -1,18 +1,64 @@
 # 🐛 Backlog — PlantUML Gradle Plugin
 
 > **Objectif** : Suivi des issues et bugs en cours  
-> **Session 73** : Debug tâche functionalTest (crash système)
+> **Session 75** : Correction test fonctionnel échoué (localisation FR)
 
 ---
 
 ## 🔴 Issues Critiques
 
+### Issue #2 : Échec test `should handle read permission denied gracefully` (localisation FR)
+
+**Statut** : 🔴 **À CORRIGER**  
+**Priorité** : 🔴 **CRITIQUE** — **PRIORITÉ MAXIMALE**  
+**Session** : 75  
+**Impact** : Échec de `./gradlew koverVerify` et validation CI/CD
+
+#### Symptômes
+```
+PlantumlFunctionalSuite > File permissions > should handle read permission denied gracefully() FAILED
+    org.opentest4j.AssertionFailedError: Expected permission or access error but got:
+    > Task :validatePlantumlSyntax FAILED
+    java.io.FileNotFoundException: /tmp/junit-.../protected.puml (Permission non accordée)
+```
+
+#### Cause Racine
+Le message d'erreur système est en **français** (`Permission non accordée`) mais l'assertion ne vérifie que les messages en **anglais** (`Permission denied`, `Access is denied`).
+
+#### Fichier Concerné
+- `src/functionalTest/kotlin/plantuml/PlantumlFunctionalSuite.kt:900-912`
+- Méthode : `assertContainsPermissionOrNotFoundMessage`
+
+#### Solution Requise
+Ajouter les variantes de messages d'erreur en français :
+- `Permission non accordée`
+- `Accès refusé`
+- `Impossible de lire`
+- `Échec de la lecture`
+
+#### Critère d'Acceptation
+```bash
+./gradlew -i koverVerify  # ✅ BUILD SUCCESSFUL
+```
+
+---
+
 ### Issue #1 : Crash système lors de l'exécution de `functionalTest`
 
-**Statut** : 🟡 **EN INVESTIGATION**  
-**Priorité** : 🔴 **CRITIQUE**  
-**Session** : 73  
-**Impact** : Bloque l'exécution des tests fonctionnels
+**Statut** : 🟢 **RÉSOLU** (Session 74)  
+**Priorité** : 🟡 **MOYENNE**  
+**Session** : 73-74  
+**Impact** : Historique — tests fonctionnels maintenant stables
+
+#### Résumé
+Problème de mémoire et de stabilité résolu en Session 74 par :
+- Augmentation mémoire Gradle
+- Correction des mocks et de la réflexion
+- Migration mockito-kotlin
+
+**Résultats Session 74** :
+- ✅ 38 tests fonctionnels PASS, 7 SKIP, 0 FAIL
+- ✅ 203 tests unitaires PASS (100%)
 
 #### Symptômes
 - La tâche `functionalTest` fait crasher le système

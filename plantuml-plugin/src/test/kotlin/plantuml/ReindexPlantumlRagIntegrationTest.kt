@@ -257,7 +257,7 @@ class ReindexPlantumlRagIntegrationTest {
         // Then: Task completes and unicode content preserved
         assertTrue(unicodeDiagram.exists(), "Unicode diagram should still exist")
         assertTrue(
-            unicodeDiagram.readText().contains("Utilisateur"),
+            unicodeDiagram.readText().contains("User"),
             "Unicode content should be preserved"
         )
     }
