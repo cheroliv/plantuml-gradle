@@ -95,14 +95,14 @@ plantuml-plugin/src/main/kotlin/plantuml/
 
 ## 📊 État Actuel
 
-**Session 69 TERMINÉE** — Story 4.2 ✅ (Troubleshooting)
+**Session 74 TERMINÉE** — Correction échecs tests unitaires ✅
 
 **Résultats** :
-- ✅ **198 tests unitaires** : 198/198 PASS (100%)
-- ✅ **42 tests fonctionnels** : 36 PASS, 6 SKIP, 0 FAIL (100%)
+- ✅ **203 tests unitaires** : 203/203 PASS (100%)
+- ✅ **38 tests fonctionnels** : 38 PASS, 7 SKIP, 0 FAIL (100%)
 - ✅ **Score Roadmap** : 9.0/10 ✅ **OPTIMAL ATTEINT**
 
-**Prochaine session (70)** : Story 4.3 (Documentation API KDoc)
+**Prochaine session (75)** : À définir (Story 4.3 KDoc, Story 4.4 Detekt/ktlint, ou autre)
 
 ---
 
