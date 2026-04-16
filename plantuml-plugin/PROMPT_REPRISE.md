@@ -1,43 +1,41 @@
-# 🔄 Prompt de reprise — Session 74
+# 🔄 Prompt de reprise — Session 75
 
-> **EPIC** : `.agents/ROADMAP.md` — EPIC 4 : Documentation & Qualité  
-> **Statut** : Session 73 TERMINÉE — Debug crash functionalTest ✅  
-> **Session 74** : À définir (Score Roadmap : 9.0/10 ✅ OPTIMAL)
+> **EPIC** : EPIC 4 — Documentation & Qualité  
+> **Statut** : Session 74 TERMINÉE — Correction échecs tests unitaires ✅  
+> **Session 75** : À définir (Score Roadmap : 9.0/10 ✅ OPTIMAL)
 
 ---
 
-## 📊 Session 73 — Résumé (TERMINÉE)
+## 📊 Session 74 — Résumé (TERMINÉE)
 
-### Debug crash tâche functionalTest
+### Correction échecs tests unitaires
 
-**Problème** : La tâche `functionalTest` provoquait un crash système (freeze ou OutOfMemoryError)
+**Problème** : 6 tests en échec lors de `./gradlew -i test functionalTest --rerun-tasks`
 
-**Solution** : Correction des fuites de ressources dans `PlantumlFunctionalSuite.kt`
+**Solution** : Correction des problèmes de mocks et de réflexion
 
 **Résultats** :
-- ✅ **42 tests fonctionnels** : 38 PASS, 4 SKIP, 0 FAIL, 0 CRASH
 - ✅ **203 tests unitaires** : 203/203 PASS (100%)
-- ✅ **0 fuite de ressources** détectée
-- ✅ **0 OutOfMemoryError**
-- ✅ **0 thread orphelin**
+- ✅ **38 tests fonctionnels** : 38 PASS, 7 SKIP, 0 FAIL
+- ✅ **0 compilation error**
+- ✅ **0 fuite de ressources**
 
 **Correctifs appliqués** :
-1. ✅ **`@AfterEach`** pour nettoyage fichiers temporaires
-2. ✅ **`trackTempFile()`** pour tracker les fichiers créés
-3. ✅ **Thread sécurisé** : `join(1000)` au lieu de `stop()` (déprécié)
-4. ✅ **`deleteRecursively`** protégé par vérification d'existence
-5. ✅ **Assertions réseau élargies** pour capturer plus de scénarios d'erreur
-6. ✅ **`try-finally`** autour de tous les tests créant des fichiers
+1. ✅ **Logger SLF4J réel** dans `DiagramProcessorPrivateMethodsTest`
+2. ✅ **2 paramètres** pour `archiveAttemptHistory(history, logger)`
+3. ✅ **Migration mockito-kotlin** dans `PromptOrchestratorTest`
+4. ✅ **`mock<T>()`** au lieu de `mock(Class::class.java)`
+5. ✅ **`whenever()`** au lieu de `when()` (conflit mot-clé Kotlin)
 
-**Voir** : `.sessions/SESSION_73_SUMMARY.md` pour détails complets
+**Voir** : `.sessions/SESSION_74_SUMMARY.md` pour détails complets
 
 ---
 
-## 🎯 Session 74 — Mission (À DÉFINIR)
+## 🎯 Session 75 — Mission (À DÉFINIR)
 
 ### Score Roadmap : 9.0/10 ✅ OPTIMAL ATTEINT
 
-**EPIC 1 : Performance & Stabilité** ✅ **TERMINÉ** (8.0/10)  
+**EPIC 1 : Performance & Stabilité** ✅ **TERMINÉ** (9.0/10)  
 **EPIC 2 : RAG Production-Ready** ✅ **TERMINÉ** (9.0/10)  
 **EPIC 3 : Consolidation Tests Fonctionnels** ✅ **TERMINÉ** (9.0/10)  
 **EPIC 4 : Documentation & Qualité** 🟡 **EN COURS** (7.0/10)
@@ -68,11 +66,11 @@
 | Fichier | Rôle |
 |---------|------|
 | `INDEX.md` | **Index léger** — Vue d'ensemble (chargé par défaut) |
-| `PROMPT_REPRISE.md` | Prompt de reprise **courant** (Session 74) |
+| `PROMPT_REPRISE.md` | Prompt de reprise **courant** (Session 75) |
 | `COMPLETED_TASKS_ARCHIVE.md` | Archive tâches terminées |
 | `.agents/` | **Documentation détaillée** (chargée sur besoin) |
-| `.sessions/` | Résumés de sessions archivés (61-73) |
-| `.prompts/` | Prompts de reprise archivés (65-73) |
+| `.sessions/` | Résumés de sessions archivés (61-74) |
+| `.prompts/` | Prompts de reprise archivés (65-74) |
 
 **Voir** : `INDEX.md` pour la liste complète des fichiers `.agents/`
 
@@ -114,12 +112,12 @@
 
 ## 📊 État des Tests
 
-### Tests fonctionnels (42 tests)
+### Tests fonctionnels (45 tests)
 
 **Tags** :
 - `@Tag("quick")` : 18 tests (< 5s) — dév quotidien
 - `@Tag("slow")` : 18 tests (> 10s) — validation complète
-- `@Disabled` : 6 tests cloud (requièrent credentials)
+- `@Disabled` : 7 tests cloud (requièrent credentials)
 
 | Nested Class | Tests | Statut |
 |--------------|-------|--------|
@@ -154,7 +152,8 @@ plantuml-plugin/
 │   ├── PROMPT_REPRISE_SESSION_66.md
 │   ├── PROMPT_REPRISE_SESSION_67.md
 │   ├── PROMPT_REPRISE_SESSION_69.md
-│   └── PROMPT_REPRISE_SESSION_73.md
+│   ├── PROMPT_REPRISE_SESSION_72.md
+│   └── PROMPT_REPRISE_SESSION_74.md
 ├── .sessions/                     # Archives résumés de sessions
 │   ├── SESSION_61_SUMMARY.md
 │   ├── SESSION_62_SUMMARY.md
@@ -165,7 +164,8 @@ plantuml-plugin/
 │   ├── SESSION_67_SUMMARY.md
 │   ├── SESSION_68_SUMMARY.md
 │   ├── SESSION_69_SUMMARY.md
-│   └── SESSION_73_SUMMARY.md
+│   ├── SESSION_73_SUMMARY.md
+│   └── SESSION_74_SUMMARY.md
 └── .agents/                       # Documentation détaillée (sur besoin)
     ├── ARCHITECTURE.md            # ex-AGENTS.md
     ├── REFERENCE.md               # ex-AGENT_REFERENCE.md
@@ -222,4 +222,4 @@ plantuml-plugin/
 
 ---
 
-**Session 74 PRÊTE** — Objectif : À définir par l'utilisateur
+**Session 75 PRÊTE** — Objectif : À définir par l'utilisateur
