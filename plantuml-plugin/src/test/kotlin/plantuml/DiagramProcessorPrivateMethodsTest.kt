@@ -3,6 +3,8 @@ package plantuml
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import plantuml.service.AttemptEntry
 import plantuml.service.DiagramProcessor
 import plantuml.service.PlantumlService
@@ -23,6 +25,7 @@ class DiagramProcessorPrivateMethodsTest {
 
     private lateinit var processor: DiagramProcessor
     private lateinit var plantumlService: PlantumlService
+    private val logger: Logger = LoggerFactory.getLogger(DiagramProcessorPrivateMethodsTest::class.java)
 
     @BeforeEach
     fun setUp() {
@@ -155,7 +158,7 @@ class DiagramProcessorPrivateMethodsTest {
         )
         val processorWithConfig = DiagramProcessor(plantumlService, null, configWithInvalidPath)
 
-        callPrivateMethod(processorWithConfig, "archiveAttemptHistory", listOf(history))
+        callPrivateMethod(processorWithConfig, "archiveAttemptHistory", listOf(history, logger))
 
         assertTrue(true, "Method should not throw exception even with invalid path")
     }

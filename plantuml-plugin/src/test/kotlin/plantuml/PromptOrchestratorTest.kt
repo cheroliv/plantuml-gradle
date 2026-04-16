@@ -8,7 +8,11 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.api.io.TempDir
-import org.mockito.Mockito.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.whenever
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import plantuml.service.DiagramProcessor
@@ -17,6 +21,7 @@ import plantuml.service.PlantumlService
 import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+
 
 /**
  * Unit tests for PromptOrchestrator.
@@ -33,7 +38,7 @@ import kotlin.test.assertTrue
  */
 class PromptOrchestratorTest {
 
-    val logger: Logger = LoggerFactory.getLogger(PromptOrchestratorTest::class.java)
+    private val logger: Logger = LoggerFactory.getLogger(PromptOrchestratorTest::class.java)
 
     @TempDir
     lateinit var tempDir: File
@@ -45,14 +50,15 @@ class PromptOrchestratorTest {
     @Nested
     inner class WithMockDiagramProcessor {
 
+        private val logger: Logger = LoggerFactory.getLogger(WithMockDiagramProcessor::class.java)
         private lateinit var mockProcessor: DiagramProcessor
         private lateinit var mockPlantumlService: PlantumlService
         private lateinit var orchestrator: PromptOrchestrator
 
         @BeforeEach
         fun setup() {
-            mockPlantumlService = mock(PlantumlService::class.java)
-            mockProcessor = mock(DiagramProcessor::class.java)
+            mockPlantumlService = mock<PlantumlService>()
+            mockProcessor = mock<DiagramProcessor>()
             orchestrator = PromptOrchestrator(
                 config = minimalConfig(),
                 diagramProcessor = mockProcessor,
@@ -86,8 +92,7 @@ class PromptOrchestratorTest {
             File(promptsDir, "a.prompt").writeText("Create diagram A")
             File(promptsDir, "b.prompt").writeText("Create diagram B")
 
-            `when`(mockProcessor.processPrompt(anyString(), anyInt(), logger))
-                .thenReturn(fakeDiagram())
+            whenever(mockProcessor.processPrompt(any(), any(), any())).thenReturn(fakeDiagram())
 
             val result = orchestrator.process(logger)
 
@@ -101,8 +106,7 @@ class PromptOrchestratorTest {
             val promptsDir = File(tempDir, "prompts").also { it.mkdirs() }
             File(promptsDir, "bad.prompt").writeText("impossible prompt")
 
-            `when`(mockProcessor.processPrompt(anyString(), anyInt(),logger))
-                .thenReturn(null)
+            whenever(mockProcessor.processPrompt(any(), any(), any())).thenReturn(null)
 
             val result = orchestrator.process(logger)
 
@@ -118,8 +122,7 @@ class PromptOrchestratorTest {
             File(promptsDir, "blank.prompt").writeText("   \n  ")
             File(promptsDir, "valid.prompt").writeText("Create a class diagram")
 
-            `when`(mockProcessor.processPrompt(anyString(), anyInt(),logger))
-                .thenReturn(fakeDiagram())
+            whenever(mockProcessor.processPrompt(any(), any(), any())).thenReturn(fakeDiagram())
 
             val result = orchestrator.process(logger)
 
@@ -132,8 +135,7 @@ class PromptOrchestratorTest {
             val promptsDir = File(tempDir, "prompts").also { it.mkdirs() }
             File(promptsDir, "test.prompt").writeText("Create a class diagram")
 
-            `when`(mockProcessor.processPrompt(anyString(), anyInt(),logger))
-                .thenReturn(fakeDiagram("@startuml\nclass Generated\n@enduml"))
+            whenever(mockProcessor.processPrompt(any(), any(), any())).thenReturn(fakeDiagram("@startuml\nclass Generated\n@enduml"))
 
             orchestrator.process(logger)
 
@@ -152,8 +154,7 @@ class PromptOrchestratorTest {
             )
             val orch = PromptOrchestrator(configNoValidation, mockProcessor, mockPlantumlService, tempDir.toPath())
 
-            `when`(mockProcessor.processPrompt(anyString(), anyInt(),logger))
-                .thenReturn(fakeDiagram())
+            whenever(mockProcessor.processPrompt(any(), any(), any())).thenReturn(fakeDiagram())
 
             orch.process(logger)
 
@@ -179,7 +180,7 @@ class PromptOrchestratorTest {
 
         @BeforeEach
         fun setup() {
-            mockPlantumlService = mock(PlantumlService::class.java)
+            mockPlantumlService = mock<PlantumlService>()
 
             // Simulated Ollama response — JSON format of /api/chat API
             wireMock.stubFor(
