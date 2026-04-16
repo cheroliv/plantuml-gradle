@@ -125,9 +125,9 @@ tasks.withType<Test> {
 
 tasks.named<Test>("test") {
     filter {
-        // Exclure les classes dans le package 'plantuml.scenarios' (tests Cucumber)
+        // Exclude classes in 'plantuml.scenarios' package (Cucumber tests)
         excludeTestsMatching("plantuml.scenarios.**")
-        // Exclure également les classes de functionalTest
+        // Also exclude functionalTest classes
         excludeTestsMatching("plantuml.PlantUmlPluginFunctionalTests")
     }
 }
@@ -226,9 +226,7 @@ configurations.named("testRuntimeOnly").configure {
 }
 
 // 6. Add compiled functionalTest classes to test classpath
-dependencies {
-    testImplementation(functionalTest.output)
-}
+dependencies { testImplementation(functionalTest.output) }
 
 // Specific configuration for plugin tests
 tasks.named<Test>("test") {
@@ -336,16 +334,21 @@ tasks.register("koverThresholdCheck") {
         }
         val total = totalMissed + totalCovered
         val coverage = if (total > 0) (totalCovered.toDouble() / total) * 100 else 0.0
-        println("Instruction coverage: ${String.format("%.2f", coverage)}% (missed=$totalMissed, covered=$totalCovered)")
+        println(
+            "Instruction coverage: ${
+                String.format(
+                    "%.2f",
+                    coverage
+                )
+            }% (missed=$totalMissed, covered=$totalCovered)"
+        )
         if (coverage < 75.0) {
             throw GradleException("Coverage ${String.format("%.2f", coverage)}% is below threshold 75%")
         }
     }
 }
 
-tasks.check {
-    dependsOn("koverThresholdCheck")
-}
+tasks.check { dependsOn("koverThresholdCheck") }
 
 gradlePlugin {
     plugins {
@@ -429,7 +432,6 @@ publishing {
 }
 
 signing {
-    val isReleaseVersion = !version.toString().endsWith("-SNAPSHOT")
-    if (isReleaseVersion) sign(publishing.publications)
+    if (!version.toString().endsWith("-SNAPSHOT")) sign(publishing.publications)
     useGpgCmd()
 }
