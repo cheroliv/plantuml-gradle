@@ -238,14 +238,14 @@ tasks.named<Test>("test") {
 }
 
 configurations {
-    // Exclure logback-classic du classpath de test
+    // Exclude logback-classic from test classpath
     named("testRuntimeClasspath") {
         exclude(group = "ch.qos.logback", module = "logback-classic")
     }
     named("testImplementation") {
         exclude(group = "ch.qos.logback", module = "logback-classic")
     }
-    // Exclure logback-classic du classpath de functionalTest
+    // Exclude logback-classic from functionalTest classpath
     named(functionalTest.runtimeClasspathConfigurationName) {
         exclude(group = "ch.qos.logback", module = "logback-classic")
     }
