@@ -64,15 +64,15 @@ dependencies {
 
 configurations.all {
     resolutionStrategy {
-        // Force la version de Groovy utilisée par Gradle
+        // Force Groovy version used by Gradle
         force(libs.groovy)
         force(libs.groovy.nio)
     }
 }
 
-// Exclure les dépendances Groovy conflictuelles uniquement pour certaines configurations
+// Exclude conflicting Groovy dependencies only for certain configurations
 configurations.configureEach {
-    // Ne pas exclure pour testImplementation car cela peut casser les tests
+    // Do not exclude for testImplementation as it may break tests
     if (name != "testImplementation" && name != "testRuntimeOnly") {
         exclude(group = "org.codehaus.groovy")
     }
@@ -81,8 +81,8 @@ configurations.configureEach {
 
 tasks.withType<Test> {
     useJUnitPlatform {
-        // Les tests @Tag("real-llm") sont exclus par défaut.
-        // Pour les activer : ./gradlew test -Ptest.tags="real-llm"
+        // Tests @Tag("real-llm") are excluded by default.
+        // To enable them: ./gradlew test -Ptest.tags="real-llm"
         val runRealLlm = project.findProperty("test.tags")
             ?.toString()
             ?.contains("real-llm") == true
@@ -91,12 +91,12 @@ tasks.withType<Test> {
             excludeTags("real-llm")
         }
 
-        // Timeout global par test — évite qu'un GradleRunner reste bloqué
-        // si Ollama ne répond pas (couvert par WireMock dans les tests unitaires)
+        // Global timeout per test — prevents GradleRunner from hanging
+        // if Ollama doesn't respond (covered by WireMock in unit tests)
         timeout.set(Duration.ofSeconds(30))
 
-        // Exécution parallèle des classes de test (les nested partagent leur état
-        // via companion object, donc la parallélisation est au niveau classe)
+        // Parallel execution of test classes (nested classes share their state
+        // via companion object, so parallelization is at class level)
         maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
 
     }
@@ -105,22 +105,22 @@ tasks.withType<Test> {
         showStandardStreams = true
     }
 
-    // OPTIMISATION : 1 seul worker JVM pour maximiser le partage
-    // Les nested classes partagent WireMock + GradleRunner + sharedProjectDir
-    // via le companion object de PlantumlFunctionalSuite
-    maxParallelForks = 1 // ← 1 seule JVM : réutilisation maximale
-    forkEvery = 0 // ← Ne jamais redémarrer le worker (0 = illimité)
+    // OPTIMIZATION: Single JVM worker to maximize sharing
+    // Nested classes share WireMock + GradleRunner + sharedProjectDir
+    // via the PlantumlFunctionalSuite companion object
+    maxParallelForks = 1 // ← Single JVM: maximum reuse
+    forkEvery = 0 // ← Never restart the worker (0 = unlimited)
 
-    // Timeout stricte pour éviter les blocages
+    // Strict timeout to prevent blocking
     timeout.set(Duration.ofSeconds(60))
 
-    // Réutilisation des sorties pour accélérer les exécutions
+    // Reuse outputs to speed up executions
     outputs.cacheIf { true }
 
-    // Options JVM optimisées pour les tests
-    jvmArgs("-XX:+UseSerialGC") // GC plus rapide pour les tests courts
-    jvmArgs("-XX:MaxMetaspaceSize=256m") // Limite mémoire plus stricte
-    jvmArgs("-XX:TieredStopAtLevel=1") // Désactiver JIT pour démarrage rapide
+    // JVM options optimized for tests
+    jvmArgs("-XX:+UseSerialGC") // Faster GC for short tests
+    jvmArgs("-XX:MaxMetaspaceSize=256m") // Stricter memory limit
+    jvmArgs("-XX:TieredStopAtLevel=1") // Disable JIT for fast startup
 }
 
 tasks.named<Test>("test") {
@@ -133,25 +133,25 @@ tasks.named<Test>("test") {
 }
 
 
-// 1. Créer le SourceSet functionalTest
+// 1. Create the functionalTest SourceSet
 val functionalTest: SourceSet by sourceSets.creating {
     java.srcDirs("src/functionalTest/kotlin")
     resources.srcDirs("src/functionalTest/resources")
 }
 
-// 2. Ajouter GradleTestKit à functionalTest (SANS hériter de testImplementation)
+// 2. Add GradleTestKit to functionalTest (WITHOUT inheriting from testImplementation)
 dependencies {
     add(functionalTest.implementationConfigurationName, gradleTestKit())
     add(functionalTest.implementationConfigurationName, kotlin("stdlib-jdk8"))
     add(functionalTest.implementationConfigurationName, kotlin("test"))
     add(functionalTest.implementationConfigurationName, kotlin("test-junit5"))
 
-    // Ajouter les dépendances nécessaires explicitement
+    // Add required dependencies explicitly
     add(functionalTest.implementationConfigurationName, "org.slf4j:slf4j-api:2.0.17")
     add(functionalTest.runtimeOnlyConfigurationName, "ch.qos.logback:logback-classic:1.5.26")
     add(functionalTest.runtimeOnlyConfigurationName, "org.junit.platform:junit-platform-launcher")
 
-    // CORRECTION: Ajouter AssertJ pour les assertions
+    // CORRECTION: Add AssertJ for assertions
     add(functionalTest.implementationConfigurationName, libs.assertj.core)
 
     // Ajouter Mockito si nécessaire
@@ -164,18 +164,18 @@ dependencies {
         add(functionalTest.implementationConfigurationName, dep)
     }
 
-    // CORRECTION: Ajouter LangChain4j pour accéder aux classes ChatModel
+    // CORRECTION: Add LangChain4j to access ChatModel classes
     add(functionalTest.implementationConfigurationName, libs.langchain4j)
     add(functionalTest.implementationConfigurationName, libs.langchain4j.ollama)
 
-    // CORRECTION: Ajouter la dépendance vers le code source principal pour accéder aux classes du plugin
+    // CORRECTION: Add dependency to main source code to access plugin classes
     add(functionalTest.implementationConfigurationName, sourceSets.main.get().output)
 
     // Add testcontainers for RAG integration tests
     add(functionalTest.implementationConfigurationName, libs.testcontainers.pg)
 }
 
-// 3. Tâche pour les tests fonctionnels
+// 3. Task for functional tests
 val functionalTestTask = tasks.register<Test>("functionalTest") {
     description = "Runs functional tests."
     group = "verification"
@@ -189,14 +189,14 @@ val functionalTestTask = tasks.register<Test>("functionalTest") {
     }
     failOnNoDiscoveredTests = false
 
-    // Timeout pour les tests fonctionnels - les mocks WireMock évitent les appels réseau réels
+    // Timeout for functional tests - WireMock mocks prevent real network calls
     timeout.set(Duration.ofMinutes(5))
 
-    // Ajouter des propriétés système pour les tests de permissions
+    // Add system properties for permission tests
     systemProperty("test.timeout.multiplier", "2")
 
-    // OPTIMISATION : Tests en parallèle pour réduire temps d'exécution
-    // Les tests sont isolés avec @TempDir, pas d'état partagé entre classes
+    // OPTIMIZATION: Parallel tests to reduce execution time
+    // Tests are isolated with @TempDir, no shared state between classes
     maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
     forkEvery = 0
     jvmArgs("-XX:+UseSerialGC")
@@ -204,19 +204,19 @@ val functionalTestTask = tasks.register<Test>("functionalTest") {
     jvmArgs("-XX:TieredStopAtLevel=1")
 }
 
-// CORRECTION: Gérer les duplications de ressources pour functionalTest
+// CORRECTION: Handle resource duplications for functionalTest
 tasks.named<ProcessResources>(functionalTest.processResourcesTaskName) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
-// 4. Configurer les sources sets pour Cucumber (test standard)
+// 4. Configure source sets for Cucumber (standard test)
 sourceSets.test {
     resources.srcDir("src/test/features")
     java.srcDir("src/test/scenarios")  // Steps dans scenarios/
 }
 
 
-// 5. Faire hériter testImplementation de functionalTest (pas l'inverse !)
+// 5. Make testImplementation inherit from functionalTest (not the other way around!)
 configurations.named("testImplementation").configure {
     extendsFrom(configurations.named(functionalTest.implementationConfigurationName).get())
 }
@@ -225,12 +225,12 @@ configurations.named("testRuntimeOnly").configure {
     extendsFrom(configurations.named(functionalTest.runtimeOnlyConfigurationName).get())
 }
 
-// 6. Ajouter les classes compilées de functionalTest au classpath de test
+// 6. Add compiled functionalTest classes to test classpath
 dependencies {
     testImplementation(functionalTest.output)
 }
 
-// Configuration spécifique pour les tests de plugin
+// Specific configuration for plugin tests
 tasks.named<Test>("test") {
     // Ajouter le jar du plugin au classpath des tests
     classpath += files(tasks.named("jar"))
@@ -253,7 +253,7 @@ configurations {
     }
 }
 
-// 7. Tâche dédiée aux tests Cucumber
+// 7. Task dedicated to Cucumber tests
 val cucumberTest = tasks.register<Test>("cucumberTest") {
     description = "Runs Cucumber BDD tests"
     group = "verification"
@@ -262,8 +262,8 @@ val cucumberTest = tasks.register<Test>("cucumberTest") {
             sourceSets.test.get().output +
             sourceSets.main.get().output
     useJUnitPlatform {
-        // CORRECTION: Ne pas filtrer par tag ici, ça filtre les engines JUnit
-        // Le filtrage des scénarios Cucumber se fait dans le runner via FILTER_TAGS_PROPERTY_NAME
+        // CORRECTION: Do not filter by tag here, it filters JUnit engines
+        // Cucumber scenario filtering is done in the runner via FILTER_TAGS_PROPERTY_NAME
         excludeEngines("junit-jupiter")
     }
     systemProperty("cucumber.junit-platform.naming-strategy", "long")
@@ -273,19 +273,19 @@ val cucumberTest = tasks.register<Test>("cucumberTest") {
         exceptionFormat = FULL
     }
     outputs.upToDateWhen { false }
-    // S'assurer que main est compilé avant
+    // Ensure main is compiled before
     dependsOn(tasks.classes)
 
-    // OPTIMISATION : 1 seul worker JVM pour les tests Cucumber
-    maxParallelForks = 1 // ← 1 seule JVM pour état partagé
-    forkEvery = 0 // ← Ne jamais redémarrer le worker
+    // OPTIMIZATION: Single JVM worker for Cucumber tests
+    maxParallelForks = 1 // ← Single JVM for shared state
+    forkEvery = 0 // ← Never restart the worker
     jvmArgs("-XX:+UseSerialGC")
     jvmArgs("-XX:MaxMetaspaceSize=256m")
     jvmArgs("-XX:TieredStopAtLevel=1")
 }
 
 tasks.withType<Test>().configureEach {
-    // Permet de masquer l'avertissement relatif au chargement dynamique d'agents
+    // Allows hiding the warning about dynamic agent loading
     jvmArgs("-XX:+EnableDynamicAgentLoading")
 }
 
@@ -297,9 +297,9 @@ tasks.check {
 kover {
     currentProject {
         sources {
-            // Inclure main + functionalTest dans la couverture
-            // Par défaut, Kover inclut déjà 'main' et exclut 'test'
-            // On ajoute explicitement functionalTest
+            // Include main + functionalTest in coverage
+            // By default, Kover already includes 'main' and excludes 'test'
+            // We explicitly add functionalTest
             includedSourceSets.addAll("main", "functionalTest")
         }
     }
