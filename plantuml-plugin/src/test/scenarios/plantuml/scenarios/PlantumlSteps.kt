@@ -45,8 +45,8 @@ class PlantumlSteps(private val world: PlantumlWorld) {
     fun runProcessPlantumlPromptsTask() = runBlocking {
         val properties = mutableMapOf<String, String>()
         world.mockServerPort?.let {
-            properties["plantuml.langchain.model"] = "ollama"
-            properties["plantuml.langchain.ollama.baseUrl"] = "http://localhost:$it"
+            properties["plantuml.langchain4j.model"] = "ollama"
+            properties["plantuml.langchain4j.ollama.baseUrl"] = "http://localhost:$it"
         }
 
         world.executeGradle("processPlantumlPrompts", properties = properties)
@@ -56,10 +56,10 @@ class PlantumlSteps(private val world: PlantumlWorld) {
     fun runProcessPlantumlPromptsTaskWithMaxIterations(maxIterations: Int) = runBlocking {
         val properties = mutableMapOf<String, String>()
         world.mockServerPort?.let {
-            properties["plantuml.langchain.model"] = "ollama"
-            properties["plantuml.langchain.ollama.baseUrl"] = "http://localhost:$it"
+            properties["plantuml.langchain4j.model"] = "ollama"
+            properties["plantuml.langchain4j.ollama.baseUrl"] = "http://localhost:$it"
         }
-        properties["plantuml.langchain.maxIterations"] = maxIterations.toString()
+        properties["plantuml.langchain4j.maxIterations"] = maxIterations.toString()
 
         world.executeGradle("processPlantumlPrompts", properties = properties)
     }

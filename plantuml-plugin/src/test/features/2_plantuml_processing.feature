@@ -2,9 +2,9 @@ Feature: PlantUML Processing
 
   Scenario: Process valid prompt file with mock LLM
     Given a prompt file "simple-diagram.prompt" with content "Create a simple user diagram"
-#    And a mock LLM that returns a valid PlantUML diagram
-#    When I run processPlantumlPrompts task
-#    Then a PlantUML diagram should be generated
+    And a mock LLM that returns a valid PlantUML diagram
+    When I run processPlantumlPrompts task
+    Then a PlantUML diagram should be generated
 #    And a PNG image should be created
 #    And the prompt file should be deleted
 
