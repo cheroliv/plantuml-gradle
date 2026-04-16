@@ -5,7 +5,7 @@
 :icons: font
 :lang: en
 :hardbreaks-option:
-:plugin-version: 1.2026.0
+:plugin-version: 0.0.0
 
 ++++
 <p align="right">
@@ -69,24 +69,26 @@ plantuml-gradle/
 === Internal Architecture
 
 [plantuml, target=internal-architecture, format=svg]
-....
+----
 @startuml
+skinparam packageStyle rectangle
+
 package "PlantUML Plugin" {
   [PlantumlPlugin] as plugin
   [PlantumlExtension] as extension
   [PlantumlManager] as manager
-  
+
   package "Tasks" {
     [ProcessPlantumlPromptsTask] as processTask
     [ValidatePlantumlSyntaxTask] as validateTask
     [ReindexPlantumlRagTask] as reindexTask
   }
-  
+
   package "Services" {
     [PlantumlService] as service
     [DiagramProcessor] as processor
   }
-  
+
   plugin --> extension : configures
   plugin --> manager : delegates logic
   manager --> processTask : registers
@@ -98,16 +100,18 @@ package "PlantUML Plugin" {
   processor --> service : uses
 }
 
-note top of PlantumlPlugin
+note top of plugin
   Main plugin class that applies
   the extension and registers tasks
 end note
 
-note bottom of DiagramProcessor
+note bottom of processor
   Core processing logic for LLM
   interaction and diagram refinement
 end note
-....
+
+@enduml
+----
 
 == Key Technical Decisions
 
