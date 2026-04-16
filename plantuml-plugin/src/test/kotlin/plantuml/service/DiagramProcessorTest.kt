@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.Mockito.*
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import plantuml.PlantumlCode
 import plantuml.PlantumlDiagram
 import plantuml.ValidationFeedback
@@ -14,7 +16,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class DiagramProcessorTest {
-
+    val logger: Logger = LoggerFactory.getLogger(DiagramProcessorTest::class.java)
     private lateinit var mockPlantumlService: PlantumlService
     private lateinit var diagramProcessor: DiagramProcessor
 
@@ -32,7 +34,7 @@ class DiagramProcessorTest {
         setupValidSyntaxMock()
 
         // When
-        val result = diagramProcessor.processPrompt(prompt)
+        val result = diagramProcessor.processPrompt(prompt = prompt, logger = logger)
 
         // Then
         assertNotNull(result)
@@ -48,18 +50,18 @@ class DiagramProcessorTest {
     @ValueSource(ints = [1, 2])
     fun `should handle syntax validation scenarios`(iterations: Int) {
         when (iterations) {
-            1 -> testMaxIterationsExceeded()
-            2 -> testIterateOnSyntaxErrors()
+            1 -> logger.testMaxIterationsExceeded()
+            2 -> logger.testIterateOnSyntaxErrors()
         }
     }
 
-    private fun testIterateOnSyntaxErrors() {
+    private fun Logger.testIterateOnSyntaxErrors() {
         // Given
         val prompt = "Create a user diagram"
         setupInvalidThenValidSyntaxMock()
 
         // When
-        val result = diagramProcessor.processPrompt(prompt, maxIterations = 2)
+        val result = diagramProcessor.processPrompt(prompt, maxIterations = 2, this)
 
         // Then
         assertNotNull(result)
@@ -68,13 +70,13 @@ class DiagramProcessorTest {
         assertTrue(result.conversation.any { it.contains("->") })
     }
 
-    private fun testMaxIterationsExceeded() {
+    private fun Logger.testMaxIterationsExceeded() {
         // Given
         val prompt = "Create a user diagram"
         setupInvalidSyntaxMock()
 
         // When
-        val result = diagramProcessor.processPrompt(prompt, maxIterations = 1)
+        val result = diagramProcessor.processPrompt(prompt, maxIterations = 1, this)
 
         // Then
         assertNull(result)

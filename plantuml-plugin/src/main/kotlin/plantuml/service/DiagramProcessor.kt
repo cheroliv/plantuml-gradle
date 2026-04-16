@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import dev.langchain4j.model.chat.ChatModel
+import org.slf4j.Logger
 import plantuml.PlantumlCode
 import plantuml.PlantumlConfig
 import plantuml.PlantumlDiagram
@@ -78,7 +79,7 @@ class DiagramProcessor(
      * @return A [PlantumlDiagram] with conversation history and valid code,
      *         or null if all iterations fail
      */
-    fun processPrompt(prompt: String, maxIterations: Int = 5): PlantumlDiagram? {
+    fun processPrompt(prompt: String, maxIterations: Int = 5, logger: Logger): PlantumlDiagram? {
         // Initialize attempt history
         val attemptHistory = mutableListOf<AttemptEntry>()
 
@@ -127,7 +128,7 @@ class DiagramProcessor(
             }
 
             // Archive attempt history for failed generations
-            archiveAttemptHistory(attemptHistory)
+            archiveAttemptHistory(attemptHistory, logger)
             return null
         }
 
@@ -185,7 +186,7 @@ class DiagramProcessor(
         } while (iterations < maxIterations)
 
         // Archive the full history for RAG training regardless of success or failure
-        archiveAttemptHistory(attemptHistory)
+        archiveAttemptHistory(attemptHistory, logger)
 
         if (validationResult is SyntaxValidationResult.Valid) {
             return PlantumlDiagram(
@@ -229,7 +230,7 @@ class DiagramProcessor(
      *
      * @param history Complete list of [AttemptEntry] from prompt processing
      */
-    private fun archiveAttemptHistory(history: List<AttemptEntry>) {
+    private fun archiveAttemptHistory(history: List<AttemptEntry>, logger: Logger) {
         // Only archive if there were multiple attempts (indicating corrections were needed)
         if (history.size > 1) {
             try {
@@ -239,7 +240,7 @@ class DiagramProcessor(
                 } else {
                     config?.output?.rag ?: "generated/rag"
                 }
-                
+
                 // In a real implementation, this would save the history to a training data directory
                 val ragTrainingDir = File(baseDir)
                 if (!ragTrainingDir.exists()) {
@@ -255,9 +256,10 @@ class DiagramProcessor(
                 val historyJson = convertHistoryToJson(history)
                 historyFile.writeText(historyJson)
 
-                println("Archived attempt history with ${history.size} entries to ${historyFile.absolutePath}")
+                logger.info("Archived attempt history with ${history.size} entries to ${historyFile.absolutePath}")
+
             } catch (e: Exception) {
-                println("Failed to archive attempt history: ${e.message}")
+                logger.warn("Failed to archive attempt history: ${e.message}")
                 // Don't throw the exception to avoid failing the task
             }
         }

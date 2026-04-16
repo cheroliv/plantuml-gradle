@@ -47,7 +47,7 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
 
     init {
         group = "plantuml"
-        description = "processPlantumlPrompts"
+        description = "Process PlantUML prompts and generate diagrams with LLM assistance"
     }
 
     /**
@@ -167,7 +167,7 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
         val maxIterations = project.findProperty("plantuml.langchain4j.maxIterations") as? Int
             ?: config.langchain4j.maxIterations
 
-        val diagram = diagramProcessor.processPrompt(promptContent, maxIterations)
+        val diagram = diagramProcessor.processPrompt(promptContent, maxIterations,logger)
 
         if (diagram != null) {
             // Validate PlantUML syntax

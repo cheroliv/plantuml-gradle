@@ -3,6 +3,8 @@ package plantuml.service
 import dev.langchain4j.model.chat.ChatModel
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import plantuml.PlantumlConfig
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -18,6 +20,7 @@ import kotlin.test.assertTrue
  * - while (iterations < maxIterations)
  */
 class DiagramProcessorErrorHandlingTest {
+    val logger: Logger = LoggerFactory.getLogger(DiagramProcessorErrorHandlingTest::class.java)
 
     @Test
     fun `should handle invalid response from ChatModel and retry with correction prompt`() {
@@ -42,14 +45,14 @@ class DiagramProcessorErrorHandlingTest {
         `when`(mockLangchainConfig.validationPrompt).thenReturn("Validate this PlantUML")
 
         val processor = DiagramProcessor(mockPlantumlService, mockChatModel, mockConfig)
-        val result = processor.processPrompt("Test prompt with error handling")
+        val result = processor.processPrompt("Test prompt with error handling", logger = logger)
 
         // Verify: ChatModel was called 2 times (initial + correction)
         verify(mockChatModel, times(2)).chat(anyString())
-        
+
         // Verify: validation was called 2 times
         verify(mockPlantumlService, times(2)).validateSyntax(anyString())
-        
+
         assertNotNull(result)
         assertTrue(result.conversation.isNotEmpty())
     }
@@ -78,11 +81,14 @@ class DiagramProcessorErrorHandlingTest {
         `when`(mockLangchainConfig.validationPrompt).thenReturn("Validate this")
 
         val processor = DiagramProcessor(mockPlantumlService, mockChatModel, mockConfig)
-        val result = processor.processPrompt("Test with multiple corrections")
+        val result = processor.processPrompt(
+            prompt = "Test with multiple corrections",
+            logger = logger
+        )
 
         // Verify: ChatModel was called 3 times
         verify(mockChatModel, times(3)).chat(anyString())
-        
+
         assertNotNull(result)
         assertTrue(result.conversation.size >= 3)
     }
@@ -105,11 +111,14 @@ class DiagramProcessorErrorHandlingTest {
         `when`(mockLangchainConfig.validationPrompt).thenReturn("Validate this")
 
         val processor = DiagramProcessor(mockPlantumlService, mockChatModel, mockConfig)
-        val result = processor.processPrompt("Test that always fails", maxIterations = 2)
+        val result = processor.processPrompt(
+            "Test that always fails", maxIterations = 2,
+            logger = logger
+        )
 
         // Verify: ChatModel was called 3 times (1 initial + 2 retries)
         verify(mockChatModel, times(3)).chat(anyString())
-        
+
         assertNull(result, "Should return null after maxIterations")
     }
 
@@ -137,11 +146,14 @@ class DiagramProcessorErrorHandlingTest {
         `when`(mockLangchainConfig.validationPrompt).thenReturn("Validate this")
 
         val processor = DiagramProcessor(mockPlantumlService, mockChatModel, mockConfig)
-        val result = processor.processPrompt("Test with history context")
+        val result = processor.processPrompt(
+            "Test with history context",
+            logger = logger
+        )
 
         // Verify: ChatModel was called 3 times, including correction prompts with history
         verify(mockChatModel, times(3)).chat(anyString())
-        
+
         assertNotNull(result)
         assertTrue(result.conversation.size >= 3)
     }
@@ -167,7 +179,10 @@ class DiagramProcessorErrorHandlingTest {
         `when`(mockLangchainConfig.validationPrompt).thenReturn("Validate this")
 
         val processor = DiagramProcessor(mockPlantumlService, mockChatModel, mockConfig)
-        val result = processor.processPrompt("Test with archiving")
+        val result = processor.processPrompt(
+            prompt = "Test with archiving",
+            logger = logger
+        )
 
         assertNotNull(result)
         // History should be archived because there were multiple attempts
@@ -183,9 +198,9 @@ class DiagramProcessorErrorHandlingTest {
 
         `when`(mockConfig.langchain4j).thenReturn(mockLangchainConfig)
         `when`(mockLangchainConfig.validationPrompt).thenReturn("Custom validation prompt")
-        
+
         val processor = DiagramProcessor(mockPlantumlService, mockChatModel, mockConfig)
-        
+
         val diagram = plantuml.PlantumlDiagram(
             conversation = listOf("Test"),
             plantuml = plantuml.PlantumlCode(
@@ -193,9 +208,9 @@ class DiagramProcessorErrorHandlingTest {
                 description = "Test"
             )
         )
-        
+
         val result = processor.validateDiagram(diagram)
-        
+
         assertNotNull(result)
     }
 }

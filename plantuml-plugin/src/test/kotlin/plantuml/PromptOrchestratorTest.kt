@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.api.io.TempDir
 import org.mockito.Mockito.*
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import plantuml.service.DiagramProcessor
 import plantuml.service.LlmService
 import plantuml.service.PlantumlService
@@ -30,6 +32,8 @@ import kotlin.test.assertTrue
  *    without starting a real model. Execution: < 50 ms per test.
  */
 class PromptOrchestratorTest {
+
+    val logger: Logger = LoggerFactory.getLogger(PromptOrchestratorTest::class.java)
 
     @TempDir
     lateinit var tempDir: File
@@ -59,7 +63,7 @@ class PromptOrchestratorTest {
 
         @Test
         fun `should report no prompts when directory is missing`() {
-            val result = orchestrator.process()
+            val result = orchestrator.process(logger)
 
             assertEquals(0, result.totalPrompts)
             assertTrue(result.messages.any { it.contains("No prompts directory found") })
@@ -70,7 +74,7 @@ class PromptOrchestratorTest {
         fun `should report no prompts when directory is empty`() {
             File(tempDir, "prompts").mkdirs()
 
-            val result = orchestrator.process()
+            val result = orchestrator.process(logger)
 
             assertEquals(0, result.totalPrompts)
             assertTrue(result.messages.any { it.contains("No prompt files found") })
@@ -82,10 +86,10 @@ class PromptOrchestratorTest {
             File(promptsDir, "a.prompt").writeText("Create diagram A")
             File(promptsDir, "b.prompt").writeText("Create diagram B")
 
-            `when`(mockProcessor.processPrompt(anyString(), anyInt()))
+            `when`(mockProcessor.processPrompt(anyString(), anyInt(), logger))
                 .thenReturn(fakeDiagram())
 
-            val result = orchestrator.process()
+            val result = orchestrator.process(logger)
 
             assertEquals(2, result.totalPrompts)
             assertEquals(2, result.succeeded)
@@ -97,10 +101,10 @@ class PromptOrchestratorTest {
             val promptsDir = File(tempDir, "prompts").also { it.mkdirs() }
             File(promptsDir, "bad.prompt").writeText("impossible prompt")
 
-            `when`(mockProcessor.processPrompt(anyString(), anyInt()))
+            `when`(mockProcessor.processPrompt(anyString(), anyInt(),logger))
                 .thenReturn(null)
 
-            val result = orchestrator.process()
+            val result = orchestrator.process(logger)
 
             assertEquals(1, result.totalPrompts)
             assertEquals(0, result.succeeded)
@@ -114,10 +118,10 @@ class PromptOrchestratorTest {
             File(promptsDir, "blank.prompt").writeText("   \n  ")
             File(promptsDir, "valid.prompt").writeText("Create a class diagram")
 
-            `when`(mockProcessor.processPrompt(anyString(), anyInt()))
+            `when`(mockProcessor.processPrompt(anyString(), anyInt(),logger))
                 .thenReturn(fakeDiagram())
 
-            val result = orchestrator.process()
+            val result = orchestrator.process(logger)
 
             assertEquals(2, result.totalPrompts)
             assertTrue(result.messages.any { it.contains("Skipping empty prompt") })
@@ -128,10 +132,10 @@ class PromptOrchestratorTest {
             val promptsDir = File(tempDir, "prompts").also { it.mkdirs() }
             File(promptsDir, "test.prompt").writeText("Create a class diagram")
 
-            `when`(mockProcessor.processPrompt(anyString(), anyInt()))
+            `when`(mockProcessor.processPrompt(anyString(), anyInt(),logger))
                 .thenReturn(fakeDiagram("@startuml\nclass Generated\n@enduml"))
 
-            orchestrator.process()
+            orchestrator.process(logger)
 
             val outputFile = File(tempDir, "generated/diagrams/test.puml")
             assertTrue(outputFile.exists(), "Output .puml file should be created")
@@ -148,10 +152,10 @@ class PromptOrchestratorTest {
             )
             val orch = PromptOrchestrator(configNoValidation, mockProcessor, mockPlantumlService, tempDir.toPath())
 
-            `when`(mockProcessor.processPrompt(anyString(), anyInt()))
+            `when`(mockProcessor.processPrompt(anyString(), anyInt(),logger))
                 .thenReturn(fakeDiagram())
 
-            orch.process()
+            orch.process(logger)
 
             verifyNoInteractions(mockPlantumlService)
         }
@@ -213,7 +217,7 @@ class PromptOrchestratorTest {
             val promptsDir = File(tempDir, "prompts").also { it.mkdirs() }
             File(promptsDir, "test.prompt").writeText("Create a simple class diagram")
 
-            val result = orchestrator.process()
+            val result = orchestrator.process(logger)
 
             // At least one attempt was made to WireMock
             wireMock.verify(1, postRequestedFor(urlEqualTo("/api/chat")))
@@ -230,7 +234,7 @@ class PromptOrchestratorTest {
             val promptsDir = File(tempDir, "prompts").also { it.mkdirs() }
             File(promptsDir, "test.prompt").writeText("A diagram")
 
-            val result = orchestrator.process()
+            val result = orchestrator.process(logger)
 
             // No success possible if LLM returns 503
             assertTrue(result.succeeded == 0 || result.failed > 0 || result.messages.any { it.contains("Could not generate") })
@@ -241,7 +245,7 @@ class PromptOrchestratorTest {
             val promptsDir = File(tempDir, "prompts").also { it.mkdirs() }
             File(promptsDir, "test.prompt").writeText("A diagram")
 
-            orchestrator.process()
+            orchestrator.process(logger)
 
             wireMock.verify(
                 postRequestedFor(urlEqualTo("/api/chat"))

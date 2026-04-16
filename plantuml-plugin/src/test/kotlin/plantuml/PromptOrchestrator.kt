@@ -1,5 +1,6 @@
 package plantuml
 
+import org.slf4j.Logger
 import plantuml.service.DiagramProcessor
 import plantuml.service.PlantumlService
 import java.io.File
@@ -29,7 +30,7 @@ class PromptOrchestrator(
         val messages: List<String>,
     )
 
-    fun process(): ProcessingResult {
+    fun process(logger: Logger): ProcessingResult {
         val promptsDir = projectDir.resolve(config.input.prompts).toFile()
 
         if (!promptsDir.exists() || !promptsDir.isDirectory) {
@@ -63,7 +64,7 @@ class PromptOrchestrator(
 
         promptFiles.forEach { promptFile ->
             runCatching {
-                val result = processOnePrompt(promptFile, messages)
+                val result = processOnePrompt(promptFile, messages,logger)
                 when (result) {
                     ProcessResult.SUCCESS -> succeeded++
                     ProcessResult.SKIPPED -> skipped++
@@ -84,7 +85,7 @@ class PromptOrchestrator(
         )
     }
 
-    private fun processOnePrompt(promptFile: File, messages: MutableList<String>): ProcessResult {
+    private fun processOnePrompt(promptFile: File, messages: MutableList<String>, logger: Logger): ProcessResult {
         val promptText = promptFile.readText().trim()
         if (promptText.isBlank()) {
             messages += "Skipping empty prompt: ${promptFile.name}"
@@ -94,6 +95,7 @@ class PromptOrchestrator(
         val diagram = diagramProcessor.processPrompt(
             prompt = promptText,
             maxIterations = config.langchain4j.maxIterations,
+            logger = logger
         ) ?: run {
             messages += "Could not generate valid diagram for: ${promptFile.name}"
             return ProcessResult.SKIPPED

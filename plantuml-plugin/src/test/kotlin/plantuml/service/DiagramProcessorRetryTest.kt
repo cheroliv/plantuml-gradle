@@ -1,10 +1,9 @@
 package plantuml.service
 
 import org.junit.jupiter.api.Test
+import org.slf4j.LoggerFactory
 import org.mockito.Mockito.*
-import plantuml.PlantumlCode
-import plantuml.PlantumlDiagram
-import kotlin.test.assertEquals
+import org.slf4j.Logger
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -14,6 +13,7 @@ import kotlin.test.assertTrue
  * Cible : boucles do-while avec itérations multiples (lignes 59-82, 115-150)
  */
 class DiagramProcessorRetryTest {
+    private val logger: Logger = LoggerFactory.getLogger(DiagramProcessorRetryTest::class.java)
 
     @Test
     fun `processPrompt should handle multiple retry iterations before success`() {
@@ -24,7 +24,7 @@ class DiagramProcessorRetryTest {
             .thenReturn(PlantumlService.SyntaxValidationResult.Valid)
 
         val processor = DiagramProcessor(mockPlantumlService, null, null)
-        val result = processor.processPrompt("Test prompt with retries")
+        val result = processor.processPrompt("Test prompt with retries", logger = logger)
 
         assertNotNull(result)
         assertTrue(result.conversation.size >= 3, "Devrait avoir au moins 3 tentatives")
@@ -37,7 +37,7 @@ class DiagramProcessorRetryTest {
             .thenReturn(PlantumlService.SyntaxValidationResult.Invalid("Always invalid", "stack"))
 
         val processor = DiagramProcessor(mockPlantumlService, null, null)
-        val result = processor.processPrompt("Test prompt that always fails", maxIterations = 3)
+        val result = processor.processPrompt("Test prompt that always fails", maxIterations = 3, logger = logger)
 
         assertNull(result, "Devrait retourner null après 3 itérations")
     }
@@ -49,7 +49,7 @@ class DiagramProcessorRetryTest {
             .thenReturn(PlantumlService.SyntaxValidationResult.Valid)
 
         val processor = DiagramProcessor(mockPlantumlService, null, null)
-        val result = processor.processPrompt("Test prompt with immediate success")
+        val result = processor.processPrompt("Test prompt with immediate success", logger = logger)
 
         assertNotNull(result)
         assertTrue(result.conversation.isNotEmpty(), "Devrait avoir au moins 1 tentative")
@@ -63,7 +63,7 @@ class DiagramProcessorRetryTest {
             .thenReturn(PlantumlService.SyntaxValidationResult.Valid)
 
         val processor = DiagramProcessor(mockPlantumlService, null, null)
-        val result = processor.processPrompt("Test with error tracking")
+        val result = processor.processPrompt("Test with error tracking", logger = logger)
 
         assertNotNull(result)
         assertTrue(result.conversation.isNotEmpty(), "Devrait avoir au moins 1 tentative")
@@ -77,7 +77,7 @@ class DiagramProcessorRetryTest {
             .thenReturn(PlantumlService.SyntaxValidationResult.Valid)
 
         val processor = DiagramProcessor(mockPlantumlService, null, null)
-        val result = processor.processPrompt("Test with multiple attempts")
+        val result = processor.processPrompt("Test with multiple attempts", logger = logger)
 
         assertNotNull(result)
         assertTrue(result.conversation.size >= 2, "Devrait avoir au moins 2 tentatives")
@@ -91,7 +91,10 @@ class DiagramProcessorRetryTest {
             .thenReturn(PlantumlService.SyntaxValidationResult.Valid)
 
         val processor = DiagramProcessor(mockPlantumlService, null, null)
-        val result = processor.processPrompt("Test prompt")
+        val result = processor.processPrompt(
+            "Test prompt",
+            logger = logger
+        )
 
         assertNotNull(result)
         assertTrue(result.plantuml.code.contains("@startuml"))
