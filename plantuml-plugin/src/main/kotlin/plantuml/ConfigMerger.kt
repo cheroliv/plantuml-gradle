@@ -72,16 +72,41 @@ object ConfigMerger {
                 maxIterations = props["plantuml.langchain4j.maxIterations"]?.toIntOrNull() ?: 5,
                 model = props["plantuml.langchain4j.model"] ?: "ollama",
                 validation = props["plantuml.langchain4j.validation"]?.toBoolean() ?: true,
+                validationPrompt = props["plantuml.langchain4j.validationPrompt"] ?: "Rate this diagram on clarity, completeness, and best practices. Return a JSON with 'score' (1-10) and 'feedback' (string) and 'recommendations' (array).",
                 ollama = OllamaConfig(
                     baseUrl = props["plantuml.langchain4j.ollama.baseUrl"] ?: "http://localhost:11434",
                     modelName = props["plantuml.langchain4j.ollama.modelName"] ?: "smollm:135m"
                 ),
-                gemini = ApiKeyConfig(apiKey = ""),
-                mistral = ApiKeyConfig(apiKey = ""),
-                openai = ApiKeyConfig(apiKey = ""),
-                claude = ApiKeyConfig(apiKey = ""),
-                huggingface = ApiKeyConfig(apiKey = ""),
-                groq = ApiKeyConfig(apiKey = "")
+                gemini = ApiKeyConfig(
+                    apiKey = props["plantuml.langchain4j.gemini.apiKey"] ?: "",
+                    baseUrl = props["plantuml.langchain4j.gemini.baseUrl"] ?: "",
+                    modelName = props["plantuml.langchain4j.gemini.modelName"] ?: ""
+                ),
+                mistral = ApiKeyConfig(
+                    apiKey = props["plantuml.langchain4j.mistral.apiKey"] ?: "",
+                    baseUrl = props["plantuml.langchain4j.mistral.baseUrl"] ?: "",
+                    modelName = props["plantuml.langchain4j.mistral.modelName"] ?: ""
+                ),
+                openai = ApiKeyConfig(
+                    apiKey = props["plantuml.langchain4j.openai.apiKey"] ?: "",
+                    baseUrl = props["plantuml.langchain4j.openai.baseUrl"] ?: "",
+                    modelName = props["plantuml.langchain4j.openai.modelName"] ?: ""
+                ),
+                claude = ApiKeyConfig(
+                    apiKey = props["plantuml.langchain4j.claude.apiKey"] ?: "",
+                    baseUrl = props["plantuml.langchain4j.claude.baseUrl"] ?: "",
+                    modelName = props["plantuml.langchain4j.claude.modelName"] ?: ""
+                ),
+                huggingface = ApiKeyConfig(
+                    apiKey = props["plantuml.langchain4j.huggingface.apiKey"] ?: "",
+                    baseUrl = props["plantuml.langchain4j.huggingface.baseUrl"] ?: "",
+                    modelName = props["plantuml.langchain4j.huggingface.modelName"] ?: ""
+                ),
+                groq = ApiKeyConfig(
+                    apiKey = props["plantuml.langchain4j.groq.apiKey"] ?: "",
+                    baseUrl = props["plantuml.langchain4j.groq.baseUrl"] ?: "",
+                    modelName = props["plantuml.langchain4j.groq.modelName"] ?: ""
+                )
             ),
             git = GitConfig(
                 userName = props["plantuml.git.userName"] ?: "github-actions[bot]",
@@ -131,12 +156,36 @@ object ConfigMerger {
                 baseUrl = cli["langchain4j.ollama.baseUrl"]?.toString() ?: (if (yaml.ollama.baseUrl != "http://localhost:11434") yaml.ollama.baseUrl else props.ollama.baseUrl),
                 modelName = cli["langchain4j.ollama.modelName"]?.toString() ?: (if (yaml.ollama.modelName != "smollm:135m") yaml.ollama.modelName else props.ollama.modelName)
             ),
-            gemini = yaml.gemini,
-            mistral = yaml.mistral,
-            openai = yaml.openai,
-            claude = yaml.claude,
-            huggingface = yaml.huggingface,
-            groq = yaml.groq
+            gemini = ApiKeyConfig(
+                apiKey = cli["langchain4j.gemini.apiKey"]?.toString() ?: (if (yaml.gemini.apiKey.isNotEmpty()) yaml.gemini.apiKey else props.gemini.apiKey),
+                baseUrl = cli["langchain4j.gemini.baseUrl"]?.toString() ?: (if (yaml.gemini.baseUrl.isNotEmpty()) yaml.gemini.baseUrl else props.gemini.baseUrl),
+                modelName = cli["langchain4j.gemini.modelName"]?.toString() ?: (if (yaml.gemini.modelName.isNotEmpty()) yaml.gemini.modelName else props.gemini.modelName)
+            ),
+            mistral = ApiKeyConfig(
+                apiKey = cli["langchain4j.mistral.apiKey"]?.toString() ?: (if (yaml.mistral.apiKey.isNotEmpty()) yaml.mistral.apiKey else props.mistral.apiKey),
+                baseUrl = cli["langchain4j.mistral.baseUrl"]?.toString() ?: (if (yaml.mistral.baseUrl.isNotEmpty()) yaml.mistral.baseUrl else props.mistral.baseUrl),
+                modelName = cli["langchain4j.mistral.modelName"]?.toString() ?: (if (yaml.mistral.modelName.isNotEmpty()) yaml.mistral.modelName else props.mistral.modelName)
+            ),
+            openai = ApiKeyConfig(
+                apiKey = cli["langchain4j.openai.apiKey"]?.toString() ?: (if (yaml.openai.apiKey.isNotEmpty()) yaml.openai.apiKey else props.openai.apiKey),
+                baseUrl = cli["langchain4j.openai.baseUrl"]?.toString() ?: (if (yaml.openai.baseUrl.isNotEmpty()) yaml.openai.baseUrl else props.openai.baseUrl),
+                modelName = cli["langchain4j.openai.modelName"]?.toString() ?: (if (yaml.openai.modelName.isNotEmpty()) yaml.openai.modelName else props.openai.modelName)
+            ),
+            claude = ApiKeyConfig(
+                apiKey = cli["langchain4j.claude.apiKey"]?.toString() ?: (if (yaml.claude.apiKey.isNotEmpty()) yaml.claude.apiKey else props.claude.apiKey),
+                baseUrl = cli["langchain4j.claude.baseUrl"]?.toString() ?: (if (yaml.claude.baseUrl.isNotEmpty()) yaml.claude.baseUrl else props.claude.baseUrl),
+                modelName = cli["langchain4j.claude.modelName"]?.toString() ?: (if (yaml.claude.modelName.isNotEmpty()) yaml.claude.modelName else props.claude.modelName)
+            ),
+            huggingface = ApiKeyConfig(
+                apiKey = cli["langchain4j.huggingface.apiKey"]?.toString() ?: (if (yaml.huggingface.apiKey.isNotEmpty()) yaml.huggingface.apiKey else props.huggingface.apiKey),
+                baseUrl = cli["langchain4j.huggingface.baseUrl"]?.toString() ?: (if (yaml.huggingface.baseUrl.isNotEmpty()) yaml.huggingface.baseUrl else props.huggingface.baseUrl),
+                modelName = cli["langchain4j.huggingface.modelName"]?.toString() ?: (if (yaml.huggingface.modelName.isNotEmpty()) yaml.huggingface.modelName else props.huggingface.modelName)
+            ),
+            groq = ApiKeyConfig(
+                apiKey = cli["langchain4j.groq.apiKey"]?.toString() ?: (if (yaml.groq.apiKey.isNotEmpty()) yaml.groq.apiKey else props.groq.apiKey),
+                baseUrl = cli["langchain4j.groq.baseUrl"]?.toString() ?: (if (yaml.groq.baseUrl.isNotEmpty()) yaml.groq.baseUrl else props.groq.baseUrl),
+                modelName = cli["langchain4j.groq.modelName"]?.toString() ?: (if (yaml.groq.modelName.isNotEmpty()) yaml.groq.modelName else props.groq.modelName)
+            )
         )
     }
 

@@ -1,4 +1,4 @@
-@wip @integration @llm
+@llm
 Feature: LLM Providers
 
   Background:
@@ -11,7 +11,7 @@ Feature: LLM Providers
     Then a PlantUML diagram should be generated
     And the generation should complete without API key
 
-  @llm @openai @integration
+  @llm @openai
   Scenario: Generate diagram with OpenAI
     Given OpenAI API key is configured
     And a prompt file "openai-test.prompt" with content "Create a sequence diagram"
@@ -19,7 +19,7 @@ Feature: LLM Providers
     Then a PlantUML diagram should be generated
     And the API usage should be logged
 
-  @llm @gemini @integration
+  @llm @gemini
   Scenario: Generate diagram with Google Gemini
     Given Gemini API key is configured
     And a prompt file "gemini-test.prompt" with content "Create a component diagram"
@@ -27,14 +27,14 @@ Feature: LLM Providers
     Then a PlantUML diagram should be generated
     And the response time should be under 10 seconds
 
-  @llm @mistral @integration
+  @llm @mistral
   Scenario: Generate diagram with Mistral AI
     Given Mistral API key is configured
     And a prompt file "mistral-test.prompt" with content "Create a use case diagram"
     When I run processPlantumlPrompts task with provider "mistral" and model "mistral-small-latest"
     Then a PlantUML diagram should be generated
 
-  @llm @claude @integration
+  @llm @claude
   Scenario: Generate diagram with Anthropic Claude
     Given Claude API key is configured
     And a prompt file "claude-test.prompt" with content "Create an activity diagram"

@@ -133,9 +133,13 @@ data class OllamaConfig(
  * API key configuration for cloud LLM providers.
  *
  * @property apiKey API key for the LLM provider (default: empty)
+ * @property baseUrl Base URL for the API (optional, for custom endpoints)
+ * @property modelName Model name to use (optional, for provider-specific models)
  */
 data class ApiKeyConfig(
-    val apiKey: String = ""
+    val apiKey: String = "",
+    val baseUrl: String = "",
+    val modelName: String = ""
 )
 
 /**

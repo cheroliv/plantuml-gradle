@@ -1,12 +1,14 @@
 # 📊 Index des Sessions — PlantUML Gradle Plugin
 
-**Dernière mise à jour** : 2026-04-16  
-**Session en cours** : 75  
+**Dernière mise à jour** : 2026-04-17  
+**Session en cours** : 86  
 **Score Roadmap actuel** : 9.0/10 ✅
 
 ---
 
-## ⚠️ RÈGLE ABSOLUE — COMMITS/GIT
+## ⚠️ RÈGLES ABSOLUES
+
+### 1. COMMITS/GIT
 
 **L'agent NE DOIT JAMAIS** exécuter de commit, push, merge, ou toute commande git modifiant l'historique **SANS permission explicite de l'utilisateur**.
 
@@ -18,6 +20,21 @@
 2. Demander : "Veux-tu que je commit ces changements ?"
 3. **Attendre confirmation explicite** ("oui", "commit", "vas-y")
 4. **Seulement après** : exécuter le commit
+
+### 2. TESTS EN FIN DE SESSION — INTERDICTION FORMELLE
+
+**L'agent NE DOIT JAMAIS** lancer de tests (`./gradlew test`, `./gradlew cucumberTest`, etc.) lors de la procédure de fin de session **SANS permission explicite de l'utilisateur**.
+
+- ✅ **Autorisé** : Résumer les résultats des tests déjà exécutés pendant la session
+- ❌ **Interdit** : Lancer `./gradlew cucumberTest` ou tout autre test en procédure de fin de session
+
+**Raison** : Les tests prennent 1-3 minutes et ralentissent inutilement la clôture de session. Si l'utilisateur veut voir les résultats, il/elle le demandera explicitement.
+
+**Procédure de fin de session** :
+1. Résumer les réalisations (fichiers créés/modifiés, scénarios passants)
+2. Mettre à jour PROMPT_REPRISE.md pour la session suivante
+3. Archiver le contexte dans `.agents/sessions/`
+4. **NE PAS lancer de tests** sauf demande explicite
 
 ---
 

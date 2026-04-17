@@ -1,87 +1,72 @@
-# 🔄 Prompt de reprise — Session 85
+# 🔄 Prompt de reprise — Session 86
 
 > **EPIC** : `EPIC_CONSOLIDATION_TESTS_FONCTIONNELS.md` — **EPIC Tests BDD Cucumber**  
-> **Statut** : Session 84 ✅ TERMINÉE — Phase 5 (Consolidation & Qualité) **100% COMPLÉTÉE**  
-> **Prochaine mission** : Session 85 — Phase 6 (RAG & LLM Providers)
+> **Statut** : Session 86 ✅ TERMINÉE — Phase 6 (RAG & LLM Providers) **100% COMPLÉTÉE**  
+> **Prochaine mission** : Session 87 — Phase 6 (Error Handling)
 
 ---
 
-## 📊 Session 84 — Résumé (✅ TERMINÉE)
+## 📊 Session 86 — Résumé (✅ TERMINÉE)
 
 **Date** : 17 avr. 2026  
-**Résultats** : **10/10 scénarios Cucumber passants (100%)** 🎉
+**Résultats** : **6/6 scénarios Cucumber passants (100%)** 🎉
 
-### Problèmes résolus
+### Refactorisation Majeure
 
-#### 1. Version du plugin codée en dur ❌ → dynamique ✅
-**Fichier** : `PlantumlWorld.kt:34-43`  
-**Avant** : `private val pluginVersion: String = "0.0.0"`  
-**Après** : Lecture depuis `gradle/libs.versions.toml` avec `lazy` + `check()` pour échec explicite
+**Problème** : `PlantumlSteps.kt` — 805 lignes, difficile à maintenir  
+**Solution** : Éclatement en 7 fichiers spécialisés
 
-```kotlin
-private val pluginVersion: String by lazy {
-    val projectRoot = File(System.getProperty("user.dir"))
-    val tomlFile = File(projectRoot, "gradle/libs.versions.toml")
-    check(tomlFile.exists()) { "Cannot find libs.versions.toml at ${tomlFile.absolutePath}" }
-    tomlFile.readLines()
-        .firstOrNull { it.startsWith("plantuml =") }
-        ?.substringAfter("=")
-        ?.trim()
-        ?.trim('"')
-        ?: throw IllegalStateException("Cannot find plantuml version in libs.versions.toml")
-}
-```
+| Fichier | Rôle | Lignes |
+|---------|------|--------|
+| `CommonSteps.kt` | Steps communs (mock LLM, cleanup, prompt files) | ~180 |
+| `MinimalFeatureSteps.kt` | Canary test | ~30 |
+| `PlantUmlProcessingSteps.kt` | Core processing | ~50 |
+| `SyntaxValidationSteps.kt` | Validation syntaxe | ~30 |
+| `AttemptHistorySteps.kt` | Historique tentatives | ~150 |
+| `RagPipelineSteps.kt` | RAG + pgvector | ~230 |
+| `LlmProvidersSteps.kt` | **Nouveau** — Providers LLM | ~180 |
 
-#### 2. Nettoyage fichiers temporaires ❌ → automatique ✅
-**Fichier** : `PlantumlSteps.kt:11-14`  
-**Ajout** : Annotation `@After` pour appel systématique à `world.cleanup()` après chaque scénario
+**Total** : ~850 lignes bien organisées vs 805 lignes monolithiques
 
-```kotlin
-@After
-fun cleanup() {
-    world.cleanup()
-}
-```
+### Tests LLM Providers Implémentés
 
-#### 3. Classpath Gradle ❌ → includeBuild() ✅
-**Fichier** : `PlantumlWorld.kt:59-80`  
-**Problème** : Utilisait `mavenLocal()` + version, nécessitant `publishToMavenLocal`  
-**Solution** : `includeBuild()` vers le plugin en développement + suppression de la version
+**Fichier** : `6_llm_providers.feature` — 6 scénarios
 
-```kotlin
-// settings.gradle.kts du projet de test
-includeBuild("${pluginRoot.absolutePath}")  // Plugin en développement
-// build.gradle.kts
-plugins {
-    id("com.cheroliv.plantuml")  // Sans version !
-}
-```
+| Scénario | Provider | Modèle | Statut |
+|----------|----------|--------|--------|
+| Generate diagram with Ollama | Ollama (local) | smollm:135m | ✅ PASS |
+| Generate diagram with OpenAI | OpenAI (mock) | gpt-4o-mini | ✅ PASS |
+| Generate diagram with Google Gemini | Gemini (mock) | gemini-2.5-flash | ✅ PASS |
+| Generate diagram with Mistral AI | Mistral (mock) | mistral-small-latest | ✅ PASS |
+| Generate diagram with Anthropic Claude | Claude (mock) | claude-3-haiku-20240307 | ✅ PASS |
+| Fallback to next provider | Ollama fallback | smollm:135m | ✅ PASS |
 
-#### 4. Documentation Cucumber dans README
-**Fichiers** : `README_truth.adoc` + `README_truth_fr.adoc`  
-**Ajout** : Section complète "Cucumber BDD Tests" (+118 lignes chaque)
-- Tags `@wip` et `@integration`
-- 30+ steps Gherkin listés
-- Instructions d'exécution et rapports
-- Architecture des tests
+**Approche** : Mock server unique avec endpoints multiples (Ollama/OpenAI/Gemini/Mistral/Anthropic)
 
-### Fichiers modifiés
+### Modifications du Plugin
+
+| Fichier | Modification | Impact |
+|---------|--------------|--------|
+| `models.kt` | `ApiKeyConfig` : +baseUrl, +modelName | Support endpoints personnalisés |
+| `ConfigMerger.kt` | Lecture baseUrl/modelName depuis gradle.properties | Configuration dynamique |
+| `LlmService.kt` | baseUrl optionnelle pour OpenAI/Mistral/Claude | Mock-compatible |
+| `PlantumlWorld.kt` | Mock server : 5 endpoints (/api/chat, /v1/chat/completions, etc.) | Tests isolés et rapides |
+
+### Fichiers modifiés/créés
 
 | Fichier | Action | Impact |
 |---------|--------|--------|
-| `PlantumlWorld.kt` | ✅ Version dynamique + includeBuild() | Tests ne nécessitent plus publishToMavenLocal |
-| `PlantumlSteps.kt` | ✅ Hook @After | Nettoyage automatique après chaque scénario |
-| `README_truth.adoc` | ✅ Section Cucumber (+118 lignes) | Documentation complète des tests BDD |
-| `README_truth_fr.adoc` | ✅ Section Cucumber (+118 lignes) | Documentation complète en français |
-| `.agents/INDEX.md` | ✅ Règle absolue commits git | Interdiction formelle sans permission |
-| `.agents/AGENT_SESSION_MANAGER.md` | ✅ Règle absolue commits git | Procédure obligatoire avant commit |
-
-### Résultats Tests
-
-**Avant** : 0/10 (échec classpath — cherchait plugin dans mavenLocal)  
-**Après** : 10/10 ✅ (utilise `includeBuild()` vers le plugin en développement)
-
-**Build** : `BUILD SUCCESSFUL in 2m 4s`
+| `CommonSteps.kt` | ✅ Créé | Steps communs |
+| `MinimalFeatureSteps.kt` | ✅ Créé | Canary test |
+| `PlantUmlProcessingSteps.kt` | ✅ Créé | Core processing |
+| `SyntaxValidationSteps.kt` | ✅ Créé | Validation syntaxe |
+| `AttemptHistorySteps.kt` | ✅ Créé | Historique tentatives |
+| `RagPipelineSteps.kt` | ✅ Créé | RAG + pgvector |
+| `LlmProvidersSteps.kt` | ✅ Créé | Providers LLM |
+| `PlantumlSteps.kt` | ❌ Supprimé | 805 lignes → 7 fichiers |
+| `6_llm_providers.feature` | ✅ Tag @wip retiré | Tests exécutables |
+| `.agents/INDEX.md` | ✅ Règle tests ajoutée | Interdiction tests fin de session |
+| `.agents/AGENT_SESSION_MANAGER.md` | ✅ Règle tests ajoutée | Procédure mise à jour |
 
 ---
 
@@ -94,7 +79,7 @@ plugins {
 | `3_syntax_validation.feature` | 3 | ✅ PASS | Syntax validation |
 | `4_attempt_history.feature` | 3 | ✅ PASS | Attempt tracking |
 | `5_rag_pipeline.feature` | 4 | 🟡 @wip | RAG pipeline |
-| `6_llm_providers.feature` | 6 | 🟡 @wip @integration | LLM providers |
+| `6_llm_providers.feature` | 6 | ✅ PASS | **LLM providers** |
 | `7_error_handling.feature` | 8 | 🟡 @wip | Error handling |
 | `8_configuration.feature` | 6 | 🟡 @wip | Config edge cases |
 | `9_incremental_processing.feature` | 5 | 🟡 @wip | Incremental processing |
@@ -103,41 +88,31 @@ plugins {
 | `12_performance.feature` | 5 | 🟡 @wip | Performance |
 | `13_integration_e2e.feature` | 4 | 🟡 @wip @integration | E2E integration |
 
-**Total** : 51 scénarios sur 13 feature files  
-**Couverture User Journeys** : ~85% ✅
+**Total** : 16/61 scénarios passants (26%) — **Feature 6 complétée** ✅
 
 ---
 
-## 🎯 Session 85 — Mission
+## 🎯 Session 87 — Mission
 
-### EPIC Tests BDD Cucumber — Phase 6 — RAG & LLM Providers
+### EPIC Tests BDD Cucumber — Phase 6 — Error Handling
 
 **Priorité** : 🔴 **HAUTE**  
-**Impact** : Couverture RAG et fournisseurs LLM réels  
-**Durée estimée** : 2-3 sessions
+**Impact** : Robustesse aux pannes et erreurs  
+**Durée estimée** : 1-2 sessions
 
 #### Tâches recommandées :
 
-1. **Feature 5 — RAG Pipeline** (`5_rag_pipeline.feature`)
-   - Implémenter steps pgvector (`@rag`)
-   - 4 scénarios : reindex, contexte LLM, incrémental, cleanup
-   - Nécessite testcontainers PostgreSQL
-
-2. **Feature 6 — LLM Providers** (`6_llm_providers.feature`)
-   - Implémenter steps mocks LLM réels (`@integration`)
-   - 6 scénarios : Ollama, OpenAI, Gemini, Mistral, Claude, fallback
-   - Nécessite API keys pour tests réels
-
-3. **Feature 7 — Error Handling** (`7_error_handling.feature`)
+1. **Feature 7 — Error Handling** (`7_error_handling.feature`)
    - Implémenter steps gestion erreurs (`@error`)
    - 8 scénarios : timeout, rate limit, réseau, Docker, disque, config
+   - Nécessite simulations de pannes (mock server avec erreurs)
 
 **Critères d'acceptation** :
-- [ ] Steps RAG implémentés dans `PlantumlSteps.kt`
-- [ ] Mocks LLM réels configurés (WireMock ou testcontainers)
-- [ ] Tests d'erreurs avec simulations de pannes
+- [ ] Steps error handling implémentés dans `ErrorHandlingSteps.kt`
+- [ ] Mock server simule timeout, rate limit, erreurs réseau
+- [ ] Tests vérifient messages d'erreur appropriés
 - [ ] Tags `@wip` retirés des scénarios implémentés
-- [ ] Rapport HTML : 20+ scénarios passants
+- [ ] Rapport HTML : 24+ scénarios passants (16 + 8)
 
 ---
 
@@ -145,11 +120,9 @@ plugins {
 
 | Fichier | Rôle |
 |---------|------|
-| `src/test/features/5_rag_pipeline.feature` | 4 scénarios RAG |
-| `src/test/features/6_llm_providers.feature` | 6 scénarios LLM |
 | `src/test/features/7_error_handling.feature` | 8 scénarios erreurs |
-| `src/test/scenarios/plantuml/scenarios/PlantumlSteps.kt` | Steps à implémenter |
-| `src/test/scenarios/plantuml/scenarios/PlantumlWorld.kt` | État partagé |
+| `src/test/scenarios/plantuml/scenarios/LlmProvidersSteps.kt` | Steps LLM (exemple) |
+| `src/test/scenarios/plantuml/scenarios/PlantumlWorld.kt` | Mock server à étendre |
 | `README_truth.adoc` | Documentation Cucumber |
 
 ---
@@ -160,8 +133,8 @@ plugins {
 
 | Session | Feature | Scénarios | Tags | Priorité |
 |---------|---------|-----------|------|----------|
-| **85** | `5_rag_pipeline.feature` | 4 | `@rag` | 🔴 Haute |
-| **86** | `6_llm_providers.feature` | 6 | `@llm @integration` | 🔴 Haute |
+| 85 | `5_rag_pipeline.feature` | 4 | `@rag` | 🔴 Haute |
+| **86** | `6_llm_providers.feature` | 6 | `@llm` | 🔴 **HAUTE ✅** |
 | **87** | `7_error_handling.feature` | 8 | `@error` | 🟡 Moyenne |
 | 88-90 | Consolidation + fixes | - | - | - |
 
@@ -185,40 +158,16 @@ plugins {
 
 ---
 
-## 🔧 Commandes Utiles
+## ⚠️ RÈGLES ABSOLUES
 
-```bash
-# Exécuter tous les tests Cucumber (exclut @wip et @integration)
-./gradlew cucumberTest
+### 1. COMMITS/GIT
 
-# Exécuter uniquement les tests RAG
-./gradlew cucumberTest -Pcucumber.filter.tags="@rag"
+**JAMAIS** de commit sans permission explicite
 
-# Exécuter les tests d'intégration avec vrais LLM
-./gradlew cucumberTest -Pcucumber.filter.tags="@integration"
+### 2. TESTS EN FIN DE SESSION
 
-# Exécuter un feature file spécifique
-./gradlew cucumberTest --tests "*5_rag_pipeline*"
-
-# Voir le rapport HTML
-open build/reports/cucumber.html
-```
+**JAMAIS** lancer de tests en procédure de fin de session sans demande explicite
 
 ---
 
-## ⚠️ Règle Absolue — Commits/GIT
-
-**L'agent NE DOIT JAMAIS** exécuter de commit, push, merge, ou toute commande git modifiant l'historique **SANS permission explicite de l'utilisateur**.
-
-- ✅ **Autorisé** : `git status`, `git diff`, `git log`, `git show` (lecture seule)
-- ❌ **Interdit** : `git add`, `git commit`, `git push`, `git merge`, `git rebase` (sauf ordre explicite)
-
-**Procédure obligatoire avant tout commit** :
-1. Montrer les modifications (`git diff --stat`)
-2. Demander : "Veux-tu que je commit ces changements ?"
-3. **Attendre confirmation explicite** ("oui", "commit", "vas-y")
-4. **Seulement après** : exécuter le commit
-
----
-
-**Session 85 — Prêt à démarrer** 🚀
+**Session 87 — Prêt à démarrer** 🚀

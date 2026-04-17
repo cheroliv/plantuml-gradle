@@ -72,12 +72,19 @@ class LlmService(private val config: PlantumlConfig) {
      *
      * @return Configured [OpenAiChatModel] with GPT-4 model
      */
-    private fun createOpenAiModel(): ChatModel = OpenAiChatModel.builder()
-        .apiKey(config.langchain4j.openai.apiKey)
-        .modelName("gpt-4") // Default model, can be made configurable
-        .temperature(0.7)
-        .timeout(Duration.ofSeconds(getTimeoutInSeconds()))
-        .build()
+    private fun createOpenAiModel(): ChatModel {
+        val builder = OpenAiChatModel.builder()
+            .apiKey(config.langchain4j.openai.apiKey)
+            .modelName(config.langchain4j.openai.modelName)
+            .temperature(0.7)
+            .timeout(Duration.ofSeconds(getTimeoutInSeconds()))
+        
+        if (config.langchain4j.openai.baseUrl.isNotBlank()) {
+            builder.baseUrl(config.langchain4j.openai.baseUrl)
+        }
+        
+        return builder.build()
+    }
 
     /**
      * Creates a Google Gemini chat model.
@@ -86,7 +93,7 @@ class LlmService(private val config: PlantumlConfig) {
      */
     private fun createGeminiModel(): ChatModel = GoogleAiGeminiChatModel.builder()
         .apiKey(config.langchain4j.gemini.apiKey)
-        .modelName("gemini-pro") // Default model, can be made configurable
+        .modelName(config.langchain4j.gemini.modelName)
         .temperature(0.7)
         .timeout(Duration.ofSeconds(getTimeoutInSeconds()))
         .build()
@@ -96,24 +103,38 @@ class LlmService(private val config: PlantumlConfig) {
      *
      * @return Configured [MistralAiChatModel] with mistral-large-latest model
      */
-    private fun createMistralModel(): ChatModel = MistralAiChatModel.builder()
-        .apiKey(config.langchain4j.mistral.apiKey)
-        .modelName("mistral-large-latest") // Default model, can be made configurable
-        .temperature(0.7)
-        .timeout(Duration.ofSeconds(getTimeoutInSeconds()))
-        .build()
+    private fun createMistralModel(): ChatModel {
+        val builder = MistralAiChatModel.builder()
+            .apiKey(config.langchain4j.mistral.apiKey)
+            .modelName(config.langchain4j.mistral.modelName)
+            .temperature(0.7)
+            .timeout(Duration.ofSeconds(getTimeoutInSeconds()))
+        
+        if (config.langchain4j.mistral.baseUrl.isNotBlank()) {
+            builder.baseUrl(config.langchain4j.mistral.baseUrl)
+        }
+        
+        return builder.build()
+    }
 
     /**
      * Creates an Anthropic Claude chat model.
      *
      * @return Configured [AnthropicChatModel] with claude-3-opus-20240229 model
      */
-    private fun createClaudeModel(): ChatModel = AnthropicChatModel.builder()
-        .apiKey(config.langchain4j.claude.apiKey)
-        .modelName("claude-3-opus-20240229") // Default model, can be made configurable
-        .temperature(0.7)
-        .timeout(Duration.ofSeconds(getTimeoutInSeconds()))
-        .build()
+    private fun createClaudeModel(): ChatModel {
+        val builder = AnthropicChatModel.builder()
+            .apiKey(config.langchain4j.claude.apiKey)
+            .modelName(config.langchain4j.claude.modelName)
+            .temperature(0.7)
+            .timeout(Duration.ofSeconds(getTimeoutInSeconds()))
+        
+        if (config.langchain4j.claude.baseUrl.isNotBlank()) {
+            builder.baseUrl(config.langchain4j.claude.baseUrl)
+        }
+        
+        return builder.build()
+    }
 
     /**
      * Creates a HuggingFace chat model via OpenAI-compatible API.

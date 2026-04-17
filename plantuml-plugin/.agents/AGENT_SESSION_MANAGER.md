@@ -94,7 +94,9 @@ Ajouter une ligne à chaque fin de session :
 
 ## 🤖 Instructions pour l'Agent
 
-### ⚠️ RÈGLE ABSOLUE — COMMITS/GIT
+### ⚠️ RÈGLES ABSOLUES
+
+### 1. COMMITS/GIT
 
 **JAMAIS** de commit, push, merge, ou toute commande git modifiant l'historique **SANS permission explicite de l'utilisateur**.
 
@@ -106,6 +108,21 @@ Ajouter une ligne à chaque fin de session :
 2. Demander : "Veux-tu que je commit ces changements ?"
 3. Attendre confirmation explicite ("oui", "commit", "vas-y")
 4. **Seulement après** : exécuter le commit
+
+### 2. TESTS EN FIN DE SESSION — INTERDICTION FORMELLE
+
+**JAMAIS** lancer de tests (`./gradlew test`, `./gradlew cucumberTest`, etc.) lors de la procédure de fin de session **SANS permission explicite de l'utilisateur**.
+
+- ✅ **Autorisé** : Résumer les résultats des tests déjà exécutés pendant la session
+- ❌ **Interdit** : Lancer `./gradlew cucumberTest` ou tout autre test en procédure de fin de session
+
+**Raison** : Les tests prennent 1-3 minutes et ralentissent inutilement la clôture de session.
+
+**Procédure de fin de session** :
+1. Résumer les réalisations (fichiers créés/modifiés, scénarios passants)
+2. Mettre à jour PROMPT_REPRISE.md pour la session suivante
+3. Archiver le contexte dans `.agents/sessions/`
+4. **NE PAS lancer de tests** sauf demande explicite
 
 ---
 

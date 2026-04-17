@@ -181,10 +181,130 @@ class PlantumlWorld {
             exchange.sendResponseHeaders(200, ollamaResponse.size.toLong())
             exchange.responseBody.use { it.write(ollamaResponse) }
         }
+
+        server.createContext("/v1/chat/completions") { exchange ->
+            val responseBody = mockResponseQueue?.getOrNull(mockResponseIndex) ?: mockResponseQueue?.last() ?: ""
+            if (mockResponseQueue != null && mockResponseIndex < mockResponseQueue!!.size - 1) {
+                mockResponseIndex++
+            }
+            
+            val openaiResponse = """
+                {
+                  "id": "chatcmpl-mock",
+                  "object": "chat.completion",
+                  "created": ${System.currentTimeMillis() / 1000},
+                  "model": "mock-model",
+                  "choices": [{
+                    "index": 0,
+                    "message": {
+                      "role": "assistant",
+                      "content": ${escapeJson(responseBody)}
+                    },
+                    "finish_reason": "stop"
+                  }],
+                  "usage": {
+                    "prompt_tokens": 10,
+                    "completion_tokens": 20,
+                    "total_tokens": 30
+                  }
+                }
+            """.trimIndent().toByteArray()
+
+            exchange.sendResponseHeaders(200, openaiResponse.size.toLong())
+            exchange.responseBody.use { it.write(openaiResponse) }
+        }
+
+        server.createContext("/v1beta/models") { exchange ->
+            val responseBody = """{"name": "mock-gemini"}""".toByteArray()
+            exchange.sendResponseHeaders(200, responseBody.size.toLong())
+            exchange.responseBody.use { it.write(responseBody) }
+        }
+
+        server.createContext("/v1beta/models/gemini-2.5-flash:generateContent") { exchange ->
+            val responseBody = mockResponseQueue?.getOrNull(mockResponseIndex) ?: mockResponseQueue?.last() ?: ""
+            if (mockResponseQueue != null && mockResponseIndex < mockResponseQueue!!.size - 1) {
+                mockResponseIndex++
+            }
+            
+            val geminiResponse = """
+                {
+                  "candidates": [{
+                    "content": {
+                      "parts": [{
+                        "text": ${escapeJson(responseBody)}
+                      }],
+                      "role": "model"
+                    },
+                    "finishReason": "STOP",
+                    "index": 0
+                  }],
+                  "usageMetadata": {
+                    "promptTokenCount": 10,
+                    "candidatesTokenCount": 20,
+                    "totalTokenCount": 30
+                  }
+                }
+            """.trimIndent().toByteArray()
+
+            exchange.sendResponseHeaders(200, geminiResponse.size.toLong())
+            exchange.responseBody.use { it.write(geminiResponse) }
+        }
+
+        server.createContext("/api/v1/chat/completions") { exchange ->
+            val responseBody = mockResponseQueue?.getOrNull(mockResponseIndex) ?: mockResponseQueue?.last() ?: ""
+            if (mockResponseQueue != null && mockResponseIndex < mockResponseQueue!!.size - 1) {
+                mockResponseIndex++
+            }
+            
+            val mistralResponse = """
+                {
+                  "id": "mistral-mock",
+                  "object": "chat.completion",
+                  "created": ${System.currentTimeMillis() / 1000},
+                  "model": "mock-mistral",
+                  "choices": [{
+                    "index": 0,
+                    "message": {
+                      "role": "assistant",
+                      "content": ${escapeJson(responseBody)}
+                    },
+                    "finish_reason": "stop"
+                  }]
+                }
+            """.trimIndent().toByteArray()
+
+            exchange.sendResponseHeaders(200, mistralResponse.size.toLong())
+            exchange.responseBody.use { it.write(mistralResponse) }
+        }
+
+        server.createContext("/v1/messages") { exchange ->
+            val responseBody = mockResponseQueue?.getOrNull(mockResponseIndex) ?: mockResponseQueue?.last() ?: ""
+            if (mockResponseQueue != null && mockResponseIndex < mockResponseQueue!!.size - 1) {
+                mockResponseIndex++
+            }
+            
+            val anthropicResponse = """
+                {
+                  "id": "msg_mock",
+                  "type": "message",
+                  "role": "assistant",
+                  "content": [{
+                    "type": "text",
+                    "text": ${escapeJson(responseBody)}
+                  }],
+                  "model": "mock-claude",
+                  "stop_reason": "end_turn"
+                }
+            """.trimIndent().toByteArray()
+
+            exchange.sendResponseHeaders(200, anthropicResponse.size.toLong())
+            exchange.responseBody.use { it.write(anthropicResponse) }
+        }
+
         server.executor = null
         server.start()
         mockServer = server
-        log.info("Mock LLM server started on port $port with ${mockResponseQueue?.size ?: 1} response(s)")
+        log.info("Mock LLM server started on port $port with ${mockResponseQueue?.size ?: 1} response(s) - Ollama/OpenAI/Gemini/Mistral/Anthropic endpoints")
     }
 
     private fun escapeJson(value: String): String =
