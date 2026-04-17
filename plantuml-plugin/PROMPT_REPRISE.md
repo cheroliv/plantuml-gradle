@@ -1,90 +1,80 @@
-# 🔄 Prompt de reprise — Session 81
+# 🔄 Prompt de reprise — Session 83
 
 > **EPIC** : `EPIC_CONSOLIDATION_TESTS_FONCTIONNELS.md` — **EPIC Tests BDD Cucumber**  
-> **Statut** : Session 80 TERMINÉE ✅ — Timeouts Cucumber résolus  
-> **Prochaine mission** : Session 81 — Phase 3 (Validation syntaxe) ou Phase 4 (Historique)
+> **Statut** : Session 82 PARTIELLE 🔴 — Phase 4 (Historique) bloquée  
+> **Prochaine mission** : Session 83 — Déboguer `archiveAttemptHistory()`
 
 ---
 
-## 📊 Session 80 — Résumé (TERMINÉE)
+## 📊 Session 82 — Résumé (PARTIEL) 🔴
 
 **Date** : 17 avr. 2026  
 **Résultats** :
-- ✅ **7/7 scénarios Cucumber passants** en 31 secondes
-- ✅ **Timeouts Ollama** : 1s → 5s (`PlantumlWorld.kt:111-112`)
-- ✅ **GradleRunner** : Suppression `withPluginClasspath()` + `withTestKitDir()` + `withGradleVersion("9.4.1")`
-- ✅ **Template projet** : `mavenLocal()` en premier + version `"0.0.0"`
-- ✅ **build.gradle.kts** : Timeout 5 min pour `cucumberTest`
+- ✅ **AttemptHistorySteps.kt supprimé** (obsolète)
+- ✅ **PlantumlWorld.mockLlmReturnsSequence()** ajouté
+- ✅ **4_attempt_history.feature** réactivé (3 scénarios)
+- ✅ **PlantumlSteps** : Steps multi-réponses ajoutés
+- ❌ **3/3 scénarios échouent** : `History directory should exist`
+
+**Problème** : `archiveAttemptHistory()` dans `DiagramProcessor.kt` ne crée pas les fichiers JSON
 
 **Modifications** :
-- `PlantumlWorld.kt` : Timeouts, TestKitDir, GradleVersion, template avec mavenLocal()
-- `PlantumlWorld.kt` : Suppression `withPluginClasspath()` (erreur classes/java/main)
-- `build.gradle.kts` : Timeout 5 min ajouté
-- `AGENT_PLAN.md` : Session 80 documentée
-- `SESSIONS_HISTORY.md` : Entrée Session 80 ajoutée
-- `COMPLETED_TASKS_ARCHIVE.md` : Tâches Session 80 archivées
+- `src/test/scenarios/plantuml/scenarios/AttemptHistorySteps.kt` — Supprimé
+- `src/test/scenarios/plantuml/scenarios/PlantumlWorld.kt` — `mockLlmReturnsSequence()` ajouté
+- `src/test/features/4_attempt_history.feature` — Réactivé
+- `src/test/scenarios/plantuml/scenarios/PlantumlSteps.kt` — Steps multi-réponses
+- `src/main/kotlin/plantuml/service/DiagramProcessor.kt` — `archiveAttemptHistory()` modifié (plusieurs fois)
+- `src/main/kotlin/plantuml/service/LlmService.kt` — `createChatModel()` (tentative mode test)
 
 **Voir** : `SESSIONS_HISTORY.md` pour détails complets
 
 ---
 
-## 🎯 Session 81 — Mission
+## 🎯 Session 83 — Mission
 
-### EPIC Tests BDD Cucumber — Phase 3 ou Phase 4
+### EPIC Tests BDD Cucumber — Phase 4 — Débogage archiveAttemptHistory()
 
-**Priorité** : 🟢 **ÉLEVÉE**  
-**Impact** : Consolidation des tests fonctionnels  
+**Priorité** : 🔴 **CRITIQUE**  
+**Impact** : 13/13 scénarios passants (100% EPIC BDD)  
 **Durée estimée** : 1-2 sessions
 
-#### Option 1 : Phase 3 — Tests de validation syntaxe (Recommandé)
-
-**Objectif** : Vérifier que `3_syntax_validation.feature` est fonctionnel
+#### Objectif : Comprendre pourquoi archiveAttemptHistory() ne crée pas les fichiers
 
 **Fichiers cibles** :
-- `src/test/features/3_syntax_validation.feature` (3 scénarios déjà implémentés)
-- `src/test/scenarios/plantuml/scenarios/PlantumlSteps.kt` (steps déjà existants)
+- `src/main/kotlin/plantuml/service/DiagramProcessor.kt` — `archiveAttemptHistory()`
+- `src/test/scenarios/plantuml/scenarios/PlantumlSteps.kt` — Propriétés Gradle
+- `src/main/kotlin/plantuml/tasks/ProcessPlantumlPromptsTask.kt` — Configuration
 
-**État actuel** :
-- ✅ Steps déjà implémentés dans `PlantumlSteps.kt`
-- ✅ Scénarios déjà écrits dans `3_syntax_validation.feature`
-- ✅ Tests Cucumber : 7/7 passants (Session 80)
+**Pistes testées en Session 82 (toutes échouées)** :
+1. ❌ `chatModel == null` → Simulation, pas mock LLM
+2. ❌ `System.getProperty("plantuml.test.mode")` → Non propagé
+3. ❌ `System.getProperty("plugin.project.dir")` → Non lu
+4. ❌ Chemins relatifs vs absolus → Mauvais endroit
+5. ❌ `config?.output?.diagrams` → Null en test
 
-**Procédure** :
-```bash
-./gradlew cucumberTest --tests "*Validate*PlantUML*"
-```
-→ Si échec : debug step-by-step  
-→ Si succès : validation complète ✅
-
-**Critères d'acceptation** :
-- [ ] 3 scénarios de validation syntaxe passants
-- [ ] `./gradlew cucumberTest` : 10 scénarios passants (1 + 3 + 3 + 3)
-
----
-
-#### Option 2 : Phase 4 — Historique des tentatives
-
-**Objectif** : Refondre et activer `4_attempt_history.feature`
-
-**Fichiers cibles** :
-- `src/test/features/4_attempt_history.feature` (à réécrire)
-- `src/test/scenarios/plantuml/scenarios/AttemptHistorySteps.kt` (à supprimer)
-- `src/test/scenarios/plantuml/scenarios/PlantumlSteps.kt` (à enrichir)
-
-**État actuel** :
-- ❌ `AttemptHistorySteps.kt` : Obsolète (utilise Mockito)
-- ❌ `4_attempt_history.feature` : Scénarios à réécrire
-- ⏳ Helpers manquants dans `PlantumlWorld`
+**Pistes à explorer Session 83** :
+1. 🔍 Ajouter logs dans `archiveAttemptHistory()` pour voir :
+   - Si la méthode est appelée
+   - Valeur de `history.size`
+   - Valeur de `diagramsDir.absolutePath`
+   - Si `historyFile.writeText()` réussit
+2. 🔍 Vérifier si `config` est null en mode test
+3. 🔍 Utiliser `println()` forcé (pas logger) pour debug
+4. 🔍 Alternative : Archiver dans `java.io.tmpdir` + lire depuis tests
 
 **Tâches** :
-1. Supprimer `AttemptHistorySteps.kt`
-2. Ajouter helpers multi-réponses dans `PlantumlWorld`
-3. Réécrire scénarios avec steps corrects
-4. Valider step-by-step (méthodologie TDD)
+1. 🔍 Debugger `archiveAttemptHistory()` avec logs détaillés
+2. 🔍 Identifier pourquoi `history` est vide ou mal archivé
+3. 🔍 Corriger le chemin de sortie
+4. ✅ Valider 3 scénarios d'historique
+5. ✅ `./gradlew cucumberTest` : 13 scénarios passants
 
 **Critères d'acceptation** :
+- [ ] Logs ajoutés dans `archiveAttemptHistory()`
+- [ ] Cause racine identifiée
+- [ ] Correction appliquée
 - [ ] 3 scénarios d'historique validés
-- [ ] `./gradlew cucumberTest` : 13 scénarios passants (1 + 3 + 3 + 3 + 3)
+- [ ] 13/13 scénarios Cucumber passants
 
 ---
 
@@ -92,36 +82,33 @@
 
 | Fichier | Rôle |
 |---------|------|
-| `AGENT_PLAN.md` | Plan d'attaque Epic BDD (5 phases) — Phase 2 ✅, Session 80 ✅ |
-| `AGENT_METHODOLOGIES.md` | Section "TDD Incrémentale pour Tests BDD Cucumber" |
-| `src/test/features/3_syntax_validation.feature` | Tests de validation (prêts) |
-| `src/test/features/4_attempt_history.feature` | Tests d'historique (à refondre) |
-| `src/test/scenarios/plantuml/scenarios/PlantumlSteps.kt` | Steps existants |
-| `SESSION_PROCEDURE.md` | Procédure de fin de session |
+| `SESSIONS_HISTORY.md` | Résumé Session 82 + pistes testées |
+| `AGENT_PLAN.md` | Phase 4 — État d'avancement |
+| `src/main/kotlin/plantuml/service/DiagramProcessor.kt` | `archiveAttemptHistory()` à debugger |
+| `src/test/scenarios/plantuml/scenarios/PlantumlSteps.kt` | Propriétés Gradle à passer |
 
 ---
 
 ## 📊 État des Tests Cucumber
 
-### Tests fonctionnels (7 scénarios)
-
 | Feature | Scénarios | Statut |
 |---------|-----------|--------|
 | `1_minimal.feature` | 1 | ✅ PASS |
-| `2_plantuml_processing.feature` | 3 | ✅ PASS (Session 79) |
-| `3_syntax_validation.feature` | 3 | ✅ PASS (Session 80) |
-| `4_attempt_history.feature` | 3 | ❌ À refondre |
+| `2_plantuml_processing.feature` | 3 | ✅ PASS |
+| `3_syntax_validation.feature` | 3 | ✅ PASS |
+| `4_attempt_history.feature` | 3 | ❌ FAILED (directory not exist) |
 
-**Total** : 7/10 scénarios passants (70%)
+**Total** : 10/13 scénarios passants (77%)
 
 ---
 
 ## ⚠️ Points de vigilance
 
-1. **Méthodologie** : Continuer approche TDD incrémentale (UN step à la fois)
-2. **Tests** : Exécuter `./gradlew cucumberTest` après CHAQUE modification
-3. **Compilation** : Vérifier que chaque step trouve son implémentation
-4. **Git** : L'utilisateur gère Git manuellement (commit, push)
+1. **Logs** : Utiliser `println()` si logger ne sort pas
+2. **Chemins** : Toujours utiliser des chemins absolus
+3. **Config** : Vérifier si `config` est null en test
+4. **History** : Vérifier si `history.isNotEmpty()` est vrai
+5. **Git** : L'utilisateur gère Git manuellement (commit, push)
 
 ---
 
@@ -130,24 +117,13 @@
 **Voir** : `SESSION_PROCEDURE.md`
 
 **Étapes obligatoires** :
-1. ✅ Vérifier les tests (`./gradlew cucumberTest`)
-2. ✅ Mettre à jour `AGENT_PLAN.md` avec le résumé de la session
-3. ✅ Mettre à jour `SESSIONS_HISTORY.md` avec l'entrée de la session
-4. ✅ Mettre à jour `COMPLETED_TASKS_ARCHIVE.md` avec les tâches terminées
-5. ✅ Mettre à jour ce fichier (`PROMPT_REPRISE.md`) pour la session N+1
+1. ✅ Mettre à jour `AGENT_PLAN.md` avec le résumé de la session
+2. ✅ Mettre à jour `SESSIONS_HISTORY.md` avec l'entrée de la session
+3. ✅ Mettre à jour `COMPLETED_TASKS_ARCHIVE.md` avec les tâches terminées
+4. ✅ Mettre à jour ce fichier (`PROMPT_REPRISE.md`) pour la session N+1
 
 **⚠️ Git** : L'utilisateur gère Git manuellement (commit, push)
 
 ---
 
-## 🎯 Recommandation
-
-**Priorité** : **Phase 3** (Validation syntaxe)  
-**Raison** : Déjà implémenté, validation rapide (1 session)  
-**Impact** : 10 scénarios passants (100% EPIC 3)
-
-**Phase 4** (Historique) peut attendre Session 82 (2-3 sessions nécessaires)
-
----
-
-**Session 81 — Prêt à démarrer** 🚀
+**Session 83 — Prêt à démarrer** 🚀

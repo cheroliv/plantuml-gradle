@@ -112,17 +112,23 @@ Rendre fonctionnelle la suite complète des tests Cucumber pour couvrir toutes l
 
 | Tâche | Description | Critère d'acceptation |
 |-------|-------------|----------------------|
-| 4.1 | **Supprimer** l'ancienne implémentation `AttemptHistorySteps.kt` (Mockito) | Code obsolète retiré |
+| 4.1 | **Supprimer** l'ancienne implémentation `AttemptHistorySteps.kt` (Mockito) | ✅ Code obsolète retiré |
 | 4.2 | Créer nouvelle implémentation basée sur `GradleRunner` | Architecture cohérente avec `MinimalSteps` |
 | 4.3 | Ajouter helper `verifyAttemptHistory()` dans `PlantumlWorld` | Vérifie JSON d'historique |
-| 4.4 | Implémenter steps pour mock LLM multi-réponses (itératif) | Supporte séquence de réponses |
-| 4.5 | Corriger les chemins de sortie (`generated/diagrams` vs `generated/rag`) | Chemins cohérents |
-| 4.6 | Réécrire scénarios avec steps corrects | Feature file à jour |
-| 4.7 | **Scénario 1** : Décommenter step-by-step (succès après 2 tentatives) | Test passant ✅ |
-| 4.8 | **Scénario 2** : Décommenter step-by-step (échec après max iterations) | Test passant ✅ |
-| 4.9 | **Scénario 3** : Décommenter step-by-step (succès après 4 tentatives) | Test passant ✅ |
+| 4.4 | Implémenter steps pour mock LLM multi-réponses (itératif) | ✅ Supporte séquence de réponses |
+| 4.5 | Corriger les chemins de sortie (`generated/diagrams` vs `generated/rag`) | 🔴 Chemins à corriger |
+| 4.6 | Réécrire scénarios avec steps corrects | ✅ Feature file à jour |
+| 4.7 | **Scénario 1** : Décommenter step-by-step (succès après 2 tentatives) | ❌ Test échoue |
+| 4.8 | **Scénario 2** : Décommenter step-by-step (échec après max iterations) | ❌ Test échoue |
+| 4.9 | **Scénario 3** : Décommenter step-by-step (succès après 4 tentatives) | ❌ Test échoue |
 
 **Livrable** : 3 scénarios fonctionnels dans `4_attempt_history.feature`
+
+**Session 82 — État d'avancement** :
+- ✅ Tâches 4.1, 4.4, 4.6 terminées
+- ❌ Tâches 4.5, 4.7, 4.8, 4.9 bloquées par problème d'archivage
+- 🔍 **Problème** : `archiveAttemptHistory()` ne crée pas les fichiers JSON
+- 🔍 **Piste** : Vérifier logs, config, et chemins dans `DiagramProcessor.kt`
 
 ---
 

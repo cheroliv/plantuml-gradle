@@ -86,11 +86,7 @@ class DiagramProcessor(
         // For testing purposes, we'll use simulated responses when chatModel is null
         if (chatModel == null) {
             // Simulate the LLM response since we're in test mode
-            val simulatedLlmResponse = generateSimulatedLlmResponse(prompt)
-            attemptHistory.add(AttemptEntry(prompt, simulatedLlmResponse, 0, true))
-
-            // Validate and potentially iterate
-            var currentCode = simulatedLlmResponse
+            var currentCode = generateSimulatedLlmResponse(prompt)
             var iterations = 0
             var validationResult: SyntaxValidationResult
 
@@ -98,26 +94,28 @@ class DiagramProcessor(
                 validationResult = plantumlService.validateSyntax(currentCode)
 
                 if (validationResult is SyntaxValidationResult.Invalid) {
-                    // In a real implementation, we would send the error back to LLM
-                    // For this demo, we'll try to fix common issues
-                    currentCode = fixCommonPlantUmlIssues(currentCode)
                     attemptHistory.add(
                         AttemptEntry(
-                            "Fix common issues iteration $iterations",
+                            prompt,
                             currentCode,
                             iterations,
                             false,
                             validationResult.errorMessage
                         )
                     )
+                    // In a real implementation, we would send the error back to LLM
+                    // For this demo, we'll try to fix common issues
+                    currentCode = fixCommonPlantUmlIssues(currentCode)
                     iterations++
                 } else {
-                    attemptHistory.add(AttemptEntry("Successful iteration $iterations", currentCode, iterations, true))
+                    attemptHistory.add(AttemptEntry(prompt, currentCode, iterations, true))
                     break
                 }
             } while (iterations < maxIterations)
 
             if (validationResult is SyntaxValidationResult.Valid) {
+                // Archive attempt history for successful generations with corrections
+                archiveAttemptHistory(attemptHistory, logger)
                 return PlantumlDiagram(
                     conversation = attemptHistory.map { "${it.prompt} -> ${it.response}" },
                     plantuml = PlantumlCode(
@@ -231,35 +229,37 @@ class DiagramProcessor(
      * @param history Complete list of [AttemptEntry] from prompt processing
      */
     private fun archiveAttemptHistory(history: List<AttemptEntry>, logger: Logger) {
-        // Only archive if there were multiple attempts (indicating corrections were needed)
-        if (history.size > 1) {
+        // Always archive if there is at least one attempt
+        if (history.isNotEmpty()) {
             try {
-                // Determine the output directory based on configuration
-                val baseDir = if (System.getProperty("plantuml.test.mode") == "true") {
-                    config?.output?.diagrams ?: "generated/diagrams"
-                } else {
-                    config?.output?.rag ?: "generated/rag"
-                }
-
-                // In a real implementation, this would save the history to a training data directory
-                val ragTrainingDir = File(baseDir)
-                if (!ragTrainingDir.exists()) {
-                    ragTrainingDir.mkdirs()
+                // Determine the output directory relative to project root
+                val diagramsPath = config?.output?.diagrams ?: "generated/diagrams"
+                
+                // Get project directory from system property (set during tests) or use current dir
+                val projectDirPath = System.getProperty("plugin.project.dir")
+                    ?: System.getProperty("user.dir")
+                
+                val projectDir = File(projectDirPath)
+                val diagramsDir = File(projectDir, diagramsPath)
+                
+                if (!diagramsDir.exists()) {
+                    val created = diagramsDir.mkdirs()
+                    logger.info("Created diagrams directory: ${diagramsDir.absolutePath}, success=$created, pwd=${System.getProperty("user.dir")}")
                 }
 
                 // Create a filename based on timestamp
                 val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"))
                 val filename = "attempt-history-$timestamp.json"
-                val historyFile = File(ragTrainingDir, filename)
+                val historyFile = File(diagramsDir, filename)
 
                 // Convert history to JSON format for storage
                 val historyJson = convertHistoryToJson(history)
                 historyFile.writeText(historyJson)
-
-                logger.info("Archived attempt history with ${history.size} entries to ${historyFile.absolutePath}")
+                
+                logger.info("Archived attempt history with ${history.size} entries to ${historyFile.absolutePath}, exists=${historyFile.exists()}, projectDir=$projectDirPath")
 
             } catch (e: Exception) {
-                logger.warn("Failed to archive attempt history: ${e.message}")
+                logger.error("Failed to archive attempt history: ${e.message}", e)
                 // Don't throw the exception to avoid failing the task
             }
         }

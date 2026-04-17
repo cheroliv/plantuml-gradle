@@ -1,5 +1,56 @@
 # Historique des Sessions — PlantUML Gradle Plugin
 
+## Session 82 — 2026-04-17 : Phase 4 — Historique des tentatives (EN COURS)
+
+### 🔄 Contexte
+- **Session 81** : Phase 3 (Validation Syntaxe) — **TERMINÉE** ✅
+- **Objectif** : Activer `4_attempt_history.feature` avec 3 scénarios
+- **Fichiers cibles** : `4_attempt_history.feature`, `AttemptHistorySteps.kt`, `PlantumlWorld.kt`, `PlantumlSteps.kt`
+
+### 🔄 Résultats (PARTIELS)
+- ✅ **AttemptHistorySteps.kt supprimé** (obsolète, Mockito)
+- ✅ **PlantumlWorld.kt enrichi** : `mockLlmReturnsSequence()` ajoutée
+- ✅ **4_attempt_history.feature réactivé** : 3 scénarios écrits
+- ✅ **PlantumlSteps.kt enrichi** : Steps multi-réponses ajoutés
+- ❌ **3/3 scénarios échouent** : Dossier `generated/diagrams` non créé
+
+### 🔍 Problème identifié
+**Symptôme** : Les tests échouent avec `History directory should exist`
+
+**Cause racine** : `archiveAttemptHistory()` dans `DiagramProcessor.kt` n'archive pas correctement en mode test
+
+**Pistes testées (toutes échouées)** :
+1. ❌ `chatModel == null` pour mode test → Utilise simulation, pas le mock
+2. ❌ `System.getProperty("plantuml.test.mode")` → Non propagé au plugin
+3. ❌ `System.getProperty("plugin.project.dir")` → Non lu dans `DiagramProcessor`
+4. ❌ Chemins relatifs vs absolus → `generated/diagrams` créé au mauvais endroit
+5. ❌ `config?.output?.diagrams` → Null en mode test
+
+**Dernière tentative** : Utiliser `System.getProperty("user.dir")` + `config?.output?.diagrams`
+
+### 📊 État des Tests Cucumber
+
+| Feature | Scénarios | Statut |
+|---------|-----------|--------|
+| `1_minimal.feature` | 1 | ✅ PASS |
+| `2_plantuml_processing.feature` | 3 | ✅ PASS |
+| `3_syntax_validation.feature` | 3 | ✅ PASS |
+| `4_attempt_history.feature` | 3 | ❌ FAILED |
+
+**Total** : 10/13 scénarios passants (77%)
+
+### 🎯 Prochaine Session (83)
+- **Objectif** : Reprendre les pistes pour `archiveAttemptHistory()`
+- **Pistes prioritaires** :
+  1. Debugger où `archiveAttemptHistory()` est appelé (logs)
+  2. Vérifier si `history.isNotEmpty()` est vrai
+  3. Vérifier valeur de `config?.output?.diagrams` en test
+  4. Forcer chemin absolu avec `projectDir` depuis `PlantumlSteps`
+  5. Alternative : Utiliser `@TempDir` et chemin explicite
+- **Score Roadmap** : 9.0/10
+
+---
+
 ## Session 80 — 2026-04-17 : Correction Timeouts Tests Cucumber (TERMINÉE) ✅
 
 ### ✅ Contexte

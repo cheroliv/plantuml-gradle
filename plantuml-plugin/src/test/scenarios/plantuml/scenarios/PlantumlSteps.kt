@@ -47,7 +47,12 @@ class PlantumlSteps(private val world: PlantumlWorld) {
         world.mockServerPort?.let {
             properties["plantuml.langchain4j.model"] = "ollama"
             properties["plantuml.langchain4j.ollama.baseUrl"] = "http://localhost:$it"
+            properties["plantuml.langchain4j.ollama.modelName"] = "smollm:135m"
         }
+        world.projectDir?.let {
+            properties["plugin.project.dir"] = it.absolutePath
+        }
+        properties["plantuml.test.mode"] = "true"
 
         world.executeGradle("processPlantumlPrompts", properties = properties)
     }
@@ -58,8 +63,12 @@ class PlantumlSteps(private val world: PlantumlWorld) {
         world.mockServerPort?.let {
             properties["plantuml.langchain4j.model"] = "ollama"
             properties["plantuml.langchain4j.ollama.baseUrl"] = "http://localhost:$it"
+            properties["plantuml.langchain4j.ollama.modelName"] = "smollm:135m"
         }
         properties["plantuml.langchain4j.maxIterations"] = maxIterations.toString()
+        world.projectDir?.let {
+            properties["plugin.project.dir"] = it.absolutePath
+        }
 
         world.executeGradle("processPlantumlPrompts", properties = properties)
     }
@@ -157,12 +166,10 @@ class PlantumlSteps(private val world: PlantumlWorld) {
     @Then("attempt history should be tracked with {int} entries")
     fun attemptHistoryShouldHaveEntries(expectedCount: Int) {
         val historyDir = File(world.projectDir, "generated/diagrams")
-        if (historyDir.exists()) {
-            val historyFiles = historyDir.listFiles { file -> file.extension == "json" }
-            assertThat(historyFiles).isNotNull.hasSize(expectedCount)
-        } else {
-            assertThat(expectedCount).isEqualTo(0)
-        }
+        assertThat(historyDir).`as`("History directory should exist").exists()
+        
+        val historyFiles = historyDir.listFiles { file -> file.extension == "json" }
+        assertThat(historyFiles).`as`("Should find JSON history files").isNotNull.hasSize(expectedCount)
     }
 
     @Then("the first entry should indicate syntax error")
@@ -241,15 +248,52 @@ class PlantumlSteps(private val world: PlantumlWorld) {
         )
     }
 
+    @Given("a mock LLM that returns a sequence of responses: invalid then valid")
+    fun mockLlmReturnsSequenceInvalidThenValid() {
+        world.mockLlmReturnsSequence(
+            """
+            @startuml
+            actor User
+            @endulm
+            """.trimIndent(),
+            """
+            @startuml
+            actor User
+            @enduml
+            """.trimIndent()
+        )
+    }
+
+    @Given("a mock LLM that returns a sequence of 4 responses: 3 invalid then valid")
+    fun mockLlmReturnsSequence4Responses() {
+        world.mockLlmReturnsSequence(
+            """
+            @startumlnactor User
+            @endulm
+            """.trimIndent(),
+            """
+            @startumlnactor User
+            @endulm
+            """.trimIndent(),
+            """
+            @startumlnactor User
+            @endulm
+            """.trimIndent(),
+            """
+            @startuml
+            actor User
+            @enduml
+            """.trimIndent()
+        )
+    }
+
     @Then("attempt history should be archived with {int} entries")
     fun attemptHistoryShouldBeArchived(expectedCount: Int) {
         val archiveDir = File(world.projectDir, "generated/diagrams")
-        if (archiveDir.exists()) {
-            val archivedFiles = archiveDir.listFiles { file -> file.extension == "json" }
-            assertThat(archivedFiles).isNotNull.hasSize(expectedCount)
-        } else {
-            assertThat(expectedCount).isEqualTo(0)
-        }
+        assertThat(archiveDir).`as`("Archive directory should exist").exists()
+        
+        val archivedFiles = archiveDir.listFiles { file -> file.extension == "json" }
+        assertThat(archivedFiles).`as`("Should find JSON archive files").isNotNull.hasSize(expectedCount)
     }
 
     @Then("no diagram should be generated")

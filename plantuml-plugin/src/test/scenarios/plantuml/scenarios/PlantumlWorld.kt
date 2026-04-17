@@ -104,6 +104,8 @@ class PlantumlWorld {
         private set
 
     private var mockServer: HttpServer? = null
+    private var mockResponseQueue: List<String>? = null
+    private var mockResponseIndex: Int = 0
 
     /**
      * Ensures an Ollama instance is available:
@@ -130,26 +132,47 @@ class PlantumlWorld {
      * [responseBody] as the assistant message content.
      */
     fun startMockLlm(responseBody: String) {
+        mockResponseQueue = listOf(responseBody)
+        mockResponseIndex = 0
+        startMockLlmWithQueue()
+    }
+
+    /**
+     * Starts a minimal Ollama-compatible HTTP server that returns a sequence of responses.
+     * Each call to /api/chat returns the next response in the sequence.
+     */
+    fun mockLlmReturnsSequence(vararg responses: String) {
+        mockResponseQueue = responses.toList()
+        mockResponseIndex = 0
+        startMockLlmWithQueue()
+    }
+
+    private fun startMockLlmWithQueue() {
         val server = create(InetSocketAddress(0), 0)
         val port = server.address.port
         mockServerPort = port
 
-        val ollamaResponse = """
-            {
-              "model": "smollm:135m",
-              "message": { "role": "assistant", "content": ${escapeJson(responseBody)} },
-              "done": true
-            }
-        """.trimIndent().toByteArray()
-
         server.createContext("/api/chat") { exchange ->
+            val responseBody = mockResponseQueue?.getOrNull(mockResponseIndex) ?: mockResponseQueue?.last() ?: ""
+            if (mockResponseQueue != null && mockResponseIndex < mockResponseQueue!!.size - 1) {
+                mockResponseIndex++
+            }
+            
+            val ollamaResponse = """
+                {
+                  "model": "smollm:135m",
+                  "message": { "role": "assistant", "content": ${escapeJson(responseBody)} },
+                  "done": true
+                }
+            """.trimIndent().toByteArray()
+
             exchange.sendResponseHeaders(200, ollamaResponse.size.toLong())
             exchange.responseBody.use { it.write(ollamaResponse) }
         }
         server.executor = null
         server.start()
         mockServer = server
-        log.info("Mock LLM server started on port $port")
+        log.info("Mock LLM server started on port $port with ${mockResponseQueue?.size ?: 1} response(s)")
     }
 
     private fun escapeJson(value: String): String =
