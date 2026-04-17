@@ -224,14 +224,14 @@ class ErrorHandlingSteps(private val world: PlantumlWorld) {
         }
     }
 
-    @When("I run reindexPlantumlRag task")
-    fun runReindexPlantumlRagTask() = runBlocking {
+    @When("I run reindexPlantumlRag task with port conflict simulation")
+    fun runReindexPlantumlRagTaskWithPortConflict() = runBlocking {
         val properties = mutableMapOf<String, String>()
         world.projectDir?.let {
             properties["plugin.project.dir"] = it.absolutePath
             
-            // Overwrite gradle.properties to force testcontainers mode and port conflict
-            // This ensures the settings are applied even if Background created a different gradle.properties
+            // Write gradle.properties with the simulate flag
+            // This will be read by Gradle's project.properties
             val gradleProps = File(it, "gradle.properties")
             gradleProps.writeText(
                 """
@@ -244,8 +244,6 @@ class ErrorHandlingSteps(private val world: PlantumlWorld) {
             )
         }
         properties["plantuml.test.mode"] = "true"
-        
-        // Force testcontainers mode and port conflict simulation via Gradle properties (-P flags)
         properties["rag.mode"] = "testcontainers"
         properties["plantuml.test.simulate.port.conflict"] = "true"
 
