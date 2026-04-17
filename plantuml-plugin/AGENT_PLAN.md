@@ -105,30 +105,22 @@ Rendre fonctionnelle la suite complète des tests Cucumber pour couvrir toutes l
 
 ---
 
-### **Phase 4 : Tests d'historique des tentatives** (2-3 sessions)
-**Objectif** : Refondre et activer `4_attempt_history.feature`
+### **Phase 4 : Tests d'historique des tentatives** — ✅ TERMINÉE Session 83
 
-**⚠️ MÉTHODOLOGIE : Approche TDD incrémentale** (same as Phase 2)
+**Objectif** : Refondre et activer `4_attempt_history.feature` — **100% COMPLÉTÉ** ✅
 
-| Tâche | Description | Critère d'acceptation |
-|-------|-------------|----------------------|
-| 4.1 | **Supprimer** l'ancienne implémentation `AttemptHistorySteps.kt` (Mockito) | ✅ Code obsolète retiré |
-| 4.2 | Créer nouvelle implémentation basée sur `GradleRunner` | Architecture cohérente avec `MinimalSteps` |
-| 4.3 | Ajouter helper `verifyAttemptHistory()` dans `PlantumlWorld` | Vérifie JSON d'historique |
-| 4.4 | Implémenter steps pour mock LLM multi-réponses (itératif) | ✅ Supporte séquence de réponses |
-| 4.5 | Corriger les chemins de sortie (`generated/diagrams` vs `generated/rag`) | 🔴 Chemins à corriger |
-| 4.6 | Réécrire scénarios avec steps corrects | ✅ Feature file à jour |
-| 4.7 | **Scénario 1** : Décommenter step-by-step (succès après 2 tentatives) | ❌ Test échoue |
-| 4.8 | **Scénario 2** : Décommenter step-by-step (échec après max iterations) | ❌ Test échoue |
-| 4.9 | **Scénario 3** : Décommenter step-by-step (succès après 4 tentatives) | ❌ Test échoue |
+**Résultats Session 83** :
+- ✅ 3/3 scénarios passants
+- ✅ 13/13 scénarios Cucumber passants (100% EPIC BDD)
 
-**Livrable** : 3 scénarios fonctionnels dans `4_attempt_history.feature`
-
-**Session 82 — État d'avancement** :
-- ✅ Tâches 4.1, 4.4, 4.6 terminées
-- ❌ Tâches 4.5, 4.7, 4.8, 4.9 bloquées par problème d'archivage
-- 🔍 **Problème** : `archiveAttemptHistory()` ne crée pas les fichiers JSON
-- 🔍 **Piste** : Vérifier logs, config, et chemins dans `DiagramProcessor.kt`
+**Solutions clés** :
+1. ✅ `ProcessPlantumlPromptsTask` : Ajout `System.setProperty("plugin.project.dir", ...)`
+2. ✅ `ProcessPlantumlPromptsTask` : Propagation `plantuml.test.mode` comme propriété système
+3. ✅ `LlmService.createChatModel()` : Retourne `null` seulement si mode test SANS mock
+4. ✅ `LlmService.createChatModel()` : Utilise vrai `ChatModel` si mock LLM configuré (localhost)
+5. ✅ Tests : Correction assertions pour vérifier `totalAttempts` dans JSON (1 fichier avec N entrées)
+6. ✅ Tests : Utilisation fichier JSON le plus récent pour éviter conflits parallèles
+7. ✅ Feature : Correction `5 iterations` → `6 entrées` (itération 0 + 5 corrections)
 
 ---
 

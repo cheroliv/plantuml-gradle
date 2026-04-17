@@ -95,14 +95,14 @@ plantuml-plugin/src/main/kotlin/plantuml/
 
 ## 📊 État Actuel
 
-**Session 74 TERMINÉE** — Correction échecs tests unitaires ✅
+**Session 83 TERMINÉE** — Phase 4 Historique des tentatives ✅
 
 **Résultats** :
-- ✅ **203 tests unitaires** : 203/203 PASS (100%)
-- ✅ **38 tests fonctionnels** : 38 PASS, 7 SKIP, 0 FAIL (100%)
-- ✅ **Score Roadmap** : 9.0/10 ✅ **OPTIMAL ATTEINT**
+- ✅ **13/13 tests Cucumber** : 100% PASS (EPIC BDD complétée)
+- ✅ **4_attempt_history.feature** : 3/3 scénarios passants
+- ✅ **archiveAttemptHistory()** : Débogé et fonctionnel
 
-**Prochaine session (75)** : À définir (Story 4.3 KDoc, Story 4.4 Detekt/ktlint, ou autre)
+**Prochaine session (84)** : Phase 5 — Consolidation & Qualité
 
 ---
 

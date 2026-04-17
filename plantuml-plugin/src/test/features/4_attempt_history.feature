@@ -15,7 +15,7 @@ Feature: Attempt History Tracking
     Given a prompt file "archive-test.prompt" with content "Create a complex diagram"
     And a mock LLM that always returns invalid PlantUML diagrams
     When I run processPlantumlPrompts task with max 5 iterations
-    Then attempt history should be archived with 5 entries
+    Then attempt history should be archived with 6 entries
     And no diagram should be generated
     And the prompt file should be deleted
 

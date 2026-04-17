@@ -1,5 +1,6 @@
 package plantuml.scenarios
 
+import io.cucumber.java.After
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
@@ -8,6 +9,11 @@ import org.assertj.core.api.Assertions.assertThat
 import java.io.File
 
 class PlantumlSteps(private val world: PlantumlWorld) {
+
+    @After
+    fun cleanup() {
+        world.cleanup()
+    }
 
     @Given("a prompt file {string} with content {string}")
     fun createPromptFile(fileName: String, content: String) {
@@ -169,40 +175,60 @@ class PlantumlSteps(private val world: PlantumlWorld) {
         assertThat(historyDir).`as`("History directory should exist").exists()
         
         val historyFiles = historyDir.listFiles { file -> file.extension == "json" }
-        assertThat(historyFiles).`as`("Should find JSON history files").isNotNull.hasSize(expectedCount)
+        assertThat(historyFiles).`as`("Should find JSON history files").isNotNull.isNotEmpty
+        
+        // Check that the history file contains the expected number of entries
+        val historyFile = historyFiles?.firstOrNull()
+        if (historyFile != null) {
+            val content = historyFile.readText()
+            assertThat(content).contains("\"totalAttempts\" : $expectedCount")
+        }
     }
 
     @Then("the first entry should indicate syntax error")
     fun firstEntryShouldIndicateSyntaxError() {
         val historyDir = File(world.projectDir, "generated/diagrams")
-        if (historyDir.exists()) {
-            val historyFiles = historyDir.listFiles { file -> file.extension == "json" }
-            assertThat(historyFiles).isNotNull.isNotEmpty
-
-            val firstFile = historyFiles?.firstOrNull()
-            if (firstFile != null) {
-                val content = firstFile.readText()
-                assertThat(content).contains("syntax").contains("error")
-            }
+        assertThat(historyDir).`as`("History directory should exist").exists()
+        
+        val historyFiles = historyDir.listFiles { file -> file.extension == "json" }
+            ?.sortedByDescending { it.lastModified() }
+        
+        assertThat(historyFiles).`as`("Should find JSON files").isNotNull.isNotEmpty
+        
+        val firstFile = historyFiles?.firstOrNull()
+        if (firstFile != null) {
+            val content = firstFile.readText()
+            // Check that first entry is invalid (valid: false)
+            val validPattern = Regex("\"valid\"\\s*:\\s*(true|false)")
+            val validMatches = validPattern.findAll(content).map { it.groupValues[1] }.toList()
+            
+            assertThat(validMatches).`as`("Should have at least 1 entry").isNotEmpty()
+            assertThat(validMatches[0]).`as`("First entry should be invalid").isEqualTo("false")
         }
     }
 
     @Then("the second entry should indicate success")
     fun secondEntryShouldIndicateSuccess() {
         val historyDir = File(world.projectDir, "generated/diagrams")
-        if (historyDir.exists()) {
-            val historyFiles = historyDir.listFiles { file -> file.extension == "json" }
-
-            if (historyFiles != null && historyFiles.size >= 2) {
-                val secondFile = historyFiles[1]
-                val content = secondFile.readText()
-
-                assertThat(content).doesNotContain("error")
-            } else {
-                throw AssertionError("Expected at least 2 history entries, but found ${historyFiles?.size ?: 0}")
-            }
+        assertThat(historyDir).`as`("History directory should exist").exists()
+        
+        val historyFiles = historyDir.listFiles { file -> file.extension == "json" }
+            ?.sortedByDescending { it.lastModified() }
+        
+        assertThat(historyFiles).`as`("Should find JSON files").isNotNull.isNotEmpty
+        
+        val latestFile = historyFiles?.firstOrNull()
+        if (latestFile != null) {
+            val content = latestFile.readText()
+            
+            // Check that 2nd entry is valid (valid: true)
+            val validPattern = Regex("\"valid\"\\s*:\\s*(true|false)")
+            val validMatches = validPattern.findAll(content).map { it.groupValues[1] }.toList()
+            
+            assertThat(validMatches.size).`as`("Should have at least 2 entries").isGreaterThanOrEqualTo(2)
+            assertThat(validMatches[1]).`as`("Second entry should be valid (true)").isEqualTo("true")
         } else {
-            throw AssertionError("History directory does not exist")
+            throw AssertionError("No JSON files found in history directory")
         }
     }
 
@@ -293,7 +319,14 @@ class PlantumlSteps(private val world: PlantumlWorld) {
         assertThat(archiveDir).`as`("Archive directory should exist").exists()
         
         val archivedFiles = archiveDir.listFiles { file -> file.extension == "json" }
-        assertThat(archivedFiles).`as`("Should find JSON archive files").isNotNull.hasSize(expectedCount)
+        assertThat(archivedFiles).`as`("Should find JSON archive files").isNotNull.isNotEmpty
+        
+        // Check that the archive file contains the expected number of entries
+        val archiveFile = archivedFiles?.firstOrNull()
+        if (archiveFile != null) {
+            val content = archiveFile.readText()
+            assertThat(content).contains("\"totalAttempts\" : $expectedCount")
+        }
     }
 
     @Then("no diagram should be generated")
@@ -308,39 +341,53 @@ class PlantumlSteps(private val world: PlantumlWorld) {
     @Then("the first three entries should indicate syntax errors")
     fun firstThreeEntriesShouldIndicateSyntaxErrors() {
         val historyDir = File(world.projectDir, "generated/diagrams")
-        if (historyDir.exists()) {
-            val historyFiles = historyDir.listFiles { file -> file.extension == "json" }
-                ?.sortedBy { it.nameWithoutExtension }
-
-            if (historyFiles != null && historyFiles.size >= 3) {
-                for (i in 0 until 3) {
-                    val content = historyFiles[i].readText()
-                    assertThat(content).contains("syntax").contains("error")
-                }
-            } else {
-                throw AssertionError("Need at least 3 history entries to evaluate the first three.")
+        assertThat(historyDir).`as`("History directory should exist").exists()
+        
+        val historyFiles = historyDir.listFiles { file -> file.extension == "json" }
+            ?.sortedByDescending { it.lastModified() } // Get most recent file first
+        
+        assertThat(historyFiles).`as`("Should find at least one JSON file").isNotNull.isNotEmpty
+        
+        val latestFile = historyFiles!!.firstOrNull()
+        if (latestFile != null) {
+            val content = latestFile.readText()
+            
+            // Check that first 3 entries are invalid (valid: false)
+            val validPattern = Regex("\"valid\"\\s*:\\s*(true|false)")
+            val validMatches = validPattern.findAll(content).map { it.groupValues[1] }.toList()
+            
+            assertThat(validMatches.size).`as`("Should have at least 3 entries").isGreaterThanOrEqualTo(3)
+            
+            for (i in 0 until 3) {
+                assertThat(validMatches[i]).`as`("Entry $i should be invalid (false)").isEqualTo("false")
             }
         } else {
-            throw AssertionError("History directory does not exist")
+            throw AssertionError("No JSON files found in history directory")
         }
     }
 
     @Then("the fourth entry should indicate success")
     fun fourthEntryShouldIndicateSuccess() {
         val historyDir = File(world.projectDir, "generated/diagrams")
-        if (historyDir.exists()) {
-            val historyFiles = historyDir.listFiles { file -> file.extension == "json" }
-                ?.sortedBy { it.nameWithoutExtension }
-
-            if (historyFiles != null && historyFiles.size >= 4) {
-                val content = historyFiles[3].readText()
-
-                assertThat(content).doesNotContain("syntax error")
-            } else {
-                throw AssertionError("Need at least 4 history entries; only got ${historyFiles?.size ?: 0}.")
-            }
+        assertThat(historyDir).`as`("History directory should exist").exists()
+        
+        val historyFiles = historyDir.listFiles { file -> file.extension == "json" }
+            ?.sortedByDescending { it.lastModified() } // Get most recent file first
+        
+        assertThat(historyFiles).`as`("Should find at least one JSON file").isNotNull.isNotEmpty
+        
+        val latestFile = historyFiles!!.firstOrNull()
+        if (latestFile != null) {
+            val content = latestFile.readText()
+            
+            // Check that 4th entry is valid (valid: true)
+            val validPattern = Regex("\"valid\"\\s*:\\s*(true|false)")
+            val validMatches = validPattern.findAll(content).map { it.groupValues[1] }.toList()
+            
+            assertThat(validMatches.size).`as`("Should have at least 4 entries").isGreaterThanOrEqualTo(4)
+            assertThat(validMatches[3]).`as`("Entry 4 should be valid (true)").isEqualTo("true")
         } else {
-            throw AssertionError("History directory does not exist")
+            throw AssertionError("No JSON files found in history directory")
         }
     }
 }

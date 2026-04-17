@@ -1,80 +1,98 @@
-# 🔄 Prompt de reprise — Session 83
+# 🔄 Prompt de reprise — Session 84
 
 > **EPIC** : `EPIC_CONSOLIDATION_TESTS_FONCTIONNELS.md` — **EPIC Tests BDD Cucumber**  
-> **Statut** : Session 82 PARTIELLE 🔴 — Phase 4 (Historique) bloquée  
-> **Prochaine mission** : Session 83 — Déboguer `archiveAttemptHistory()`
+> **Statut** : Session 83 ✅ TERMINÉE — Phase 4 (Historique) **100% COMPLÉTÉE**  
+> **Prochaine mission** : Session 84 — Phase 5 (Consolidation & Qualité)
 
 ---
 
-## 📊 Session 82 — Résumé (PARTIEL) 🔴
+## 📊 Session 83 — Résumé (✅ TERMINÉE)
 
 **Date** : 17 avr. 2026  
-**Résultats** :
-- ✅ **AttemptHistorySteps.kt supprimé** (obsolète)
-- ✅ **PlantumlWorld.mockLlmReturnsSequence()** ajouté
-- ✅ **4_attempt_history.feature** réactivé (3 scénarios)
-- ✅ **PlantumlSteps** : Steps multi-réponses ajoutés
-- ❌ **3/3 scénarios échouent** : `History directory should exist`
+**Résultats** : **13/13 scénarios Cucumber passants (100%)** 🎉
 
-**Problème** : `archiveAttemptHistory()` dans `DiagramProcessor.kt` ne crée pas les fichiers JSON
+**Problème initial** : `archiveAttemptHistory()` ne créait pas les fichiers JSON
 
-**Modifications** :
-- `src/test/scenarios/plantuml/scenarios/AttemptHistorySteps.kt` — Supprimé
-- `src/test/scenarios/plantuml/scenarios/PlantumlWorld.kt` — `mockLlmReturnsSequence()` ajouté
-- `src/test/features/4_attempt_history.feature` — Réactivé
-- `src/test/scenarios/plantuml/scenarios/PlantumlSteps.kt` — Steps multi-réponses
-- `src/main/kotlin/plantuml/service/DiagramProcessor.kt` — `archiveAttemptHistory()` modifié (plusieurs fois)
-- `src/main/kotlin/plantuml/service/LlmService.kt` — `createChatModel()` (tentative mode test)
+**Solutions appliquées** :
+
+### 1. Propagation propriétés système (`ProcessPlantumlPromptsTask.kt`)
+```kotlin
+// Dans processPrompts()
+System.setProperty("plugin.project.dir", project.projectDir.absolutePath)
+
+val testMode = project.findProperty("plantuml.test.mode") as? String
+if (testMode == "true") {
+    System.setProperty("plantuml.test.mode", "true")
+}
+```
+
+### 2. Détection mock LLM (`LlmService.kt`)
+```kotlin
+fun createChatModel(): ChatModel? {
+    val isTestMode = System.getProperty("plantuml.test.mode") == "true"
+    val isMockConfigured = config.langchain4j.ollama.baseUrl.contains("localhost")
+    
+    if (isTestMode && !isMockConfigured) {
+        return null  // Simulation locale
+    }
+    // Sinon utilise le vrai ChatModel (qui appelle le mock serveur)
+    return when (config.langchain4j.model.lowercase()) { ... }
+}
+```
+
+### 3. Correction assertions tests (`PlantumlSteps.kt`)
+- **Problème** : Tests attendaient N fichiers JSON (1 par tentative)
+- **Réalité** : 1 fichier JSON avec N entrées (`totalAttempts`)
+- **Solution** : Lire `totalAttempts` dans le fichier le plus récent
+
+### 4. Correction feature file (`4_attempt_history.feature`)
+- **Problème** : `5 iterations` = 5 entrées attendues
+- **Réalité** : 5 iterations = 6 entrées (itération 0 + 5 corrections)
+
+**Fichiers modifiés** :
+- `src/main/kotlin/plantuml/tasks/ProcessPlantumlPromptsTask.kt`
+- `src/main/kotlin/plantuml/service/LlmService.kt`
+- `src/main/kotlin/plantuml/service/DiagramProcessor.kt`
+- `src/test/scenarios/plantuml/scenarios/PlantumlSteps.kt`
+- `src/test/features/4_attempt_history.feature`
+- `src/test/resources/logback-test.xml`
 
 **Voir** : `SESSIONS_HISTORY.md` pour détails complets
 
 ---
 
-## 🎯 Session 83 — Mission
+## 🎯 Session 84 — Mission
 
-### EPIC Tests BDD Cucumber — Phase 4 — Débogage archiveAttemptHistory()
+### EPIC Tests BDD Cucumber — Phase 5 — Consolidation & Qualité
 
-**Priorité** : 🔴 **CRITIQUE**  
-**Impact** : 13/13 scénarios passants (100% EPIC BDD)  
-**Durée estimée** : 1-2 sessions
+**Priorité** : 🟡 **MOYENNE**  
+**Impact** : Qualité et maintenabilité  
+**Durée estimée** : 1 session
 
-#### Objectif : Comprendre pourquoi archiveAttemptHistory() ne crée pas les fichiers
+#### Tâches recommandées :
 
-**Fichiers cibles** :
-- `src/main/kotlin/plantuml/service/DiagramProcessor.kt` — `archiveAttemptHistory()`
-- `src/test/scenarios/plantuml/scenarios/PlantumlSteps.kt` — Propriétés Gradle
-- `src/main/kotlin/plantuml/tasks/ProcessPlantumlPromptsTask.kt` — Configuration
+1. **Nettoyage fichiers temporaires**
+   - Vérifier que `PlantumlWorld.cleanup()` supprime tous les fichiers `/tmp/gradle-test-*`
+   - Ajouter `@AfterEach` pour nettoyage systématique
 
-**Pistes testées en Session 82 (toutes échouées)** :
-1. ❌ `chatModel == null` → Simulation, pas mock LLM
-2. ❌ `System.getProperty("plantuml.test.mode")` → Non propagé
-3. ❌ `System.getProperty("plugin.project.dir")` → Non lu
-4. ❌ Chemins relatifs vs absolus → Mauvais endroit
-5. ❌ `config?.output?.diagrams` → Null en test
+2. **Documentation des steps**
+   - Créer `src/test/scenarios/README.md`
+   - Lister tous les steps Cucumber disponibles avec exemples
 
-**Pistes à explorer Session 83** :
-1. 🔍 Ajouter logs dans `archiveAttemptHistory()` pour voir :
-   - Si la méthode est appelée
-   - Valeur de `history.size`
-   - Valeur de `diagramsDir.absolutePath`
-   - Si `historyFile.writeText()` réussit
-2. 🔍 Vérifier si `config` est null en mode test
-3. 🔍 Utiliser `println()` forcé (pas logger) pour debug
-4. 🔍 Alternative : Archiver dans `java.io.tmpdir` + lire depuis tests
+3. **Tags @wip pour tests en développement**
+   - Ajouter tag `@wip` aux scénarios en cours de développement
+   - Configurer `cucumberTest` pour exclure `@wip` par défaut
 
-**Tâches** :
-1. 🔍 Debugger `archiveAttemptHistory()` avec logs détaillés
-2. 🔍 Identifier pourquoi `history` est vide ou mal archivé
-3. 🔍 Corriger le chemin de sortie
-4. ✅ Valider 3 scénarios d'historique
-5. ✅ `./gradlew cucumberTest` : 13 scénarios passants
+4. **Vérification rapport HTML**
+   - Exécuter `./gradlew cucumberTest`
+   - Ouvrir `build/reports/tests/cucumberTest/index.html`
+   - Vérifier qu'aucun test n'est ignoré ou skipped
 
 **Critères d'acceptation** :
-- [ ] Logs ajoutés dans `archiveAttemptHistory()`
-- [ ] Cause racine identifiée
-- [ ] Correction appliquée
-- [ ] 3 scénarios d'historique validés
-- [ ] 13/13 scénarios Cucumber passants
+- [ ] Fichiers temporaires nettoyés après chaque test
+- [ ] README des steps Cucumber créé
+- [ ] Tags @wip configurés
+- [ ] Rapport HTML propre
 
 ---
 
@@ -82,10 +100,10 @@
 
 | Fichier | Rôle |
 |---------|------|
-| `SESSIONS_HISTORY.md` | Résumé Session 82 + pistes testées |
-| `AGENT_PLAN.md` | Phase 4 — État d'avancement |
-| `src/main/kotlin/plantuml/service/DiagramProcessor.kt` | `archiveAttemptHistory()` à debugger |
-| `src/test/scenarios/plantuml/scenarios/PlantumlSteps.kt` | Propriétés Gradle à passer |
+| `SESSIONS_HISTORY.md` | Résumé Session 83 + solutions |
+| `AGENT_PLAN.md` | Phase 5 — État d'avancement |
+| `src/test/scenarios/plantuml/scenarios/PlantumlWorld.kt` | Nettoyage à vérifier |
+| `build.gradle.kts` | Configuration tags @wip |
 
 ---
 
@@ -96,34 +114,32 @@
 | `1_minimal.feature` | 1 | ✅ PASS |
 | `2_plantuml_processing.feature` | 3 | ✅ PASS |
 | `3_syntax_validation.feature` | 3 | ✅ PASS |
-| `4_attempt_history.feature` | 3 | ❌ FAILED (directory not exist) |
+| `4_attempt_history.feature` | 3 | ✅ PASS |
 
-**Total** : 10/13 scénarios passants (77%)
-
----
-
-## ⚠️ Points de vigilance
-
-1. **Logs** : Utiliser `println()` si logger ne sort pas
-2. **Chemins** : Toujours utiliser des chemins absolus
-3. **Config** : Vérifier si `config` est null en test
-4. **History** : Vérifier si `history.isNotEmpty()` est vrai
-5. **Git** : L'utilisateur gère Git manuellement (commit, push)
+**Total** : 13/13 scénarios passants (100%)
 
 ---
 
-## 🔄 Procédure de fin de session (Rappel)
+## 🧭 Démarche de débogage Session 83 (pour référence)
 
-**Voir** : `SESSION_PROCEDURE.md`
+**Pistes testées (échouées)** :
+1. ❌ `chatModel == null` → Utilisait simulation, pas mock LLM
+2. ❌ `System.getProperty("plantuml.test.mode")` → Non propagé au plugin
+3. ❌ `System.getProperty("plugin.project.dir")` → Non lu dans `DiagramProcessor`
+4. ❌ Chemins relatifs vs absolus → `generated/diagrams` créé au mauvais endroit
+5. ❌ `config?.output?.diagrams` → Null en test
 
-**Étapes obligatoires** :
-1. ✅ Mettre à jour `AGENT_PLAN.md` avec le résumé de la session
-2. ✅ Mettre à jour `SESSIONS_HISTORY.md` avec l'entrée de la session
-3. ✅ Mettre à jour `COMPLETED_TASKS_ARCHIVE.md` avec les tâches terminées
-4. ✅ Mettre à jour ce fichier (`PROMPT_REPRISE.md`) pour la session N+1
+**Piste gagnante** :
+✅ **Combinaison de 3 corrections** :
+1. Propager `plugin.project.dir` ET `plantuml.test.mode` comme propriétés système
+2. `LlmService.createChatModel()` retourne `null` SEULEMENT si test mode SANS mock
+3. Si mock configuré (localhost), utilise vrai `ChatModel` pour appeler le mock serveur
 
-**⚠️ Git** : L'utilisateur gère Git manuellement (commit, push)
+**Leçon apprise** :
+- Les propriétés Gradle (`-P`) ne sont PAS automatiquement des propriétés système
+- Le mock LLM nécessite un vrai `ChatModel` pointant vers `localhost:port`
+- `archiveAttemptHistory()` crée 1 fichier JSON avec N entrées, pas N fichiers
 
 ---
 
-**Session 83 — Prêt à démarrer** 🚀
+**Session 84 — Prêt à démarrer** 🚀

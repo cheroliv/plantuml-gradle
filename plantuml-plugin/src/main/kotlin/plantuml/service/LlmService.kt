@@ -30,18 +30,29 @@ class LlmService(private val config: PlantumlConfig) {
     /**
      * Creates and configures a LangChain4j [ChatModel] based on the active provider.
      *
-     * @return A configured [ChatModel] instance for the selected provider
+     * @return A configured [ChatModel] instance for the selected provider, or null in simple test mode
      * @throws IllegalArgumentException if provider name is invalid
      */
-    fun createChatModel(): ChatModel = when (config.langchain4j.model.lowercase()) {
-        "ollama" -> createOllamaModel()
-        "openai" -> createOpenAiModel()
-        "gemini" -> createGeminiModel()
-        "mistral" -> createMistralModel()
-        "claude" -> createClaudeModel()
-        "huggingface" -> createHuggingFaceModel()
-        "groq" -> createGroqModel()
-        else -> createOllamaModel() // Default to Ollama
+    fun createChatModel(): ChatModel? {
+        // Return null only in simple test mode without mock LLM server
+        // If mock LLM server is configured (localhost baseUrl), use real Ollama model
+        val isTestMode = System.getProperty("plantuml.test.mode") == "true" || System.getenv("TEST_ENV") == "true"
+        val isMockConfigured = config.langchain4j.ollama.baseUrl.contains("localhost")
+        
+        if (isTestMode && !isMockConfigured) {
+            return null
+        }
+        
+        return when (config.langchain4j.model.lowercase()) {
+            "ollama" -> createOllamaModel()
+            "openai" -> createOpenAiModel()
+            "gemini" -> createGeminiModel()
+            "mistral" -> createMistralModel()
+            "claude" -> createClaudeModel()
+            "huggingface" -> createHuggingFaceModel()
+            "groq" -> createGroqModel()
+            else -> createOllamaModel() // Default to Ollama
+        }
     }
 
     /**

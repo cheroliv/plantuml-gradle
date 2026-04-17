@@ -31,7 +31,17 @@ class PlantumlWorld {
 
     companion object {
         private var templateProjectDir: File? = null
-        private val pluginVersion: String = "0.0.0"
+        private val pluginVersion: String by lazy {
+            val projectRoot = File(System.getProperty("user.dir"))
+            val tomlFile = File(projectRoot, "gradle/libs.versions.toml")
+            check(tomlFile.exists()) { "Cannot find libs.versions.toml at ${tomlFile.absolutePath}" }
+            tomlFile.readLines()
+                .firstOrNull { it.startsWith("plantuml =") }
+                ?.substringAfter("=")
+                ?.trim()
+                ?.trim('"')
+                ?: throw IllegalStateException("Cannot find plantuml version in libs.versions.toml")
+        }
 
         @BeforeAll
         @JvmStatic
@@ -46,14 +56,16 @@ class PlantumlWorld {
                 File(System.getProperty("java.io.tmpdir"), "plantuml-test-template-${System.currentTimeMillis()}")
             templateDir.mkdirs()
 
+            val pluginRoot = File(System.getProperty("user.dir"))
+
             File(templateDir, "settings.gradle.kts").writeText(
                 """
                 pluginManagement {
                     repositories {
-                        mavenLocal()
                         gradlePluginPortal()
                     }
                 }
+                includeBuild("${pluginRoot.absolutePath.replace("\\", "\\\\")}")
                 rootProject.name = "plantuml-test-template"
                 """.trimIndent()
             )
@@ -61,7 +73,7 @@ class PlantumlWorld {
             File(templateDir, "build.gradle.kts").writeText(
                 """
                 plugins {
-                    id("com.cheroliv.plantuml") version "$pluginVersion"
+                    id("com.cheroliv.plantuml")
                 }
                 
                 plantuml {

@@ -17,6 +17,9 @@
 
     <!-- Logger pour vos tests -->
     <logger name="plantuml" level="DEBUG"/>
+    
+    <!-- Logger pour DiagramProcessor -->
+    <logger name="plantuml.service.DiagramProcessor" level="DEBUG"/>
 
     <!-- Configuration spécifique pour WireMock -->
     <logger name="wiremock" level="INFO"/>

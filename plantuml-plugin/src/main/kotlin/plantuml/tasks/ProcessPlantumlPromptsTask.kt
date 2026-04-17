@@ -58,6 +58,15 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
      */
     @TaskAction
     fun processPrompts() {
+        // Set project directory for DiagramProcessor to use when archiving history
+        System.setProperty("plugin.project.dir", project.projectDir.absolutePath)
+        
+        // Set test mode flag if provided as Gradle property
+        val testMode = project.findProperty("plantuml.test.mode") as? String
+        if (testMode == "true") {
+            System.setProperty("plantuml.test.mode", "true")
+        }
+        
         // Load configuration
         val config = loadConfiguration()
         val promptsDir = project.findProperty("plantuml.prompts.dir") as? String
@@ -92,6 +101,7 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
         val plantumlService = PlantumlService()
         val llmService = LlmService(config)
         val chatModel = llmService.createChatModel()
+        logger.lifecycle("DEBUG: chatModel=$chatModel, config.output.diagrams=${config.output.diagrams}, testMode=${System.getProperty("plantuml.test.mode")}")
         val diagramProcessor = DiagramProcessor(plantumlService, chatModel, config)
 
         promptFiles.forEach { promptFile ->

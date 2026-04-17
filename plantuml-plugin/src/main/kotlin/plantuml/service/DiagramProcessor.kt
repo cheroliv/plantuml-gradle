@@ -57,6 +57,8 @@ class DiagramProcessor(
     private val config: PlantumlConfig?
 ) {
 
+    private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(DiagramProcessor::class.java)
+
     private val objectMapper: ObjectMapper = ObjectMapper()
         .registerModule(JavaTimeModule())
         .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
@@ -80,11 +82,13 @@ class DiagramProcessor(
      *         or null if all iterations fail
      */
     fun processPrompt(prompt: String, maxIterations: Int = 5, logger: Logger): PlantumlDiagram? {
+        logger.debug("processPrompt: chatModel={}, config={}, testMode={}", chatModel, config, System.getProperty("plantuml.test.mode"))
         // Initialize attempt history
         val attemptHistory = mutableListOf<AttemptEntry>()
 
         // For testing purposes, we'll use simulated responses when chatModel is null
         if (chatModel == null) {
+            logger.debug("processPrompt: Running in test mode (chatModel is null)")
             // Simulate the LLM response since we're in test mode
             var currentCode = generateSimulatedLlmResponse(prompt)
             var iterations = 0
@@ -229,6 +233,7 @@ class DiagramProcessor(
      * @param history Complete list of [AttemptEntry] from prompt processing
      */
     private fun archiveAttemptHistory(history: List<AttemptEntry>, logger: Logger) {
+        logger.debug("archiveAttemptHistory: history.size={}, config={}", history.size, config)
         // Always archive if there is at least one attempt
         if (history.isNotEmpty()) {
             try {
@@ -242,9 +247,13 @@ class DiagramProcessor(
                 val projectDir = File(projectDirPath)
                 val diagramsDir = File(projectDir, diagramsPath)
                 
+                logger.debug("archiveAttemptHistory: diagramsPath={}, projectDirPath={}, diagramsDir={}, diagramsDir.exists={}", 
+                    diagramsPath, projectDirPath, diagramsDir.absolutePath, diagramsDir.exists())
+                
                 if (!diagramsDir.exists()) {
                     val created = diagramsDir.mkdirs()
-                    logger.info("Created diagrams directory: ${diagramsDir.absolutePath}, success=$created, pwd=${System.getProperty("user.dir")}")
+                    logger.debug("archiveAttemptHistory: Created diagrams directory: {}, success={}, pwd={}", 
+                        diagramsDir.absolutePath, created, System.getProperty("user.dir"))
                 }
 
                 // Create a filename based on timestamp
@@ -256,12 +265,14 @@ class DiagramProcessor(
                 val historyJson = convertHistoryToJson(history)
                 historyFile.writeText(historyJson)
                 
-                logger.info("Archived attempt history with ${history.size} entries to ${historyFile.absolutePath}, exists=${historyFile.exists()}, projectDir=$projectDirPath")
+                logger.debug("archiveAttemptHistory: Archived attempt history with {} entries to {}, exists={}", 
+                    history.size, historyFile.absolutePath, historyFile.exists())
 
             } catch (e: Exception) {
-                logger.error("Failed to archive attempt history: ${e.message}", e)
-                // Don't throw the exception to avoid failing the task
+                logger.error("archiveAttemptHistory: Failed to archive attempt history: {}", e.message, e)
             }
+        } else {
+            logger.debug("archiveAttemptHistory: history is empty, skipping archive")
         }
     }
 
