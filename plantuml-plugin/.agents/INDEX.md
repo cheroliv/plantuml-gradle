@@ -6,6 +6,21 @@
 
 ---
 
+## ⚠️ RÈGLE ABSOLUE — COMMITS/GIT
+
+**L'agent NE DOIT JAMAIS** exécuter de commit, push, merge, ou toute commande git modifiant l'historique **SANS permission explicite de l'utilisateur**.
+
+- ✅ **Autorisé** : `git status`, `git diff`, `git log`, `git show` (lecture seule)
+- ❌ **Interdit** : `git add`, `git commit`, `git push`, `git merge`, `git rebase` (sauf ordre explicite)
+
+**Procédure obligatoire avant tout commit** :
+1. Montrer les modifications (`git diff --stat`)
+2. Demander : "Veux-tu que je commit ces changements ?"
+3. **Attendre confirmation explicite** ("oui", "commit", "vas-y")
+4. **Seulement après** : exécuter le commit
+
+---
+
 ## 🎯 Sessions Récentes (5 dernières)
 
 | # | Date | Type | Sujet | Fichier | Score |
