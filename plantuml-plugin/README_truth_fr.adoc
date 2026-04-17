@@ -283,9 +283,127 @@ data class PlantumlDiagram(
 # Tests fonctionnels (GradleTestKit)
 ./gradlew functionalTest
 
+# Tests Cucumber BDD
+./gradlew cucumberTest
+
 # Tous les tests
 ./gradlew check
 ----
+
+== Tests Cucumber BDD
+
+Le plugin inclut une suite de tests BDD complète utilisant Cucumber-JVM. Les scénarios sont dans `src/test/features/` avec les implémentations de steps dans `src/test/scenarios/`.
+
+=== Tags de Test
+
+[cols="1,3"]
+|===
+| Tag | Objectif
+
+| `@wip`
+| Scénarios en cours de développement — exclus des exécutions par défaut
+
+| `@integration`
+| Scénarios nécessitant un vrai LLM (Ollama) — exclus des exécutions par défaut
+|===
+
+=== Exécuter les Tests Cucumber
+
+[source,bash]
+----
+# Lancer tous les tests Cucumber (exclut @wip et @integration)
+./gradlew cucumberTest
+
+# Lancer un scénario spécifique
+./gradlew cucumberTest --tests "*ScenarioName*"
+
+# Lancer uniquement les scénarios @wip
+./gradlew cucumberTest -Pcucumber.filter.tags="@wip"
+
+# Lancer les tests d'intégration avec un vrai LLM
+./gradlew cucumberTest -Pcucumber.filter.tags="@integration"
+----
+
+=== Rapports de Test
+
+Cucumber génère des rapports HTML et JSON :
+
+* **HTML** : `build/reports/cucumber.html`
+* **JSON** : `build/reports/cucumber.json`
+
+Ouvrir `build/reports/cucumber.html` dans un navigateur pour voir les résultats détaillés.
+
+=== Steps Disponibles
+
+==== Initialisation
+
+[source,gherkin]
+----
+Given a prompt file "test.prompt" with content "Generate a diagram"
+Given a valid PlantUML file "test.puml" with content "@startuml\nactor User\n@enduml"
+Given an invalid PlantUML file "test.puml" with content "@startumlnactor User\n@endulm"
+----
+
+==== Mock LLM
+
+[source,gherkin]
+----
+Given a mock LLM that returns a valid PlantUML diagram
+Given a mock LLM that returns an invalid PlantUML diagram on first attempt
+Given a mock LLM that returns a valid PlantUML diagram on second attempt
+Given a mock LLM that always returns invalid PlantUML diagrams
+Given a mock LLM that returns invalid PlantUML diagrams for first 3 attempts
+Given a mock LLM that returns a sequence of responses: invalid then valid
+Given a mock LLM that returns a sequence of 4 responses: 3 invalid then valid
+----
+
+==== Exécution de Tâches
+
+[source,gherkin]
+----
+When I run processPlantumlPrompts task
+When I run processPlantumlPrompts task with max 5 iterations
+When I run validatePlantumlSyntax task with file "test.puml"
+----
+
+==== Vérifications
+
+[source,gherkin]
+----
+Then a PlantUML diagram should be generated
+Then a PNG image should be created
+Then the prompt file should be deleted
+Then the syntax should be reported as valid
+Then the syntax should be reported as invalid
+Then error details should be provided
+Then the LLM should correct the syntax after iteration
+Then a valid diagram should be generated
+Then validation feedback should be saved
+----
+
+==== Historique des Tentatives
+
+[source,gherkin]
+----
+Then attempt history should be tracked with 5 entries
+Then the first entry should indicate syntax error
+Then the second entry should indicate success
+Then attempt history should be archived with 6 entries
+Then the first three entries should indicate syntax errors
+Then the fourth entry should indicate success
+Then no diagram should be generated
+----
+
+=== Architecture des Tests
+
+Les tests Cucumber utilisent un objet d'état partagé `PlantumlWorld` qui :
+
+* Crée des projets Gradle temporaires isolés pour chaque scénario
+* Gère des serveurs HTTP mock LLM
+* Gère l'exécution asynchrone de Gradle via coroutines
+* Nettoie automatiquement les fichiers temporaires après chaque scénario (via hook `@After`)
+
+Les tests utilisent `includeBuild()` pour référencer le plugin en développement directement depuis le classpath, évitant ainsi d'avoir à faire un `publishToMavenLocal`.
 
 === Publication sur Gradle Plugin Portal
 
