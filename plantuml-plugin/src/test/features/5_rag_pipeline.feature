@@ -1,4 +1,4 @@
-@wip @rag @integration
+@rag
 Feature: RAG Pipeline
 
   Background:
@@ -20,7 +20,7 @@ Feature: RAG Pipeline
     Then the LLM request should contain RAG context chunks
     And the RAG similarity score should be logged
 
-  @rag @wip
+  @rag
   Scenario: Incremental reindex skips unchanged prompts
     Given a running pgvector container with existing embeddings
     And the prompt file has not been modified
@@ -28,7 +28,7 @@ Feature: RAG Pipeline
     Then unchanged prompts should be skipped
     And only new or modified prompts should be indexed
 
-  @rag @wip
+  @rag
   Scenario: RAG cleanup removes deleted prompt embeddings
     Given a running pgvector container with embeddings for 3 prompts
     And one prompt file is deleted

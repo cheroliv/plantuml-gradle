@@ -33,7 +33,7 @@ Feature: Error Handling
     When I run processPlantumlPrompts task
     Then the system should detect the invalid format
     And request correction from the LLM
-    Or fail with descriptive error after max attempts
+    And fail with descriptive error after max attempts
 
   @error @docker
   Scenario: Handle pgvector container startup failure
