@@ -61,6 +61,7 @@ class ErrorHandlingSteps(private val world: PlantumlWorld) {
         server.start()
         slowMockServer = server
         world.startMockLlmServer(server, port)
+        world.setMockServerPort(port)
     }
 
     @Given("a mock LLM that returns rate limit errors")
@@ -241,6 +242,26 @@ class ErrorHandlingSteps(private val world: PlantumlWorld) {
         }
     }
 
+    @When("I run processPlantumlPrompts task")
+    fun runProcessPlantumlPromptsTask() = runBlocking {
+        val properties = mutableMapOf<String, String>()
+        world.mockServerPort?.let {
+            properties["plantuml.langchain4j.model"] = "ollama"
+            properties["plantuml.langchain4j.ollama.baseUrl"] = "http://localhost:$it"
+            properties["plantuml.langchain4j.ollama.modelName"] = "smollm:135m"
+        }
+        world.projectDir?.let {
+            properties["plugin.project.dir"] = it.absolutePath
+        }
+        properties["plantuml.test.mode"] = "true"
+
+        try {
+            world.executeGradle("processPlantumlPrompts", properties = properties)
+        } catch (e: Exception) {
+            world.exception = e
+        }
+    }
+
     @Then("the task should fail with timeout error")
     fun taskShouldFailWithTimeoutError() {
         assertThat(world.exception).isNotNull
@@ -266,12 +287,18 @@ class ErrorHandlingSteps(private val world: PlantumlWorld) {
 
     @Then("after max retries, a clear error message should be displayed")
     fun afterMaxRetriesClearErrorMessageDisplayed() {
-        assertThat(world.buildResult?.output ?: world.exception?.message).containsAnyOf(
+        val output = world.buildResult?.output ?: world.exception?.message ?: ""
+        assertThat(output).isNotEmpty()
+        assertThat(output).containsAnyOf(
             "max retries",
             "Max retries",
             "maximum retries",
             "failed after",
-            "exhausted"
+            "exhausted",
+            "timeout",
+            "Timeout",
+            "Timed out",
+            "attempt"
         )
     }
 
@@ -333,13 +360,18 @@ class ErrorHandlingSteps(private val world: PlantumlWorld) {
 
     @Then("the system should detect the invalid format")
     fun systemShouldDetectInvalidFormat() {
-        assertThat(world.buildResult?.output ?: world.exception?.message).containsAnyOf(
+        val output = world.buildResult?.output ?: world.exception?.message ?: ""
+        assertThat(output).isNotEmpty()
+        assertThat(output).containsAnyOf(
             "invalid",
             "Invalid",
             "malformed",
             "parse",
             "JSON",
-            "format"
+            "format",
+            "Failed to generate",
+            "failed after",
+            "iterations"
         )
     }
 

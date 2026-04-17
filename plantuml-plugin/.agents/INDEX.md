@@ -1,7 +1,7 @@
 # 📊 Index des Sessions — PlantUML Gradle Plugin
 
 **Dernière mise à jour** : 2026-04-17  
-**Session en cours** : 86  
+**Session en cours** : 87  
 **Score Roadmap actuel** : 9.0/10 ✅
 
 ---
@@ -42,6 +42,8 @@
 
 | # | Date | Type | Sujet | Fichier | Score |
 |---|------|------|-------|---------|-------|
+| 87 | 2026-04-17 | test | Error Handling Tests (75% complété) | `87-error-handling-tests.md` | 9.0/10 |
+| 86 | 2026-04-17 | refactor | LLM Providers Steps — Refactorisation tests | `86-refactor-llm-providers-steps.md` | 9.0/10 |
 | 74 | 2026-04-16 | debug | Couverture tests — Correction échecs tests unitaires | `74-debug-couverture-tests.md` | 9.0/10 |
 | 73 | 2026-04-15 | debug | Crash tâche functionalTest — Nettoyage ressources | `73-debug-crash-functional-test.md` | 9.0/10 |
 | 72 | 2026-04-15 | docs | Traduction commentaires FR → EN | `72-docs-traduction-commentaires.md` | 9.0/10 |

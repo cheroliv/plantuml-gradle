@@ -45,12 +45,18 @@ object PlantumlManager {
                     val config = ConfigLoader.load(configFile)
                     println("[plantuml] Config loaded: ${configFile.absolutePath}")
                     config
-                } catch (e: Exception) {
-                    println(
-                        "[plantuml] WARNING: $CONFIG_FILE_NAME contains invalid YAML — " +
-                                "using defaults (${e.message})"
+                } catch (e: com.fasterxml.jackson.core.JsonParseException) {
+                    val lineNum = e.location?.lineNr ?: -1
+                    val colNum = e.location?.columnNr ?: -1
+                    val locationMsg = if (lineNum > 0 && colNum > 0) 
+                        " (line $lineNum, column $colNum)" else ""
+                    throw IllegalStateException(
+                        "Invalid YAML configuration in ${configFile.absolutePath}: ${e.message}$locationMsg"
                     )
-                    PlantumlConfig()
+                } catch (e: Exception) {
+                    throw IllegalStateException(
+                        "Failed to parse YAML configuration from ${configFile.absolutePath}: ${e.message}"
+                    )
                 }
             }
 
