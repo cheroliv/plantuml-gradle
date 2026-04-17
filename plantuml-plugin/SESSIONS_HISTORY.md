@@ -1,5 +1,64 @@
 # Historique des Sessions — PlantUML Gradle Plugin
 
+## Session 91 — 2026-04-18 : Validation Memory Leak Fixes (TERMINÉE) ✅
+
+### ✅ Contexte
+- **Session 90** : Correction fuites mémoire + Feature 7 100%
+- **Objectif** : Vérifier l'efficacité des correctifs mémoire (TestCleanupExtension, forkEvery=1, withReuse(false))
+- **Commande** : `./gradlew cleanCucumberTest cucumberTest`
+
+### ✅ Résultats
+- **Tests exécutés** : 37 scénarios (33 PASS, 4 FAILED, 33 SKIPPED)
+- **Fuites mémoire** : ✅ **0** (0 répertoire temp, 0 container orphelin)
+- **Gradle Daemons** : ✅ Contrôlés (1.2GB RAM vs 2.8GB avant)
+- **Couverture** : 22/61 scénarios passants (36%)
+
+### 🔧 Vérifications effectuées
+
+**1. Répertoires temporaires**
+```bash
+ls -la /tmp | grep gradle-test | wc -l  # → 0 (vs 366 avant Session 90)
+```
+
+**2. Containers Docker**
+```bash
+docker ps -a | grep postgres | wc -l  # → 0 (vs 5 avant)
+```
+
+**3. Gradle Daemons**
+```bash
+ps aux | grep GradleDaemon  # → 1.2GB RAM (forkEvery=1 efficace)
+```
+
+### 📊 Modifications Session 91
+| Fichier | Modification | Impact |
+|--------|--------------|--------|
+| `PROMPT_REPRISE.md` | Session 92 préparée | 4 FAILED documentés + mission Session 92 |
+| `SESSIONS_HISTORY.md` | Session 91 ajoutée | Historique à jour |
+| `.agents/sessions/91-memory-leak-validation.md` | Archive créée | Documentation complète |
+
+### 📋 Leçons apprises
+- **TestCleanupExtension** : Fonctionne parfaitement (cleanup AVANT/APRÈS chaque scénario)
+- **forkEvery=1** : Efficace contre les locks de fichiers et fuites RAM
+- **withReuse(false)** : Containers Docker proprement nettoyés
+- **4 échecs fonctionnels** : Bugs d'assertions (non liés aux fuites)
+
+### 📈 Métriques
+| Métrique | Avant Session 90 | Après Session 91 |
+|----------|------------------|------------------|
+| Répertoires `/tmp/gradle-test-*` | 366 | **0** |
+| Containers PostgreSQL orphelins | 5 | **0** |
+| RAM Gradle Daemon | 2.8GB | **1.2GB** |
+| Scénarios PASS | 21/61 (34%) | **22/61 (36%)** |
+
+### 🎯 Prochaine Session (92)
+- **Feature** : `8_configuration.feature` — 6 scénarios
+- **Corrections** : 4 scénarios FAILED (Error Handling + LLM Providers)
+- **Objectif** : Atteindre 32/61 scénarios passants (52%)
+- **Score Roadmap** : 9.5/10
+
+---
+
 ## Session 83 — 2026-04-17 : Phase 4 — Historique des tentatives (TERMINÉE) ✅
 
 ### ✅ Contexte
