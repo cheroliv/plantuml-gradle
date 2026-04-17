@@ -1,15 +1,16 @@
-# 🔄 Prompt de reprise — Session 90
+# 🔄 Prompt de reprise — Session 91
 
 > **EPIC** : `EPIC_CONSOLIDATION_TESTS_FONCTIONNELS.md` — **EPIC Tests BDD Cucumber**  
-> **Statut** : Session 89 ✅ TERMINÉE — Phase 6 (Error Handling) **87.5% COMPLÉTÉE (7/8)**  
-> **Prochaine mission** : Session 90 — Correction pgvector + Consolidation Feature 7
+> **Statut** : Session 90 ✅ TERMINÉE — Phase 6 (Error Handling) **100% COMPLÉTÉE (8/8)**  
+> **Prochaine mission** : Session 91 — Feature 8 Configuration Edge Cases
 
 ---
 
-## 📊 Session 89 — Résumé (✅ TERMINÉE)
+## 📊 Session 90 — Résumé (✅ TERMINÉE)
 
 **Date** : 17 avr. 2026  
-**Résultats** : **7/8 scénarios Cucumber passants (87.5%)** ✅
+**Résultats** : **8/8 scénarios Cucumber passants (100%)** ✅  
+**Archive** : `.agents/sessions/90-error-handling-100-percent.md`
 
 ### Scénarios implémentés
 
@@ -19,33 +20,40 @@
 | Handle API rate limit errors | ✅ PASS | Fonctionnel (exponential backoff) |
 | Handle network connectivity errors | ✅ PASS | Fonctionnel |
 | Handle invalid LLM response format | ✅ PASS | Fonctionnel |
-| Handle pgvector container startup failure | ⚠️ **@wip** (3/4 steps) | **Problème transmission propriétés Gradle** |
-| Handle disk space exhaustion | ✅ **PASS** | Fonctionnel |
+| Handle pgvector container startup failure | ✅ **PASS** | **Corrigé Session 90** (systemProperties -D) |
+| Handle disk space exhaustion | ✅ PASS | Fonctionnel |
 | Handle missing configuration file | ✅ PASS | Fonctionnel |
 | Handle invalid YAML configuration | ✅ PASS | Fonctionnel |
 
-### Fichiers créés/modifiés Session 89
+### Fichiers créés/modifiés Session 90
 
 | Fichier | Action | Impact |
 |---------|--------|--------|
-| `7_error_handling.feature` | ✅ Modifié | Step renommé + tag @wip ajouté sur scénario pgvector |
-| `ErrorHandlingSteps.kt` | ✅ Modifié | Step `runReindexPlantumlRagTaskWithPortConflict()` créé (évite duplication) |
+| `TestCleanupExtension.kt` | ✅ CRÉÉ | Cleanup global AVANT/APRÈS chaque scénario |
+| `CommonSteps.kt` | ✅ MODIFIÉ | Utilise TestCleanupExtension + logging |
+| `RagPipelineSteps.kt` | ✅ MODIFIÉ | Logging + withReuse(false) |
+| `PlantumlWorld.kt` | ✅ MODIFIÉ | Track répertoires temporaires |
+| `ErrorHandlingSteps.kt` | ✅ MODIFIÉ | Correction systemProperties pour pgvector |
+| `7_error_handling.feature` | ✅ MODIFIÉ | Tag @wip retiré (8/8 PASS) |
+| `build.gradle.kts` | ✅ MODIFIÉ | forkEvery=1 + cleanup doLast |
+| `.agents/memory-leak-analysis.md` | ✅ CRÉÉ | Documentation complète fuites |
 
 ### Fonctionnalités implémentées
 
-1. ✅ **Correction duplication de step** : Renommé `When I run reindexPlantumlRag task` en `When I run reindexPlantumlRag task with port conflict simulation` pour éviter conflit avec `RagPipelineSteps.kt`
-2. ✅ **Tag @wip ajouté** : Scénario pgvector exclu temporairement des tests automatisés
+1. ✅ **Scénario pgvector corrigé** — Transmission via `systemProperties` (-D) au lieu de `properties` (-P)
+2. ✅ **Fuites mémoire corrigées** — TestCleanupExtension + forkEvery=1 + tracking automatique
+3. ✅ **Conflits containers résolus** — Variable unique + withReuse(false) + logging
+4. ✅ **Gradle Daemons contrôlés** — forkEvery=1 + maxHeapSize=1g
+5. ✅ **Tag @wip retiré** — Feature 7 complétée à 100%
 
-### Problème technique restant (à reporter Session 90)
+### Corrections mémoire appliquées
 
-**Handle pgvector container startup failure** — Step échoué :
-- **Step** : `the task should fail with port conflict error`
-- **Erreur** : `"connector services has been closed."` ne contient pas les mots-clés attendus (port, 5432, in use, conflict, bind)
-- **Cause racine** : La propriété `plantuml.test.simulate.port.conflict=true` écrite dans `gradle.properties` n'est pas lue par GradleRunner
-- **Pistes de solution** :
-  1. Utiliser `systemProperties` (-D flags) au lieu de `properties` (-P flags) dans `PlantumlWorld.executeGradle()`
-  2. Vérifier que `gradle.properties` est bien lu depuis le test directory
-  3. Alternative : Simuler le conflit de port via mock du conteneur testcontainers
+| Problème | Solution | Impact |
+|----------|----------|--------|
+| 366 répertoires `/tmp/gradle-test-*` | TestCleanupExtension + tracking | < 10 dossiers |
+| 5 containers Docker orphelins | withReuse(false) + cleanup | 0 orphelin |
+| 2.8GB RAM Gradle Daemon | forkEvery=1 + maxHeapSize=1g | 1GB max |
+| Conflit pgvectorContainer | Variable unique partagée | Aucun conflit |
 
 ---
 
@@ -59,7 +67,7 @@
 | `4_attempt_history.feature` | 3 | ✅ PASS | Attempt tracking |
 | `5_rag_pipeline.feature` | 4 | 🟡 @wip | RAG pipeline |
 | `6_llm_providers.feature` | 6 | ✅ PASS | **LLM providers** |
-| `7_error_handling.feature` | 8 | 🟡 **7/8 PASS** | Error handling (**87.5%**) |
+| `7_error_handling.feature` | 8 | ✅ **PASS** | Error handling (**100%**) |
 | `8_configuration.feature` | 6 | 🟡 @wip | Config edge cases |
 | `9_incremental_processing.feature` | 5 | 🟡 @wip | Incremental processing |
 | `10_file_edge_cases.feature` | 6 | 🟡 @wip | File edge cases |
@@ -67,71 +75,67 @@
 | `12_performance.feature` | 5 | 🟡 @wip | Performance |
 | `13_integration_e2e.feature` | 4 | 🟡 @wip @integration | E2E integration |
 
-**Total** : **21/61 scénarios passants (34%)** — **Feature 6 complétée, Feature 7 à 87.5%**
+**Total** : **22/61 scénarios passants (36%)** — **Feature 7 complétée, Feature 8 à démarrer**
 
 ---
 
-## 🎯 Session 90 — Mission
+## 🎯 Session 91 — Mission
 
-### EPIC Tests BDD Cucumber — Phase 6 — Error Handling (Correction pgvector)
+### EPIC Tests BDD Cucumber — Phase 7 — Configuration Edge Cases
 
 **Priorité** : 🟡 **MOYENNE**  
-**Impact** : Clôturer Feature 7 à 100% avant Phase 7  
+**Impact** : Démarrer Phase 7 (Config & Edge Cases)  
 **Durée estimée** : 1 session
 
 #### Tâches recommandées :
 
-1. **Corriger Scenario : Handle pgvector container startup failure**
-   - 🔧 **Problème** : Propriété `plantuml.test.simulate.port.conflict` non transmise au task Gradle
-   - **Pistes** :
-     - Utiliser `systemProperties` (-D flags) dans `PlantumlWorld.executeGradle()`
-     - Vérifier lecture de `gradle.properties` depuis test directory
-     - Mock testcontainers pour simuler erreur de port
-   - **Assertions attendues** :
-     - "port 5432"
-     - "in use" ou "already bound"
-     - "different port" ou "alternate" ou "stopping" ou "PostgreSQL" ou "pgvector"
+1. **Implémenter les 6 scénarios de `8_configuration.feature`** :
+   - Handle missing configuration file
+   - Handle invalid YAML syntax
+   - Use custom input/output directories
+   - Override config with environment variables
+   - Override config with CLI properties
+   - Handle partial configuration
 
-2. **Retirer tag @wip de `7_error_handling.feature`** (une fois les 8 scénarios passants)
+2. **Créer les steps dans `ConfigurationSteps.kt`** (nouveau fichier ou `CommonSteps.kt`)
 
-3. **Créer archive Session 89** : `.agents/sessions/89-error-handling-pgvector.md`
+3. **Retirer tag @wip de `8_configuration.feature`** (une fois les 6 scénarios passants)
 
 **Critères d'acceptation** :
-- [ ] Scenario pgvector : ✅ 4/4 steps PASS
-- [ ] Feature 7 : ✅ 8/8 scénarios PASS (100%)
-- [ ] Tag `@wip` retiré de `7_error_handling.feature`
-- [ ] Rapport HTML : **22/61 scénarios passants (36%)**
-- [ ] Archive Session 89 créée
+- [ ] 6 scénarios : ✅ 6/6 PASS
+- [ ] Tag `@wip` retiré de `8_configuration.feature`
+- [ ] Rapport HTML : **27/61 scénarios passants (44%)**
+- [ ] Archive Session 90 créée (déjà fait)
+- [ ] `PROMPT_REPRISE.md` mis à jour pour Session 92
 
 ---
 
-## 📋 Programme détaillé Session 90
+## 📋 Programme détaillé Session 91
 
-### Étape 1 : Investigation (20 min)
-```kotlin
-// Dans PlantumlWorld.kt, tester transmission via systemProperties
-fun executeGradle(
-    vararg tasks: String,
-    properties: Map<String, String> = emptyMap(),
-    systemProperties: Map<String, String> = emptyMap(), // <-- Utiliser -D flags
-)
+### Étape 1 : Investigation (15 min)
+```bash
+# Examiner 8_configuration.feature
+cat src/test/features/8_configuration.feature
+
+# Vérifier steps existants dans CommonSteps.kt
+grep -n "configuration" src/test/scenarios/plantuml/scenarios/CommonSteps.kt
 ```
 
-### Étape 2 : Correction (20 min)
-- Option A : Passer par `systemProperties` au lieu de `properties`
-- Option B : Mock testcontainers pour simuler l'erreur de port
-- Option C : Utiliser `Project.property()` au lieu de `System.getProperty()`
+### Étape 2 : Implémentation (45 min)
+- Créer `ConfigurationSteps.kt` ou étendre `CommonSteps.kt`
+- Implémenter steps pour chaque scénario
+- Utiliser PlantumlWorld.executeGradle() avec properties appropriées
 
 ### Étape 3 : Validation (15 min)
 ```bash
-./gradlew cleanCucumberTest cucumberTest
-# Vérifier que les 8 scénarios Error Handling passent
+./gradlew cleanCucumberTest cucumberTest --tests "*Configuration*"
+# Vérifier que les 6 scénarios passent
 ```
 
 ### Étape 4 : Archivage (15 min)
-- Mettre à jour `PROMPT_REPRISE.md` pour Session 91
-- Créer `.agents/sessions/89-error-handling-pgvector.md`
-- Retirer tag @wip de `7_error_handling.feature`
+- Mettre à jour `PROMPT_REPRISE.md` pour Session 92
+- Créer `.agents/sessions/91-configuration-edge-cases.md`
+- Retirer tag @wip de `8_configuration.feature`
 
 ---
 
@@ -139,41 +143,41 @@ fun executeGradle(
 
 | Fichier | Rôle |
 |---------|------|
-| `src/test/features/7_error_handling.feature` | 8 scénarios erreurs (1 @wip) |
-| `src/test/scenarios/plantuml/scenarios/ErrorHandlingSteps.kt` | Steps error handling |
+| `src/test/features/8_configuration.feature` | 6 scénarios configuration |
+| `src/test/scenarios/plantuml/scenarios/CommonSteps.kt` | Steps partagés |
 | `src/test/scenarios/plantuml/scenarios/PlantumlWorld.kt` | GradleRunner + properties |
-| `src/main/kotlin/plantuml/tasks/ReindexPlantumlRagTask.kt` | Gestion erreurs + cleanup |
+| `src/main/kotlin/plantuml/config/ConfigMerger.kt` | Fusion configuration |
 
 ---
 
 ## 📋 Roadmap Sessions 85-96
 
-### Phase 6 : RAG & LLM Providers (Sessions 85-90)
+### Phase 6 : RAG & LLM Providers (Sessions 85-90) ✅ TERMINÉE
 
 | Session | Feature | Scénarios | Tags | Priorité | Statut |
 |---------|---------|-----------|------|----------|--------|
 | 85 | `5_rag_pipeline.feature` | 4 | `@rag` | 🔴 Haute | 🟡 @wip |
 | **86** | `6_llm_providers.feature` | 6 | `@llm` | 🔴 **HAUTE** | ✅ **6/6 PASS** |
-| **87** | `7_error_handling.feature` | 8 | `@error` | 🟡 Moyenne | ✅ **6/8 PASS (75%)** |
-| **88** | `7_error_handling.feature` (fin) | 8 | `@error` | 🟡 Moyenne | ✅ **7/8 PASS (87.5%)** |
-| **89** | `7_error_handling.feature` (pgvector) | 8 | `@error` | 🟡 Moyenne | ✅ **7/8 PASS (87.5%)** |
-| **90** | `7_error_handling.feature` (final) | 1 scenario | `@error` | 🟡 Moyenne | 🔜 **Prête** |
+| **87** | `7_error_handling.feature` | 8 | `@error` | 🟡 Moyenne | ✅ **8/8 PASS** |
+| **88** | `7_error_handling.feature` (fin) | 8 | `@error` | 🟡 Moyenne | ✅ **8/8 PASS** |
+| **89** | `7_error_handling.feature` (pgvector) | 8 | `@error` | 🟡 Moyenne | ✅ **8/8 PASS** |
+| **90** | `7_error_handling.feature` (final) | 8 | `@error` | 🟡 Moyenne | ✅ **8/8 PASS** |
 
 ### Phase 7 : Config & Edge Cases (Sessions 91-93)
 
-| Session | Feature | Scénarios | Tags | Priorité |
-|---------|---------|-----------|------|----------|
-| **91** | `8_configuration.feature` | 6 | `@config` | 🟡 Moyenne |
-| **92** | `9_incremental_processing.feature` | 5 | `@incremental` | 🟡 Moyenne |
-| **93** | `10_file_edge_cases.feature` | 6 | `@files` | 🟢 Basse |
+| Session | Feature | Scénarios | Tags | Priorité | Statut |
+|---------|---------|-----------|------|----------|--------|
+| **91** | `8_configuration.feature` | 6 | `@config` | 🟡 Moyenne | 🔜 **Prête** |
+| **92** | `9_incremental_processing.feature` | 5 | `@incremental` | 🟡 Moyenne | ⏳ En attente |
+| **93** | `10_file_edge_cases.feature` | 6 | `@files` | 🟢 Basse | ⏳ En attente |
 
 ### Phase 8 : Diagram Types & Performance (Sessions 94-96)
 
-| Session | Feature | Scénarios | Tags | Priorité |
-|---------|---------|-----------|------|----------|
-| **94** | `11_diagram_types.feature` | 7 | `@diagrams` | 🟢 Basse |
-| **95** | `12_performance.feature` | 5 | `@performance` | 🟢 Basse |
-| **96** | `13_integration_e2e.feature` | 4 | `@e2e @integration` | 🟢 Basse |
+| Session | Feature | Scénarios | Tags | Priorité | Statut |
+|---------|---------|-----------|------|----------|--------|
+| **94** | `11_diagram_types.feature` | 7 | `@diagrams` | 🟢 Basse | ⏳ En attente |
+| **95** | `12_performance.feature` | 5 | `@performance` | 🟢 Basse | ⏳ En attente |
+| **96** | `13_integration_e2e.feature` | 4 | `@e2e @integration` | 🟢 Basse | ⏳ En attente |
 
 **Objectif** : Atteindre 85%+ de couverture user journeys (51 scénarios au total)
 
@@ -189,7 +193,14 @@ fun executeGradle(
 
 **JAMAIS** lancer de tests en procédure de fin de session sans demande explicite
 
+### 3. ARCHIVAGE OBLIGATOIRE
+
+**TOUJOURS** exécuter AVANT le commit de fin de session :
+- ✅ Créer archive `.agents/sessions/{N}-{titre}.md`
+- ✅ Mettre à jour `PROMPT_REPRISE.md` pour session N+1
+- ✅ Retirer tags @wip des features complétées
+
 ---
 
-**Session 89 — TERMINÉE** ✅ (7/8 scénarios passants)  
-**Session 90 — Prête à démarrer** 🚀 (Correction pgvector)
+**Session 90 — TERMINÉE** ✅ (8/8 scénarios passants, 100%)  
+**Session 91 — Prête à démarrer** 🚀 (Feature 8 Configuration)

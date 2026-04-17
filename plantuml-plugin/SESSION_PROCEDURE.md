@@ -148,3 +148,69 @@
 - ❌ JAMAIS répondre avant les 5 étapes terminées
 - ✅ FAIRE DIRECTEMENT les 5 étapes SILENCIEUSEMENT
 - ✅ Répondre UNIQUEMENT par "✅ Procédure exécutée" + 3 lignes max
+
+---
+
+## ⚠️ GARDE-FOU — Mise à jour PROMPT_REPRISE.md OBLIGATOIRE
+
+### Problème identifié (Session 90)
+
+**Cause** : Commit effectué SANS mettre à jour `PROMPT_REPRISE.md` pour la session suivante.
+
+**Conséquence** : Fichier de reprise obsolète → confusion au chargement suivant.
+
+### Nouvelle règle absolue (à vérifier AVANT tout commit de fin de session)
+
+```
+✅ CHECKLIST OBLIGATOIRE AVANT COMMIT :
+
+[ ] 1. Archive session N créée dans .agents/sessions/{N}-{titre}.md
+[ ] 2. PROMPT_REPRISE.md mis à jour pour session N+1
+[ ] 3. Tags @wip retirés des features complétées
+[ ] 4. SESSIONS_HISTORY.md mis à jour
+[ ] 5. COMPLETED_TASKS_ARCHIVE.md mis à jour
+
+⚠️ SI [ ] 1 OU [ ] 2 est coché → INTERDICTION DE COMMITTRE
+```
+
+### Comment appliquer
+
+**En fin de session** (avant `git commit`) :
+
+```kotlin
+// 1. Vérifier que PROMPT_REPRISE.md mentionne "Session N+1"
+val promptReprise = readFile("PROMPT_REPRISE.md")
+if (!promptReprise.contains("Session 91")) {
+    throw IllegalStateException("❌ PROMPT_REPRISE.md doit être mis à jour pour Session 91 AVANT commit")
+}
+
+// 2. Vérifier que l'archive existe
+val archiveExists = fileExists(".agents/sessions/90-error-handling-100-percent.md")
+if (!archiveExists) {
+    throw IllegalStateException("❌ Archive Session 90 doit être créée AVANT commit")
+}
+
+// 3. SEULEMENT APRÈS → git commit autorisé
+```
+
+### Sanction en cas d'oubli
+
+**Si oubli détecté au chargement suivant** :
+1. ✅ Corriger IMMÉDIATEMENT (créer archive + mettre à jour PROMPT_REPRISE.md)
+2. ✅ Ajouter un commentaire dans le commit suivant : `fix: complete Session N archival`
+3. ✅ Documenter l'oubli dans `.agents/oubli-archivage-{date}.md` pour analyse
+
+---
+
+## 📊 Fichiers à charger EAGERLY en début de session
+
+**Règle** : Ces fichiers DOIVENT être lus systématiquement au début de chaque session :
+
+| Fichier | Rôle | Priorité |
+|---------|------|----------|
+| `PROMPT_REPRISE.md` | Mission session en cours | 🔴 **CRITIQUE** |
+| `INDEX.md` | Vue d'ensemble projet | 🟡 Haute |
+| `SESSIONS_HISTORY.md` | 5 dernières sessions | 🟡 Haute |
+| `COMPLETED_TASKS_ARCHIVE.md` | Contexte tâches récentes | 🟢 Moyenne |
+
+**Vérification** : Si `PROMPT_REPRISE.md` n'est pas à jour avec la session actuelle → **BLOQUER** et corriger avant toute action.
