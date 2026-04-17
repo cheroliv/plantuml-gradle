@@ -1,15 +1,46 @@
-# 🔄 Prompt de reprise — Session 86
+# 🔄 Prompt de reprise — Session 87
 
 > **EPIC** : `EPIC_CONSOLIDATION_TESTS_FONCTIONNELS.md` — **EPIC Tests BDD Cucumber**  
-> **Statut** : Session 86 ✅ TERMINÉE — Phase 6 (RAG & LLM Providers) **100% COMPLÉTÉE**  
-> **Prochaine mission** : Session 87 — Phase 6 (Error Handling)
+> **Statut** : Session 87 ⚠️ PARTIELLEMENT TERMINÉE — Phase 6 (Error Handling) **25% COMPLÉTÉE**  
+> **Prochaine mission** : Session 88 — Phase 6 (Error Handling — Suite et fin)
 
 ---
 
-## 📊 Session 86 — Résumé (✅ TERMINÉE)
+## 📊 Session 87 — Résumé (⚠️ PARTIELLEMENT TERMINÉE)
 
 **Date** : 17 avr. 2026  
-**Résultats** : **6/6 scénarios Cucumber passants (100%)** 🎉
+**Résultats** : **2/8 scénarios Cucumber passants (25%)** ⚠️
+
+### Scénarios implémentés
+
+| Scénario | Statut | Problème |
+|----------|--------|----------|
+| Handle LLM timeout gracefully | ❌ FAILED | Assertion "max retries" non satisfaite |
+| Handle API rate limit errors | ✅ PASS | Exponential backoff fonctionnel |
+| Handle network connectivity errors | ❌ FAILED | Conflit step definitions |
+| Handle invalid LLM response format | ❌ FAILED | Assertions à ajuster |
+| Handle pgvector container startup failure | ❌ FAILED | Mock Docker non implémenté |
+| Handle disk space exhaustion | ❌ TIMEOUT | Test trop long (3min+) |
+| Handle missing configuration file | ✅ PASS | Création config par défaut |
+| Handle invalid YAML configuration | ❌ FAILED | Plugin utilise defaults au lieu d'échouer |
+
+### Fichiers créés
+
+| Fichier | Rôle | Lignes |
+|---------|------|--------|
+| `ErrorHandlingSteps.kt` | Steps gestion erreurs | ~450 |
+| `PlantumlWorld.kt` | + méthodes `startMockLlmServer`, `setMockServerPort` | +20 |
+
+### Modifications du Plugin
+
+Aucune modification du plugin principal — tests uniquement basés sur mocks et configurations
+
+### Problèmes identifiés
+
+1. **Conflit de step definitions** : `When I run processPlantumlPrompts task` défini dans `MinimalFeatureSteps.kt` ET `ErrorHandlingSteps.kt`
+2. **Scénario disk space** : Timeout après 3 minutes — nécessite mock plus rapide
+3. **Scénario YAML invalid** : Le plugin crée une config par défaut au lieu de planter
+4. **Assertions trop strictes** : Certains messages d'erreur ne matchent pas les patterns attendus
 
 ### Refactorisation Majeure
 
@@ -80,7 +111,7 @@
 | `4_attempt_history.feature` | 3 | ✅ PASS | Attempt tracking |
 | `5_rag_pipeline.feature` | 4 | 🟡 @wip | RAG pipeline |
 | `6_llm_providers.feature` | 6 | ✅ PASS | **LLM providers** |
-| `7_error_handling.feature` | 8 | 🟡 @wip | Error handling |
+| `7_error_handling.feature` | 8 | 🟡 2/8 PASS | Error handling (25%) |
 | `8_configuration.feature` | 6 | 🟡 @wip | Config edge cases |
 | `9_incremental_processing.feature` | 5 | 🟡 @wip | Incremental processing |
 | `10_file_edge_cases.feature` | 6 | 🟡 @wip | File edge cases |
@@ -88,31 +119,34 @@
 | `12_performance.feature` | 5 | 🟡 @wip | Performance |
 | `13_integration_e2e.feature` | 4 | 🟡 @wip @integration | E2E integration |
 
-**Total** : 16/61 scénarios passants (26%) — **Feature 6 complétée** ✅
+**Total** : 18/61 scénarios passants (30%) — **Feature 6 complétée, Feature 7 en cours**
 
 ---
 
 ## 🎯 Session 87 — Mission
 
-### EPIC Tests BDD Cucumber — Phase 6 — Error Handling
+### EPIC Tests BDD Cucumber — Phase 6 — Error Handling (Suite)
 
-**Priorité** : 🔴 **HAUTE**  
+**Priorité** : 🟡 **MOYENNE**  
 **Impact** : Robustesse aux pannes et erreurs  
-**Durée estimée** : 1-2 sessions
+**Durée estimée** : 1 session
 
 #### Tâches recommandées :
 
-1. **Feature 7 — Error Handling** (`7_error_handling.feature`)
-   - Implémenter steps gestion erreurs (`@error`)
-   - 8 scénarios : timeout, rate limit, réseau, Docker, disque, config
-   - Nécessite simulations de pannes (mock server avec erreurs)
+1. **Feature 7 — Error Handling** (`7_error_handling.feature`) — 6 scénarios restants
+   - ❌ Handle LLM timeout gracefully → Ajuster assertions "max retries"
+   - ❌ Handle network connectivity errors → Résoudre conflit step definitions
+   - ❌ Handle invalid LLM response format → Ajuster patterns de validation
+   - ❌ Handle pgvector container startup failure → Implémenter mock Docker
+   - ❌ Handle disk space exhaustion → Réduire temps de test (< 30s)
+   - ❌ Handle invalid YAML configuration → Forcer échec au lieu de defaults
 
 **Critères d'acceptation** :
-- [ ] Steps error handling implémentés dans `ErrorHandlingSteps.kt`
-- [ ] Mock server simule timeout, rate limit, erreurs réseau
-- [ ] Tests vérifient messages d'erreur appropriés
-- [ ] Tags `@wip` retirés des scénarios implémentés
-- [ ] Rapport HTML : 24+ scénarios passants (16 + 8)
+- [ ] Conflit de step definitions résolu (unique `When I run processPlantumlPrompts task`)
+- [ ] 6 scénarios restants : ✅ PASS
+- [ ] Tags `@wip` retirés de `7_error_handling.feature`
+- [ ] Rapport HTML : 24/61 scénarios passants (40%)
+- [ ] Timeout des tests < 60s par scénario
 
 ---
 
@@ -131,12 +165,13 @@
 
 ### Phase 6 : RAG & LLM Providers (Sessions 85-90)
 
-| Session | Feature | Scénarios | Tags | Priorité |
-|---------|---------|-----------|------|----------|
-| 85 | `5_rag_pipeline.feature` | 4 | `@rag` | 🔴 Haute |
-| **86** | `6_llm_providers.feature` | 6 | `@llm` | 🔴 **HAUTE ✅** |
-| **87** | `7_error_handling.feature` | 8 | `@error` | 🟡 Moyenne |
-| 88-90 | Consolidation + fixes | - | - | - |
+| Session | Feature | Scénarios | Tags | Priorité | Statut |
+|---------|---------|-----------|------|----------|--------|
+| 85 | `5_rag_pipeline.feature` | 4 | `@rag` | 🔴 Haute | 🟡 @wip |
+| **86** | `6_llm_providers.feature` | 6 | `@llm` | 🔴 **HAUTE** | ✅ **6/6 PASS** |
+| **87** | `7_error_handling.feature` | 8 | `@error` | 🟡 Moyenne | ⚠️ **2/8 PASS** |
+| **88** | `7_error_handling.feature` (suite) | 6 restants | `@error` | 🟡 Moyenne | 🔜 À faire |
+| 89-90 | Consolidation + fixes | - | - | - | - |
 
 ### Phase 7 : Config & Edge Cases (Sessions 91-93)
 
@@ -170,4 +205,5 @@
 
 ---
 
-**Session 87 — Prêt à démarrer** 🚀
+**Session 87 — TERMINÉE** ✅  
+**Session 88 — Prête à démarrer** 🚀

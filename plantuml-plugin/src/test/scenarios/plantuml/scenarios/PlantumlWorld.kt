@@ -120,6 +120,22 @@ class PlantumlWorld {
     private var mockResponseIndex: Int = 0
 
     /**
+     * Starts a mock LLM server with custom handler logic.
+     */
+    fun startMockLlmServer(server: HttpServer, port: Int) {
+        mockServerPort = port
+        mockServer = server
+        log.info("Custom mock LLM server started on port $port")
+    }
+
+    /**
+     * Sets the mock server port for unreachable server scenarios.
+     */
+    fun setMockServerPort(port: Int) {
+        mockServerPort = port
+    }
+
+    /**
      * Ensures an Ollama instance is available:
      * - If Ollama is running locally on port 11434, uses it directly.
      * - Otherwise starts a Testcontainers Ollama container.

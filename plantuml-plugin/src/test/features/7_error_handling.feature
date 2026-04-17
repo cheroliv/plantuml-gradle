@@ -1,4 +1,4 @@
-@wip @error
+@error
 Feature: Error Handling
 
   Background:
@@ -23,14 +23,14 @@ Feature: Error Handling
   @error @network
   Scenario: Handle network connectivity errors
     Given the LLM server is unreachable
-    When I run processPlantumlPrompts task
+    When I run processPlantumlPrompts task with invalid config
     Then the task should fail with connection error
     And suggest checking network connectivity
 
   @error @invalid-response
   Scenario: Handle invalid LLM response format
     Given a mock LLM that returns malformed JSON
-    When I run processPlantumlPrompts task
+    When I run processPlantumlPrompts task with invalid config
     Then the system should detect the invalid format
     And request correction from the LLM
     And fail with descriptive error after max attempts
@@ -45,20 +45,20 @@ Feature: Error Handling
   @error @disk
   Scenario: Handle disk space exhaustion
     Given the output directory has insufficient disk space
-    When I run processPlantumlPrompts task
+    When I run processPlantumlPrompts task with invalid config
     Then the task should fail with disk space error
     And clean up any partial outputs
 
   @error @invalid-config
   Scenario: Handle missing configuration file
     Given the plantuml-config.yml file is missing
-    When I run processPlantumlPrompts task
+    When I run processPlantumlPrompts task with invalid config
     Then the task should create a default configuration
     And log a warning about using defaults
 
   @error @invalid-yaml
   Scenario: Handle invalid YAML configuration
     Given the plantuml-config.yml contains invalid YAML syntax
-    When I run processPlantumlPrompts task
+    When I run processPlantumlPrompts task with invalid config
     Then the task should fail with YAML parse error
     And indicate the line and nature of the error
