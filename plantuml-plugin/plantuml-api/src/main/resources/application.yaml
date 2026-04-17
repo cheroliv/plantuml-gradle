@@ -1,0 +1,75 @@
+app:
+  message: hello
+  item: item
+  go-visit-message: https://cheroliv.com/
+  clientApp:
+    name: 'server'
+
+  security:
+    authentication:
+      jwt:
+        secret: secret
+        base64-secret: MjNlZmQzMzgwM2MzN2FmMGNhZTY3NDllMDJiODg2YWRlMmY0ZDUzMzg2ODI4MTgxNmIxNzQ1OGEzMmNmNjY2OTA3Nzk4MzRkNDUzZWFlMTljZjJmNDU5NDNjOWI3NjRhNDg3MGYzODhiYjVjZWU5MmNhMDA2MDU3ZjA2NjJhODE=
+        token-validity-in-seconds: 86400
+        token-validity-in-seconds-for-remember-me: 2592000
+
+  cors:
+    allowed-origins: '*'
+    allowed-methods: '*'
+    allowed-headers: '*'
+    exposed-headers: 'Authorization,Link,X-Total-Count'
+    allow-credentials: true
+    max-age: 1800
+
+spring:
+  profiles:
+    default: dev
+  application:
+    name: server
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/dev?currentSchema=dev
+    username: dev
+    password: secret
+  devtools:
+    restart:
+      enabled: true
+  thymeleaf:
+    mode: HTML
+  messages:
+    basename: i18n/messages
+    encoding: UTF-8
+  webflux:
+    problemdetails:
+      enabled: true
+  web:
+    locale: fr_FR
+
+springdoc:
+  api-docs:
+    enabled: false
+
+logging:
+  level:
+    org:
+      springframework:
+        r2dbc: INFO
+        org.hibernate.SQL: INFO
+
+server:
+  port: 8880
+
+langchain4j:
+  ollama:
+    chat-model:
+      base-url: http://localhost:11434
+ #     model-name: llama3.2:3b-instruct-q8_0
+#      model-name: smollm:135m
+      model-name: smollm:135m-instruct-v0.2-q8_0
+
+      timeout: PT120S
+    streaming-chat-model:
+      base-url: http://localhost:11434
+#      model-name: smollm:135m
+      model-name: smollm:135m-instruct-v0.2-q8_0
+#      model-name: llama3.2:3b-instruct-q8_0
+      timeout: PT120S

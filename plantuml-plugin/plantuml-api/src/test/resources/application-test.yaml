@@ -1,0 +1,31 @@
+app:
+  message: hello test
+
+spring:
+  devtools:
+    restart:
+      enabled: true
+  main:
+    allow-bean-definition-overriding: true
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/dev?currentSchema=test
+    username: dev
+    password: secret
+
+logging:
+  level:
+    org:
+      springframework:
+        r2dbc: DEBUG
+        org.hibernate.SQL: DEBUG
+
+langchain4j:
+  ollama:
+    chat-model:
+      base-url: http://localhost:11434
+      model-name: smollm:135m
+#      model-name: smollm:135m-instruct-v0.2-q8_0
+    streaming-chat-model:
+      base-url: http://localhost:11434
+      model-name: smollm:135m
+#      model-name: smollm:135m-instruct-v0.2-q8_0
