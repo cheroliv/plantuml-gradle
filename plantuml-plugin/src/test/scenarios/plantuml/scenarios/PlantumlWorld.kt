@@ -430,6 +430,15 @@ class PlantumlWorld {
         }
 
         projectDir = testDir
+        
+        // Track for automatic cleanup
+        try {
+            val cleanupExtension = TestCleanupExtension()
+            cleanupExtension.trackTempDirectory(testDir.absolutePath)
+        } catch (e: Exception) {
+            log.warn("Failed to track temp directory: ${e.message}")
+        }
+        
         return testDir
     }
 

@@ -227,28 +227,16 @@ class ErrorHandlingSteps(private val world: PlantumlWorld) {
     @When("I run reindexPlantumlRag task with port conflict simulation")
     fun runReindexPlantumlRagTaskWithPortConflict() = runBlocking {
         val properties = mutableMapOf<String, String>()
+        val systemProperties = mutableMapOf<String, String>()
         world.projectDir?.let {
             properties["plugin.project.dir"] = it.absolutePath
-            
-            // Write gradle.properties with the simulate flag
-            // This will be read by Gradle's project.properties
-            val gradleProps = File(it, "gradle.properties")
-            gradleProps.writeText(
-                """
-                # Force testcontainers mode for pgvector test
-                rag.mode=testcontainers
-                plantuml.test.simulate.port.conflict=true
-                plantuml.test.mode=true
-                
-                """.trimIndent()
-            )
         }
         properties["plantuml.test.mode"] = "true"
         properties["rag.mode"] = "testcontainers"
-        properties["plantuml.test.simulate.port.conflict"] = "true"
+        systemProperties["plantuml.test.simulate.port.conflict"] = "true"
 
         try {
-            world.executeGradle("reindexPlantumlRag", properties = properties)
+            world.executeGradle("reindexPlantumlRag", properties = properties, systemProperties = systemProperties)
         } catch (e: Exception) {
             world.exception = e
         }

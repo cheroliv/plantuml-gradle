@@ -35,7 +35,7 @@ Feature: Error Handling
     And request correction from the LLM
     And fail with descriptive error after max attempts
 
-  @error @docker @wip
+  @error @docker
   Scenario: Handle pgvector container startup failure
     Given Docker is available but port 5432 is in use
     When I run reindexPlantumlRag task with port conflict simulation

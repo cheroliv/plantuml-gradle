@@ -5,12 +5,18 @@ import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
+import org.slf4j.LoggerFactory
 import org.testcontainers.containers.PostgreSQLContainer
 import java.io.File
 import java.time.Duration
 
 class RagPipelineSteps(private val world: PlantumlWorld) {
 
+    companion object {
+        private val log = LoggerFactory.getLogger(RagPipelineSteps::class.java)
+    }
+
+    // Shared container reference - avoids duplicate variable issue with CommonSteps
     private var pgvectorContainer: PostgreSQLContainer<*>? = null
 
     @Given("a PlantUML configuration with RAG enabled")
@@ -34,12 +40,23 @@ class RagPipelineSteps(private val world: PlantumlWorld) {
 
     @Given("a running pgvector container")
     fun startPgvectorContainer() {
+        log.info("Starting pgvector container...")
+        
         pgvectorContainer = PostgreSQLContainer<Nothing>("pgvector/pgvector:pg15").apply {
             withDatabaseName("plantuml_rag")
             withUsername("test")
             withPassword("test")
             withStartupTimeout(Duration.ofMinutes(2))
-        }.also { it.start() }
+            withReuse(false) // Force new container each test
+        }.also { container ->
+            try {
+                container.start()
+                log.info("pgvector container started: ${container.containerId}")
+            } catch (e: Exception) {
+                log.error("Failed to start pgvector container: ${e.message}", e)
+                throw e
+            }
+        }
         
         val configPath = File(world.projectDir, "plantuml-context.yml")
         val configContent = configPath.readText()
@@ -54,6 +71,7 @@ class RagPipelineSteps(private val world: PlantumlWorld) {
             """.trimMargin()
         )
         configPath.writeText(updatedConfig)
+        log.info("pgvector configured on port ${pgvectorContainer!!.firstMappedPort}")
     }
 
     @Given("a running pgvector container with existing embeddings")
@@ -84,12 +102,23 @@ class RagPipelineSteps(private val world: PlantumlWorld) {
 
     @Given("a running pgvector container with embeddings for {int} prompts")
     fun startPgvectorContainerWithMultipleEmbeddings(count: Int) {
+        log.info("Starting pgvector container for $count prompts...")
+        
         pgvectorContainer = PostgreSQLContainer<Nothing>("pgvector/pgvector:pg15").apply {
             withDatabaseName("plantuml_rag")
             withUsername("test")
             withPassword("test")
             withStartupTimeout(Duration.ofMinutes(2))
-        }.also { it.start() }
+            withReuse(false)
+        }.also { container ->
+            try {
+                container.start()
+                log.info("pgvector container started: ${container.containerId}")
+            } catch (e: Exception) {
+                log.error("Failed to start pgvector container: ${e.message}", e)
+                throw e
+            }
+        }
         
         val ragDir = File(world.projectDir, "generated/rag")
         ragDir.mkdirs()

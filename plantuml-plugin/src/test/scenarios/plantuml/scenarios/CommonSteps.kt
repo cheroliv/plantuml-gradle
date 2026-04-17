@@ -1,22 +1,53 @@
 package plantuml.scenarios
 
 import io.cucumber.java.After
+import io.cucumber.java.Before
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import org.assertj.core.api.Assertions.assertThat
+import org.slf4j.LoggerFactory
 import org.testcontainers.containers.PostgreSQLContainer
 import java.io.File
 import java.time.Duration
 
 class CommonSteps(private val world: PlantumlWorld) {
 
+    companion object {
+        private val log = LoggerFactory.getLogger(CommonSteps::class.java)
+        private val cleanupExtension = TestCleanupExtension()
+    }
+
     private var pgvectorContainer: PostgreSQLContainer<*>? = null
+
+    @Before
+    fun beforeScenario() {
+        log.debug("=== Before scenario ===")
+        cleanupExtension.beforeScenario()
+    }
 
     @After
     fun cleanup() {
-        world.cleanup()
-        pgvectorContainer?.stop()
-        pgvectorContainer = null
+        log.debug("=== After scenario cleanup ===")
+        
+        try {
+            // 1. Stop Docker container created in this scenario
+            pgvectorContainer?.let { container ->
+                log.info("Stopping pgvector container...")
+                container.stop()
+                pgvectorContainer = null
+            }
+            
+            // 2. Cleanup World resources (mock servers, temp dirs, etc.)
+            world.cleanup()
+            
+            // 3. Global cleanup via extension
+            cleanupExtension.afterScenario()
+            
+            log.debug("=== Cleanup complete ===")
+        } catch (e: Exception) {
+            log.error("Cleanup failed: ${e.message}", e)
+            // Continue cleanup even if partial failure
+        }
     }
 
     @Given("a prompt file {string} with content {string}")

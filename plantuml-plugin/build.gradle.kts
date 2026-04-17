@@ -271,8 +271,11 @@ val cucumberTest = tasks.register<Test>("cucumberTest") {
     }
     systemProperty("cucumber.junit-platform.naming-strategy", "long")
     
-    // FIX: Disable Gradle daemon for tests to avoid startup overhead
+    // FIX: Disable Gradle daemon for tests to avoid startup overhead and memory leaks
     systemProperty("org.gradle.daemon", "false")
+    
+    // Memory leak prevention: limit heap size
+    maxHeapSize = "1g"
     
     testLogging {
         events("passed", "skipped", "failed")
@@ -285,13 +288,40 @@ val cucumberTest = tasks.register<Test>("cucumberTest") {
 
     // OPTIMIZATION: Single JVM worker for Cucumber tests
     maxParallelForks = 1 // ← Single JVM for shared state
-    forkEvery = 0 // ← Never restart the worker
+    forkEvery = 1 // ← Restart JVM after each test to prevent memory leaks
     jvmArgs("-XX:+UseSerialGC")
     jvmArgs("-XX:MaxMetaspaceSize=256m")
     jvmArgs("-XX:TieredStopAtLevel=1")
     
     // FIX: Timeout per test to prevent hanging
     timeout.set(Duration.ofMinutes(5))
+    
+    // Cleanup after test execution
+    doLast {
+        println("=== Cucumber Test Cleanup ===")
+        println("Cleaning temporary test directories...")
+        
+        // Clean old gradle-test-* directories (> 1 hour)
+        val tempDir = File(System.getProperty("java.io.tmpdir"))
+        val oneHourAgo = System.currentTimeMillis() - (60 * 60 * 1000)
+        
+        tempDir.listFiles { file ->
+            file.isDirectory && file.name.startsWith("gradle-test-") &&
+            file.lastModified() < oneHourAgo
+        }?.forEach { oldDir ->
+            try {
+                if (oldDir.deleteRecursively()) {
+                    println("  ✓ Cleaned: ${oldDir.name}")
+                } else {
+                    println("  ✗ Failed to clean: ${oldDir.name}")
+                }
+            } catch (e: Exception) {
+                println("  ✗ Error cleaning ${oldDir.name}: ${e.message}")
+            }
+        }
+        
+        println("=== Cleanup complete ===")
+    }
 }
 
 tasks.withType<Test>().configureEach {
