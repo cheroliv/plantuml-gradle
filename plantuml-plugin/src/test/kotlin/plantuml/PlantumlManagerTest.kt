@@ -53,7 +53,7 @@ class PlantumlManagerTest {
     }
 
     @Test
-    fun `should load default config when YAML is invalid`() {
+    fun `should throw exception when YAML is invalid`() {
         val project = ProjectBuilder.builder()
             .withProjectDir(tempDir)
             .build()
@@ -61,12 +61,14 @@ class PlantumlManagerTest {
         val invalidConfigFile = File(tempDir, "plantuml-context.yml")
         invalidConfigFile.writeText("invalid: yaml: content: [")
 
-        val config = Configuration.load(project)
+        val exception = org.junit.jupiter.api.assertThrows<IllegalStateException> {
+            Configuration.load(project)
+        }
 
-        assertNotNull(config)
-        assertNotNull(config.input)
-        assertNotNull(config.output)
-        assertNotNull(config.langchain4j)
+        org.junit.jupiter.api.Assertions.assertTrue(
+            exception.message!!.contains("Invalid YAML configuration") || 
+            exception.message!!.contains("line")
+        )
     }
 
     @Test

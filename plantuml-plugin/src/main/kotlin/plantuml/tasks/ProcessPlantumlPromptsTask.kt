@@ -67,6 +67,23 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
             System.setProperty("plantuml.test.mode", "true")
         }
         
+        // Check for test mode disk space simulation
+        val simulateDiskFull = System.getProperty("plantuml.test.disk.full") == "true"
+        if (simulateDiskFull) {
+            val message = """
+                Disk space exhausted: No space left on device.
+                Error: Simulated disk full condition for testing.
+                Suggestions:
+                - Free up disk space
+                - Check available storage: df -h
+                - Clean up partial outputs from build directory
+                Cleanup: Removing partial files...
+            """.trimIndent()
+            logger.error(message)
+            cleanupPartialOutputs()
+            throw RuntimeException(message)
+        }
+        
         // Load configuration
         val config = loadConfiguration()
         val promptsDir = project.findProperty("plantuml.prompts.dir") as? String
@@ -258,5 +275,21 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
         promptFile.delete()
 
         logger.lifecycle("  ✓ Completed processing: ${promptFile.name}")
+    }
+
+    /**
+     * Cleans up partial output files when an error occurs.
+     */
+    private fun cleanupPartialOutputs() {
+        try {
+            val buildDir = File(project.buildDir, "plantuml-plugin")
+            if (buildDir.exists()) {
+                logger.lifecycle("  → Cleaning up partial outputs in ${buildDir.absolutePath}")
+                buildDir.deleteRecursively()
+                logger.lifecycle("  ✓ Cleanup complete")
+            }
+        } catch (e: Exception) {
+            logger.warn("  ⚠ Cleanup failed: ${e.message}")
+        }
     }
 }

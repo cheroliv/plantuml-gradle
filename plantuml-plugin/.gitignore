@@ -5,7 +5,7 @@ build
 .goose
 local.properties
 doc
-plantuml-api
+#plantuml-api
 
 # Dossiers de test et scripts de dev
 dev-tools/

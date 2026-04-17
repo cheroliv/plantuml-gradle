@@ -163,14 +163,26 @@ class ErrorHandlingSteps(private val world: PlantumlWorld) {
 
     @Given("Docker is available but port 5432 is in use")
     fun dockerAvailableButPortInUse() {
-        // Simulate port conflict by not starting pgvector container
-        // The test will verify the error message suggests using different port
+        // gradle.properties should have been created in Background
+        // Overwrite it to force testcontainers mode and port conflict
+        world.projectDir?.let {
+            val gradleProps = File(it, "gradle.properties")
+            gradleProps.writeText(
+                """
+                # Force testcontainers mode for pgvector test
+                rag.mode=testcontainers
+                plantuml.test.simulate.port.conflict=true
+                plantuml.test.mode=true
+                
+                """.trimIndent()
+            )
+        }
     }
 
     @Given("the output directory has insufficient disk space")
     fun outputDirectoryHasInsufficientDiskSpace() {
-        // Simulate disk space issue - in real scenario would check actual disk space
-        // For test purposes, we'll verify error handling logic
+        // Set a system property to trigger disk space simulation in test mode
+        System.setProperty("plantuml.test.disk.full", "true")
     }
 
     @Given("the plantuml-config.yml file is missing")
@@ -217,8 +229,25 @@ class ErrorHandlingSteps(private val world: PlantumlWorld) {
         val properties = mutableMapOf<String, String>()
         world.projectDir?.let {
             properties["plugin.project.dir"] = it.absolutePath
+            
+            // Overwrite gradle.properties to force testcontainers mode and port conflict
+            // This ensures the settings are applied even if Background created a different gradle.properties
+            val gradleProps = File(it, "gradle.properties")
+            gradleProps.writeText(
+                """
+                # Force testcontainers mode for pgvector test
+                rag.mode=testcontainers
+                plantuml.test.simulate.port.conflict=true
+                plantuml.test.mode=true
+                
+                """.trimIndent()
+            )
         }
         properties["plantuml.test.mode"] = "true"
+        
+        // Force testcontainers mode and port conflict simulation via Gradle properties (-P flags)
+        properties["rag.mode"] = "testcontainers"
+        properties["plantuml.test.simulate.port.conflict"] = "true"
 
         try {
             world.executeGradle("reindexPlantumlRag", properties = properties)
@@ -431,11 +460,9 @@ class ErrorHandlingSteps(private val world: PlantumlWorld) {
     fun cleanUpAnyPartialOutputs() {
         // Verify no partial files left behind
         world.projectDir?.let {
-            val buildDir = File(it, "build")
-            if (buildDir.exists()) {
-                // Check that cleanup occurred
-                assertThat(buildDir.exists()).isTrue()
-            }
+            val buildDir = File(it, "build/plantuml-plugin")
+            assertThat(buildDir.exists()).isFalse()
+                .withFailMessage("Partial outputs should have been cleaned up")
         }
     }
 

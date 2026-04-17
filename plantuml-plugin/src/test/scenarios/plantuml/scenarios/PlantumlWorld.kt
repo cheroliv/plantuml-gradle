@@ -118,6 +118,8 @@ class PlantumlWorld {
     private var mockServer: HttpServer? = null
     private var mockResponseQueue: List<String>? = null
     private var mockResponseIndex: Int = 0
+    
+    private var portConflictServer: java.net.ServerSocket? = null
 
     /**
      * Starts a mock LLM server with custom handler logic.
@@ -365,10 +367,12 @@ class PlantumlWorld {
     fun executeGradle(
         vararg tasks: String,
         properties: Map<String, String> = emptyMap(),
+        systemProperties: Map<String, String> = emptyMap(),
     ): BuildResult {
         require(projectDir != null) { "Project directory must be initialized" }
         val propArgs = properties.map { (k, v) -> "-P$k=$v" }
-        val allArgs = tasks.toList() + propArgs + 
+        val systemPropArgs = systemProperties.map { (k, v) -> "-D$k=$v" }
+        val allArgs = tasks.toList() + propArgs + systemPropArgs + 
             "-Pplantuml.output.rag=${projectDir!!.absolutePath}/build/plantuml-plugin/generated/rag"
         log.info("Starting sync Gradle execution: $allArgs")
         return try {
@@ -400,7 +404,7 @@ class PlantumlWorld {
      * Creates a temporary Gradle project for testing by copying from template.
      * This is faster than creating from scratch.
      */
-    fun createGradleProject(configFileName: String = "plantuml-context.yml"): File {
+    fun createGradleProject(configFileName: String = "plantuml-context.yml", gradleProperties: Map<String, String>? = null): File {
         val templateDir = templateProjectDir ?: createBaseTemplateProject().also { templateProjectDir = it }
 
         val testDir = createTempFile("gradle-test-", "").apply {
@@ -415,6 +419,14 @@ class PlantumlWorld {
             if (!configFile.exists()) {
                 configFile.createNewFile()
             }
+        }
+        
+        // Write gradle.properties if provided
+        if (gradleProperties != null && gradleProperties.isNotEmpty()) {
+            val gradleProps = File(testDir, "gradle.properties")
+            gradleProps.writeText(
+                gradleProperties.entries.joinToString("\n") { (k, v) -> "$k=$v" }
+            )
         }
 
         projectDir = testDir
@@ -478,14 +490,25 @@ class PlantumlWorld {
         return files!!
     }
 
+    /**
+     * Sets the port conflict server for simulating port 5432 in use.
+     */
+    fun setPortConflictServer(server: java.net.ServerSocket?) {
+        portConflictServer = server
+    }
+
     @Suppress("unused")
     fun cleanup() {
         stopMockLlm()
+        portConflictServer?.close()
+        portConflictServer = null
         scope.cancel()
         projectDir?.deleteRecursively()
         projectDir = null
         buildResult = null
         exception = null
         asyncJobs.clear()
+        System.clearProperty("plantuml.test.disk.full")
+        System.clearProperty("plantuml.test.rag.mode")
     }
 }

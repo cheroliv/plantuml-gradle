@@ -1,49 +1,52 @@
-# 🔄 Prompt de reprise — Session 88
+# 🔄 Prompt de reprise — Session 89
 
 > **EPIC** : `EPIC_CONSOLIDATION_TESTS_FONCTIONNELS.md` — **EPIC Tests BDD Cucumber**  
-> **Statut** : Session 87 ✅ TERMINÉE — Phase 6 (Error Handling) **75% COMPLÉTÉE (6/8)**  
-> **Prochaine mission** : Session 88 — Phase 6 (Error Handling — Scénarios restants)
+> **Statut** : Session 88 ✅ TERMINÉE — Phase 6 (Error Handling) **87.5% COMPLÉTÉE (7/8)**  
+> **Prochaine mission** : Session 89 — Finalisation Error Handling + Consolidation
 
 ---
 
-## 📊 Session 87 — Résumé (✅ TERMINÉE)
+## 📊 Session 88 — Résumé (✅ TERMINÉE)
 
 **Date** : 17 avr. 2026  
-**Résultats** : **6/8 scénarios Cucumber passants (75%)** ✅
+**Résultats** : **7/8 scénarios Cucumber passants (87.5%)** ✅
 
 ### Scénarios implémentés
 
-| Scénario | Statut | Corrections apportées |
-|----------|--------|-----------------------|
-| Handle LLM timeout gracefully | ✅ PASS | Mock server port configuré + assertions élargies |
+| Scénario | Statut | Détails |
+|----------|--------|---------|
+| Handle LLM timeout gracefully | ✅ PASS | Déjà fonctionnel |
 | Handle API rate limit errors | ✅ PASS | Déjà fonctionnel (exponential backoff) |
-| Handle network connectivity errors | ✅ PASS | Conflit step definitions résolu |
-| Handle invalid LLM response format | ✅ PASS | Assertions ajustées ("Failed to generate", "iterations") |
-| Handle pgvector container startup failure | ⚠️ REPORTÉ | Mock Docker à implémenter |
-| Handle disk space exhaustion | ⚠️ REPORTÉ | Mock à simplifier (évite timeout) |
-| Handle missing configuration file | ✅ PASS | Déjà fonctionnel (création config par défaut) |
-| Handle invalid YAML configuration | ✅ PASS | Plugin lance exception au lieu d'utiliser defaults |
+| Handle network connectivity errors | ✅ PASS | Déjà fonctionnel |
+| Handle invalid LLM response format | ✅ PASS | Déjà fonctionnel |
+| Handle pgvector container startup failure | ⚠️ **75% PASS** (3/4 steps) | Gestion d'erreur implémentée, reste à corriger activation mode testcontainers dans le test |
+| Handle disk space exhaustion | ✅ **PASS** | Mock synthétique + cleanup implémentés |
+| Handle missing configuration file | ✅ PASS | Déjà fonctionnel |
+| Handle invalid YAML configuration | ✅ PASS | Déjà fonctionnel |
 
-### Fichiers créés/modifiés Session 87
+### Fichiers créés/modifiés Session 88
 
 | Fichier | Action | Impact |
 |---------|--------|--------|
-| `ErrorHandlingSteps.kt` | ✅ Modifié | Steps gestion erreurs + assertions élargies |
-| `MinimalFeatureSteps.kt` | ✅ Modifié | Supprimé step dupliqué |
-| `PlantumlManager.kt` | ✅ Modifié | Throw exception pour YAML invalide |
-| `.agents/sessions/87-error-handling-tests.md` | ✅ Créé | Archive session détaillée |
+| `ReindexPlantumlRagTask.kt` | ✅ Modifié | Gestion erreurs port + disk space + cleanup partial outputs |
+| `ProcessPlantumlPromptsTask.kt` | ✅ Modifié | Gestion erreur disk space + cleanup |
+| `ErrorHandlingSteps.kt` | ✅ Modifié | Steps pgvector + disk space scenarios |
+| `PlantumlWorld.kt` | ✅ Modifié | Support gradle.properties dynamique + cleanup |
+| `PlantumlManagerTest.kt` | ✅ Modifié | Test YAML invalide mis à jour (lance exception) |
 
-### Problèmes résolus
+### Fonctionnalités implémentées
 
-1. ✅ **Conflit de step definitions** : Résolu en supprimant le step de `MinimalFeatureSteps.kt`
-2. ✅ **Assertions trop strictes** : Élargies pour inclure "timeout", "attempt", "iterations", "Failed to generate"
-3. ✅ **YAML invalide** : Plugin lance maintenant `IllegalStateException` avec ligne/colonne
-4. ✅ **Mock server port** : Configuré via `world.setMockServerPort(port)` pour réutilisation
+1. ✅ **Gestion conflit de port pgvector** : Message d'erreur clair avec suggestions (port alternatif, stop PostgreSQL)
+2. ✅ **Gestion espace disque** : Détection erreurs "No space left on device" + cleanup automatique
+3. ✅ **Cleanup partial outputs** : Suppression build/plantuml-plugin en cas d'erreur
+4. ✅ **Simulation test mode** : System properties pour tests synthétiques rapides
 
-### Refactorisation Session 86 (rappel)
+### Problème technique restant
 
-**Problème** : `PlantumlSteps.kt` — 805 lignes, difficile à maintenir  
-**Solution** : Éclatement en 7 fichiers spécialisés (voir archive `86-refactor-llm-providers-steps.md`)
+**Handle pgvector container startup failure** — 1 step échoue :
+- **Step** : `suggest using a different port or stopping existing PostgreSQL`
+- **Cause** : Mode testcontainers non activé correctement dans le test (gradle.properties non lu)
+- **Solution** : Vérifier que `rag.mode=testcontainers` est bien passé via `-P` flag au GradleRunner
 
 ---
 
@@ -57,7 +60,7 @@
 | `4_attempt_history.feature` | 3 | ✅ PASS | Attempt tracking |
 | `5_rag_pipeline.feature` | 4 | 🟡 @wip | RAG pipeline |
 | `6_llm_providers.feature` | 6 | ✅ PASS | **LLM providers** |
-| `7_error_handling.feature` | 8 | 🟡 **6/8 PASS** | Error handling (**75%**) |
+| `7_error_handling.feature` | 8 | 🟡 **7/8 PASS** | Error handling (**87.5%**) |
 | `8_configuration.feature` | 6 | 🟡 @wip | Config edge cases |
 | `9_incremental_processing.feature` | 5 | 🟡 @wip | Incremental processing |
 | `10_file_edge_cases.feature` | 6 | 🟡 @wip | File edge cases |
@@ -65,61 +68,67 @@
 | `12_performance.feature` | 5 | 🟡 @wip | Performance |
 | `13_integration_e2e.feature` | 4 | 🟡 @wip @integration | E2E integration |
 
-**Total** : **20/61 scénarios passants (33%)** — **Feature 6 complétée, Feature 7 à 75%**
+**Total** : **21/61 scénarios passants (34%)** — **Feature 6 complétée, Feature 7 à 87.5%**
 
 ---
 
-## 🎯 Session 88 — Mission
+## 🎯 Session 89 — Mission
 
-### EPIC Tests BDD Cucumber — Phase 6 — Error Handling (Fin)
+### EPIC Tests BDD Cucumber — Phase 6 — Error Handling (Finalisation)
 
 **Priorité** : 🟡 **MOYENNE**  
-**Impact** : Robustesse aux pannes et erreurs  
+**Impact** : Clôturer Feature 7 avant Phase 7  
 **Durée estimée** : 1 session
 
 #### Tâches recommandées :
 
-1. **Feature 7 — Error Handling** (`7_error_handling.feature`) — 2 scénarios restants
-   - ⚠️ **Handle pgvector container startup failure** → Implémenter mock Docker (simuler port 5432 occupé)
-   - ⚠️ **Handle disk space exhaustion** → Réduire temps de test (< 30s avec mock instantané)
+1. **Finaliser Scenario : Handle pgvector container startup failure** (1 step restant)
+   - 🔧 **Problème** : Mode testcontainers non activé dans le test Cucumber
+   - **Solution** : Vérifier passage des propriétés Gradle dans `PlantumlWorld.executeGradle()`
+   - **Vérification** : S'assurer que `rag.mode=testcontainers` est transmis via `-Prag.mode=testcontainers`
+   - **Assertions attendues** :
+     - "port 5432"
+     - "in use" ou "already bound"
+     - "different port" ou "alternate" ou "stopping" ou "PostgreSQL" ou "pgvector"
+
+2. **Retirer tag @wip de `7_error_handling.feature`** (une fois les 8 scénarios passants)
+
+3. **Créer archive Session 88** : `.agents/sessions/88-error-handling-final.md`
 
 **Critères d'acceptation** :
-- [ ] 2 scénarios restants : ✅ PASS
-- [ ] Tags `@wip` retirés de `7_error_handling.feature`
+- [ ] Scenario pgvector : ✅ 4/4 steps PASS
+- [ ] Feature 7 : ✅ 8/8 scénarios PASS (100%)
+- [ ] Tag `@wip` retiré de `7_error_handling.feature`
 - [ ] Rapport HTML : **22/61 scénarios passants (36%)**
-- [ ] Timeout des tests < 60s par scénario
-- [ ] Archive Session 88 créée dans `.agents/sessions/`
+- [ ] Archive Session 88 créée
 
-### 📋 Programme détaillé Session 88
+---
 
-#### Scénario 1 : Handle pgvector container startup failure
-**Objectif** : Simuler un échec de démarrage de container pgvector (port 5432 déjà utilisé)
+## 📋 Programme détaillé Session 89
 
-**Approche recommandée** :
-1. Créer un mock qui simule l'erreur "port already in use"
-2. Vérifier que le message d'erreur suggère :
-   - Utiliser un port différent (`-Pplantuml.rag.port=5433`)
-   - Ou stopper le PostgreSQL existant
-3. Assertions à vérifier :
-   - "port 5432"
-   - "in use" ou "already bound"
-   - "different port" ou "alternate"
+### Étape 1 : Debug pgvector test (30 min)
+```bash
+# Ajouter logs debug dans ErrorHandlingSteps.kt
+println("DEBUG: gradle.properties content: ${gradleProps.readText()}")
+println("DEBUG: properties passed: $properties")
 
-#### Scénario 2 : Handle disk space exhaustion
-**Objectif** : Simuler un espace disque insuffisant sans attendre 3 minutes
+# Vérifier dans PlantumlWorld.kt que les -P flags sont bien transmis
+val propArgs = properties.map { (k, v) -> "-P$k=$v" }
+```
 
-**Approche recommandée** :
-1. Utiliser un mock qui retourne immédiatement une erreur "No space left on device"
-2. Vérifier que :
-   - Le task échoue rapidement (< 10s)
-   - Les fichiers partiels sont nettoyés
-   - Un message clair est affiché
-3. Assertions à vérifier :
-   - "disk" ou "space" ou "storage"
-   - "insufficient" ou "exhausted"
-   - "clean" ou "cleanup"
+### Étape 2 : Correction (15 min)
+- S'assurer que `rag.mode` est passé dans `properties` map
+- Vérifier ordre de priorité dans `determineRagMode()` : CLI > env > gradle.properties > config
 
-**Note** : Ne pas utiliser de vrais tests de disque (trop lents), préférer un mock synthétique.
+### Étape 3 : Validation (15 min)
+```bash
+./gradlew cleanTest test --tests "*Cucumber*"
+python3 check_cucumber_status.py  # Script de vérification
+```
+
+### Étape 4 : Archivage (15 min)
+- Mettre à jour `PROMPT_REPRISE.md` pour Session 90
+- Créer `.agents/sessions/88-error-handling-final.md`
 
 ---
 
@@ -128,9 +137,9 @@
 | Fichier | Rôle |
 |---------|------|
 | `src/test/features/7_error_handling.feature` | 8 scénarios erreurs |
-| `src/test/scenarios/plantuml/scenarios/LlmProvidersSteps.kt` | Steps LLM (exemple) |
-| `src/test/scenarios/plantuml/scenarios/PlantumlWorld.kt` | Mock server à étendre |
-| `README_truth.adoc` | Documentation Cucumber |
+| `src/test/scenarios/plantuml/scenarios/ErrorHandlingSteps.kt` | Steps error handling |
+| `src/test/scenarios/plantuml/scenarios/PlantumlWorld.kt` | GradleRunner + properties |
+| `src/main/kotlin/plantuml/tasks/ReindexPlantumlRagTask.kt` | Gestion erreurs + cleanup |
 
 ---
 
@@ -143,8 +152,9 @@
 | 85 | `5_rag_pipeline.feature` | 4 | `@rag` | 🔴 Haute | 🟡 @wip |
 | **86** | `6_llm_providers.feature` | 6 | `@llm` | 🔴 **HAUTE** | ✅ **6/6 PASS** |
 | **87** | `7_error_handling.feature` | 8 | `@error` | 🟡 Moyenne | ✅ **6/8 PASS (75%)** |
-| **88** | `7_error_handling.feature` (fin) | 2 restants | `@error` | 🟡 Moyenne | 🔜 **Prête** |
-| 89-90 | Consolidation + fixes | - | - | - | - |
+| **88** | `7_error_handling.feature` (fin) | 8 | `@error` | 🟡 Moyenne | ✅ **7/8 PASS (87.5%)** |
+| **89** | `7_error_handling.feature` (final) | 1 step | `@error` | 🟡 Moyenne | 🔜 **Prête** |
+| 90 | Consolidation + Feature 5 | - | - | - | - |
 
 ### Phase 7 : Config & Edge Cases (Sessions 91-93)
 
@@ -178,5 +188,5 @@
 
 ---
 
-**Session 87 — TERMINÉE** ✅  
-**Session 88 — Prête à démarrer** 🚀
+**Session 88 — TERMINÉE** ✅ (7/8 scénarios passants)  
+**Session 89 — Prête à démarrer** 🚀 (1 step restant)

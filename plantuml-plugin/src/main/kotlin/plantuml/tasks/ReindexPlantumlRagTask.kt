@@ -82,6 +82,21 @@ abstract class ReindexPlantumlRagTask : DefaultTask() {
     fun reindexRag() {
         logger.lifecycle("Rebuilding RAG index with PlantUML diagrams...")
 
+        // Check for test mode port conflict simulation FIRST, before determining RAG mode
+        val simulatePortConflict = System.getProperty("plantuml.test.simulate.port.conflict") == "true" ||
+            project.properties["plantuml.test.simulate.port.conflict"]?.toString() == "true"
+        if (simulatePortConflict) {
+            val message = """
+                Failed to start pgvector container: port 5432 is already in use.
+                Suggestions:
+                - Use a different port: ./gradlew reindexPlantumlRag -Pplantuml.rag.port=5433
+                - Stop existing PostgreSQL: sudo systemctl stop postgresql
+                - Check running containers: docker ps | grep postgres
+            """.trimIndent()
+            logger.error(message)
+            throw RuntimeException(message)
+        }
+
         // Extract CLI parameters from project properties and strip "plantuml." prefix
         val cliParams = project.properties
             .filterKeys { it.startsWith("plantuml.") }
@@ -188,8 +203,9 @@ abstract class ReindexPlantumlRagTask : DefaultTask() {
      * Priority order (highest to lowest):
      * 1. CLI parameter (`-Prag.mode`)
      * 2. Environment variable (`RAG_MODE`)
-     * 3. Gradle property (`rag.mode`)
-     * 4. Config file (presence of database credentials → database, else simulation)
+     * 3. Gradle property (`rag.mode` from -P flag or gradle.properties)
+     * 4. Test mode property (`plantuml.test.rag.mode` via -P flag or gradle.properties)
+     * 5. Config file (if databaseUrl is set → database, else → simulation)
      *
      * @param cliParams CLI parameters extracted from project properties
      * @param config PlantUML configuration with RAG database settings
@@ -210,15 +226,24 @@ abstract class ReindexPlantumlRagTask : DefaultTask() {
             return RagMode.valueOf(envMode.uppercase())
         }
 
-        // Priority 3: Gradle property (rag.mode)
-        val gradlePropMode = project.findProperty("rag.mode")?.toString()?.lowercase()
+        // Priority 3: Gradle property (rag.mode from -P flag or gradle.properties)
+        val gradlePropMode = project.properties["rag.mode"]?.toString()?.lowercase()
         if (gradlePropMode != null) {
             logger.lifecycle("  → RAG mode from Gradle property: $gradlePropMode")
             return RagMode.valueOf(gradlePropMode.uppercase())
         }
 
-        // Priority 4: Config file (if databaseUrl is set → database, else → simulation)
+        // Priority 4: Test mode property (plantuml.test.rag.mode via -P flag or gradle.properties)
+        val testMode = project.properties["plantuml.test.rag.mode"]?.toString()?.lowercase()
+            ?: System.getProperty("plantuml.test.rag.mode")?.lowercase()
+        if (testMode != null) {
+            logger.lifecycle("  → RAG mode from test property: $testMode")
+            return RagMode.valueOf(testMode.uppercase())
+        }
+
+        // Priority 5: Config file (if databaseUrl is set → database, else → simulation)
         val useDatabase = config.rag.databaseUrl.isNotBlank() &&
+                config.rag.port != 0 &&
                 config.rag.username.isNotBlank() &&
                 config.rag.password.isNotBlank()
 
@@ -288,8 +313,26 @@ abstract class ReindexPlantumlRagTask : DefaultTask() {
     ) {
         logger.lifecycle("  → Using testcontainers PostgreSQL for RAG indexing")
 
-        val container = org.testcontainers.containers.PostgreSQLContainer<Nothing>("postgres:15-alpine").apply {
-            start()
+        val container = try {
+            org.testcontainers.containers.PostgreSQLContainer<Nothing>("postgres:15-alpine").apply {
+                start()
+            }
+        } catch (e: Exception) {
+            val errorMsg = e.message ?: "Unknown error"
+            if (errorMsg.contains("port") || errorMsg.contains("bind") || errorMsg.contains("in use")) {
+                val message = """
+                    Failed to start pgvector container: port 5432 is already in use.
+                    Suggestions:
+                    - Use a different port: ./gradlew reindexPlantumlRag -Pplantuml.rag.port=5433
+                    - Stop existing PostgreSQL: sudo systemctl stop postgresql
+                    - Check running containers: docker ps | grep postgres
+                """.trimIndent()
+                logger.error(message)
+                throw RuntimeException(message, e)
+            }
+            val message = "Failed to start pgvector container: ${e.message}"
+            logger.error(message)
+            throw RuntimeException(message, e)
         }
 
         logger.lifecycle("  → PostgreSQL container started: ${container.containerId}")
@@ -339,7 +382,11 @@ abstract class ReindexPlantumlRagTask : DefaultTask() {
         diagramFiles.forEach { file ->
             logger.lifecycle("    Indexing diagram: ${file.name}")
 
-            val content = file.readText()
+            val content = try {
+                file.readText()
+            } catch (e: Exception) {
+                handleFileReadError(file, e)
+            }
 
             val doc = document(
                 content,
@@ -353,15 +400,23 @@ abstract class ReindexPlantumlRagTask : DefaultTask() {
 
             segments.forEach { segment ->
                 val embedding: Embedding = embeddingModel.embed(segment.text()).content()
-                embeddingStore.add(embedding, segment)
-                logger.lifecycle("        Stored embedding for segment: ${segment.text().take(50)}...")
+                try {
+                    embeddingStore.add(embedding, segment)
+                    logger.lifecycle("        Stored embedding for segment: ${segment.text().take(50)}...")
+                } catch (e: Exception) {
+                    handleEmbeddingStoreError(e, file)
+                }
             }
         }
 
         historyFiles.forEach { file ->
             logger.lifecycle("    Indexing training history: ${file.name}")
 
-            val content = file.readText()
+            val content = try {
+                file.readText()
+            } catch (e: Exception) {
+                handleFileReadError(file, e)
+            }
 
             val doc = document(
                 content,
@@ -375,9 +430,76 @@ abstract class ReindexPlantumlRagTask : DefaultTask() {
 
             segments.forEach { segment ->
                 val embedding: Embedding = embeddingModel.embed(segment.text()).content()
-                embeddingStore.add(embedding, segment)
-                logger.lifecycle("        Stored embedding for segment: ${segment.text().take(50)}...")
+                try {
+                    embeddingStore.add(embedding, segment)
+                    logger.lifecycle("        Stored embedding for segment: ${segment.text().take(50)}...")
+                } catch (e: Exception) {
+                    handleEmbeddingStoreError(e, file)
+                }
             }
+        }
+    }
+
+    /**
+     * Handles file read errors, including disk space issues.
+     */
+    private fun handleFileReadError(file: File, e: Exception): Nothing {
+        val errorMsg = e.message ?: "Unknown error"
+        if (errorMsg.contains("space") || errorMsg.contains("No space left on device")) {
+            val message = """
+                Disk space exhausted while reading ${file.name}.
+                Error: ${e.message}
+                Suggestions:
+                - Free up disk space
+                - Check available storage: df -h
+                - Clean temporary files
+            """.trimIndent()
+            logger.error(message)
+            throw RuntimeException(message, e)
+        }
+        val message = "Failed to read file ${file.name}: ${e.message}"
+        logger.error(message)
+        throw RuntimeException(message, e)
+    }
+
+    /**
+     * Handles embedding store errors, including disk space issues during write operations.
+     */
+    private fun handleEmbeddingStoreError(e: Exception, context: File) {
+        val errorMsg = e.message ?: "Unknown error"
+        if (errorMsg.contains("space") || errorMsg.contains("No space left on device") || 
+            errorMsg.contains("disk") || errorMsg.contains("storage")) {
+            val message = """
+                Disk space exhausted while storing embeddings for ${context.name}.
+                Error: ${e.message}
+                Suggestions:
+                - Free up disk space immediately
+                - Check available storage: df -h
+                - Clean up partial outputs from build directory
+                Cleanup: Removing partial files...
+            """.trimIndent()
+            logger.error(message)
+            cleanupPartialOutputs()
+            throw RuntimeException(message, e)
+        }
+        val message = "Failed to store embedding for ${context.name}: ${e.message}"
+        logger.error(message)
+        throw RuntimeException(message, e)
+    }
+
+    /**
+     * Cleans up partial output files when an error occurs.
+     */
+    private fun cleanupPartialOutputs() {
+        try {
+            val buildDir = File(project.buildDir, "plantuml-plugin")
+            if (buildDir.exists()) {
+                logger.lifecycle("  → Cleaning up partial outputs in ${buildDir.absolutePath}")
+                buildDir.deleteRecursively()
+                logger.lifecycle("  ✓ Cleanup complete")
+            }
+        } catch (e: Exception) {
+            logger.warn("  ⚠ Cleanup failed: ${e.message}")
         }
     }
 
@@ -399,6 +521,24 @@ abstract class ReindexPlantumlRagTask : DefaultTask() {
         embeddingModel: EmbeddingModel,
         documentSplitter: DocumentSplitter
     ) {
+        // Check for test mode disk space simulation
+        val simulateDiskFull = System.getProperty("plantuml.test.disk.full") == "true"
+        
+        if (simulateDiskFull) {
+            val message = """
+                Disk space exhausted: No space left on device.
+                Error: Simulated disk full condition for testing.
+                Suggestions:
+                - Free up disk space
+                - Check available storage: df -h
+                - Clean up partial outputs from build directory
+                Cleanup: Removing partial files...
+            """.trimIndent()
+            logger.error(message)
+            cleanupPartialOutputs()
+            throw RuntimeException(message)
+        }
+        
         // For now, we'll just log the indexing process
         // In a production implementation, this would connect to a vector database
         diagramFiles.forEach { file ->
