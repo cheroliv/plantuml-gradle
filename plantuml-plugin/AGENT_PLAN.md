@@ -70,6 +70,22 @@ Rendre fonctionnelle la suite complète des tests Cucumber pour couvrir toutes l
 
 ---
 
+### **Session 80 — Correction timeouts Cucumber** ✅
+
+**Problème** : Tests Cucumber timeout (>2 min) ou échouent avec erreurs de classpath
+
+**Solutions appliquées** :
+- ✅ `PlantumlWorld.kt:111-112` : Timeouts Ollama 1s → 5s
+- ✅ `PlantumlWorld.kt:168-214` : Suppression `withPluginClasspath()` (provoque erreur `build/classes/java/main`)
+- ✅ `PlantumlWorld.kt` : Ajout `withTestKitDir()` pour cache Gradle partagé
+- ✅ `PlantumlWorld.kt` : `withGradleVersion("9.4.1")` pour correspondre à la version système
+- ✅ `PlantumlWorld.kt:48-70` : Template projet avec `mavenLocal()` en premier + version `"0.0.0"`
+- ✅ `build.gradle.kts:288` : Timeout 5 min pour tâche `cucumberTest`
+
+**Résultat** : 7/7 scénarios Cucumber passants en 31s ✅
+
+---
+
 ### **Phase 3 : Tests de validation syntaxe** (1 session)
 **Objectif** : Activer `3_syntax_validation.feature`
 

@@ -2,6 +2,39 @@
 
 ## Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+### Session 80 — 2026-04-17 : Correction Timeouts Tests Cucumber (TERMINÉE) ✅
+
+#### ✅ Contexte
+- **Session 79** : Phase 2 (PlantUML Processing) — **TERMINÉE** ✅
+- **Problème** : Tests Cucumber timeout (>2 min) ou échouent avec erreurs de classpath
+- **Objectif** : Rendre les tests Cucumber fonctionnels et rapides
+
+#### ✅ Tâches réalisées
+- ✅ **Timeouts Ollama** : 1s → 5s (`PlantumlWorld.kt:111-112`)
+- ✅ **GradleRunner** : Suppression `withPluginClasspath()` (erreur `build/classes/java/main`)
+- ✅ **TestKit** : Ajout `withTestKitDir()` pour cache Gradle partagé
+- ✅ **GradleVersion** : `.withGradleVersion("9.4.1")` pour correspondre à la version système
+- ✅ **Template projet** : `mavenLocal()` en premier + version `"0.0.0"`
+- ✅ **build.gradle.kts** : Timeout 5 min pour tâche `cucumberTest`
+
+#### ✅ Résultats
+- ✅ **7/7 scénarios Cucumber passants** en 31 secondes
+- ✅ **1_minimal.feature** : 1 scénario ✅ PASS
+- ✅ **2_plantuml_processing.feature** : 3 scénarios ✅ PASS
+- ✅ **3_syntax_validation.feature** : 3 scénarios ✅ PASS
+
+#### 📝 Fichiers modifiés
+- `src/test/scenarios/plantuml/scenarios/PlantumlWorld.kt` — Timeouts, TestKit, GradleVersion
+- `src/test/scenarios/plantuml/scenarios/PlantumlWorld.kt` — Suppression `withPluginClasspath()`
+- `src/test/scenarios/plantuml/scenarios/PlantumlWorld.kt` — Template avec `mavenLocal()`
+- `build.gradle.kts` — Timeout 5 min
+
+#### 🎯 Prochaine Session (81)
+- **Objectif** : Phase 3 (Tests de validation syntaxe) ou Phase 4 (Historique des tentatives)
+- **Recommandation** : Phase 3 (déjà fonctionnel, validation rapide)
+
+---
+
 ### Session 79 — 2026-04-17 : Phase 2 — Validation Tests BDD Cucumber (TERMINÉE) ✅
 
 #### ✅ Contexte

@@ -26,9 +26,12 @@ class PlantumlWorld {
     var exception: Throwable? = null
 
     private val asyncJobs = mutableListOf<Deferred<BuildResult>>()
+    
+    private val version: String = System.getProperty("plugin.version", "0.0.0")
 
     companion object {
         private var templateProjectDir: File? = null
+        private val pluginVersion: String = "0.0.0"
 
         @BeforeAll
         @JvmStatic
@@ -44,17 +47,25 @@ class PlantumlWorld {
             templateDir.mkdirs()
 
             File(templateDir, "settings.gradle.kts").writeText(
-                "pluginManagement.repositories.gradlePluginPortal()\n" + "rootProject.name = \"plantuml-test-template\""
+                """
+                pluginManagement {
+                    repositories {
+                        mavenLocal()
+                        gradlePluginPortal()
+                    }
+                }
+                rootProject.name = "plantuml-test-template"
+                """.trimIndent()
             )
 
             File(templateDir, "build.gradle.kts").writeText(
                 """
                 plugins {
-                    id("com.cheroliv.plantuml")
+                    id("com.cheroliv.plantuml") version "$pluginVersion"
                 }
                 
                 plantuml {
-                    configPath = "plantuml-context.yml"
+                    configPath = file("plantuml-context.yml").absolutePath
                 }
                 """.trimIndent()
             )
@@ -108,8 +119,8 @@ class PlantumlWorld {
 
     private fun isOllamaLocal(): Boolean = runCatching {
         val conn = URI("http://localhost:11434/api/tags").toURL().openConnection() as HttpURLConnection
-        conn.connectTimeout = 1_000
-        conn.readTimeout = 1_000
+        conn.connectTimeout = 5_000
+        conn.readTimeout = 5_000
         conn.requestMethod = "GET"
         conn.responseCode == 200
     }.getOrDefault(false)
@@ -160,12 +171,18 @@ class PlantumlWorld {
         require(projectDir != null) { "Project directory must be initialized" }
         val propArgs = properties.map { (k, v) -> "-P$k=$v" }
         val allArgs = tasks.toList() + propArgs + 
-            "-Pplantuml.output.rag=${projectDir!!.absolutePath}/build/plantuml-plugin/generated/rag" +
-            "--stacktrace"
+            "-Pplantuml.output.rag=${projectDir!!.absolutePath}/build/plantuml-plugin/generated/rag"
         log.info("Starting async Gradle execution: $allArgs")
         return scope.async {
             try {
-                GradleRunner.create().withProjectDir(projectDir!!).withArguments(allArgs).withPluginClasspath().build()
+                GradleRunner.create()
+                    .withProjectDir(projectDir!!)
+                    .withArguments(allArgs)
+                    .withTestKitDir(File(System.getProperty("user.home"), ".gradle/testkit"))
+                    .withGradleVersion("9.4.1")
+                    .forwardStdOutput(System.out.writer())
+                    .forwardStdError(System.err.writer())
+                    .build()
             } catch (e: Exception) {
                 log.error("Gradle build failed", e)
                 exception = e
@@ -174,10 +191,31 @@ class PlantumlWorld {
         }.also { asyncJobs.add(it) }
     }
 
-    suspend fun executeGradle(
+    fun executeGradle(
         vararg tasks: String,
         properties: Map<String, String> = emptyMap(),
-    ): BuildResult = executeGradleAsync(*tasks, properties = properties).await().also { buildResult = it }
+    ): BuildResult {
+        require(projectDir != null) { "Project directory must be initialized" }
+        val propArgs = properties.map { (k, v) -> "-P$k=$v" }
+        val allArgs = tasks.toList() + propArgs + 
+            "-Pplantuml.output.rag=${projectDir!!.absolutePath}/build/plantuml-plugin/generated/rag"
+        log.info("Starting sync Gradle execution: $allArgs")
+        return try {
+            GradleRunner.create()
+                .withProjectDir(projectDir!!)
+                .withArguments(allArgs)
+                .withTestKitDir(File(System.getProperty("user.home"), ".gradle/testkit"))
+                .withGradleVersion("9.4.1")
+                .forwardStdOutput(System.out.writer())
+                .forwardStdError(System.err.writer())
+                .build()
+                .also { buildResult = it }
+        } catch (e: Exception) {
+            log.error("Gradle build failed", e)
+            exception = e
+            throw e
+        }
+    }
 
     suspend fun awaitAll() {
         if (asyncJobs.isNotEmpty()) {

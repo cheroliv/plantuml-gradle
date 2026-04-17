@@ -1,5 +1,70 @@
 # Historique des Sessions — PlantUML Gradle Plugin
 
+## Session 80 — 2026-04-17 : Correction Timeouts Tests Cucumber (TERMINÉE) ✅
+
+### ✅ Contexte
+- **Session 79** : Phase 2 (PlantUML Processing) — **TERMINÉE** ✅
+- **Problème** : Tests Cucumber timeout (>2 min) ou échouent avec erreurs de classpath
+- **Objectif** : Rendre les tests Cucumber fonctionnels et rapides
+
+### ✅ Résultats
+- ✅ **7/7 scénarios Cucumber passants** en 31 secondes
+- ✅ **Timeouts Ollama** : 1s → 5s (`PlantumlWorld.kt:111-112`)
+- ✅ **GradleRunner** : Configuration optimisée (suppression `withPluginClasspath()`)
+- ✅ **Template projet** : `mavenLocal()` en premier + version `"0.0.0"`
+- ✅ **TestKit** : Cache partagé avec `withTestKitDir()`
+
+### 🔧 Corrections critiques
+
+**1. Timeouts Ollama trop courts** (`PlantumlWorld.kt:111-112`)
+```kotlin
+// Avant
+conn.connectTimeout = 1_000
+conn.readTimeout = 1_000
+
+// Après
+conn.connectTimeout = 5_000
+conn.readTimeout = 5_000
+```
+
+**2. withPluginClasspath() provoque erreur** (`PlantumlWorld.kt:168-214`)
+- Problème : Référence `build/classes/java/main` qui n'existe pas (plugin 100% Kotlin)
+- Solution : Suppression de `withPluginClasspath()` + utilisation de `mavenLocal()`
+
+**3. Version Gradle TestKit** (`PlantumlWorld.kt`)
+- Ajout : `.withGradleVersion("9.4.1")` pour correspondre à la version système
+
+**4. Template de projet** (`PlantumlWorld.kt:48-70`)
+- `mavenLocal()` en premier dans `pluginManagement.repositories`
+- Version du plugin hardcodée à `"0.0.0"` (version publiée localement)
+- Correction : `configPath = file("plantuml-context.yml").absolutePath`
+
+**5. Timeout tâche cucumberTest** (`build.gradle.kts:288`)
+```kotlin
+timeout.set(Duration.ofMinutes(5))
+```
+
+### 📊 Modifications Session 80
+| Fichier | Modification | Impact |
+|--------|--------------|--------|
+| `src/test/scenarios/plantuml/scenarios/PlantumlWorld.kt` | Timeouts 5s, TestKitDir, GradleVersion | Tests stables |
+| `src/test/scenarios/plantuml/scenarios/PlantumlWorld.kt` | Suppression `withPluginClasspath()` | Erreurs classpath résolues |
+| `src/test/scenarios/plantuml/scenarios/PlantumlWorld.kt` | Template avec `mavenLocal()` + version `"0.0.0"` | Plugin local utilisé |
+| `build.gradle.kts` | Timeout 5 min | Protection contre hanging |
+
+### ✅ Tests Cucumber — État final
+- `1_minimal.feature` : 1 scénario ✅ PASS
+- `2_plantuml_processing.feature` : 3 scénarios ✅ PASS
+- `3_syntax_validation.feature` : 3 scénarios ✅ PASS
+- **Total** : 7/7 scénarios passants en 31s
+
+### 🎯 Prochaine Session (81)
+- **Objectif** : Phase 3 (Tests de validation syntaxe) ou Phase 4 (Historique des tentatives)
+- **Recommandation** : Phase 3 (déjà fonctionnel, validation rapide)
+- **Score Roadmap** : 9.0/10
+
+---
+
 ## Session 79 — 2026-04-17 : Phase 2 — Validation Tests BDD Cucumber (TERMINÉE) ✅
 
 ### ✅ Contexte

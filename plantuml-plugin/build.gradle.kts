@@ -258,13 +258,22 @@ val cucumberTest = tasks.register<Test>("cucumberTest") {
     testClassesDirs = sourceSets.test.get().output.classesDirs
     classpath = configurations.testRuntimeClasspath.get() +
             sourceSets.test.get().output +
-            sourceSets.main.get().output
+            sourceSets.main.get().output +
+            sourceSets["functionalTest"].output +
+            files(tasks.jar.get().archiveFile)
+    
+    // FIX: Ensure plugin classes are compiled before running tests
+    dependsOn(tasks.classes)
     useJUnitPlatform {
         // CORRECTION: Do not filter by tag here, it filters JUnit engines
         // Cucumber scenario filtering is done in the runner via FILTER_TAGS_PROPERTY_NAME
         excludeEngines("junit-jupiter")
     }
     systemProperty("cucumber.junit-platform.naming-strategy", "long")
+    
+    // FIX: Disable Gradle daemon for tests to avoid startup overhead
+    systemProperty("org.gradle.daemon", "false")
+    
     testLogging {
         events("passed", "skipped", "failed")
         showStandardStreams = true
@@ -280,6 +289,9 @@ val cucumberTest = tasks.register<Test>("cucumberTest") {
     jvmArgs("-XX:+UseSerialGC")
     jvmArgs("-XX:MaxMetaspaceSize=256m")
     jvmArgs("-XX:TieredStopAtLevel=1")
+    
+    // FIX: Timeout per test to prevent hanging
+    timeout.set(Duration.ofMinutes(5))
 }
 
 tasks.withType<Test>().configureEach {

@@ -1,33 +1,34 @@
-# 🔄 Prompt de reprise — Session 80
+# 🔄 Prompt de reprise — Session 81
 
 > **EPIC** : `EPIC_CONSOLIDATION_TESTS_FONCTIONNELS.md` — **EPIC Tests BDD Cucumber**  
-> **Statut** : Session 79 TERMINÉE ✅ — Phase 2 (PlantUML Processing) complétée  
-> **Prochaine mission** : Session 80 — Phase 3 (Validation syntaxe) ou Phase 4 (Historique)
+> **Statut** : Session 80 TERMINÉE ✅ — Timeouts Cucumber résolus  
+> **Prochaine mission** : Session 81 — Phase 3 (Validation syntaxe) ou Phase 4 (Historique)
 
 ---
 
-## 📊 Session 79 — Résumé (TERMINÉE)
+## 📊 Session 80 — Résumé (TERMINÉE)
 
 **Date** : 17 avr. 2026  
 **Résultats** :
-- ✅ **Phase 2.7** : Scénario 1 validé (6/6 steps)
-- ✅ **Phase 2.8** : Scénario 2 validé (6/6 steps) — syntax error correction
-- ✅ **Phase 2.9** : Scénario 3 validé (6/6 steps) — multiple prompt files
-- ✅ **Tests Cucumber** : 7 scénarios passants (1 canaire + 3 processing + 3 validation)
-- ✅ **Correction bug** : `plantuml.langchain4j.ollama.baseUrl` ajouté dans `ProcessPlantumlPromptsTask`
+- ✅ **7/7 scénarios Cucumber passants** en 31 secondes
+- ✅ **Timeouts Ollama** : 1s → 5s (`PlantumlWorld.kt:111-112`)
+- ✅ **GradleRunner** : Suppression `withPluginClasspath()` + `withTestKitDir()` + `withGradleVersion("9.4.1")`
+- ✅ **Template projet** : `mavenLocal()` en premier + version `"0.0.0"`
+- ✅ **build.gradle.kts** : Timeout 5 min pour `cucumberTest`
 
 **Modifications** :
-- `ProcessPlantumlPromptsTask.kt` : Gestion baseUrl CLI ajoutée (ligne 118-144)
-- `2_plantuml_processing.feature` : 3 scénarios décommentés (18 steps)
-- `AGENT_PLAN.md` : Session 79 documentée, Phase 2 marquée terminée
-- `SESSIONS_HISTORY.md` : Entrée Session 79 ajoutée
-- `COMPLETED_TASKS_ARCHIVE.md` : Tâches Session 79 archivées
+- `PlantumlWorld.kt` : Timeouts, TestKitDir, GradleVersion, template avec mavenLocal()
+- `PlantumlWorld.kt` : Suppression `withPluginClasspath()` (erreur classes/java/main)
+- `build.gradle.kts` : Timeout 5 min ajouté
+- `AGENT_PLAN.md` : Session 80 documentée
+- `SESSIONS_HISTORY.md` : Entrée Session 80 ajoutée
+- `COMPLETED_TASKS_ARCHIVE.md` : Tâches Session 80 archivées
 
 **Voir** : `SESSIONS_HISTORY.md` pour détails complets
 
 ---
 
-## 🎯 Session 80 — Mission
+## 🎯 Session 81 — Mission
 
 ### EPIC Tests BDD Cucumber — Phase 3 ou Phase 4
 
@@ -35,7 +36,7 @@
 **Impact** : Consolidation des tests fonctionnels  
 **Durée estimée** : 1-2 sessions
 
-#### Option 1 : Phase 3 — Tests de validation syntaxe
+#### Option 1 : Phase 3 — Tests de validation syntaxe (Recommandé)
 
 **Objectif** : Vérifier que `3_syntax_validation.feature` est fonctionnel
 
@@ -46,7 +47,7 @@
 **État actuel** :
 - ✅ Steps déjà implémentés dans `PlantumlSteps.kt`
 - ✅ Scénarios déjà écrits dans `3_syntax_validation.feature`
-- ⏳ Tests à exécuter pour validation
+- ✅ Tests Cucumber : 7/7 passants (Session 80)
 
 **Procédure** :
 ```bash
@@ -91,7 +92,7 @@
 
 | Fichier | Rôle |
 |---------|------|
-| `AGENT_PLAN.md` | Plan d'attaque Epic BDD (5 phases) — Phase 2 ✅ |
+| `AGENT_PLAN.md` | Plan d'attaque Epic BDD (5 phases) — Phase 2 ✅, Session 80 ✅ |
 | `AGENT_METHODOLOGIES.md` | Section "TDD Incrémentale pour Tests BDD Cucumber" |
 | `src/test/features/3_syntax_validation.feature` | Tests de validation (prêts) |
 | `src/test/features/4_attempt_history.feature` | Tests d'historique (à refondre) |
@@ -108,7 +109,7 @@
 |---------|-----------|--------|
 | `1_minimal.feature` | 1 | ✅ PASS |
 | `2_plantuml_processing.feature` | 3 | ✅ PASS (Session 79) |
-| `3_syntax_validation.feature` | 3 | ✅ PASS |
+| `3_syntax_validation.feature` | 3 | ✅ PASS (Session 80) |
 | `4_attempt_history.feature` | 3 | ❌ À refondre |
 
 **Total** : 7/10 scénarios passants (70%)
@@ -145,8 +146,8 @@
 **Raison** : Déjà implémenté, validation rapide (1 session)  
 **Impact** : 10 scénarios passants (100% EPIC 3)
 
-**Phase 4** (Historique) peut attendre Session 81 (2-3 sessions nécessaires)
+**Phase 4** (Historique) peut attendre Session 82 (2-3 sessions nécessaires)
 
 ---
 
-**Session 80 — Prêt à démarrer** 🚀
+**Session 81 — Prêt à démarrer** 🚀
