@@ -8,18 +8,15 @@
 
 ### 5 Étapes obligatoires
 
-1. **Vérifier les tests**
-   ```bash
-   ./gradlew test
-   ```
+1. **Mettre à jour `AGENTS.md`** (section "État actuel")
 
-2. **Mettre à jour `AGENTS.md`** (section "État actuel")
+2. **Mettre à jour `COMPLETED_TASKS_ARCHIVE.md`**
 
-3. **Mettre à jour `COMPLETED_TASKS_ARCHIVE.md`**
+3. **Mettre à jour `PROMPT_REPRISE.md`**
 
-4. **Mettre à jour `PROMPT_REPRISE.md`**
+4. **Mettre à jour `TEST_COVERAGE_ANALYSIS.md`** (si besoin)
 
-5. **Mettre à jour `TEST_COVERAGE_ANALYSIS.md`** (si besoin)
+5. **Mettre à jour `SESSIONS_HISTORY.md`**
 
 ---
 

@@ -233,11 +233,10 @@ Phase 5 (Consolidation)
 
 **⚠️ IMPORTANT** : Suivre la procédure dans `SESSION_PROCEDURE.md` avant chaque fin de session :
 
-1. ✅ Vérifier les tests (`./gradlew test`)
-2. ✅ Mettre à jour cette section avec le résumé de la session
-3. ✅ Mettre à jour `SESSIONS_HISTORY.md` avec l'entrée de la session
-4. ✅ Mettre à jour `COMPLETED_TASKS_ARCHIVE.md` avec les tâches terminées
-5. ✅ Mettre à jour `PROMPT_REPRISE.md` avec la prochaine mission
+1. ✅ Mettre à jour cette section avec le résumé de la session
+2. ✅ Mettre à jour `SESSIONS_HISTORY.md` avec l'entrée de la session
+3. ✅ Mettre à jour `COMPLETED_TASKS_ARCHIVE.md` avec les tâches terminées
+4. ✅ Mettre à jour `PROMPT_REPRISE.md` avec la prochaine mission
 
 **⚠️ Git** : L'utilisateur gère Git manuellement (commit, push)
 
