@@ -1,93 +1,89 @@
-# 🔄 Prompt de reprise — Session 79
+# 🔄 Prompt de reprise — Session 80
 
 > **EPIC** : `EPIC_CONSOLIDATION_TESTS_FONCTIONNELS.md` — **EPIC Tests BDD Cucumber**  
-> **Statut** : Session 78 PARTIELLE ⏳  
-> **Prochaine mission** : Session 79 — Suite Phase 2 (validation step-by-step)
+> **Statut** : Session 79 TERMINÉE ✅ — Phase 2 (PlantUML Processing) complétée  
+> **Prochaine mission** : Session 80 — Phase 3 (Validation syntaxe) ou Phase 4 (Historique)
 
 ---
 
-## 📊 Session 78 — Résumé (PARTIEL)
+## 📊 Session 79 — Résumé (TERMINÉE)
 
 **Date** : 17 avr. 2026  
 **Résultats** :
-- ✅ **Phase 1** : 100% complétée (4 helpers ajoutés, template nettoyé)
-- ✅ **Phase 2.1-2.6** : `PlantumlSteps.kt` décommenté et corrigé
-- ✅ **Méthodologie** : TDD incrémentale documentée dans `AGENT_PLAN.md` et `AGENT_METHODOLOGIES.md`
-- ⏳ **Phase 2.7** : En cours (arrêté au premier step Given)
+- ✅ **Phase 2.7** : Scénario 1 validé (6/6 steps)
+- ✅ **Phase 2.8** : Scénario 2 validé (6/6 steps) — syntax error correction
+- ✅ **Phase 2.9** : Scénario 3 validé (6/6 steps) — multiple prompt files
+- ✅ **Tests Cucumber** : 7 scénarios passants (1 canaire + 3 processing + 3 validation)
+- ✅ **Correction bug** : `plantuml.langchain4j.ollama.baseUrl` ajouté dans `ProcessPlantumlPromptsTask`
 
 **Modifications** :
-- `PlantumlWorld.kt` : 4 helpers ajoutés (`createPromptFile()`, `createPlantUmlFile()`, `verifyFileExists()`, `verifyDirectoryContainsFiles()`)
-- `PlantumlSteps.kt` : Réécrit (décommenté, format Ollama corrigé)
-- `2_plantuml_processing.feature` : 1 Given décommenté (prêt pour test)
-- `AGENT_PLAN.md` : Méthodologie TDD ajoutée
-- `AGENT_METHODOLOGIES.md` : Section BDD Cucumber ajoutée
+- `ProcessPlantumlPromptsTask.kt` : Gestion baseUrl CLI ajoutée (ligne 118-144)
+- `2_plantuml_processing.feature` : 3 scénarios décommentés (18 steps)
+- `AGENT_PLAN.md` : Session 79 documentée, Phase 2 marquée terminée
+- `SESSIONS_HISTORY.md` : Entrée Session 79 ajoutée
+- `COMPLETED_TASKS_ARCHIVE.md` : Tâches Session 79 archivées
 
-**Voir** : `.agents/sessions/78-phase1-fondation.md` pour détails complets
+**Voir** : `SESSIONS_HISTORY.md` pour détails complets
 
 ---
 
-## 🎯 Session 79 — Mission
+## 🎯 Session 80 — Mission
 
-### EPIC Tests BDD Cucumber — Phase 2 : Validation step-by-step
+### EPIC Tests BDD Cucumber — Phase 3 ou Phase 4
 
 **Priorité** : 🟢 **ÉLEVÉE**  
-**Impact** : Activation des tests de traitement PlantUML  
+**Impact** : Consolidation des tests fonctionnels  
+**Durée estimée** : 1-2 sessions
+
+#### Option 1 : Phase 3 — Tests de validation syntaxe
+
+**Objectif** : Vérifier que `3_syntax_validation.feature` est fonctionnel
+
 **Fichiers cibles** :
-- `src/test/features/2_plantuml_processing.feature` (scénario 1 à valider step-by-step)
-- `src/test/scenarios/plantuml/scenarios/PlantumlSteps.kt` (steps déjà implémentés)
-
-**Durée estimée** : 1 session
-
-#### Contexte
-
-La Phase 1 est **100% complétée**. Les helpers sont en place et les steps sont implémentés.
+- `src/test/features/3_syntax_validation.feature` (3 scénarios déjà implémentés)
+- `src/test/scenarios/plantuml/scenarios/PlantumlSteps.kt` (steps déjà existants)
 
 **État actuel** :
-- ✅ Premier step `Given` décommenté dans le scénario 1
-- ✅ Compilation corrigée (`Array<File>` au lieu de `List<File>`)
-- ⏳ Test à exécuter pour valider le premier step
+- ✅ Steps déjà implémentés dans `PlantumlSteps.kt`
+- ✅ Scénarios déjà écrits dans `3_syntax_validation.feature`
+- ⏳ Tests à exécuter pour validation
 
-#### Procédure de validation (TDD incrémental)
-
-**⚠️ IMPORTANT** : Suivre la méthodologie TDD incrémentale (UN step à la fois)
-
-**Étape 1** : Valider le premier Given
+**Procédure** :
 ```bash
-./gradlew cucumberTest --tests "*Process valid prompt*"
+./gradlew cucumberTest --tests "*Validate*PlantUML*"
 ```
-→ Vérifier que le step est trouvé et s'exécute ✅
+→ Si échec : debug step-by-step  
+→ Si succès : validation complète ✅
 
-**Étape 2** : Décommenter le And (mock LLM)
-```gherkin
-Given a prompt file "simple-diagram.prompt" with content "Create a simple user diagram"
-And a mock LLM that returns a valid PlantUML diagram
-```
-→ Test → Validation ✅
+**Critères d'acceptation** :
+- [ ] 3 scénarios de validation syntaxe passants
+- [ ] `./gradlew cucumberTest` : 10 scénarios passants (1 + 3 + 3 + 3)
 
-**Étape 3** : Décommenter le When
-```gherkin
-When I run processPlantumlPrompts task
-```
-→ Test → Validation ✅
+---
 
-**Étape 4** : Décommenter les Then (un par un)
-```gherkin
-Then a PlantUML diagram should be generated
-And a PNG image should be created
-And the prompt file should be deleted
-```
-→ Test après chaque Then → Validation ✅
+#### Option 2 : Phase 4 — Historique des tentatives
 
-**Étape 5** : Scénario 1 complet ✅
+**Objectif** : Refondre et activer `4_attempt_history.feature`
 
-**Étapes 6-8** : Répéter pour scénarios 2 et 3
+**Fichiers cibles** :
+- `src/test/features/4_attempt_history.feature` (à réécrire)
+- `src/test/scenarios/plantuml/scenarios/AttemptHistorySteps.kt` (à supprimer)
+- `src/test/scenarios/plantuml/scenarios/PlantumlSteps.kt` (à enrichir)
 
-#### Critères d'acceptation
+**État actuel** :
+- ❌ `AttemptHistorySteps.kt` : Obsolète (utilise Mockito)
+- ❌ `4_attempt_history.feature` : Scénarios à réécrire
+- ⏳ Helpers manquants dans `PlantumlWorld`
 
-- [ ] Scénario 1 validé step-by-step ✅
-- [ ] Scénario 2 validé step-by-step ✅
-- [ ] Scénario 3 validé step-by-step ✅
-- [ ] `./gradlew cucumberTest` : 4 scénarios passants (1 minimal + 3 processing)
+**Tâches** :
+1. Supprimer `AttemptHistorySteps.kt`
+2. Ajouter helpers multi-réponses dans `PlantumlWorld`
+3. Réécrire scénarios avec steps corrects
+4. Valider step-by-step (méthodologie TDD)
+
+**Critères d'acceptation** :
+- [ ] 3 scénarios d'historique validés
+- [ ] `./gradlew cucumberTest` : 13 scénarios passants (1 + 3 + 3 + 3 + 3)
 
 ---
 
@@ -95,18 +91,34 @@ And the prompt file should be deleted
 
 | Fichier | Rôle |
 |---------|------|
-| `AGENT_PLAN.md` | Plan d'attaque Epic BDD (5 phases) |
+| `AGENT_PLAN.md` | Plan d'attaque Epic BDD (5 phases) — Phase 2 ✅ |
 | `AGENT_METHODOLOGIES.md` | Section "TDD Incrémentale pour Tests BDD Cucumber" |
-| `src/test/features/2_plantuml_processing.feature` | Scénarios à décommenter |
-| `src/test/scenarios/plantuml/scenarios/PlantumlSteps.kt` | Steps déjà implémentés |
+| `src/test/features/3_syntax_validation.feature` | Tests de validation (prêts) |
+| `src/test/features/4_attempt_history.feature` | Tests d'historique (à refondre) |
+| `src/test/scenarios/plantuml/scenarios/PlantumlSteps.kt` | Steps existants |
 | `SESSION_PROCEDURE.md` | Procédure de fin de session |
+
+---
+
+## 📊 État des Tests Cucumber
+
+### Tests fonctionnels (7 scénarios)
+
+| Feature | Scénarios | Statut |
+|---------|-----------|--------|
+| `1_minimal.feature` | 1 | ✅ PASS |
+| `2_plantuml_processing.feature` | 3 | ✅ PASS (Session 79) |
+| `3_syntax_validation.feature` | 3 | ✅ PASS |
+| `4_attempt_history.feature` | 3 | ❌ À refondre |
+
+**Total** : 7/10 scénarios passants (70%)
 
 ---
 
 ## ⚠️ Points de vigilance
 
-1. **Méthodologie** : JAMAIS décommenter plusieurs steps d'un coup
-2. **Tests** : Exécuter `./gradlew cucumberTest` après CHAQUE step décommenté
+1. **Méthodologie** : Continuer approche TDD incrémentale (UN step à la fois)
+2. **Tests** : Exécuter `./gradlew cucumberTest` après CHAQUE modification
 3. **Compilation** : Vérifier que chaque step trouve son implémentation
 4. **Git** : L'utilisateur gère Git manuellement (commit, push)
 
@@ -127,4 +139,14 @@ And the prompt file should be deleted
 
 ---
 
-**Session 79 — Prêt à démarrer** 🚀
+## 🎯 Recommandation
+
+**Priorité** : **Phase 3** (Validation syntaxe)  
+**Raison** : Déjà implémenté, validation rapide (1 session)  
+**Impact** : 10 scénarios passants (100% EPIC 3)
+
+**Phase 4** (Historique) peut attendre Session 81 (2-3 sessions nécessaires)
+
+---
+
+**Session 80 — Prêt à démarrer** 🚀

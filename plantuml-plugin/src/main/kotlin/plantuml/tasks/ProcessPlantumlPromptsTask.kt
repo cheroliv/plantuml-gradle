@@ -117,6 +117,7 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
         // Check if an LLM model is specified via command line
         val llmModel = project.findProperty("plantuml.langchain4j.model") as? String
         val ollamaModelName = project.findProperty("plantuml.langchain4j.ollama.modelName") as? String
+        val ollamaBaseUrl = project.findProperty("plantuml.langchain4j.ollama.baseUrl") as? String
         
         // Load base configuration
         val baseConfig = PlantumlManager.Configuration.load(project)
@@ -130,6 +131,14 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
                 langchain4j = config.langchain4j.copy(
                     ollama = config.langchain4j.ollama.copy(
                         modelName = ollamaModelName
+                    )
+                )
+            )
+        if (ollamaBaseUrl != null)
+            config = config.copy(
+                langchain4j = config.langchain4j.copy(
+                    ollama = config.langchain4j.ollama.copy(
+                        baseUrl = ollamaBaseUrl
                     )
                 )
             )

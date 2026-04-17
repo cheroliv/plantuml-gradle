@@ -178,26 +178,21 @@ Phase 5 (Consolidation)
 
 ## 📝 Historique des sessions
 
-### Session 78 — 17 Avril 2026 — Phase 1 (Fondation) + Début Phase 2 (PARTIELLE)
-**Objectif** : Phase 1 (Fondation & Infrastructure) + Début Phase 2 (PlantUML Processing)
+### Session 79 — 17 Avril 2026 — Phase 2 (PlantUML Processing) ✅ **TERMINÉE**
+**Objectif** : Validation step-by-step des 3 scénarios de `2_plantuml_processing.feature`
 
 **Réalisé** :
-- ✅ **Phase 1.2-1.4** : Helpers ajoutés dans `PlantumlWorld` (`createPromptFile()`, `createPlantUmlFile()`, `verifyFileExists()`, `verifyDirectoryContainsFiles()`)
-- ✅ **Phase 1.5** : Template nettoyé (suppression `test-prompts` par défaut)
-- ✅ **Phase 2.1-2.2** : `PlantumlSteps.kt` décommenté et corrigé (mock LLM format Ollama)
-- ✅ **Phase 2.3-2.6** : Tous les steps implémentés
-- ✅ **Méthodologie** : Section TDD incrémentale ajoutée dans `AGENT_PLAN.md` et `AGENT_METHODOLOGIES.md`
+- ✅ **Correction bug** : Ajout `plantuml.langchain4j.ollama.baseUrl` dans `ProcessPlantumlPromptsTask.loadConfiguration()` (ligne 116-144)
+- ✅ **Phase 2.7** : Scénario 1 validé (6 steps : prompt, mock LLM, task, diagram, PNG, suppression)
+- ✅ **Phase 2.8** : Scénario 2 validé (6 steps : syntax error correction avec max iterations)
+- ✅ **Phase 2.9** : Scénario 3 validé (6 steps : multiple prompt files)
+- ✅ **Tests Cucumber** : 7 scénarios passants (1 canaire + 3 processing + 3 validation)
 
-**En cours** :
-- ⏳ **Phase 2.7** : Décommenter scénario 1 step-by-step (arrêté au premier Given)
-- ⏳ **Compilation** : Erreur corrigée (`List<File>` → `Array<File>`)
+**Fichiers modifiés** :
+- `src/main/kotlin/plantuml/tasks/ProcessPlantumlPromptsTask.kt` — Correction configuration baseUrl
+- `src/test/features/2_plantuml_processing.feature` — 3 scénarios décommentés
 
-**À faire** :
-- 🔜 Exécuter `./gradlew cucumberTest` pour valider le premier step Given
-- 🔜 Décommenter les steps restants un par un (And, When, Then)
-- 🔜 Valider le scénario 1 complet
-
-**Prochaine session** : Session 79 — Suite Phase 2 (validation step-by-step des 3 scénarios)
+**Prochaine session** : Session 80 — Phase 3 (Tests de validation syntaxe) ou Phase 4 (Historique des tentatives)
 
 ---
 

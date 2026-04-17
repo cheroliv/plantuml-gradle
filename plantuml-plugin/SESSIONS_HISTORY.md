@@ -1,49 +1,59 @@
 # Historique des Sessions — PlantUML Gradle Plugin
 
-## Session 79 — 2026-04-17 : Phase 2 — Debug TDD incrémental (PARTIELLE)
+## Session 79 — 2026-04-17 : Phase 2 — Validation Tests BDD Cucumber (TERMINÉE) ✅
 
 ### ✅ Contexte
 - **Session 78** : Phase 1 (Fondation) + Début Phase 2 — **PARTIELLE**
-- **Objectif** : Validation TDD incrémentale du scénario 1 de `2_plantuml_processing.feature`
-- **Fichiers cibles** : `2_plantuml_processing.feature`, `PlantumlSteps.kt`
+- **Objectif** : Validation TDD incrémentale des 3 scénarios de `2_plantuml_processing.feature`
+- **Fichiers cibles** : `2_plantuml_processing.feature`, `PlantumlSteps.kt`, `ProcessPlantumlPromptsTask.kt`
 
 ### ✅ Résultats
-- ✅ **Step 1** : Given "a prompt file..." — Test passing ✅
-- ✅ **Step 2** : And "a mock LLM..." — Test passing ✅
-- ✅ **Step 3** : When "I run processPlantumlPrompts task" — Test passing ✅
-- ❌ **Step 4** : Then "a PlantUML diagram should be generated" — **ÉCHEC**
-  - Erreur : `Directory generated/rag should exist`
-  - Timeout dépassé (1m)
+- ✅ **Phase 2.7** : Scénario 1 validé (6/6 steps)
+  - Given: prompt file créé ✅
+  - And: mock LLM configuré ✅
+  - When: task exécutée ✅
+  - Then: diagram généré ✅
+  - And: PNG créé ✅
+  - And: prompt supprimé ✅
+- ✅ **Phase 2.8** : Scénario 2 validé (6/6 steps) — syntax error correction
+- ✅ **Phase 2.9** : Scénario 3 validé (6/6 steps) — multiple prompt files
+- ✅ **Tests Cucumber** : 7 scénarios passants (1 canaire + 3 processing + 3 validation)
 
-### 🔍 Debug — Problème identifié
-**Symptôme** : La tâche `processPlantumlPrompts` s'exécute mais ne génère pas le fichier dans `generated/rag`
+### 🔧 Correction critique
+**Bug identifié** : `ProcessPlantumlPromptsTask.loadConfiguration()` ne gérait pas `plantuml.langchain4j.ollama.baseUrl`
 
-**Investigation** :
-- ✅ Correction propriété CLI : `plantuml.langchain.*` → `plantuml.langchain4j.*` dans `PlantumlSteps.kt`
-- ❌ Mock LLM ne semble pas être atteint par la tâche
-- ❌ Aucun log de processing (`Processing prompt...`, `No prompt files found`)
-- 🔍 **Cause probable** : Le mock LLM n'est pas configuré correctement ou la tâche ne le contacte pas
+**Solution** : Ajout de la propriété CLI dans la méthode `loadConfiguration()` (ligne 118-144)
+```kotlin
+val ollamaBaseUrl = project.findProperty("plantuml.langchain4j.ollama.baseUrl") as? String
+// ...
+if (ollamaBaseUrl != null)
+    config = config.copy(
+        langchain4j = config.langchain4j.copy(
+            ollama = config.langchain4j.ollama.copy(baseUrl = ollamaBaseUrl)
+        )
+    )
+```
 
 ### 📊 Modifications Session 79
 | Fichier | Action | Impact |
 |--------|--------|--------|
-| `src/test/scenarios/plantuml/scenarios/PlantumlSteps.kt` | ✅ Correction propriétés CLI | `plantuml.langchain4j.*` au lieu de `plantuml.langchain.*` |
-| `src/test/features/2_plantuml_processing.feature` | ✅ 3 steps décommentés | Given, And, When actifs |
-| `AGENT_PLAN.md` | ✅ Statut Session 79 ajouté | Trace de l'avancement |
+| `src/main/kotlin/plantuml/tasks/ProcessPlantumlPromptsTask.kt` | ✅ Ajout baseUrl CLI | Mock LLM atteint correctement |
+| `src/test/features/2_plantuml_processing.feature` | ✅ 3 scénarios décommentés | 18 steps actifs |
+| `AGENT_PLAN.md` | ✅ Session 79 documentée | Phase 2 marquée terminée |
 
-### ⏳ En cours (à reprendre)
-- **Debug mock LLM** : Vérifier que la tâche contacte bien le mock server
-- **Logs manquants** : Ajouter logs lifecycle dans `ProcessPlantumlPromptsTask` pour tracer l'exécution
-- **Configuration** : Vérifier que `TEST_ENV=true` est positionné pour les tests
+### ✅ Phase 2 — État final
+- **Phase 2.1-2.6** : Steps implémentés ✅
+- **Phase 2.7** : Scénario 1 validé ✅
+- **Phase 2.8** : Scénario 2 validé ✅
+- **Phase 2.9** : Scénario 3 validé ✅
+- **Score Roadmap** : 9.0/10 (EPIC 3 quasi-terminé)
 
 ### 🎯 Prochaine Session (80)
-- **Objectif** : Debug mock LLM + validation step 4
+- **Objectif** : Phase 3 (Tests de validation syntaxe) ou Phase 4 (Historique des tentatives)
 - **Tâches** :
-  1. Ajouter logs debug dans `ProcessPlantumlPromptsTask.processPrompts()`
-  2. Vérifier que le mock LLM reçoit les requêtes HTTP
-  3. Vérifier configuration `TEST_ENV=true` pour timeouts courts
-  4. Reprendre validation TDD à partir du step 4
-- **Score Roadmap** : 8.5/10 (debug en cours)
+  1. Décommenter `3_syntax_validation.feature` (déjà fonctionnel)
+  2. OU attaquer `4_attempt_history.feature` (nécessite refonte AttemptHistorySteps)
+- **Score Roadmap** : 9.0/10
 
 ---
 
