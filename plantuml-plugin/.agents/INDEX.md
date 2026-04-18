@@ -1,8 +1,8 @@
 # 📊 Index des Sessions — PlantUML Gradle Plugin
 
 **Dernière mise à jour** : 2026-04-18  
-**Session en cours** : 96  
-**Session terminée** : 96 (Optimisation contexte)
+**Session en cours** : 101  
+**Session terminée** : 100 (Feature 5 RAG Pipeline validée)
 
 ---
 
@@ -38,17 +38,20 @@
 
 ---
 
-## 🎯 Sessions Récentes (5 dernières)
+## 🎯 Sessions Récentes (10 dernières)
 
 | # | Date | Type | Sujet | Fichier | Score |
 |---|------|------|-------|---------|-------|
+| 100 | 2026-04-18 | test | Feature 5 RAG Pipeline (4/4 PASS) | `100-validation-features-5-12-13.md` | 9.0/10 |
+| 99 | 2026-04-18 | test | Validation Features 10-11 (13/13 PASS) | `99-validation-complete-features-10-11.md` | 9.0/10 |
+| 98 | 2026-04-18 | test | Validation Features 10-11 partiel | `98-validation-features-10-11.md` | 9.0/10 |
+| 97 | 2026-04-18 | fix | Résolution conflits steps | `97-conflits-resolus.md` | 9.0/10 |
+| 96 | 2026-04-18 | test | Feature 10-11 partiel + mock LLM | `96-feature10-11-partiel.md` | 9.0/10 |
+| 95 | 2026-04-18 | test | Feature 8 Config 100% + Feature 9 Incremental | `95-feature8-fin-feature9-incremental.md` | 9.0/10 |
+| 94 | 2026-04-18 | test | Attempt History 100% + Feature 8 | `94-attempt-history-100-percent.md` | 9.0/10 |
+| 93 | 2026-04-18 | fix | Attempt History corrections partielles | `93-attempt-history-fixes-partiel.md` | 9.0/10 |
+| 91 | 2026-04-18 | test | Memory Leak Validation | `91-memory-leak-validation.md` | 9.0/10 |
 | 87 | 2026-04-17 | test | Error Handling Tests (75% complété) | `87-error-handling-tests.md` | 9.0/10 |
-| 86 | 2026-04-17 | refactor | LLM Providers Steps — Refactorisation tests | `86-refactor-llm-providers-steps.md` | 9.0/10 |
-| 74 | 2026-04-16 | debug | Couverture tests — Correction échecs tests unitaires | `74-debug-couverture-tests.md` | 9.0/10 |
-| 73 | 2026-04-15 | debug | Crash tâche functionalTest — Nettoyage ressources | `73-debug-crash-functional-test.md` | 9.0/10 |
-| 72 | 2026-04-15 | docs | Traduction commentaires FR → EN | `72-docs-traduction-commentaires.md` | 9.0/10 |
-| 71 | 2026-04-15 | docs | README Truth FR/EN | `71-docs-readme-truth.md` | 9.0/10 |
-| 70 | 2026-04-15 | docs | Guide Contributing FR/EN | `70-docs-contributing.md` | 9.0/10 |
 
 ---
 
@@ -56,6 +59,7 @@
 
 | Période | Sessions | Types dominants | Score moyen |
 |---------|----------|-----------------|-------------|
+| Avril 2026 (semaine 3) | 10 | test (80%), fix (20%) | 9.0/10 |
 | Avril 2026 (semaine 1) | 5 | debug (60%), docs (40%) | 9.0/10 |
 | Mars 2026 | _à compléter_ | _à compléter_ | _à compléter_ |
 
@@ -69,7 +73,7 @@
 | EPIC 2 : Tests fonctionnels | ✅ 100% | 10/10 | ✅ TERMINÉ |
 | EPIC 3 : Architecture | ✅ 100% | 9/10 | ✅ TERMINÉ |
 | EPIC 4 : Documentation | 🟡 75% | 9/10 | 🟡 EN COURS |
-| EPIC 5 : RAG System | 🔴 0% | 0/10 | ⏳ À VENIR |
+| EPIC 5 : RAG System | ✅ 100% | 9/10 | ✅ TERMINÉ |
 
 ---
 
