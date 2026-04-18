@@ -82,14 +82,14 @@ class ConfigurationSteps(private val world: PlantumlWorld) {
         val configMap = table.asMaps().associate { it["input"] to it["output"] }
         val inputDir = configMap["input"] ?: "my-prompts"
         val outputDir = configMap["output"] ?: "my-generated"
-        
+
         val configFile = File(world.projectDir, "plantuml-context.yml")
         configFile.writeText(
             """
             input:
               prompts: "$inputDir"
             output:
-              images: "$outputDir"
+              images: "$outputDir/images"
               diagrams: "$outputDir"
               rag: "$outputDir/rag"
               validations: "$outputDir/validations"
@@ -101,7 +101,7 @@ class ConfigurationSteps(private val world: PlantumlWorld) {
               maxIterations: 5
             """.trimIndent()
         )
-        
+
         // Create the custom prompts directory and a prompt file
         val promptsDir = File(world.projectDir, inputDir).apply { mkdirs() }
         val promptFile = File(promptsDir, "custom.prompt")
@@ -152,7 +152,8 @@ class ConfigurationSteps(private val world: PlantumlWorld) {
 
     @Given("environment variable PLANTUML_LLM_PROVIDER is set to {string}")
     fun environmentVariableIsSetTo(provider: String) {
-        // Environment variables are set in the When step via system properties
+        // Store the provider to be used in the When step
+        world.environmentVariables["PLANTUML_LLM_PROVIDER"] = provider
     }
 
     @Then("OpenAI should be used instead of Ollama")
@@ -195,7 +196,27 @@ class ConfigurationSteps(private val world: PlantumlWorld) {
             properties["plantuml.langchain4j.ollama.baseUrl"] = "http://localhost:$it"
             properties["plantuml.langchain4j.ollama.modelName"] = "smollm:135m"
         }
+        world.projectDir?.let {
+            properties["plugin.project.dir"] = it.absolutePath
+        }
         properties["plantuml.langchain4j.maxIterations"] = maxIterations.toString()
+        properties["plantuml.test.mode"] = "true"
+
+        try {
+            world.executeGradle("processPlantumlPrompts", properties = properties)
+        } catch (e: Exception) {
+            world.exception = e
+        }
+    }
+
+    @When("I run processPlantumlPrompts task")
+    fun runProcessPlantumlPromptsTask() = runBlocking {
+        val properties = mutableMapOf<String, String>()
+        world.mockServerPort?.let {
+            properties["plantuml.langchain4j.model"] = "ollama"
+            properties["plantuml.langchain4j.ollama.baseUrl"] = "http://localhost:$it"
+            properties["plantuml.langchain4j.ollama.modelName"] = "smollm:135m"
+        }
         world.projectDir?.let {
             properties["plugin.project.dir"] = it.absolutePath
         }
@@ -206,39 +227,39 @@ class ConfigurationSteps(private val world: PlantumlWorld) {
         } catch (e: Exception) {
             world.exception = e
         }
-    }
 
-    @Then("{int} iterations should be allowed")
-    fun iterationsShouldBeAllowed(maxIterations: Int) {
-        assertThat(world.buildResult?.output).containsAnyOf(
-            "BUILD SUCCESSFUL",
-            "Processing"
-        )
-    }
+        @Then("{int} iterations should be allowed")
+        fun iterationsShouldBeAllowed(maxIterations: Int) {
+            assertThat(world.buildResult?.output).containsAnyOf(
+                "BUILD SUCCESSFUL",
+                "Processing"
+            )
+        }
 
-    @Given("plantuml-config.yml only specifies input directory")
-    fun configOnlySpecifiesInputDirectory() {
-        world.createGradleProject()
-        val configFile = File(world.projectDir, "plantuml-context.yml")
-        configFile.writeText(
-            """
+        @Given("plantuml-config.yml only specifies input directory")
+        fun configOnlySpecifiesInputDirectory() {
+            world.createGradleProject()
+            val configFile = File(world.projectDir, "plantuml-context.yml")
+            configFile.writeText(
+                """
             input:
               prompts: "custom-prompts"
             """.trimIndent()
-        )
-    }
+            )
+        }
 
-    @Then("default values should be used for unspecified settings")
-    fun defaultValuesShouldBeUsedForUnspecifiedSettings() {
-        assertThat(world.buildResult?.output).containsAnyOf(
-            "BUILD SUCCESSFUL",
-            "No prompt files found",
-            "Processing"
-        )
-    }
+        @Then("default values should be used for unspecified settings")
+        fun defaultValuesShouldBeUsedForUnspecifiedSettings() {
+            assertThat(world.buildResult?.output).containsAnyOf(
+                "BUILD SUCCESSFUL",
+                "No prompt files found",
+                "Processing"
+            )
+        }
 
-    @Then("the task should complete successfully")
-    fun taskShouldCompleteSuccessfully() {
-        assertThat(world.buildResult?.output).contains("BUILD SUCCESSFUL")
+        @Then("the task should complete successfully")
+        fun taskShouldCompleteSuccessfully() {
+            assertThat(world.buildResult?.output).contains("BUILD SUCCESSFUL")
+        }
     }
 }

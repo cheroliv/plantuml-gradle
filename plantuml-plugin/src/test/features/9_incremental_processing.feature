@@ -1,4 +1,4 @@
-@wip @incremental
+@incremental
 Feature: Incremental Processing
 
   Background:

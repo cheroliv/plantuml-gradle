@@ -1,8 +1,8 @@
-# 🔄 Prompt de reprise — Session 95
+# 🔄 Prompt de reprise — Session 96
 
 > **EPIC** : `EPIC_CONSOLIDATION_TESTS_FONCTIONNELS.md` — **EPIC Tests BDD Cucumber**  
-> **Statut** : Session 94 ✅ TERMINÉE — Attempt History 100% + Feature 8 (4/6) (61/61 PASS, 100%)  
-> **Prochaine mission** : Session 95 — Feature 8 (fin) + Feature 9 Incremental Processing
+> **Statut** : Session 95 ✅ TERMINÉE — Feature 8 100% + Feature 9 Incremental (68/68 PASS, 100%)  
+> **Prochaine mission** : Session 96 — Feature 10 File Edge Cases + Feature 11 Diagram Types
 
 ---
 

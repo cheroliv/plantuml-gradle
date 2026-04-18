@@ -15,7 +15,7 @@ Feature: Configuration Edge Cases
     Then the build should fail with clear YAML error
     And indicate the problematic line
 
-  @wip @config @custom-paths
+  @config @custom-paths
   Scenario: Use custom input/output directories
     Given plantuml-config.yml specifies custom directories:
       | input  | my-prompts/    |
@@ -25,7 +25,7 @@ Feature: Configuration Edge Cases
     Then diagrams should be generated in "my-generated/"
     And images should be generated in "my-generated/images/"
 
-  @wip @config @env-vars
+  @config @env-vars
   Scenario: Override config with environment variables
     Given plantuml-config.yml specifies Ollama as provider
     And a mock LLM that returns a valid PlantUML diagram

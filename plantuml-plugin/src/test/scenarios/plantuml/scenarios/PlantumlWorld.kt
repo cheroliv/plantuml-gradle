@@ -24,6 +24,7 @@ class PlantumlWorld {
     var projectDir: File? = null
     var buildResult: BuildResult? = null
     var exception: Throwable? = null
+    val environmentVariables = mutableMapOf<String, String>()
 
     private val asyncJobs = mutableListOf<Deferred<BuildResult>>()
     
@@ -375,6 +376,13 @@ class PlantumlWorld {
         val allArgs = tasks.toList() + propArgs + systemPropArgs + 
             "-Pplantuml.output.rag=${projectDir!!.absolutePath}/build/plantuml-plugin/generated/rag"
         log.info("Starting sync Gradle execution: $allArgs")
+        
+        val savedEnv = mutableMapOf<String, String>()
+        environmentVariables.forEach { (key, value) ->
+            savedEnv[key] = System.getenv(key) ?: ""
+            System.setProperty(key, value)
+        }
+        
         return try {
             GradleRunner.create()
                 .withProjectDir(projectDir!!)
@@ -389,6 +397,15 @@ class PlantumlWorld {
             log.error("Gradle build failed", e)
             exception = e
             throw e
+        } finally {
+            savedEnv.forEach { (key, oldValue) ->
+                if (oldValue.isEmpty()) {
+                    System.clearProperty(key)
+                } else {
+                    System.setProperty(key, oldValue)
+                }
+            }
+            environmentVariables.clear()
         }
     }
 
