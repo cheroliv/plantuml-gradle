@@ -145,20 +145,30 @@ class ErrorHandlingSteps(private val world: PlantumlWorld) {
 
     @Given("the LLM server is unreachable")
     fun llmServerIsUnreachable() {
-        // Use a port that is guaranteed to be unreachable
-        world.setMockServerPort(9999)
+        // Set a port but don't start a server - connection will fail
+        world.setMockServerPort(9998)
     }
 
     @Given("a mock LLM that returns malformed JSON")
     fun mockLlmThatReturnsMalformedJson() {
-        world.startMockLlm(
-            """
-            {
-              "plantuml": {
-                "code": "@startuml\n@enduml",
-                "description": "Missing closing brace
+        val server = create(InetSocketAddress(0), 0)
+        val port = server.address.port
+
+        server.createContext("/api/chat") { exchange ->
+            val malformedJson = """
+                {
+                  "model": "smollm:135m",
+                  "message": { "role": "assistant", "content": "{\"plantuml\": {\"code\": \"@startuml\\n@enduml\", \"description\": \"Missing closing brace" }
+                }
             """.trimIndent()
-        )
+            val response = malformedJson.toByteArray()
+            exchange.sendResponseHeaders(200, response.size.toLong())
+            exchange.responseBody.use { it.write(response) }
+        }
+
+        server.executor = null
+        server.start()
+        world.startMockLlmServer(server, port)
     }
 
     @Given("Docker is available but port 5432 is in use")
@@ -192,17 +202,16 @@ class ErrorHandlingSteps(private val world: PlantumlWorld) {
 
     @Given("the plantuml-config.yml contains invalid YAML syntax")
     fun plantumlConfigContainsInvalidYaml() {
+        // Create a fresh project and write invalid YAML
         world.createGradleProject()
         val configFile = File(world.projectDir, "plantuml-context.yml")
-        configFile.writeText(
-            """
+        val invalidYaml = """
             input:
               prompts: "prompts
             output:
-              images: "generated/images"
-            invalid yaml without proper closing
-            """.trimIndent()
-        )
+              images: "test"
+        """.trimIndent()
+        configFile.writeText(invalidYaml)
     }
 
     @When("I run processPlantumlPrompts task with timeout {int} seconds")
@@ -248,6 +257,11 @@ class ErrorHandlingSteps(private val world: PlantumlWorld) {
         properties["plantuml.test.mode"] = "true"
         world.projectDir?.let {
             properties["plugin.project.dir"] = it.absolutePath
+        }
+        if (world.mockServerPort != null) {
+            properties["plantuml.langchain4j.model"] = "ollama"
+            properties["plantuml.langchain4j.ollama.baseUrl"] = "http://localhost:${world.mockServerPort}"
+            properties["plantuml.langchain4j.ollama.modelName"] = "smollm:135m"
         }
 
         try {

@@ -50,13 +50,21 @@ object PlantumlManager {
                     val colNum = e.location?.columnNr ?: -1
                     val locationMsg = if (lineNum > 0 && colNum > 0) 
                         " (line $lineNum, column $colNum)" else ""
-                    throw IllegalStateException(
-                        "Invalid YAML configuration in ${configFile.absolutePath}: ${e.message}$locationMsg"
-                    )
+                    val errorMessage = "Invalid YAML configuration in ${configFile.absolutePath}: ${e.message}$locationMsg"
+                    println("[plantuml] ERROR: $errorMessage")
+                    throw IllegalStateException(errorMessage)
+                } catch (e: com.fasterxml.jackson.databind.exc.MismatchedInputException) {
+                    val lineNum = e.location?.lineNr ?: -1
+                    val colNum = e.location?.columnNr ?: -1
+                    val locationMsg = if (lineNum > 0 && colNum > 0) 
+                        " (line $lineNum, column $colNum)" else ""
+                    val errorMessage = "Invalid YAML syntax in ${configFile.absolutePath}: ${e.message}$locationMsg"
+                    println("[plantuml] ERROR: $errorMessage")
+                    throw IllegalStateException(errorMessage)
                 } catch (e: Exception) {
-                    throw IllegalStateException(
-                        "Failed to parse YAML configuration from ${configFile.absolutePath}: ${e.message}"
-                    )
+                    val errorMessage = "Failed to parse YAML configuration from ${configFile.absolutePath}: ${e.message}"
+                    println("[plantuml] ERROR: $errorMessage")
+                    throw IllegalStateException(errorMessage)
                 }
             }
 

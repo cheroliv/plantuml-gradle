@@ -77,7 +77,7 @@ class PlantumlWorld {
                 }
                 
                 plantuml {
-                    configPath = file("plantuml-context.yml").absolutePath
+                    configPath = "plantuml-context.yml"
                 }
                 """.trimIndent()
             )
