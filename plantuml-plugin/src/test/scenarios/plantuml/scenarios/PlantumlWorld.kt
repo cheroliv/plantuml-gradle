@@ -377,34 +377,30 @@ class PlantumlWorld {
             "-Pplantuml.output.rag=${projectDir!!.absolutePath}/build/plantuml-plugin/generated/rag"
         log.info("Starting sync Gradle execution: $allArgs")
         
-        val savedEnv = mutableMapOf<String, String>()
+        val gradleEnvironment = mutableMapOf<String, String>()
         environmentVariables.forEach { (key, value) ->
-            savedEnv[key] = System.getenv(key) ?: ""
-            System.setProperty(key, value)
+            gradleEnvironment[key] = value
         }
         
         return try {
-            GradleRunner.create()
+            var runner = GradleRunner.create()
                 .withProjectDir(projectDir!!)
                 .withArguments(allArgs)
                 .withTestKitDir(File(System.getProperty("user.home"), ".gradle/testkit"))
                 .withGradleVersion("9.4.1")
                 .forwardStdOutput(System.out.writer())
                 .forwardStdError(System.err.writer())
-                .build()
-                .also { buildResult = it }
+            
+            if (gradleEnvironment.isNotEmpty()) {
+                runner = runner.withEnvironment(gradleEnvironment)
+            }
+            
+            runner.build().also { buildResult = it }
         } catch (e: Exception) {
             log.error("Gradle build failed", e)
             exception = e
             throw e
         } finally {
-            savedEnv.forEach { (key, oldValue) ->
-                if (oldValue.isEmpty()) {
-                    System.clearProperty(key)
-                } else {
-                    System.setProperty(key, oldValue)
-                }
-            }
             environmentVariables.clear()
         }
     }
