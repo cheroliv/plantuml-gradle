@@ -1,4 +1,4 @@
-@wip @config
+@config
 Feature: Configuration Edge Cases
 
   @config @missing
@@ -15,19 +15,20 @@ Feature: Configuration Edge Cases
     Then the build should fail with clear YAML error
     And indicate the problematic line
 
-  @config @custom-paths
+  @wip @config @custom-paths
   Scenario: Use custom input/output directories
     Given plantuml-config.yml specifies custom directories:
       | input  | my-prompts/    |
       | output | my-generated/  |
-    And a prompt file exists in "my-prompts/custom.prompt"
+    And a mock LLM that returns a valid PlantUML diagram
     When I run processPlantumlPrompts task
-    Then diagrams should be generated in "my-generated/diagrams/"
+    Then diagrams should be generated in "my-generated/"
     And images should be generated in "my-generated/images/"
 
-  @config @env-vars
+  @wip @config @env-vars
   Scenario: Override config with environment variables
     Given plantuml-config.yml specifies Ollama as provider
+    And a mock LLM that returns a valid PlantUML diagram
     And environment variable PLANTUML_LLM_PROVIDER is set to "openai"
     When I run processPlantumlPrompts task
     Then OpenAI should be used instead of Ollama

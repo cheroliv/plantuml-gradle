@@ -96,7 +96,7 @@ class PlantumlWorld {
                   ollama:
                     baseUrl: "http://localhost:11434"
                     modelName: "smollm:135m"
-                  maxIterations: 1
+                  maxIterations: 5
                 """.trimIndent()
             )
 

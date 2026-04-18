@@ -145,6 +145,7 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
         val llmModel = project.findProperty("plantuml.langchain4j.model") as? String
         val ollamaModelName = project.findProperty("plantuml.langchain4j.ollama.modelName") as? String
         val ollamaBaseUrl = project.findProperty("plantuml.langchain4j.ollama.baseUrl") as? String
+        val maxIterations = project.findProperty("plantuml.langchain4j.maxIterations") as? Int
         
         // Load base configuration
         val baseConfig = PlantumlManager.Configuration.load(project)
@@ -167,6 +168,12 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
                     ollama = config.langchain4j.ollama.copy(
                         baseUrl = ollamaBaseUrl
                     )
+                )
+            )
+        if (maxIterations != null)
+            config = config.copy(
+                langchain4j = config.langchain4j.copy(
+                    maxIterations = maxIterations
                 )
             )
         

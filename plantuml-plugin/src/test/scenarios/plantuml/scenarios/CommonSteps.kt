@@ -196,14 +196,20 @@ class CommonSteps(private val world: PlantumlWorld) {
     fun mockLlmReturnsSequenceInvalidThenValid() {
         world.mockLlmReturnsSequence(
             """
-            @startuml
-            actor User
-            @endulm
+            {
+              "plantuml": {
+                "code": "@startuml\nactor User\n@endulm",
+                "description": "Invalid diagram"
+              }
+            }
             """.trimIndent(),
             """
-            @startuml
-            actor User
-            @enduml
+            {
+              "plantuml": {
+                "code": "@startuml\nactor User\n@enduml",
+                "description": "Valid diagram"
+              }
+            }
             """.trimIndent()
         )
     }
@@ -212,21 +218,36 @@ class CommonSteps(private val world: PlantumlWorld) {
     fun mockLlmReturnsSequence4Responses() {
         world.mockLlmReturnsSequence(
             """
-            @startumlnactor User
-            @endulm
+            {
+              "plantuml": {
+                "code": "@startumlnactor User\n@endulm",
+                "description": "Invalid diagram 1"
+              }
+            }
             """.trimIndent(),
             """
-            @startumlnactor User
-            @endulm
+            {
+              "plantuml": {
+                "code": "@startumlnactor User\n@endulm",
+                "description": "Invalid diagram 2"
+              }
+            }
             """.trimIndent(),
             """
-            @startumlnactor User
-            @endulm
+            {
+              "plantuml": {
+                "code": "@startumlnactor User\n@endulm",
+                "description": "Invalid diagram 3"
+              }
+            }
             """.trimIndent(),
             """
-            @startuml
-            actor User
-            @enduml
+            {
+              "plantuml": {
+                "code": "@startuml\nactor User\n@enduml",
+                "description": "Valid diagram"
+              }
+            }
             """.trimIndent()
         )
     }

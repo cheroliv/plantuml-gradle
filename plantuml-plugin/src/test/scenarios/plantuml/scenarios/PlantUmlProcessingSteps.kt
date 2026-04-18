@@ -20,6 +20,7 @@ class PlantUmlProcessingSteps(private val world: PlantumlWorld) {
         world.projectDir?.let {
             properties["plugin.project.dir"] = it.absolutePath
         }
+        properties["plantuml.test.mode"] = "true"
 
         world.executeGradle("processPlantumlPrompts", properties = properties)
     }
