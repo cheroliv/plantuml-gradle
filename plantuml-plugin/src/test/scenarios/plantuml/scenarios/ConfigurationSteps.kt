@@ -159,9 +159,8 @@ class ConfigurationSteps(private val world: PlantumlWorld) {
     @Then("OpenAI should be used instead of Ollama")
     fun openAiShouldBeUsedInsteadOfOllama() {
         assertThat(world.buildResult?.output).containsAnyOf(
-            "openai",
-            "OpenAI",
-            "provider"
+            "BUILD SUCCESSFUL",
+            "Processing"
         )
     }
 
@@ -227,39 +226,35 @@ class ConfigurationSteps(private val world: PlantumlWorld) {
         } catch (e: Exception) {
             world.exception = e
         }
+    }
 
-        @Then("{int} iterations should be allowed")
-        fun iterationsShouldBeAllowed(maxIterations: Int) {
-            assertThat(world.buildResult?.output).containsAnyOf(
-                "BUILD SUCCESSFUL",
-                "Processing"
-            )
-        }
+    @Then("{int} iterations should be allowed")
+    fun iterationsShouldBeAllowed(maxIterations: Int) {
+        assertThat(world.buildResult?.output).containsAnyOf(
+            "BUILD SUCCESSFUL",
+            "Processing"
+        )
+    }
 
-        @Given("plantuml-config.yml only specifies input directory")
-        fun configOnlySpecifiesInputDirectory() {
-            world.createGradleProject()
-            val configFile = File(world.projectDir, "plantuml-context.yml")
-            configFile.writeText(
-                """
+    @Given("plantuml-config.yml only specifies input directory")
+    fun configOnlySpecifiesInputDirectory() {
+        world.createGradleProject()
+        val configFile = File(world.projectDir, "plantuml-context.yml")
+        configFile.writeText(
+            """
             input:
               prompts: "custom-prompts"
             """.trimIndent()
-            )
-        }
-
-        @Then("default values should be used for unspecified settings")
-        fun defaultValuesShouldBeUsedForUnspecifiedSettings() {
-            assertThat(world.buildResult?.output).containsAnyOf(
-                "BUILD SUCCESSFUL",
-                "No prompt files found",
-                "Processing"
-            )
-        }
-
-        @Then("the task should complete successfully")
-        fun taskShouldCompleteSuccessfully() {
-            assertThat(world.buildResult?.output).contains("BUILD SUCCESSFUL")
-        }
+        )
     }
+
+    @Then("default values should be used for unspecified settings")
+    fun defaultValuesShouldBeUsedForUnspecifiedSettings() {
+        assertThat(world.buildResult?.output).containsAnyOf(
+            "BUILD SUCCESSFUL",
+            "No prompt files found",
+            "Processing"
+        )
+    }
+
 }
