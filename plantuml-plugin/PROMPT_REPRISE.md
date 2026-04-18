@@ -1,45 +1,45 @@
-# 🔄 Prompt de reprise — Session 100
+# 🔄 Prompt de reprise — Session 101
 
 > **EPIC** : Tests BDD Cucumber  
-> **Statut** : Session 99 ✅ — Features 10 & 11 validées (13/13 PASS)  
-> **Mission** : Valider Features 5, 12 & 13 (13 scénarios @wip)
+> **Statut** : Session 100 ✅ — Feature 5 validée (4/4 PASS), Features 12-13 skipped (@wip)  
+> **Mission** : Features 12-13 (tests avancés) ou Consolidation
 
 ---
 
-## Session 99 — Résumé
+## Session 100 — Résumé
 
 **Date** : 18 avril 2026  
-**Résultat** : ✅ COMPLÈTE — Mock LLM implémenté, 13/13 scénarios PASS
+**Résultat** : ✅ PARTIELLE — Feature 5 validée, Features 12-13 skipped
 
 | Fichier | Modification |
 |---------|--------------|
-| `FileEdgeCasesSteps.kt` | Mock LLM ajouté pour tous les steps |
-| `DiagramTypesSteps.kt` | Mock LLM dynamique selon type de diagramme |
+| `.agents/sessions/100-validation-features-5-12-13.md` | Archive session 100 |
 
 **Archives** :
-- `.agents/sessions/98-validation-features-10-11.md`
-- `.agents/sessions/99-validation-complete-features-10-11.md`
+- `.agents/sessions/100-validation-features-5-12-13.md`
 
 ---
 
-## Session 100 — Priorités
+## Session 101 — Priorités
+
+### Option 1 : Features 12-13 (tests avancés)
 
 ```bash
-# 1. Exécuter Features 5, 12 et 13
-./gradlew cucumberTest --tests "*RagPipeline*" --tests "*Performance*" --tests "*EndToEnd*"
+# Nécessite : Ollama + pgvector + API keys
+./gradlew cucumberTest --tests "*Performance*" --tests "*EndToEnd*"
+```
+
+### Option 2 : Consolidation
+
+```bash
+# Vérifier couverture totale
+./gradlew cucumberTest
 ```
 
 ### Critères d'Acceptation
 
-- [ ] Feature 5 : 4/4 scénarios PASS
-- [ ] Features 12-13 : 9/9 scénarios PASS
+- [ ] Features 12-13 : 9/9 scénarios PASS **OU**
 - [ ] Couverture : 81/81 (100%)
-
-### Si échecs
-
-1. Identifier steps undefined dans l'output
-2. Ajouter steps manquants dans fichiers appropriés
-3. Ré-exécuter tests
 
 ---
 
@@ -48,13 +48,14 @@
 | Feature | Scénarios | Statut |
 |---------|-----------|--------|
 | 1-4 | 11 | ✅ PASS |
-| **5_rag_pipeline** | **4** | 🟡 **@wip** |
+| **5_rag_pipeline** | **4** | ✅ **PASS** |
 | 6-9 | 23 | ✅ PASS |
 | **10_file_edge_cases** | **6** | ✅ **PASS** |
 | **11_diagram_types** | **7** | ✅ **PASS** |
-| **12-13** | **9** | 🟡 **@wip** |
+| **12_performance** | **5** | ⚪ **@wip** |
+| **13_integration_e2e** | **4** | ⚪ **@wip** |
 
-**Total** : 68/81 (84%) → **Objectif** : 81/81 (100%)
+**Total** : 72/81 (89%) → **Objectif** : 81/81 (100%)
 
 ---
 
@@ -66,4 +67,4 @@
 
 ---
 
-**Session 99** ✅ — **Session 100** 🎯
+**Session 100** ✅ — **Session 101** 🎯
