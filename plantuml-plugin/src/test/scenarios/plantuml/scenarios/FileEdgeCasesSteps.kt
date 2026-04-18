@@ -17,6 +17,17 @@ class FileEdgeCasesSteps(private val world: PlantumlWorld) {
         world.createGradleProject()
         val promptFile = world.createPromptFile(fileName, content)
         assertThat(promptFile.exists()).isTrue
+        
+        world.startMockLlm(
+            """
+            {
+              "plantuml": {
+                "code": "@startuml\nactor User\nnote: UTF-8 test with é à ü ñ\n@enduml",
+                "description": "Generated diagram with UTF-8"
+              }
+            }
+        """.trimIndent()
+        )
     }
 
     @Then("the generated diagram should preserve UTF-8 characters")
@@ -44,6 +55,17 @@ class FileEdgeCasesSteps(private val world: PlantumlWorld) {
         
         promptFile.writeText(largeContent)
         assertThat(promptFile.length()).isGreaterThan(minCharacters.toLong())
+        
+        world.startMockLlm(
+            """
+            {
+              "plantuml": {
+                "code": "@startuml\nactor User\nnote: Large file processing\n@enduml",
+                "description": "Generated diagram for large file"
+              }
+            }
+        """.trimIndent()
+        )
     }
 
     @Then("the task should complete within reasonable time")
@@ -72,6 +94,17 @@ class FileEdgeCasesSteps(private val world: PlantumlWorld) {
         val promptFile = File(promptsDir, fileName)
         promptFile.writeText("Create a diagram with special filename")
         assertThat(promptFile.exists()).isTrue
+        
+        world.startMockLlm(
+            """
+            {
+              "plantuml": {
+                "code": "@startuml\nactor User\nnote: Special filename test\n@enduml",
+                "description": "Generated diagram"
+              }
+            }
+        """.trimIndent()
+        )
     }
 
     @Then("the task should handle the filename correctly")
@@ -105,6 +138,17 @@ class FileEdgeCasesSteps(private val world: PlantumlWorld) {
         val promptFile = File(promptsDir, fileName)
         promptFile.writeText("")
         assertThat(promptFile.length()).isEqualTo(0)
+        
+        world.startMockLlm(
+            """
+            {
+              "plantuml": {
+                "code": "@startuml\nnote: Empty file skipped\n@enduml",
+                "description": "Empty file handling"
+              }
+            }
+        """.trimIndent()
+        )
     }
 
     @Then("the task should skip the empty file")
@@ -134,6 +178,17 @@ class FileEdgeCasesSteps(private val world: PlantumlWorld) {
         val promptFile = File(promptsDir, "whitespace.prompt")
         promptFile.writeText("   \n\n   \n  \n")
         assertThat(promptFile.readText().trim()).isEmpty()
+        
+        world.startMockLlm(
+            """
+            {
+              "plantuml": {
+                "code": "@startuml\nnote: Whitespace file skipped\n@enduml",
+                "description": "Whitespace file handling"
+              }
+            }
+        """.trimIndent()
+        )
     }
 
     @Then("the task should treat it as empty")
@@ -168,6 +223,17 @@ class FileEdgeCasesSteps(private val world: PlantumlWorld) {
         )
         val content = promptFile.readText()
         assertThat(content).doesNotEndWith("\n")
+        
+        world.startMockLlm(
+            """
+            {
+              "plantuml": {
+                "code": "@startuml\nactor User\nnote: No trailing newline\n@enduml",
+                "description": "Generated diagram"
+              }
+            }
+        """.trimIndent()
+        )
     }
 
     @Then("the content should be read correctly")
