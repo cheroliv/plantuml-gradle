@@ -1,50 +1,54 @@
-# 🔄 Prompt de reprise — Session 93
+# 🔄 Prompt de reprise — Session 94
 
 > **EPIC** : `EPIC_CONSOLIDATION_TESTS_FONCTIONNELS.md` — **EPIC Tests BDD Cucumber**  
-> **Statut** : Session 92 ✅ TERMINÉE — Error Handling YAML Validation + Mock Server Fixes (57/61 PASS, 93%)  
-> **Prochaine mission** : Session 93 — Feature 8 Configuration + Correction 4 échecs Attempt History
+> **Statut** : Session 93 ⚠️ PARTIELLE — Attempt History Fixes (58/61 PASS, 95%)  
+> **Prochaine mission** : Session 94 — Fin Attempt History (2 échecs) + Feature 8 Configuration
 
 ---
 
-## 📊 Session 92 — Résumé (✅ TERMINÉE)
+## 📊 Session 93 — Résumé (⚠️ PARTIELLE)
 
 **Date** : 18 avr. 2026  
-**Résultats** : **57/61 scénarios PASS (93%)** ✅  
-**Archive** : `.agents/sessions/92-error-handling-fixes.md`
+**Résultats** : **58/61 scénarios PASS (95%)** ✅ (+1 vs Session 92)  
+**Archive** : `.agents/sessions/93-attempt-history-fixes-partiel.md`
 
 ### Tests exécutés
 
-| Métrique | Résultat |
-|----------|----------|
-| **Scénarios exécutés** | 61 |
-| **✅ PASS** | **57 (93%)** |
-| **❌ FAILED** | 4 (Attempt History + 1 Error Handling) |
-| **⏭️ SKIPPED** | 33 (@wip) |
-
-### Progression
-
-| Métrique | Session 91 | Session 92 | Progression |
+| Métrique | Session 92 | Session 93 | Progression |
 |----------|------------|------------|-------------|
-| Scénarios PASS | 22/61 (36%) | **57/61 (93%)** | **+57%** ✅ |
-| Error Handling | ?/8 | **7/8 (87.5%)** | +1 scénario |
-| LLM Providers | ?/6 | **6/6 (100%)** | ✅ Complet |
-| Fuites mémoire | 0 | **0** | ✅ Préservé |
+| **✅ PASS** | 57/61 (93%) | **58/61 (95%)** | **+2%** ✅ |
+| **❌ FAILED** | 4 | **3** | **-1** ✅ |
+| **⏭️ SKIPPED** | 33 | 33 | — |
 
-### 🔧 Corrections appliquées
+### Scénarios corrigés ✅
 
-1. **Validation YAML stricte** (`PlantumlManager.kt`) — Gestion `MismatchedInputException` + logs ERROR
-2. **Bug critique configPath** (`PlantumlWorld.kt`) — Chemin relatif au lieu de absolu
-3. **Mock servers Error Handling** (`ErrorHandlingSteps.kt`) — Ports uniques + JSON malformé
-4. **Fallback LLM Provider** (`LlmProvidersSteps.kt`) — Mock réponse + dossier RAG
+1. **Track successful diagram generation with corrections** — ✅ **PASS**
+   - Correction de `generateSimulatedLlmResponse()` : ajoute typo `@endulm`
+   - Correction de `fixCommonPlantUmlIssues()` : corrige `@endulm` → `@enduml`
+   - Ajout de `extractPlantUmlFromResponse()` pour parser JSON LLM
 
-### Scénarios échoués (4 — à corriger Session 93)
+### Scénarios restants ❌ (3 échecs)
 
-1. **Attempt History Tracking** — Track successful diagram generation with corrections
-2. **Attempt History Tracking** — Archive history after max iterations with no success
-3. **Attempt History Tracking** — Successful generation after multiple corrections
-4. **Error Handling** — Handle invalid LLM response format (reste 1 échec)
+1. **Archive history after max iterations with no success** — ❌ **FAILED**
+   - **Problème** : Mock LLM ne retourne qu'1 réponse au lieu de 6
+   - **Cause** : `startMockLlm()` utilise queue à 1 élément
 
-**Cause** : Problèmes d'archivage JSON dans `DiagramProcessor.archiveAttemptHistory()`
+2. **Successful generation after multiple corrections** — ❌ **FAILED**
+   - **Problème** : S'arrête après 1 itération au lieu de 4
+   - **Cause** : Logique de ré-validation dans la boucle
+
+3. **Handle invalid LLM response format** (Error Handling) — ❌ **FAILED**
+   - **Problème** : Non analysé en détail
+
+### Modifications apportées
+
+| Fichier | Modification | Impact |
+|--------|--------------|--------|
+| `DiagramProcessor.kt` | `generateSimulatedLlmResponse()` — typo `@endulm` | Test mode corrigeable |
+| `DiagramProcessor.kt` | `fixCommonPlantUmlIssues()` — corrige typos | Correction automatique |
+| `DiagramProcessor.kt` | `extractPlantUmlFromResponse()` — **NOUVELLE** | Parse JSON LLM |
+| `DiagramProcessor.kt` | Boucle correction — ré-valide après extraction | Validation accurate |
+| `CommonSteps.kt` | `mockLlmAlwaysReturnsInvalidDiagrams()` — 6 réponses | Queue pour 6 itérations |
 
 ---
 

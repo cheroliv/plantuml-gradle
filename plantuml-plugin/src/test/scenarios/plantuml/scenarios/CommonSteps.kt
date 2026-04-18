@@ -112,7 +112,47 @@ class CommonSteps(private val world: PlantumlWorld) {
 
     @Given("a mock LLM that always returns invalid PlantUML diagrams")
     fun mockLlmAlwaysReturnsInvalidDiagrams() {
-        world.startMockLlm(
+        world.mockLlmReturnsSequence(
+            """
+            {
+              "plantuml": {
+                "code": "@startumlnactor User\n@endulm",
+                "description": "Invalid PlantUML diagram"
+              }
+            }
+        """.trimIndent(),
+            """
+            {
+              "plantuml": {
+                "code": "@startumlnactor User\n@endulm",
+                "description": "Invalid PlantUML diagram"
+              }
+            }
+        """.trimIndent(),
+            """
+            {
+              "plantuml": {
+                "code": "@startumlnactor User\n@endulm",
+                "description": "Invalid PlantUML diagram"
+              }
+            }
+        """.trimIndent(),
+            """
+            {
+              "plantuml": {
+                "code": "@startumlnactor User\n@endulm",
+                "description": "Invalid PlantUML diagram"
+              }
+            }
+        """.trimIndent(),
+            """
+            {
+              "plantuml": {
+                "code": "@startumlnactor User\n@endulm",
+                "description": "Invalid PlantUML diagram"
+              }
+            }
+        """.trimIndent(),
             """
             {
               "plantuml": {

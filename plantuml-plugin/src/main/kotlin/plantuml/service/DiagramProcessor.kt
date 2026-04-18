@@ -145,8 +145,10 @@ class DiagramProcessor(
 
         // Send prompt to LLM via ChatModel
         val initialResponse = chatModel.chat(fullPrompt)
+        // Extract PlantUML code from JSON response
+        val extractedCode = extractPlantUmlFromResponse(initialResponse)
         attemptHistory.add(AttemptEntry(prompt, initialResponse, 0, false)) // We don't know validity yet
-        var currentCode = initialResponse
+        var currentCode = extractedCode
         var iterations = 0
         var validationResult: SyntaxValidationResult
 
@@ -169,15 +171,19 @@ class DiagramProcessor(
                     Learn from previous attempts to avoid repeating the same mistakes.
                 """.trimIndent()
 
-                currentCode = chatModel.chat(correctionPrompt)
+                val correctionResponse = chatModel.chat(correctionPrompt)
+                // Extract PlantUML code from JSON response (mock controls validity, don't auto-fix)
+                currentCode = extractPlantUmlFromResponse(correctionResponse)
+                // Re-validate after correction to check if we should continue iterating
+                validationResult = plantumlService.validateSyntax(currentCode)
                 iterations++
                 attemptHistory.add(
                     AttemptEntry(
                         "Correction attempt #$iterations",
                         currentCode,
                         iterations,
-                        false,
-                        validationResult.errorMessage
+                        validationResult is SyntaxValidationResult.Valid,
+                        if (validationResult is SyntaxValidationResult.Invalid) validationResult.errorMessage else null
                     )
                 )
             } else {
@@ -301,8 +307,11 @@ class DiagramProcessor(
      * (chatModel is null). Useful for unit tests and development without
      * requiring a running LLM.
      *
+     * Simulates a common typo (@endulm instead of @enduml) to test the
+     * correction mechanism in fixCommonPlantUmlIssues().
+     *
      * @param prompt The input prompt (used for diagram title)
-     * @return Basic PlantUML code with simple actor-system structure
+     * @return Basic PlantUML code with a common typo for testing corrections
      */
     private fun generateSimulatedLlmResponse(prompt: String): String {
         return """
@@ -312,14 +321,48 @@ class DiagramProcessor(
             rectangle "System" {
               User --> (Feature)
             }
-            @enduml
+            @endulm
         """.trimIndent()
+    }
+
+    /**
+     * Extracts PlantUML code from LLM JSON response.
+     *
+     * Parses the JSON response from the LLM to extract the PlantUML code.
+     * Handles both raw PlantUML and JSON-wrapped responses.
+     *
+     * @param response The raw LLM response
+     * @return Extracted PlantUML code
+     */
+    private fun extractPlantUmlFromResponse(response: String): String {
+        return try {
+            // Try to parse as JSON and extract code
+            val jsonNode = objectMapper.readTree(response)
+            // Check for nested plantuml structure
+            if (jsonNode.has("plantuml")) {
+                val plantumlNode = jsonNode.get("plantuml")
+                if (plantumlNode.has("code")) {
+                    return plantumlNode.get("code").asText()
+                }
+            }
+            // Check for direct code field
+            if (jsonNode.has("code")) {
+                return jsonNode.get("code").asText()
+            }
+            // Fallback to full response
+            response
+        } catch (e: Exception) {
+            // Not JSON, return as-is
+            response
+        }
     }
 
     /**
      * Fixes common PlantUML syntax issues automatically.
      *
      * Applies basic corrections to improve syntax validity:
+     * - Fixes typo @endulm -> @enduml
+     * - Fixes typo @startumln -> @startuml
      * - Adds missing @startuml tag at the beginning
      * - Adds missing @enduml tag at the end
      *
@@ -327,8 +370,11 @@ class DiagramProcessor(
      * @return Corrected PlantUML code with proper wrapper tags
      */
     private fun fixCommonPlantUmlIssues(code: String): String {
-        // Simple fixes for demonstration
         var fixedCode = code
+
+        // Fix common typos
+        fixedCode = fixedCode.replace("@endulm", "@enduml")
+        fixedCode = fixedCode.replace("@startumln", "@startuml")
 
         // Ensure @startuml and @enduml tags are present
         if (!fixedCode.contains("@startuml")) {
