@@ -1,8 +1,8 @@
 # 📊 Index des Sessions — PlantUML Gradle Plugin
 
-**Dernière mise à jour** : 2026-04-17  
-**Session en cours** : 87  
-**Score Roadmap actuel** : 9.0/10 ✅
+**Dernière mise à jour** : 2026-04-18  
+**Session en cours** : 96  
+**Session terminée** : 96 (Optimisation contexte)
 
 ---
 

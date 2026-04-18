@@ -1,0 +1,1567 @@
+= 🤖 Modus Operandi OpenCode — PlantUML API
+:toc: left
+:toclevels: 4
+:icons: font
+:last-update-label: Dernière mise à jour
+:sectnums:
+
+[abstract]
+--
+**Document unique et autonome** pour travailler avec OpenCode sur ce projet Spring Boot.
+
+Ce document contient **TOUTE la connaissance** nécessaire : méthodologie, architecture, procédures, templates, règles absolues, et exemples concrets. Un agent qui lit ce fichier est 100% opérationnel.
+
+**Inspiré du système** : `plantuml-plugin` (projet parent) — 100+ sessions, 200+ tests, documentation éprouvée.
+--
+
+---
+
+== 🎯 PARTIE 1 — VUE D'ENSEMBLE
+
+=== 1.1 Objectif
+
+Fournir un **cadre de travail structuré** pour collaborer efficacement avec OpenCode sur cette API Spring Boot PlantUML, en évitant :
+
+* ❌ La saturation du contexte (trop de fichiers chargés)
+* ❌ Les hallucinations (LLM perdu dans trop d'informations)
+* ❌ Le travail en parallèle non coordonné (plusieurs fichiers modifiés simultanément)
+* ❌ La perte de contexte entre les sessions
+* ❌ Les erreurs de Git (commits non autorisés)
+* ❌ Les tests lancés inutilement en fin de session
+
+=== 1.2 Principes Fondamentaux
+
+[cols="1,4", options="header"]
+|===
+|Principe |Description
+
+|**LAZY/EAGER**
+|Séparer l'information critique (toujours chargée) des détails (chargés sur demande). **EAGER** = tableau de bord de voiture. **LAZY** = manuel du propriétaire.
+
+|**1 session = 1 objectif**
+|Une session traite UNE seule tâche (1 test, 1 bug, 1 feature). Durée cible : 15-30 minutes.
+
+|**Archive systématique**
+|Chaque session terminée est archivée avec résumé et prochaines étapes. Rien ne se perd, tout se retrouve.
+
+|**Git manuel**
+|L'agent NE JAMAIS committer sans permission explicite. C'est l'utilisateur qui gère Git.
+
+|**Tests sur demande**
+|L'agent NE JAMAIS lancer de tests en fin de session sans demande. Les tests prennent 1-3 minutes.
+|===
+
+=== 1.3 Philosophie LAZY/EAGER
+
+**Problème** : Les LLM ont un contexte limité. Charger trop d'informations dilue l'attention et coûte des tokens.
+
+**Solution** : Séparer l'information en 2 catégories :
+
+[cols="2,2,2", options="header"]
+|===
+|Type |Caractéristiques |Exemples
+
+|**EAGER** (toujours chargé)
+|• Critique pour démarrer + < 100 lignes + Lu automatiquement
+|`PROMPT_REPRISE.md`, `INDEX.md` (section règles)
+
+|**LAZY** (sur demande)
+|• Détails complets + Illimité + Lu sur demande explicite
+|Archives sessions, templates détaillés, références
+|===
+
+**Analogie** :
+* **EAGER** = Tableau de bord de voiture (vitesse, carburant, alertes)
+* **LAZY** = Manuel du propriétaire (détails techniques, historique entretien)
+
+---
+
+== ⚠️ PARTIE 2 — RÈGLES ABSOLUES
+
+=== 2.1 Commits/Git — INTERDICTION FORMELLE
+
+**L'agent NE DOIT JAMAIS** exécuter de commit, push, merge, ou toute commande git modifiant l'historique **SANS permission explicite de l'utilisateur**.
+
+[cols="1,4", options="header"]
+|===
+|Autorisé |`git status`, `git diff`, `git log`, `git show` (lecture seule)
+
+|Interdit
+|`git add`, `git commit`, `git push`, `git merge`, `git rebase` (sauf ordre explicite)
+|===
+
+**Procédure obligatoire avant tout commit** :
+
+1. Montrer les modifications (`git diff --stat`)
+2. Demander : `"Veux-tu que je commit ces changements ?"`
+3. **Attendre confirmation explicite** (`"oui"`, `"commit"`, `"vas-y"`)
+4. **Seulement après** : exécuter le commit
+
+**Exemple de dialogue** :
+
+[source]
+----
+Utilisateur: "La correction est terminée"
+
+Agent: Voici les modifications :
+ M src/main/kotlin/app/plantuml/PlantUmlController.kt (+45 lignes)
+ M src/test/kotlin/app/plantuml/PlantUmlControllerTest.kt (+30 lignes)
+
+Veux-tu que je commit ces changements ?
+
+Utilisateur: "Oui"
+
+Agent: [exécute git add -A && git commit -m "feat: create PlantUML convert endpoint"]
+----
+
+=== 2.2 Tests en Fin de Session — INTERDICTION FORMELLE
+
+**L'agent NE DOIT JAMAIS** lancer de tests (`./gradlew test`, `./gradlew bootRun`, etc.) lors de la procédure de fin de session **SANS permission explicite de l'utilisateur**.
+
+[cols="1,4", options="header"]
+|===
+|Autorisé
+|Résumer les résultats des tests déjà exécutés pendant la session
+
+|Interdit
+|Lancer `./gradlew test` ou tout autre test en procédure de fin de session
+|===
+
+**Raison** : Les tests prennent 1-3 minutes et ralentissent inutilement la clôture de session. Si l'utilisateur veut voir les résultats, il/elle le demandera explicitement.
+
+**Procédure de fin de session** :
+1. Résumer les réalisations (fichiers créés/modifiés, scénarios passants)
+2. Mettre à jour `PROMPT_REPRISE.md` pour la session suivante
+3. Archiver le contexte dans `.agents/sessions/`
+4. **NE PAS lancer de tests** sauf demande explicite
+
+=== 2.3 Secrets et Credentials — SÉCURITÉ MAXIMALE
+
+**INTERDICTION ABSOLUE** :
+
+* ❌ Jamais de secrets en dur dans le code (`secret: secret`)
+* ❌ Jamais de credentials dans `application.yaml`
+* ❌ Jamais de tokens API commités dans Git
+
+**Solution** :
+
+[source,yaml]
+----
+# application.yaml
+app:
+  security:
+    jwt:
+      secret: ${JWT_SECRET:}  # Variable d'environnement
+      base64-secret: ${JWT_BASE64_SECRET:}
+----
+
+[source,bash]
+----
+# .env (ajouté à .gitignore)
+JWT_SECRET=MjNlZmQzMzgwM2MzN2Fm...
+----
+
+=== 2.4 CORS — Restriction Nécessaire
+
+**Configuration actuelle (trop permissive — à corriger)** :
+
+[source,yaml]
+----
+# ⚠️ DANGEREUX en production
+app:
+  cors:
+    allowed-origins: '*'
+    allowed-methods: '*'
+    allowed-headers: '*'
+    allow-credentials: true  # ⚠️ Incompatible avec *
+----
+
+**Configuration recommandée** :
+
+[source,yaml]
+----
+# ✅ SÉCURISÉ
+app:
+  cors:
+    allowed-origins:
+      - https://app.jhipster.com
+      - https://preview.jhipster.com
+    allowed-methods:
+      - GET
+      - POST
+      - OPTIONS
+    allowed-headers:
+      - Authorization
+      - Content-Type
+    exposed-headers:
+      - Authorization
+      - Link
+      - X-Total-Count
+    allow-credentials: true
+    max-age: 1800
+----
+
+---
+
+== 📁 PARTIE 3 — STRUCTURE DES DOSSIERS
+
+=== 3.1 Arborescence Recommandée
+
+[source,bash]
+----
+plantuml-api/
+├── .agents/                          # Documentation agent (NOUVEAU)
+│   ├── INDEX.md                      # Vue d'ensemble + règles absolues
+│   ├── ARCHITECTURE.md               # Architecture Spring Boot + pièges
+│   ├── SESSION_CHECKLIST.md          # Checklist transition de session
+│   ├── PROCEDURES.md                 # Procédure de fin de session
+│   ├── AGENT_SESSION_MANAGER.md      # Gestionnaire de sessions
+│   ├── AGENT_METHODOLOGIES.md        # Mécanisme de détection
+│   ├── PROMPT_REPRISE.md             # Contexte session actuelle (EAGER)
+│   ├── sessions/                     # Archives par session
+│   │   ├── 001-initial-setup.md
+│   │   ├── 002-websocket-config.md
+│   │   └── ...
+│   └── archives/                     # Archives mensuelles (> 50 sessions)
+│       └── 2026-04.md
+│
+├── src/
+│   ├── main/kotlin/app/
+│   │   ├── Server.kt                 # Point d'entrée Spring Boot
+│   │   ├── plantuml/                 # API PlantUML (À CRÉER)
+│   │   │   ├── PlantUmlController.kt
+│   │   │   ├── PlantUmlService.kt
+│   │   │   └── websocket/            # Configuration WebSocket (À CRÉER)
+│   │   └── users/                    # Gestion utilisateurs (existant)
+│   └── test/kotlin/app/
+│       ├── PlantUmlControllerTest.kt # Tests unitaires (À CRÉER)
+│       └── websocket/                # Tests WebSocket (À CRÉER)
+│
+├── AGENT_MODUS_OPERANDI.adoc         # Ce fichier (CONNAISSANCE COMPLÈTE)
+├── README.adoc                       # Documentation projet
+└── build.gradle.kts                  # Configuration Gradle
+----
+
+=== 3.2 Politique de Chargement des Fichiers
+
+[cols="2,1,1,3", options="header"]
+|===
+|Fichier |Type |Taille Max |Quand Charger
+
+|`.agents/PROMPT_REPRISE.md` |**EAGER** |100 lignes |**Début session** (automatique)
+|`.agents/INDEX.md` (section règles) |**EAGER** |150 lignes |**Début session** (automatique)
+|`.agents/ARCHITECTURE.md` |LAZY |Illimité |Sur besoin (architecture)
+|`.agents/sessions/{N}*.md` |LAZY |Illimité |Sur demande (détails session N)
+|`AGENT_MODUS_OPERANDI.adoc` |LAZY |Illimité |Sur besoin (méthodologie)
+|`build.gradle.kts` |LAZY |Illimité |Sur besoin (dépendances)
+|===
+
+=== 3.3 Comment l'Agent Sait Où Chercher ?
+
+==== Début de Session
+
+**Chargement automatique (EAGER)** :
+1. `PROMPT_REPRISE.md` → Mission, priorités, contexte
+2. `INDEX.md` (section règles) → Règles absolues, roadmap
+
+**Si besoin de détails** :
+* Commandes ? → Section 8 de ce fichier
+* Détails session N ? → `.agents/sessions/{N}-{titre}.md` (référencé dans PROMPT_REPRISE.md)
+* Architecture ? → Section 7 de ce fichier
+* Procédure fin de session ? → Section 4.3 de ce fichier
+
+==== Fin de Session
+
+**Mots-clés déclencheurs** :
+* `"nouvelle session"`
+* `"je quitte"`
+* `"session terminée"`
+* `"à plus tard"`
+* `"on arrête là"`
+
+**Action** : Exécuter les 5 étapes de la procédure de fin de session (Section 4.3) **SILENCIEUSEMENT**
+
+---
+
+== 🔄 PARTIE 4 — CYCLE DE VIE D'UNE SESSION
+
+=== 4.1 Démarrage de Session
+
+==== Prompt d'Ouverture (Template)
+
+[source]
+----
+Nouvelle session. Contexte chargé :
+1. .agents/PROMPT_REPRISE.md (mission en cours)
+2. .agents/INDEX.md (règles absolues + roadmap)
+
+Mission : [Décrire la tâche UNIQUE de cette session]
+
+Contrainte : 1 fichier à la fois, validation après chaque changement.
+----
+
+==== Exemples de Missions
+
+[cols="1,3", options="header"]
+|===
+|Type |Exemple de Mission
+
+|**Création endpoint**
+|`Créer POST /api/plantuml/convert (SVG)`
+
+|**Configuration WebSocket**
+|`Configurer WebSocket pour preview temps réel`
+
+|**Correction bug**
+|`Corriger NullPointerException dans JwtFilter`
+
+|**Test unitaire**
+|`Ajouter tests pour PlantUmlService`
+
+|**Documentation**
+|`Mettre à jour README avec endpoints PlantUML`
+|===
+
+=== 4.2 Pendant la Session
+
+==== Règles de Travail
+
+* ✅ **1 fichier à la fois** : Modifier un seul fichier avant de passer au suivant
+* ✅ **Validation immédiate** : Compiler après chaque modification (`./gradlew compileKotlin`)
+* ✅ **Contexte léger** : Maximum 50k tokens (~3000 lignes de code)
+* ✅ **Progression visible** : Mettre à jour `.agents/PROMPT_REPRISE.md` en temps réel
+
+==== Flow de Travail
+
+[source]
+----
+┌──────────────────┐
+│ Prompt utilisateur│
+└────────┬─────────┘
+         │
+         ▼
+┌─────────────────────────────┐
+│ Analyse : type de session   │
+│ - Création endpoint ?       │
+│ - Configuration WebSocket ? │
+│ - Correction bug ?          │
+│ - Test unitaire ?           │
+└────────┬────────────────────┘
+         │
+         ▼
+┌─────────────────────────────┐
+│ Proposition méthodologie    │
+│ (si session connue)         │
+└────────┬────────────────────┘
+         │
+         ▼
+┌─────────────────────────────┐
+│ Implémentation (1 fichier)  │
+└────────┬────────────────────┘
+         │
+         ▼
+┌─────────────────────────────┐
+│ Validation (compile/test)   │
+└────────┬────────────────────┘
+         │
+         ▼
+┌─────────────────────────────┐
+│ Session terminée ?          │
+│ → Procédure d'archivage     │
+└─────────────────────────────┘
+----
+
+=== 4.3 Fin de Session — Procédure en 5 Étapes Obligatoires
+
+==== ÉTAPE 1 : Vérifier l'état des tests (optionnel)
+
+[source,bash]
+----
+# Seulement si demandé explicitement
+./gradlew test
+./gradlew bootRun
+----
+
+⚠️ **INTERDICTION FORMELLE** : Jamais exécuter de tests en procédure de fin de session sans demande explicite.
+
+==== ÉTAPE 2 : Créer l'Archive LAZY de la Session
+
+**Fichier** : `.agents/sessions/{N}-{type}-{sujet}.md`
+
+**Structure obligatoire** :
+
+[source,markdown]
+----
+# Session {N} — {Titre descriptif}
+
+**Date** : {date}  
+**Statut** : ✅ TERMINÉE / ⚠️ INCOMPLÈTE / ❌ ÉCHEC  
+**Type** : feature/debug/test/refactor/docs
+
+---
+
+## Contexte
+
+{Pourquoi cette session existe ? Quel problème résout-elle ?}
+
+---
+
+## Actions Entreprises
+
+### 1. {Action principale}
+
+**Fichiers modifiés** :
+| Fichier | Lignes | Modification |
+|---------|--------|--------------|
+| `src/main/kotlin/app/plantuml/PlantUmlController.kt` | +45 | Création endpoint POST /convert |
+
+**Commandes exécutées** :
+[source,bash]
+----
+./gradlew compileKotlin
+./gradlew test --tests "*PlantUmlControllerTest*"
+----
+
+**Résultats** :
+- ✅ Succès : Compilation OK
+- ✅ Tests : 15/15 PASS
+
+---
+
+## Conflits/Problèmes Résolus
+
+| Problème | Cause | Solution | Fichier |
+|----------|-------|----------|---------|
+| Bean non trouvé | Configuration manquante | Ajout @Bean dans SecurityConfig | `SecurityConfiguration.kt:88` |
+
+---
+
+## Patterns et Leçons Apprises
+
+### ❌ Pattern à Éviter
+
+[source,kotlin]
+----
+// MAUVAIS : JWT secret en dur dans application.yaml
+jwt:
+  secret: secret
+----
+
+### ✅ Pattern à Suivre
+
+[source,kotlin]
+----
+// BON : JWT secret via variable d'environnement
+jwt:
+  secret: ${JWT_SECRET:}
+----
+
+---
+
+## Résultats
+
+| Critère | Statut | Détails |
+|---------|--------|---------|
+| Compilation | ✅ | Aucune erreur |
+| Tests | ✅ | 15/15 PASS |
+| Code quality | ✅ | 0 warnings |
+
+---
+
+## Prochaines Étapes (Session {N+1})
+
+1. **Action 1** : `Créer endpoint GET /api/plantuml/validate`
+2. **Action 2** : `Ajouter tests d'intégration WebSocket`
+3. **Validation** : `./gradlew test --tests "*PlantUml*"`
+
+---
+
+## Références
+
+- **Archive** : `.agents/sessions/{N}-{type}-{sujet}.md` (ce fichier)
+- **Reprise** : `.agents/PROMPT_REPRISE.md` (session {N+1})
+
+---
+
+**Session {N}** ✅ — **Session {N+1}** 🚀
+----
+
+==== ÉTAPE 3 : Mettre à jour le Résumé EAGER
+
+**Fichier** : `.agents/PROMPT_REPRISE.md`
+
+**Structure obligatoire** :
+
+[source,markdown]
+----
+# 🔄 Prompt de reprise — Session {N+1}
+
+> **EPIC** : {nom}  
+> **Statut** : Session {N} ✅ — {résumé 1 ligne}  
+> **Mission** : {objectif session N+1}
+
+---
+
+## Session {N} — Résumé
+
+**Date** : {date}  
+**Résultat** : ✅ {accomplissement principal}
+
+| Fichier | Modification |
+|---------|--------------|
+| `PlantUmlController.kt` | +45 lignes |
+| `PlantUmlService.kt` | +30 lignes |
+
+**Archive** : `.agents/sessions/{N}-{type}-{sujet}.md`
+
+---
+
+## Session {N+1} — Priorités
+
+[source,bash]
+----
+# Commande principale
+./gradlew test --tests "*PlantUml*"
+----
+
+### Critères d'Acceptation
+
+- [ ] Endpoint GET /validate créé
+- [ ] Tests d'intégration WebSocket
+- [ ] Documentation API mise à jour
+
+---
+
+## Roadmap
+
+| EPIC | Progression | Score |
+|------|-------------|-------|
+| EPIC 1 : Endpoints PlantUML | 🟡 50% | 7/10 |
+| EPIC 2 : WebSocket | 🔴 0% | 0/10 |
+| EPIC 3 : Sécurité | 🟢 100% | 10/10 |
+
+**Total** : 10/30 (33%)
+
+---
+
+## Règles
+
+- ❌ Jamais de commit sans permission
+- ❌ Jamais de tests en fin de session sans demande
+- ✅ Toujours archiver + mettre à jour ce fichier
+
+---
+
+**Session {N}** ✅ — **Session {N+1}** 🚀
+----
+
+**Contraintes** :
+
+* Maximum **100 lignes**
+* **1 référence** à l'archive LAZY
+* **Commandes exécutables** pour session N+1
+* **Critères d'acceptation** clairs
+
+==== ÉTAPE 4 : Nettoyer INDEX.md (si besoin)
+
+**Vérifier** : `.agents/INDEX.md` dépasse-t-il 150 lignes ?
+
+**Si OUI** :
+
+1. Identifier sections détaillées (commandes, méthodologie, pièges)
+2. Transférer vers `.agents/archives/` ou fichier dédié
+3. Remplacer par renvoi court : `**Voir** : `AGENT_REFERENCE.md``
+
+**Si NON** : ✅ Ne rien toucher
+
+==== ÉTAPE 5 : Valider la Cohérence
+
+**Checklist** :
+
+- [ ] Archive LAZY créée : `.agents/sessions/{N}-{type}-{sujet}.md`
+- [ ] Résumé EAGER mis à jour : `.agents/PROMPT_REPRISE.md`
+- [ ] Référence croisée présente (EAGER → LAZY)
+- [ ] `.agents/PROMPT_REPRISE.md` < 100 lignes
+- [ ] Commandes session N+1 testables
+- [ ] Critères d'acceptation clairs
+
+---
+
+== 🎯 PARTIE 5 — TYPES DE SESSIONS ET DÉTECTION
+
+=== 5.1 Tableau de Détection
+
+[cols="1,2,2,2", options="header"]
+|===
+|# |Type de Session |Indices Détectés |Méthodologie Proposée
+
+|1
+|**Création endpoint REST**
+|`"créer endpoint"`, `"POST /api"`, `"Controller"`, `*Controller.kt`
+|`"Veux-tu que j'applique la méthodologie de création d'endpoint ?"`
+
+|2
+|**Configuration WebSocket**
+|`"WebSocket"`, `"temps réel"`, `"preview"`, `"stomp"`, `"SimpMessagingTemplate"`
+|`"Veux-tu que je configure WebSocket selon le pattern Spring ?"`
+
+|3
+|**Debug endpoint**
+|`"debug"`, `"500"`, `"404"`, `"échec"`, `"*Controller*Test.kt"`
+|`"Veux-tu que j'applique la méthodologie de debug ?"`
+
+|4
+|**Test unitaire**
+|`"créer test"`, `"couverture"`, `"MockMvc"`, `"*Test.kt"`
+|`"Veux-tu que je consulte l'analyse de couverture ?"`
+
+|5
+|**Correction bug**
+|`"corriger"`, `"bug"`, `"fix"`, `"NullPointerException"`
+|Aucune — Agir directement
+
+|6
+|**Nouvelle feature**
+|`"ajouter"`, `"nouvelle"`, `"feature"`, `"implémenter"`
+|Aucune — Agir directement
+
+|7
+|**Fin de session**
+|`"session terminée"`, `"je quitte"`, `"à plus tard"`
+|**PROCÉDURE AUTOMATIQUE** (5 étapes)
+|===
+
+=== 5.2 Format de Proposition Obligatoire
+
+**Template** :
+
+[source]
+----
+🎯 Méthodologie détectée : [Type de session]
+
+Je peux appliquer :
+- [NOM_DU_FICHIER].md
+- Checklist : [Point 1], [Point 2], [Point 3]
+
+Veux-tu que je charge ce fichier et applique cette méthodologie ?
+----
+
+**Exemples concrets** :
+
+==== Optimisation
+
+[source]
+----
+🎯 Méthodologie détectée : Optimisation test fonctionnel
+
+Je peux appliquer :
+- AGENT_MODUS_OPERANDI.adoc (Section 5.3)
+- Checklist : Code inline, maxIterations=1, suppression flags inutiles
+
+Veux-tu que j'applique cette méthodologie ?
+----
+
+==== Création test
+
+[source]
+----
+🎯 Méthodologie détectée : Création test unitaire
+
+Je peux appliquer :
+- AGENT_MODUS_OPERANDI.adoc (Section 5.4)
+- Checklist : Classes non-testées, méthodes privées, data classes
+
+Veux-tu que j'applique cette méthodologie ?
+----
+
+==== Debug
+
+[source]
+----
+🎯 Méthodologie détectée : Debug test fonctionnel
+
+Je peux appliquer :
+- AGENT_MODUS_OPERANDI.adoc (Section 5.5)
+- Étapes : Run → Debug → Optimise
+
+Veux-tu que j'applique cette méthodologie ?
+----
+
+=== 5.3 Règles de Proposition
+
+==== Obligations (✅ À FAIRE)
+
+1. ✅ **Toujours proposer** si la session matche un type connu (tableau Section 5.1)
+2. ✅ **Attendre confirmation** avant de charger le fichier (sauf fin de session)
+3. ✅ **Citer 3 points clés** de la méthodologie (checklist résumé)
+4. ✅ **Utiliser le format standardisé** (emoji + 3 lignes + question)
+5. ✅ **Respecter les exceptions** (liste ci-dessous)
+
+==== Interdictions (❌ À NE PAS FAIRE)
+
+1. ❌ **Jamais charger sans confirmation** (sauf procédure fin de session)
+2. ❌ **Jamais proposer si session claire** (ex: `"corriger bug"` → agir directement)
+3. ❌ **Jamais proposer plusieurs méthodologies** (une seule à la fois)
+4. ❌ **Jamais charger tous les fichiers** (approche just-in-time)
+
+=== 5.4 Exceptions — Ne PAS Proposer
+
+[cols="2,3,2", options="header"]
+|===
+|Cas |Raison |Comportement
+
+|Session déjà en cours
+|Méthodologie déjà chargée
+|Continuer sans re-proposer
+
+|Utilisateur a spécifié la méthodologie
+|Déjà dans le prompt
+|Charger directement (pas de question)
+
+|Session urgente
+|`"corriger bug critique"`, `"réparer build cassé"`
+|Agir immédiatement
+
+|Session exploratoire
+|`"comment marche X ?"`, `"où est Y ?"`
+|Répondre sans méthodologie
+
+|Fin de session
+|`"je quitte"`, `"à plus tard"`
+|**PROCÉDURE AUTOMATIQUE** (pas de question)
+|===
+
+=== 5.5 Exemples de Sessions Concrets
+
+==== Session 1 — Création Endpoint (PROPOSITION REQUISE)
+
+**Prompt utilisateur** :
+[source]
+----
+On crée l'endpoint POST /api/plantuml/convert
+----
+
+**Agent détecte** :
+
+* Pattern : `POST /api/*`
+* Mots-clés : `"crée"`, `"endpoint"`
+* Type : Création endpoint REST
+
+**Agent propose** :
+[source]
+----
+🎯 Méthodologie détectée : Création endpoint REST
+
+Je peux appliquer :
+- Structure Controller + Service + DTO
+- Validation des entrées
+- Gestion des erreurs (ProblemDetail)
+- Tests unitaires avec MockMvc
+
+Veux-tu que j'applique cette méthodologie ?
+----
+
+**Utilisateur confirme** :
+[source]
+----
+Oui
+----
+
+**Agent agit** : Applique la méthodologie (Section 7.4 — Architecture Spring Boot)
+
+==== Session 2 — Configuration WebSocket (PROPOSITION REQUISE)
+
+**Prompt utilisateur** :
+[source]
+----
+Il faut configurer WebSocket pour la preview en temps réel
+----
+
+**Agent détecte** :
+
+* Mots-clés : `"WebSocket"`, `"temps réel"`, `"preview"`
+* Contexte : API PlantUML avec preview online
+* Type : Configuration WebSocket
+
+**Agent propose** :
+[source]
+----
+🎯 Méthodologie détectée : Configuration WebSocket
+
+Je peux appliquer :
+- @EnableWebSocketMessageBroker
+- SimpMessagingTemplate pour envoi messages
+- Configuration CORS pour WebSocket
+- Tests d'intégration WebSocket
+
+Veux-tu que j'applique cette méthodologie ?
+----
+
+==== Session 3 — Correction Bug (AUCUNE PROPOSITION)
+
+**Prompt utilisateur** :
+[source]
+----
+PlantUmlControllerTest échoue avec NullPointerException ligne 45
+----
+
+**Agent détecte** :
+
+* Mots-clés : `"échoue"`, `"NullPointerException"`
+* Type : Correction bug (urgent)
+
+**Agent agit** :
+
+* ❌ Aucune proposition de méthodologie
+* ✅ Analyse directe du problème
+* ✅ Correction immédiate
+
+==== Session 4 — Fin de Session (PROCÉDURE AUTOMATIQUE)
+
+**Prompt utilisateur** :
+[source]
+----
+J'ai fini pour cette session
+----
+
+**Agent détecte** :
+
+* Mots-clés : `"fini"`, `"session"`
+* Type : Fin de session
+
+**Agent exécute** :
+
+* ❌ Aucune question posée
+* ✅ **PROCÉDURE AUTOMATIQUE** (5 étapes de la Section 4.3) :
+1. Créer archive LAZY
+2. Mettre à jour résumé EAGER
+3. Nettoyer INDEX.md (si besoin)
+4. Vérifier cohérence
+5. Réponse : `"✅ Procédure exécutée"` + résumé 3 lignes
+
+---
+
+== 📊 PARTIE 6 — MÉTRIQUES ET SEUILS
+
+=== 6.1 Métriques de Session Idéale
+
+[cols="1,3", options="header"]
+|===
+|Métrique |Cible
+
+|**Durée**
+|15-30 minutes
+
+|**Fichiers modifiés**
+|1-3 maximum
+
+|**Endpoints créés**
+|1 endpoint par session
+
+|**Échanges LLM**
+|5-10 messages
+
+|**Contexte tokens**
+|< 50k (~3000 lignes)
+
+|**Tests créés**
+|1 fichier de test par session
+|===
+
+=== 6.2 Signes Qu'il Faut Changer de Session
+
+* [ ] Le LLM répète des erreurs déjà corrigées
+* [ ] Plus de 3 fichiers modifiés en parallèle
+* [ ] Tests échouent sur des problèmes différents
+* [ ] Conversation > 50 messages
+* [ ] Tu te dis `"il faudrait qu'on reparte sur de bonnes bases"`
+
+**Règle d'or** : Mieux vaut 5 sessions de 20 minutes qu'une session de 2 heures avec debugging chaos. 🎯
+
+=== 6.3 Seuils d'Alerte
+
+[cols="2,1,3", options="header"]
+|===
+|Fichier |Seuil |Action
+
+|`PROMPT_REPRISE.md`
+|> 100 lignes
+|⚠️ Proposer nettoyage
+
+|`INDEX.md`
+|> 50 sessions
+|⚠️ Archiver anciennes sessions dans `.agents/archives/YYYY-MM.md`
+
+|`.agents/sessions/`
+|> 20 fichiers
+|⚠️ Compresser sessions > 30 jours
+|===
+
+=== 6.4 Procédure de Nettoyage (si seuil dépassé)
+
+[source,bash]
+----
+# Si INDEX.md > 50 lignes
+1. Créer `.agents/archives/2026-04.md`
+2. Déplacer sessions 1-20 dans archive
+3. Garder sessions 21+ dans INDEX.md
+4. Mettre à jour tableau avec lien vers archive
+----
+
+---
+
+== 🏗 PARTIE 7 — ARCHITECTURE SPRING BOOT — PIÈGES À ÉVITER
+
+=== 7.1 Contexte du Projet
+
+**Type** : API Spring Boot WebFlux réactive pour conversion PlantUML en temps réel
+
+**Stack technique** :
+* Kotlin 2.3.0
+* Spring Boot WebFlux
+* WebSocket (STOMP)
+* JWT pour authentification
+* LangChain4j pour IA
+* PostgreSQL + R2DBC
+
+**Objectif** : Intégration avec une application JHipster pour preview online de diagrammes PlantUML
+
+=== 7.2 Architecture Actuelle (Code Review)
+
+**Fichiers existants** :
+
+[cols="2,3,2", options="header"]
+|===
+|Fichier |Rôle |État
+
+|`Server.kt`
+|Point d'entrée Spring Boot
+|✅ OK
+
+|`SecurityConfiguration.kt`
+|Configuration sécurité
+|⚠️ À corriger (CORS, JWT secret)
+
+|`JwtFilter.kt`
+|Filtre JWT
+|✅ OK
+
+|`SecurityService.kt`
+|Service sécurité
+|⚠️ À corriger (injections)
+
+|`UserController.kt`
+|Controller utilisateurs
+|❌ Code mort (93 lignes commentées)
+
+|`ProblemsModel.kt`
+|Modèle erreurs
+|❌ Code mort (80% commenté)
+|===
+
+**Ce qui manque** :
+
+* ❌ Endpoints PlantUML (`/api/plantuml/convert`, `/api/plantuml/validate`)
+* ❌ Configuration WebSocket
+* ❌ Tests pour la logique PlantUML
+* ❌ Documentation des endpoints
+
+=== 7.3 Configuration de Sécurité
+
+**Fichier** : `src/main/kotlin/app/users/configuration/security/SecurityConfiguration.kt`
+
+**Pièges** :
+
+* ❌ CSRF désactivé sans justification
+* ❌ JWT secret en dur (Section 2.3)
+* ❌ CORS trop permissif (Section 2.4)
+* ❌ Headers de sécurité manquants (CSP, X-Frame-Options)
+
+**Bonnes pratiques** :
+
+[source,kotlin]
+----
+@Configuration
+@EnableWebFluxSecurity
+@EnableReactiveMethodSecurity
+class SecurityConfiguration {
+
+    @Bean
+    fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain =
+        http
+            .csrf { it.disable() }  // ✅ Justifié pour API stateless JWT
+            .cors { }  // ✅ Configuration CORS externalisée
+            .headers { headers ->
+                headers.contentSecurityPolicy { csp ->
+                    csp.policyDirectives("default-src 'self'")  // ✅ CSP activé
+                }
+                headers.frameOptions { it.disable() }  // ✅ Nécessaire pour SPA
+            }
+            .authorizeExchange { exchanges ->
+                exchanges
+                    .pathMatchers("/api/plantuml/**").permitAll()  // ✅ Endpoints publics
+                    .pathMatchers("/api/**").authenticated()  // ✅ Authentification requise
+                    .anyExchange().authenticated()
+            }
+            .build()
+}
+----
+
+=== 7.4 Configuration WebSocket
+
+**Fichier** : `src/main/kotlin/app/plantuml/websocket/WebSocketConfig.kt` (À CRÉER)
+
+**Pièges** :
+
+* ❌ Oublier `@EnableWebSocketMessageBroker`
+* ❌ Configuration CORS manquante pour WebSocket
+* ❌ Pas de gestion des déconnexions
+* ❌ Messages non typés (Any au lieu de data class)
+
+**Bonnes pratiques** :
+
+[source,kotlin]
+----
+@Configuration
+@EnableWebSocketMessageBroker
+class WebSocketConfig : WebSocketMessageBrokerConfigurer() {
+
+    override fun registerStompEndpoints(registry: StompEndpointRegistry) {
+        registry
+            .addEndpoint("/ws-plantuml")  // ✅ Endpoint WebSocket
+            .setAllowedOriginPatterns("*")  // ✅ CORS pour WebSocket
+            .withSockJS()  // ✅ Fallback SockJS
+    }
+
+    override fun configureMessageBroker(config: MessageBrokerRegistry) {
+        config
+            .enableSimpleBroker("/topic")  // ✅ Broker pour messages broadcast
+            .setApplicationDestinationPrefixes("/app")  // ✅ Préfixe pour messages client → server
+            .setUserDestinationPrefix("/user")  // ✅ Messages privés
+    }
+}
+----
+
+=== 7.5 Controller PlantUML
+
+**Fichier** : `src/main/kotlin/app/plantuml/PlantUmlController.kt` (À CRÉER)
+
+**Pièges** :
+
+* ❌ Validation des entrées manquante
+* ❌ Gestion des erreurs non standardisée
+* ❌ Timeout LLM non configuré
+* ❌ Pas de rate limiting
+
+**Bonnes pratiques** :
+
+[source,kotlin]
+----
+@RestController
+@RequestMapping("/api/plantuml")
+class PlantUmlController(
+    private val plantUmlService: PlantUmlService
+) {
+
+    @PostMapping("/convert")
+    suspend fun convertToSvg(
+        @Valid @RequestBody request: PlantUmlRequest
+    ): ResponseEntity<PlantUmlResponse> = try {
+        plantUmlService
+            .convertToSvg(request.code)
+            .map { ResponseEntity.ok(it) }
+            .getOrElse { error ->
+                when (error) {
+                    is InvalidPlantUmlException ->
+                        ResponseEntity.badRequest()
+                            .body(error.toProblemDetail())
+                    is TimeoutException ->
+                        ResponseEntity.status(GATEWAY_TIMEOUT)
+                            .body(error.toProblemDetail())
+                    else ->
+                        ResponseEntity.internalServerError()
+                            .body(error.toProblemDetail())
+                }
+            }
+    } catch (e: Exception) {
+        ResponseEntity.internalServerError()
+            .body(e.toProblemDetail())
+    }
+}
+
+// DTO de requête
+data class PlantUmlRequest(
+    @NotBlank(message = "Le code PlantUML est obligatoire")
+    @Size(max = 10000, message = "Le code ne doit pas dépasser 10000 caractères")
+    val code: String,
+
+    @Pattern(
+        regexp = "^(svg|png|pdf)$",
+        message = "Le format doit être svg, png ou pdf"
+    )
+    val format: String = "svg"
+)
+
+// DTO de réponse
+data class PlantUmlResponse(
+    val svg: String,
+    val warnings: List<String> = emptyList(),
+    val processingTimeMs: Long
+)
+----
+
+=== 7.6 Architecture Complète (Schéma)
+
+[source]
+----
+plantuml-api/src/main/kotlin/app/
+├── 📄 Server.kt
+│   └── 🏛️ Server : SpringBootApplication
+│
+├── 📁 plantuml/ (À CRÉER)
+│   ├── 📄 PlantUmlController.kt
+│   │   ├── POST /api/plantuml/convert
+│   │   ├── GET /api/plantuml/validate
+│   │   └── WebSocket /ws-plantuml
+│   ├── 📄 PlantUmlService.kt
+│   │   ├── convertToSvg(code: String): Either<Error, String>
+│   │   ├── validate(code: String): Boolean
+│   │   └── convertToPng(code: String): Either<Error, ByteArray>
+│   └── 📁 websocket/
+│       ├── 📄 WebSocketConfig.kt
+│       └── 📄 PlantUmlWebSocketHandler.kt
+│
+├── 📁 users/ (existant)
+│   ├── 📁 configuration/
+│   │   ├── 📄 security/
+│   │   │   ├── SecurityConfiguration.kt
+│   │   │   ├── JwtFilter.kt
+│   │   │   └── SecurityService.kt
+│   │   └── 📄 web/
+│   │       ├── Web.kt
+│   │       └── ProblemsModel.kt
+│   └── 📄 UserController.kt (code mort — à supprimer)
+│
+└── 📁 test/kotlin/app/
+    ├── 📄 PlantUmlControllerTest.kt (À CRÉER)
+    ├── 📄 PlantUmlServiceTest.kt (À CRÉER)
+    └── 📁 websocket/ (À CRÉER)
+----
+
+---
+
+== 🛠 PARTIE 8 — COMMANDES UTILES
+
+=== 8.1 Build et Compilation
+
+[source,bash]
+----
+# Compiler le code principal
+./gradlew compileKotlin
+
+# Compiler les tests
+./gradlew compileTestKotlin
+
+# Compiler tout le projet
+./gradlew build -x test
+----
+
+=== 8.2 Tests
+
+[source,bash]
+----
+# Lancer tous les tests
+./gradlew test
+
+# Lancer un test spécifique
+./gradlew test --tests "*PlantUmlControllerTest*"
+
+# Lancer avec rapport HTML
+./gradlew test --info
+----
+
+=== 8.3 Exécution
+
+[source,bash]
+----
+# Démarrer l'application (profile dev)
+./gradlew bootRun
+
+# Démarrer avec profile spécifique
+./gradlew bootRun --args='--spring.profiles.active=local'
+
+# Démarrer en production
+./gradlew bootRun --args='--spring.profiles.active=prod'
+----
+
+=== 8.4 Nettoyage
+
+[source,bash]
+----
+# Nettoyer le build
+./gradlew clean
+
+# Nettoyer les dépendances
+./gradlew cleanBuildCache
+
+# Nettoyer le contexte agent (si saturation)
+rm -rf .agents/sessions/*.md  # Garde uniquement les 10 dernières sessions
+----
+
+=== 8.5 Git (Utilisateur Uniquement)
+
+[source,bash]
+----
+# Vérifier les modifications
+git status
+git diff --stat
+
+# Commiter (utilisateur uniquement)
+git add -A
+git commit -m "feat: create PlantUML convert endpoint"
+git push
+----
+
+---
+
+== 🗂 PARTIE 9 — GESTION DES ARCHIVES
+
+=== 9.1 Quand Archiver
+
+[cols="1,3", options="header"]
+|===
+|Déclencheur |Action
+
+|**Fin de session**
+|Créer `.agents/sessions/{N}-{type}-{sujet}.md`
+
+|**> 20 fichiers dans `.agents/sessions/`**
+|Compresser sessions > 30 jours dans `.agents/archives/YYYY-MM.md`
+
+|**> 150 lignes dans INDEX.md**
+|Déplacer anciennes sessions dans archive mensuelle
+
+|**Session critique (bug majeur, perf)**
+|Créer archive détaillée même si session incomplète
+|===
+
+=== 9.2 Comment Accéder aux Archives
+
+[source,bash]
+----
+# Voir toutes les sessions archivées
+ls -la .agents/sessions/
+
+# Voir les archives mensuelles
+ls -la .agents/archives/
+
+# Lire une session spécifique
+cat .agents/sessions/001-initial-setup.md
+
+# Chercher dans toutes les sessions
+grep -r "WebSocket" .agents/sessions/
+----
+
+=== 9.3 Nommage des Sessions
+
+**Format** : `{N:03d}-{type}-{sujet}.md`
+
+**Types** :
+
+* `feature` : Nouvelle fonctionnalité
+* `debug` : Correction de bug
+* `test` : Création de tests
+* `refactor` : Refactoring de code
+* `docs` : Documentation
+* `config` : Configuration (CORS, WebSocket, Sécurité)
+
+**Exemples** :
+
+[source]
+----
+.agents/sessions/
+├── 001-initial-setup.md
+├── 002-feature-plantuml-convert-endpoint.md
+├── 003-config-websocket.md
+├── 004-debug-jwt-null-pointer.md
+├── 005-test-plantuml-controller.md
+└── 006-refactor-security-configuration.md
+----
+
+=== 9.4 Template Rapide — Archive LAZY
+
+[source,markdown]
+----
+# Session {N} — {Titre}
+
+**Date** : {date} | **Statut** : {✅/⚠️/❌} | **Type** : {feature/debug/test/refactor/docs}
+
+## Contexte
+{1-2 paragraphes}
+
+## Actions
+| Fichier | Modification |
+|---------|--------------|
+| `file.kt` | -X lignes |
+
+## Commandes
+[source,bash]
+----
+{cmd}
+----
+
+## Résultats
+| Critère | Statut |
+|---------|--------|
+| Compilation | ✅ |
+| Tests | X/Y PASS |
+
+## Leçons Apprises
+- {leçon 1}
+- {leçon 2}
+
+## Prochaines Étapes
+1. {action}
+2. {action}
+
+**Archive** : `.agents/sessions/{N}-{type}-{sujet}.md`
+----
+
+=== 9.5 Template Rapide — Résumé EAGER
+
+[source,markdown]
+----
+# 🔄 Prompt de reprise — Session {N+1}
+
+> **Statut** : Session {N} ✅ — {1 ligne}  
+> **Mission** : {objectif}
+
+## Session {N} — Résumé
+**Résultat** : ✅ {accomplissement}  
+**Archive** : `.agents/sessions/{N}-{type}-{sujet}.md`
+
+## Session {N+1} — Priorités
+[source,bash]
+----
+{commande}
+----
+
+### Critères
+- [ ] {critère}
+
+---
+**Session {N}** ✅ — **Session {N+1}** 🚀
+----
+
+---
+
+== 📈 PARTIE 10 — AMÉLIORATION CONTINUE
+
+=== 10.1 Métriques de Suivi
+
+[cols="1,3,3", options="header"]
+|===
+|Métrique |Cible |Mesure Actuelle
+
+|**Détections correctes**
+|>90%
+|Sessions où méthodologie proposée était pertinente
+
+|**Faux positifs**
+|<5%
+|Sessions où méthodologie proposée était incorrecte
+
+|**Faux négatifs**
+|<10%
+|Sessions où méthodologie aurait dû être proposée
+
+|**Confirmations utilisateur**
+|>80%
+|Utilisateurs acceptant la proposition
+
+|**Durée moyenne session**
+|15-30 min
+|Temps entre prompt d'ouverture et archivage
+|===
+
+=== 10.2 Revue de Session (Hebdomadaire)
+
+**Questions à se poser** :
+
+1. ✅ Les sessions étaient-elles assez courtes (≤ 30 min) ?
+2. ✅ Les archives sont-elles bien organisées ?
+3. ✅ Le contexte est-il resté léger (< 50k tokens) ?
+4. ✅ Les règles Git/tests ont-elles été respectées ?
+5. ✅ Quelle méthodologie a été la plus utile cette semaine ?
+
+**Actions correctives** :
+
+* Si sessions trop longues → Découper en sous-tâches
+* Si contexte saturé → Archiver plus agressivement
+* Si règles non respectées → Rappeler en début de session
+
+---
+
+== 📚 PARTIE 11 — CHECKLIST DE DÉMARRAGE DE PROJET
+
+Pour appliquer ce modus operandi à un **nouveau projet** :
+
+- [ ] Créer le dossier `.agents/`
+- [ ] Créer `.agents/INDEX.md` (règles absolues + roadmap)
+- [ ] Créer `.agents/PROMPT_REPRISE.md` (session 001)
+- [ ] Créer `.agents/ARCHITECTURE.md` (architecture + pièges)
+- [ ] Créer `.agents/SESSION_CHECKLIST.md` (checklist transition)
+- [ ] Créer `.agents/PROCEDURES.md` (procédure fin de session)
+- [ ] Créer `.agents/sessions/` (dossier vide)
+- [ ] Créer `.agents/archives/` (dossier vide)
+- [ ] Copier ce fichier `AGENT_MODUS_OPERANDI.adoc` à la racine
+- [ ] Mettre à jour `.gitignore` avec `.agents/sessions/*.md` (optionnel)
+
+---
+
+== 🔗 PARTIE 12 — RÉFÉRENCES
+
+=== 12.1 Fichiers de Référence
+
+[cols="1,4", options="header"]
+|===
+|Fichier |Rôle
+
+|`.agents/PROMPT_REPRISE.md`
+|Contexte session actuelle (EAGER, ≤ 100 lignes)
+
+|`.agents/INDEX.md`
+|Vue d'ensemble + règles absolues (EAGER, ≤ 150 lignes)
+
+|`.agents/ARCHITECTURE.md`
+|Architecture Spring Boot + pièges (LAZY)
+
+|`.agents/SESSION_CHECKLIST.md`
+|Checklist transition de session (LAZY)
+
+|`.agents/PROCEDURES.md`
+|Procédure de fin de session détaillée (LAZY)
+
+|`.agents/sessions/{N}*.md`
+|Archives détaillées par session (LAZY)
+
+|`AGENT_MODUS_OPERANDI.adoc`
+|Ce fichier — Méthodologie complète (LAZY)
+|===
+
+=== 12.2 Ressources Externes
+
+* https://opencode.ai[Documentation OpenCode]
+* https://spring.io/projects/spring-boot[Spring Boot Documentation]
+* https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#websocket[Spring WebSocket Guide]
+* https://plantuml.com/[PlantUML Documentation]
+* https://langchain4j.dev/[LangChain4j Documentation]
+
+---
+
+[appendix]
+== ANNEXE A — GLOSSAIRE
+
+**EAGER** : Information chargée automatiquement au début de chaque session (critique)
+
+**LAZY** : Information chargée uniquement sur demande explicite (détails)
+
+**Session** : Période de travail continue avec OpenCode (15-30 minutes idéalement)
+
+**Archive** : Fichier Markdown détaillant une session terminée
+
+**Contexte** : Ensemble des informations chargées dans la fenêtre de conversation OpenCode
+
+**Token** : Unité de texte pour les LLM (~4 caractères = 1 token)
+
+**EPIC** : Ensemble de fonctionnalités liées (ex: EPIC 1 = Endpoints PlantUML)
+
+---
+
+[appendix]
+== ANNEXE B — HISTORIQUE DES VERSIONS
+
+[cols="1,2,3,2", options="header"]
+|===
+|Version |Date |Changements |Auteur
+
+|1.0
+|2026-04-18
+|Création du document — Adaptation du système plantuml-plugin
+|OpenCode
+
+|1.1
+|À venir
+|Ajout exemples WebSocket + PlantUML
+|À venir
+
+|1.2
+|À venir
+|Intégration retours d'expérience (sessions 1-10)
+|À venir
+|===
+
+---
+
+[appendix]
+== ANNEXE C — INDEX DES SECTIONS
+
+|===
+|Section |Sujet |Ligne
+
+|1
+|Vue d'ensemble
+|Principes fondamentaux
+
+|2
+|Règles absolues
+|Git, tests, secrets, CORS
+
+|3
+|Structure des dossiers
+|Arborescence + politique de chargement
+
+|4
+|Cycle de vie d'une session
+|Démarrage, pendant, fin (5 étapes)
+
+|5
+|Types de sessions et détection
+|Tableau de détection (7 types)
+
+|6
+|Métriques et seuils
+|Session idéale + signes de changement
+
+|7
+|Architecture Spring Boot
+|Pièges spécifiques + bonnes pratiques
+
+|8
+|Commandes utiles
+|Build, tests, exécution, nettoyage
+
+|9
+|Gestion des archives
+|Quand et comment archiver
+
+|10
+|Amélioration continue
+|Métriques + revue hebdomadaire
+
+|11
+|Checklist de démarrage
+|10 points pour nouveau projet
+
+|12
+|Références
+|Fichiers + ressources externes
+|===
+
+---
+
+**Document créé** : 2026-04-18  
+**Projet** : PlantUML API (Spring Boot WebSocket)  
+**Inspiration** : plantuml-plugin (projet parent) — 100+ sessions, 200+ tests  
+**Version** : 1.0  
+**Statut** : ✅ COMPLET ET AUTONOME

@@ -2,6 +2,35 @@
 
 ## Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+### Session 96 — 2026-04-18 : Feature 10 & 11 — Steps Créés (INCOMPLÈTE) ⚠️
+
+#### ⚠️ Contexte
+- **Session 95** : Feature 8 + Feature 9 — **100% TERMINÉE** ✅ (68/68 scénarios PASS)
+- **Objectif** : Implémenter Features 10 (File Edge Cases) et 11 (Diagram Types)
+- **Résultat** : Steps créés mais conflits de définitions non résolus
+
+#### ⚠️ Tâches réalisées
+- ✅ **FileEdgeCasesSteps.kt** : CRÉÉ (~180 lignes) — 6 scénarios Feature 10
+- ✅ **DiagramTypesSteps.kt** : CRÉÉ (~250 lignes) — 7 scénarios Feature 11
+- ❌ **Conflits de steps** : Non résolus (doublons dans plusieurs fichiers)
+
+#### 🔴 Problèmes identifiés
+1. `@Given("a prompt file {string} with content {string}")` — Défini dans CommonSteps, DiagramTypesSteps, IncrementalProcessingSteps
+2. `@When("I run processPlantumlPrompts task")` — Défini dans 4 fichiers différents
+
+#### ✅ Leçons apprises
+- ✅ **Cartographier les steps AVANT de coder** — Utiliser `rg` pour lister tous les steps existants
+- ✅ **Un step = une seule définition** — Cucumber ne supporte pas les doublons
+- ✅ **Centraliser les steps génériques** — `CommonSteps.kt` pour les steps réutilisables
+
+#### 📝 Prochaine session (97)
+- Lister TOUS les steps avec `rg`
+- Supprimer les doublons de `FileEdgeCasesSteps.kt` et `DiagramTypesSteps.kt`
+- Valider compilation : `./gradlew compileTestKotlin`
+- Exécuter Features 10 et 11
+
+---
+
 ### Session 83 — 2026-04-17 : Phase 4 — Historique des Tentatives (TERMINÉE) ✅
 
 #### ✅ Contexte

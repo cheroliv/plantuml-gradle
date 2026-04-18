@@ -343,6 +343,13 @@ langchain4j:
 - ✅ **Leçon** : Vérifier statut avant d'optimiser
 - ✅ **Règle** : @Disabled = conception intentionnelle
 
+### Session 96 — Conflits de Step Definitions Cucumber
+- ❌ **Erreur** : Créer des steps sans vérifier les existants
+- ✅ **Leçon 1** : Lister TOUS les steps avec `rg` AVANT de coder
+- ✅ **Leçon 2** : Un step = une seule définition (Cucumber ne supporte pas les doublons)
+- ✅ **Leçon 3** : Centraliser les steps génériques dans `CommonSteps.kt`
+- ✅ **Règle** : `rg -n '@(Given|When|Then)\("' src/test/scenarios/plantuml/scenarios/`
+
 ---
 
 ## 📝 Méthodologie de Travail
