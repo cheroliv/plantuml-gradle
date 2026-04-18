@@ -4,7 +4,6 @@ import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
-import java.io.File
 
 class SyntaxValidationSteps(private val world: PlantumlWorld) {
 

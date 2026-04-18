@@ -1,15 +1,14 @@
 package plantuml.scenarios
 
+import com.sun.net.httpserver.HttpServer
+import com.sun.net.httpserver.HttpServer.create
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import java.io.File
-import java.net.HttpURLConnection
 import java.net.InetSocketAddress
-import com.sun.net.httpserver.HttpServer
-import com.sun.net.httpserver.HttpServer.create
 
 class ErrorHandlingSteps(private val world: PlantumlWorld) {
 

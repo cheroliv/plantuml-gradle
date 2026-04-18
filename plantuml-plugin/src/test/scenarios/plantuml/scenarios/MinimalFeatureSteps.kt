@@ -1,7 +1,6 @@
 package plantuml.scenarios
 
 import io.cucumber.java.en.Then
-import org.assertj.core.api.Assertions.assertThat
 
 class MinimalFeatureSteps(private val world: PlantumlWorld) {
 

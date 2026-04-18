@@ -41,7 +41,7 @@ class RagPipelineSteps(private val world: PlantumlWorld) {
     @Given("a running pgvector container")
     fun startPgvectorContainer() {
         log.info("Starting pgvector container...")
-        
+
         pgvectorContainer = PostgreSQLContainer<Nothing>("pgvector/pgvector:pg15").apply {
             withDatabaseName("plantuml_rag")
             withUsername("test")
@@ -57,7 +57,7 @@ class RagPipelineSteps(private val world: PlantumlWorld) {
                 throw e
             }
         }
-        
+
         val configPath = File(world.projectDir, "plantuml-context.yml")
         val configContent = configPath.readText()
         val updatedConfig = configContent.replace(
@@ -103,7 +103,7 @@ class RagPipelineSteps(private val world: PlantumlWorld) {
     @Given("a running pgvector container with embeddings for {int} prompts")
     fun startPgvectorContainerWithMultipleEmbeddings(count: Int) {
         log.info("Starting pgvector container for $count prompts...")
-        
+
         pgvectorContainer = PostgreSQLContainer<Nothing>("pgvector/pgvector:pg15").apply {
             withDatabaseName("plantuml_rag")
             withUsername("test")
@@ -119,10 +119,10 @@ class RagPipelineSteps(private val world: PlantumlWorld) {
                 throw e
             }
         }
-        
+
         val ragDir = File(world.projectDir, "generated/rag")
         ragDir.mkdirs()
-        
+
         for (i in 1..count) {
             File(ragDir, "diagram-$i.puml").writeText(
                 """
@@ -144,7 +144,7 @@ class RagPipelineSteps(private val world: PlantumlWorld) {
                 """.trimIndent()
             )
         }
-        
+
         val configPath = File(world.projectDir, "plantuml-context.yml")
         val configContent = configPath.readText()
         val updatedConfig = configContent.replace(

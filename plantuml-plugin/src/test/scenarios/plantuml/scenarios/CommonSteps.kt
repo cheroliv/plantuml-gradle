@@ -7,8 +7,6 @@ import io.cucumber.java.en.Then
 import org.assertj.core.api.Assertions.assertThat
 import org.slf4j.LoggerFactory
 import org.testcontainers.containers.PostgreSQLContainer
-import java.io.File
-import java.time.Duration
 
 class CommonSteps(private val world: PlantumlWorld) {
 
@@ -28,7 +26,7 @@ class CommonSteps(private val world: PlantumlWorld) {
     @After
     fun cleanup() {
         log.debug("=== After scenario cleanup ===")
-        
+
         try {
             // 1. Stop Docker container created in this scenario
             pgvectorContainer?.let { container ->
@@ -36,13 +34,13 @@ class CommonSteps(private val world: PlantumlWorld) {
                 container.stop()
                 pgvectorContainer = null
             }
-            
+
             // 2. Cleanup World resources (mock servers, temp dirs, etc.)
             world.cleanup()
-            
+
             // 3. Global cleanup via extension
             cleanupExtension.afterScenario()
-            
+
             log.debug("=== Cleanup complete ===")
         } catch (e: Exception) {
             log.error("Cleanup failed: ${e.message}", e)
