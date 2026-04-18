@@ -1,4 +1,4 @@
-@wip @diagrams
+@diagrams
 Feature: Diagram Types
 
   @diagrams @sequence

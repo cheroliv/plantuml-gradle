@@ -1,136 +1,341 @@
-# 📝 Procédure de Session — PlantUML Gradle Plugin
+# 📝 Procédure de Fin de Session — PlantUML Gradle Plugin
 
-> **Objectif** : Procédures de mise à jour en fin de session
-
----
-
-## 🔄 Mise à jour en fin de session
-
-### 5 Étapes obligatoires
-
-1. **Vérifier les tests**
-   ```bash
-   ./gradlew test
-   ```
-
-2. **Mettre à jour `AGENTS.md`** (section "État actuel")
-
-3. **Mettre à jour `COMPLETED_TASKS_ARCHIVE.md`**
-
-4. **Mettre à jour `PROMPT_REPRISE.md`**
-
-5. **Mettre à jour `TEST_COVERAGE_ANALYSIS.md`** (si besoin)
+> **Objectif** : Mécanisme LAZY/EAGER pour persister l'information sans polluer le contexte
+> **Principe** : EAGER = essentiel (toujours chargé), LAZY = détails (chargé sur demande)
 
 ---
 
-## 🧹 Nettoyage AGENTS.md — Vérification systématique
+## 🎯 Philosophie LAZY/EAGER
 
-**Objectif** : Identifier les sections à transférer vers d'autres fichiers pour alléger le contexte
+### Pourquoi ce mécanisme ?
 
-### Étape 1 : Analyser le contenu actuel de AGENTS.md
+**Problème** : Les LLM ont un contexte limité. Charger trop d'informations dilue l'attention et coûte des tokens.
 
-**Question** : Y a-t-il des sections trop détaillées ou redondantes ?
+**Solution** : Séparer l'information en 2 catégories :
 
-| Section | Taille | Action |
-|---------|--------|--------|
-| Contexte | ~6 lignes | ✅ Garder (essentiel) |
-| Points d'attention | ~6 lignes | ✅ Garder (critique) |
-| Architecture | ~28 lignes | ✅ Garder (essentiel) |
-| État actuel | ~8 lignes | ✅ Garder (utile) |
-| Autres sections | Variable | ⚠️ Vérifier redondance |
+| Type | Caractéristiques | Exemples |
+|------|------------------|----------|
+| **EAGER** | • Critique pour démarrer<br>• < 100 lignes<br>• Lu automatiquement | `PROMPT_REPRISE.md`, `AGENTS.md` |
+| **LAZY** | • Détails complets<br>• Illimité<br>• Lu sur demande explicite | `.agents/sessions/{N}*.md`, `AGENT_REFERENCE.md` |
 
-### Étape 2 : Vérifier les transferts possibles
+### Analogie
 
-**Fichiers de destination** :
-
-| Fichier | Rôle | Transferts acceptés |
-|---------|------|---------------------|
-| `AGENT_REFERENCE.md` | Commandes, providers, pièges, méthodologie | ✅ Sections techniques détaillées |
-| `AGENT_METHODOLOGIES.md` | Mécanisme de proposition de méthodologie | ✅ Procédures de détection |
-| `METHODOLOGIE_OPTIMISATION_TESTS.md` | Techniques d'optimisation | ✅ Exemples d'optimisation |
-| `TEST_COVERAGE_ANALYSIS.md` | Couverture des tests unitaires | ✅ Statistiques de couverture |
-| `EPIC_CONSOLIDATION_TESTS_FONCTIONNELS.md` | EPIC tests fonctionnels | ✅ Détails d'EPIC |
-| `SESSION_PROCEDURE.md` | Procédure de fin de session | ✅ Références, procédures |
-| `SESSIONS_HISTORY.md` | Historique des sessions | ✅ Détails de sessions |
-| `COMPLETED_TASKS_ARCHIVE.md` | Archive des tâches | ✅ Résultats de sessions |
-
-### Étape 3 : Critères de transfert
-
-**Signes qu'un transfert est nécessaire** :
-- 🔴 AGENTS.md dépasse 100 lignes
-- 🔴 Sections trop détaillées (commandes, méthodologie, pièges)
-- 🔴 Redondance avec d'autres fichiers de référence
-- 🔴 Contenu qui peut être consulté "sur besoin" (pas "toujours")
-
-**Comment transférer** :
-1. ✅ Identifier la section redondante dans AGENTS.md
-2. ✅ Vérifier si un fichier dédié existe déjà (tableau ci-dessus)
-3. ✅ Déplacer le contenu vers le fichier dédié
-4. ✅ Remplacer par un renvoi court dans AGENTS.md (ex: "**Voir** : `AGENT_REFERENCE.md`")
-5. ✅ Mettre à jour ce fichier (SESSION_PROCEDURE.md) avec le nouveau transfert
-
-### Étape 4 : Exemple Session 45
-
-**Transferts effectués** :
-| Section | Fichier destination | Statut |
-|---------|---------------------|--------|
-| "🛠 Décisions techniques" | AGENT_REFERENCE.md | ✅ Transféré |
-| "🚀 Optimisation des tests" | AGENT_REFERENCE.md | ✅ Transféré |
-| "📝 Méthodologie de travail" | AGENT_REFERENCE.md | ✅ Transféré |
-| "📚 Références" | SESSION_PROCEDURE.md | ✅ Transféré |
-| "📝 Mise à jour" | SESSION_PROCEDURE.md | ✅ Transféré |
-
-**Résultat** : AGENTS.md 133 → 77 lignes (-42%)
-
-### Étape 5 : Checklist de fin de vérification
-
-- [ ] AGENTS.md < 100 lignes
-- [ ] Sections essentielles préservées (Contexte, Points d'attention, Architecture, État actuel)
-- [ ] Redondances transférées vers fichiers dédiés
-- [ ] Renvois courts ajoutés pour sections transférées
-- [ ] PROMPT_REPRISE.md mis à jour avec nouvelle mission
+- **EAGER** = Tableau de bord de voiture (vitesse, carburant, alertes)
+- **LAZY** = Manuel du propriétaire (détails techniques, historique entretien)
 
 ---
 
-## 📚 Références — Quand charger chaque fichier
+## 📋 Procédure de Fin de Session — 5 Étapes Obligatoires
 
-| Fichier | Rôle | Chargement |
-|---------|------|------------|
-| `AGENTS.md` | Architecture, décisions, méthodologie | **Toujours** |
-| `AGENT_REFERENCE.md` | Référence rapide (commandes, providers, pièges) | **Sur besoin** |
-| `PROMPT_REPRISE.md` | Mission session en cours | **Début session** |
-| `SESSIONS_HISTORY.md` | Historique complet sessions | **Sur besoin** |
-| `COMPLETED_TASKS_ARCHIVE.md` | Archive tâches terminées | **Fin session** |
-| `SESSION_PROCEDURE.md` | Procédure de fin de session | **Fin de session** |
+### ÉTAPE 1 : Vérifier l'état des tests (optionnel)
+
+```bash
+# Seulement si demandé explicitement
+./gradlew test
+./gradlew cucumberTest
+```
+
+⚠️ **Jamais** exécuter de tests en procédure de fin de session sans demande explicite.
 
 ---
 
-## 🗂️ État des Fichiers de Mémoire
+### ÉTAPE 2 : Créer l'archive LAZY de la session
 
-**Objectif** : Permettre le transfert d'éléments depuis `AGENTS.md` vers d'autres fichiers
+**Fichier** : `.agents/sessions/{N}-{titre}.md`
 
-| Fichier | Contenu | Taille | Transfert depuis AGENTS.md |
-|---------|---------|--------|---------------------------|
-| `AGENTS.md` | Contexte, architecture, points d'attention, état actuel | ~77 lignes | **Source** |
-| `AGENT_REFERENCE.md` | Commandes, providers LLM, méthodologie optimisation, pièges | ~410 lignes | ✅ Sections "Décisions techniques", "Optimisation des tests", "Méthodologie" |
-| `SESSION_PROCEDURE.md` | Procédure fin de session, tableau des références | ~60 lignes | ✅ Sections "Références", "Mise à jour" |
-| `PROMPT_REPRISE.md` | Mission session en cours, backlog | ~120 lignes | ❌ Indépendant |
-| `SESSIONS_HISTORY.md` | Historique complet des sessions | Variable | ❌ Indépendant |
-| `COMPLETED_TASKS_ARCHIVE.md` | Archive tâches terminées | Variable | ❌ Indépendant |
+**Structure obligatoire** :
 
-### Quand transférer du contenu depuis `AGENTS.md`
+```markdown
+# Session {N} — {Titre descriptif}
 
-**Signes qu'un transfert est nécessaire** :
-- 🔴 `AGENTS.md` dépasse 100 lignes
-- 🔴 Sections trop détaillées (commandes, méthodologie, pièges)
-- 🔴 Redondance avec d'autres fichiers de référence
+**Date** : {date}  
+**Statut** : ✅ TERMINÉE / ⚠️ INCOMPLÈTE / ❌ ÉCHEC  
+**EPIC** : {lien vers EPIC si applicable}
 
-**Comment transférer** :
-1. ✅ Identifier la section redondante dans `AGENTS.md`
-2. ✅ Vérifier si un fichier dédié existe déjà (`AGENT_REFERENCE.md`, `SESSION_PROCEDURE.md`)
-3. ✅ Déplacer le contenu vers le fichier dédié
-4. ✅ Remplacer par un renvoi court dans `AGENTS.md` (ex: "**Voir** : `AGENT_REFERENCE.md`")
-5. ✅ Mettre à jour ce tableau avec le nouveau transfert
+---
+
+## Contexte
+
+{Pourquoi cette session existe ? Quel problème résout-elle ?}
+
+---
+
+## Actions Entreprises
+
+### 1. {Action principale}
+
+**Fichiers modifiés** :
+| Fichier | Lignes | Modification |
+|---------|--------|--------------|
+| `path/to/file.kt` | 12-45 | Suppression duplication |
+
+**Commandes exécutées** :
+```bash
+{commande 1}
+{commande 2}
+```
+
+**Résultats** :
+- ✅ Succès : {détail}
+- ❌ Échec : {détail}
+
+---
+
+## Conflits/Problèmes Résolus
+
+| Problème | Cause | Solution | Fichier |
+|----------|-------|----------|---------|
+| {description} | {root cause} | {action} | {file:line} |
+
+---
+
+## Patterns et Leçons Apprises
+
+### ❌ Pattern à Éviter
+
+```kotlin
+// MAUVAIS : exemple de code problématique
+```
+
+### ✅ Pattern à Suivre
+
+```kotlin
+// BON : exemple de solution
+```
+
+---
+
+## Résultats
+
+| Critère | Statut | Détails |
+|---------|--------|---------|
+| Compilation | ✅/❌ | {détail} |
+| Tests | ✅/❌ | {X/Y} scénarios PASS |
+| Conflits | ✅/❌ | {nombre} résolus |
+
+---
+
+## Prochaines Étapes (Session {N+1})
+
+1. **Action 1** : `{commande ou tâche}`
+2. **Action 2** : `{commande ou tâche}`
+3. **Validation** : `{critère de succès}`
+
+---
+
+## Références
+
+- **Archive** : `.agents/sessions/{N}-{titre}.md` (ce fichier)
+- **Reprise** : `PROMPT_REPRISE.md` (session {N+1})
+- **EPIC** : `{lien}`
+
+---
+
+**Session {N}** — {statut emoji}  
+**Session {N+1}** — {prêt/à faire}
+```
+
+---
+
+### ÉTAPE 3 : Mettre à jour le résumé EAGER
+
+**Fichier** : `PROMPT_REPRISE.md`
+
+**Structure obligatoire** :
+
+```markdown
+# 🔄 Prompt de reprise — Session {N+1}
+
+> **EPIC** : {nom}  
+> **Statut** : Session {N} ✅ — {résumé 1 ligne}  
+> **Mission** : {objectif session N+1}
+
+---
+
+## Session {N} — Résumé
+
+**Date** : {date}  
+**Résultat** : ✅ {accomplissement principal}
+
+| Fichier | Modification |
+|---------|--------------|
+| `file1.kt` | -20 lignes |
+| `file2.kt` | +15 lignes |
+
+**Archive** : `.agents/sessions/{N}-{titre}.md`
+
+---
+
+## Session {N+1} — Priorités
+
+```bash
+# Commande principale
+{commande}
+```
+
+### Critères d'Acceptation
+
+- [ ] {critère 1}
+- [ ] {critère 2}
+- [ ] {critère 3}
+
+---
+
+## Couverture Tests
+
+| Feature | Scénarios | Statut |
+|---------|-----------|--------|
+| {feature} | {N} | ✅/🟡/❌ |
+
+**Total** : {X}/{Y} ({Z}%)
+
+---
+
+## Règles
+
+- ❌ {règle 1}
+- ❌ {règle 2}
+- ✅ {règle 3}
+
+---
+
+**Session {N}** ✅ — **Session {N+1}** 🚀
+```
+
+**Contraintes** :
+- Maximum **100 lignes**
+- **1 référence** à l'archive LAZY
+- **Commandes exécutables** pour session N+1
+- **Critères d'acceptation** clairs
+
+---
+
+### ÉTAPE 4 : Nettoyer AGENTS.md (si besoin)
+
+**Vérifier** : `AGENTS.md` dépasse-t-il 100 lignes ?
+
+**Si OUI** :
+
+1. Identifier sections détaillées (commandes, méthodologie, pièges)
+2. Transférer vers `AGENT_REFERENCE.md` ou fichier dédié
+3. Remplacer par renvoi court : `**Voir** : `AGENT_REFERENCE.md``
+
+**Si NON** : ✅ Ne rien toucher
+
+---
+
+### ÉTAPE 5 : Valider la cohérence
+
+**Checklist** :
+
+- [ ] Archive LAZY créée : `.agents/sessions/{N}-{titre}.md`
+- [ ] Résumé EAGER mis à jour : `PROMPT_REPRISE.md`
+- [ ] Référence croisée présente (EAGER → LAZY)
+- [ ] `PROMPT_REPRISE.md` < 100 lignes
+- [ ] Commandes session N+1 testables
+- [ ] Critères d'acceptation clairs
+
+---
+
+## 📊 Tableau des Fichiers — Politique de Chargement
+
+| Fichier | Type | Taille Max | Quand Charger |
+|---------|------|------------|---------------|
+| `PROMPT_REPRISE.md` | **EAGER** | 100 lignes | **Début session** (auto) |
+| `AGENTS.md` | **EAGER** | 100 lignes | **Toujours** (auto) |
+| `AGENT_REFERENCE.md` | LAZY | Illimité | Sur besoin (commandes, pièges) |
+| `.agents/sessions/{N}*.md` | LAZY | Illimité | Sur demande (détails session) |
+| `.agents/ARCHITECTURE.md` | LAZY | Illimité | Sur besoin (architecture) |
+| `.agents/INDEX.md` | LAZY | Illimité | Sur besoin (navigation) |
+| `SESSIONS_HISTORY.md` | LAZY | Illimité | Sur besoin (historique) |
+| `COMPLETED_TASKS_ARCHIVE.md` | LAZY | Illimité | Fin session (archive) |
+
+---
+
+## 🔍 Comment l'agent sait où chercher ?
+
+### Début de Session
+
+**Chargement automatique (EAGER)** :
+1. `PROMPT_REPRISE.md` → Mission, priorités, contexte
+2. `AGENTS.md` → Architecture, règles, points d'attention
+
+**Si besoin de détails** :
+- Commandes ? → `AGENT_REFERENCE.md`
+- Détails session N ? → `.agents/sessions/{N}-{titre}.md` (référencé dans PROMPT_REPRISE.md)
+- Architecture ? → `.agents/ARCHITECTURE.md`
+
+### Fin de Session
+
+**Mots-clés déclencheurs** :
+- "nouvelle session"
+- "je quitte"
+- "session terminée"
+- "à plus tard"
+- "on arrête là"
+
+**Action** : Exécuter les 5 étapes SILENCIEUSEMENT
+
+---
+
+## 📝 Template Rapide — Archive LAZY
+
+```markdown
+# Session {N} — {Titre}
+
+**Date** : {date} | **Statut** : {✅/⚠️/❌}
+
+## Contexte
+{1-2 paragraphes}
+
+## Actions
+| Fichier | Modification |
+|---------|--------------|
+| `file.kt` | -X lignes |
+
+## Commandes
+```bash
+{cmd}
+```
+
+## Résultats
+| Critère | Statut |
+|---------|--------|
+| Compilation | ✅ |
+| Tests | X/Y PASS |
+
+## Prochaines Étapes
+1. {action}
+2. {action}
+
+**Archive** : `.agents/sessions/{N}-{titre}.md`
+```
+
+---
+
+## 📝 Template Rapide — Résumé EAGER
+
+```markdown
+# 🔄 Prompt de reprise — Session {N+1}
+
+> **Statut** : Session {N} ✅ — {1 ligne}  
+> **Mission** : {objectif}
+
+## Session {N} — Résumé
+**Résultat** : ✅ {accomplissement}  
+**Archive** : `.agents/sessions/{N}-{titre}.md`
+
+## Session {N+1} — Priorités
+```bash
+{commande}
+```
+
+### Critères
+- [ ] {critère}
+
+---
+**Session {N}** ✅ — **Session {N+1}** 🚀
+```
 
 ---
 
@@ -141,13 +346,18 @@
 
 ---
 
-## 🚨 Déclencheur de procédure
+## 🚨 Règle d'Or
 
-**Mots-clés** : "nouvelle session", "je quitte", "session terminée", "à plus tard"
-
-**Règle d'or** :
 - ❌ JAMAIS demander "Veux-tu que je...?"
 - ❌ JAMAIS expliquer avant de faire
 - ❌ JAMAIS répondre avant les 5 étapes terminées
 - ✅ FAIRE DIRECTEMENT les 5 étapes SILENCIEUSEMENT
 - ✅ Répondre UNIQUEMENT par "✅ Procédure exécutée" + 3 lignes max
+
+---
+
+## 📚 Références Internes
+
+- **LAZY/EAGER** : Voir section "Philosophie LAZY/EAGER" ci-dessus
+- **Templates** : Voir section "Template Rapide" ci-dessus
+- **Tableau fichiers** : Voir section "Tableau des Fichiers" ci-dessus

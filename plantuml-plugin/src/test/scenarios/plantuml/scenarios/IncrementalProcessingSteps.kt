@@ -158,26 +158,6 @@ class IncrementalProcessingSteps(private val world: PlantumlWorld) {
         promptFile.delete()
     }
 
-    @When("I run processPlantumlPrompts task")
-    fun runProcessPlantumlPromptsTask() = runBlocking {
-        val properties = mutableMapOf<String, String>()
-        world.mockServerPort?.let {
-            properties["plantuml.langchain4j.model"] = "ollama"
-            properties["plantuml.langchain4j.ollama.baseUrl"] = "http://localhost:$it"
-            properties["plantuml.langchain4j.ollama.modelName"] = "smollm:135m"
-        }
-        world.projectDir?.let {
-            properties["plugin.project.dir"] = it.absolutePath
-        }
-        properties["plantuml.test.mode"] = "true"
-
-        try {
-            world.executeGradle("processPlantumlPrompts", properties = properties)
-        } catch (e: Exception) {
-            world.exception = e
-        }
-    }
-
     @Then("the outputs for the deleted prompt should be removed")
     fun outputsForDeletedPromptShouldBeRemoved() {
         val diagramsDir = File(world.projectDir, "generated/diagrams")
@@ -209,26 +189,6 @@ class IncrementalProcessingSteps(private val world: PlantumlWorld) {
         val promptsDir = File(world.projectDir, "prompts").apply { mkdirs() }
         val promptFile = File(promptsDir, "checksum-test.prompt")
         promptFile.writeText("Create a diagram with known content")
-    }
-
-    @When("I run processPlantumlPrompts task")
-    fun runProcessPlantumlPromptsTaskForChecksum() = runBlocking {
-        val properties = mutableMapOf<String, String>()
-        world.mockServerPort?.let {
-            properties["plantuml.langchain4j.model"] = "ollama"
-            properties["plantuml.langchain4j.ollama.baseUrl"] = "http://localhost:$it"
-            properties["plantuml.langchain4j.ollama.modelName"] = "smollm:135m"
-        }
-        world.projectDir?.let {
-            properties["plugin.project.dir"] = it.absolutePath
-        }
-        properties["plantuml.test.mode"] = "true"
-
-        try {
-            world.executeGradle("processPlantumlPrompts", properties = properties)
-        } catch (e: Exception) {
-            world.exception = e
-        }
     }
 
     @Then("a checksum should be stored for the prompt")

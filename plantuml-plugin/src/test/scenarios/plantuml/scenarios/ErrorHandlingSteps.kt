@@ -270,26 +270,6 @@ class ErrorHandlingSteps(private val world: PlantumlWorld) {
         }
     }
 
-    @When("I run processPlantumlPrompts task")
-    fun runProcessPlantumlPromptsTask() = runBlocking {
-        val properties = mutableMapOf<String, String>()
-        world.mockServerPort?.let {
-            properties["plantuml.langchain4j.model"] = "ollama"
-            properties["plantuml.langchain4j.ollama.baseUrl"] = "http://localhost:$it"
-            properties["plantuml.langchain4j.ollama.modelName"] = "smollm:135m"
-        }
-        world.projectDir?.let {
-            properties["plugin.project.dir"] = it.absolutePath
-        }
-        properties["plantuml.test.mode"] = "true"
-
-        try {
-            world.executeGradle("processPlantumlPrompts", properties = properties)
-        } catch (e: Exception) {
-            world.exception = e
-        }
-    }
-
     @Then("the task should fail with timeout error")
     fun taskShouldFailWithTimeoutError() {
         assertThat(world.exception).isNotNull

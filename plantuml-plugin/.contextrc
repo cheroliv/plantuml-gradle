@@ -1,0 +1,190 @@
+# 📦 Context Loading Strategy — PlantUML Gradle Plugin
+
+> **Objectif** : Optimiser le contexte chargé au bootstrap pour éviter la pollution et le lazy processing  
+> **Dernière mise à jour** : 2026-04-18 (Session 96)
+
+---
+
+## 🎯 Niveaux de Chargement
+
+### NIVEAU 1 — EAGER (Toujours chargé au bootstrap)
+**~400 lignes total**
+
+| Fichier | Lignes | Rôle |
+|---------|--------|------|
+| `INDEX.md` | 160 | Vue d'ensemble projet, architecture, commandes |
+| `.agents/INDEX.md` | 93 | Règles absolues, roadmap sessions |
+| `.agents/ARCHITECTURE.md` | 130 | Architecture code, décisions techniques, pièges |
+
+**Total : ~383 lignes** ✅
+
+---
+
+### NIVEAU 2 — CONTEXTUEL (Début de session)
+**~300 lignes total**
+
+| Fichier | Lignes | Rôle | Quand charger |
+|---------|--------|------|---------------|
+| `PROMPT_REPRISE.md` | 200 | Mission session en cours | **Début session** |
+| `SESSION_CHECKLIST.md` | 110 | Checklist transition | Début/Fin sessions |
+| `.agents/PROCEDURES.md` | 153 | Procédures de fin de session | Fin sessions |
+
+---
+
+### NIVEAU 3 — LAZY (Sur demande explicite)
+
+**Fichiers de référence** :
+- `.agents/REFERENCE.md` (410 lignes) — Référence technique complète
+- `.agents/TROUBLESHOOTING.md` (538 lignes) — Guide dépannage EN
+- `.agents/TROUBLESHOOTING_fr.md` (538 lignes) — Guide dépannage FR
+- `.agents/AGENT_METHODOLOGIES.md` (570 lignes) — Méthodologie
+- `.agents/AGENT_SESSION_MANAGER.md` (187 lignes) — Gestion sessions
+- `BACKLOG.md` (177 lignes) — Suivi bugs et issues
+- `CHANGELOG.md` (45 lignes) — Historique versions
+- `AGENT_PLAN.md` (268 lignes) — Plan d'attaque BDD
+- `EPIC_CONSOLIDATION_TESTS_FONCTIONNELS.md` (286 lignes) — EPIC tests
+
+**Fichiers d'archives** (dans `.agents/archives/`) :
+- `CODE_REVIEW_2026-04.md` (1595 lignes) — Review de code statique
+- `SESSIONS_HISTORY_83-95.md` (2183 lignes) — Historique sessions
+- `COMPLETED_TASKS_ARCHIVE_2026-04.md` (1688 lignes) — Tâches terminées
+- `METHODOLOGIE_OPTIMISATION_TESTS.md` (586 lignes) — Guide optimisation
+- `memory-leak-analysis_session90.md` (226 lignes) — Analyse fuites Session 90
+- `prompts_archive/` (8 fichiers, 1822 lignes) — Prompts de reprise archivés
+- `sessions_summaries/` (13 fichiers, 2342 lignes) — Résumés sessions 61-79
+- `tests_analysis/` (6 fichiers, 2407 lignes) — Analyses de couverture tests
+
+**Règle** : **JAMAIS** charger ces fichiers automatiquement. Utiliser `@file` explicite si besoin.
+
+---
+
+## 📋 Matrice de Décision de Chargement
+
+| Type de Session | Fichiers à Charger |
+|-----------------|-------------------|
+| **Session standard** | NIVEAU 1 + NIVEAU 2 |
+| **Debug/Correction bug** | N1 + N2 + `BACKLOG.md` + `TROUBLESHOOTING*.md` |
+| **Création de tests** | N1 + N2 + `@agents/archives/tests_analysis/` (sur besoin) |
+| **Optimisation tests** | N1 + N2 + `@agents/archives/METHODOLOGIE_OPTIMISATION_TESTS.md` |
+| **Développement feature** | N1 + N2 + `AGENT_PLAN.md` + `EPIC_*.md` |
+| **Fin de session** | N1 + `PROCEDURES.md` + `AGENT_SESSION_MANAGER.md` |
+| **Reprise après interruption** | N1 + N2 (priorité : `PROMPT_REPRISE.md`) |
+
+---
+
+## ⚠️ Règles Absolues
+
+### 1. Fichiers à NE JAMAIS charger au bootstrap
+
+- ❌ `.agents/sessions/*.md` — Archives de sessions (consulter via `@file`)
+- ❌ `.agents/archives/*.md` — Archives historiques
+- ❌ `COMPLETED_TASKS_ARCHIVE.md` — Archive tâches terminées
+- ❌ `SESSIONS_HISTORY.md` — Historique détaillé
+- ❌ `CODE_REVIEW.md` — Review statique non maintenue
+
+### 2. Fichiers à charger UNIQUEMENT sur demande
+
+- 🔸 `TROUBLESHOOTING*.md` — Seulement en cas d'erreur
+- 🔸 `REFERENCE.md` — Seulement pour questions techniques précises
+- 🔸 `AGENT_METHODOLOGIES.md` — Seulement pour questions méthodologiques
+- 🔸 `BACKLOG.md` — Seulement pour sessions de debug
+
+### 3. Fichiers critiques (TOUJOURS charger)
+
+- ✅ `INDEX.md` — Vue d'ensemble
+- ✅ `.agents/INDEX.md` — Règles absolues
+- ✅ `.agents/ARCHITECTURE.md` — Architecture + pièges
+- ✅ `PROMPT_REPRISE.md` — Mission session actuelle
+
+---
+
+## 📊 Gain Estimé
+
+| Métrique | Avant | Après | Gain |
+|----------|-------|-------|------|
+| **Lignes chargées par défaut** | ~12 000 | ~400 | **-97%** |
+| **Fichiers chargés au bootstrap** | 20+ | 3 | **-85%** |
+| **Temps de lecture initial** | ~60s | ~3s | **-95%** |
+| **Token usage initial** | ~15k tokens | ~500 tokens | **-97%** |
+
+---
+
+## 🔄 Maintenance
+
+### En fin de chaque session
+
+1. **Mettre à jour** `PROMPT_REPRISE.md` avec :
+   - Résumé session terminée (≤50 lignes)
+   - Mission session suivante (≤100 lignes)
+   - Roadmap synthétique (tableau uniquement)
+
+2. **Archiver** dans `.agents/sessions/` :
+   - Créer `{N}-{titre}.md` avec détails session
+   - Déplacer ancien `PROMPT_REPRISE.md` si trop long
+
+3. **Nettoyer** tous les 10 sessions :
+   - Déplacer fichiers historiques dans `.agents/archives/`
+   - Consolider les analyses dans 1-2 fichiers synthétiques
+
+### Tous les 20 sessions
+
+- **Consolider** `.agents/archives/` en archives thématiques
+- **Supprimer** fichiers obsolètes (information déjà capturée)
+- **Mettre à jour** ce fichier `.contextrc` si besoin
+
+---
+
+## 📝 Notes d'Implémentation
+
+### Fichiers archivés (Session 96)
+
+```
+.agents/archives/
+├── CODE_REVIEW_2026-04.md (1595 lignes)
+├── SESSIONS_HISTORY_83-95.md (2183 lignes)
+├── COMPLETED_TASKS_ARCHIVE_2026-04.md (1688 lignes)
+├── METHODOLOGIE_OPTIMISATION_TESTS.md (586 lignes)
+├── memory-leak-analysis_session90.md (226 lignes)
+├── prompts_archive/ (8 fichiers, 1822 lignes)
+├── sessions_summaries/ (13 fichiers, 2342 lignes)
+└── tests_analysis/ (6 fichiers, 2407 lignes)
+```
+
+**Total archivé** : ~13 000 lignes (hors NIVEAU 1)
+
+### Fichiers critiques (NIVEAU 1)
+
+```
+Racine/
+├── INDEX.md (160 lignes)
+├── PROMPT_REPRISE.md (200 lignes)
+└── .agents/
+    ├── INDEX.md (93 lignes)
+    ├── ARCHITECTURE.md (130 lignes)
+    ├── SESSION_CHECKLIST.md (110 lignes)
+    └── PROCEDURES.md (153 lignes)
+```
+
+**Total critique** : ~846 lignes
+
+---
+
+## ✅ Checklist de Mise en Œuvre
+
+- [x] **Résumer** `PROMPT_REPRISE.md` (505 → 200 lignes)
+- [x] **Archiver** `CODE_REVIEW.md`
+- [x] **Archiver** `SESSIONS_HISTORY.md`
+- [x] **Archiver** `COMPLETED_TASKS_ARCHIVE.md`
+- [x] **Archiver** `METHODOLOGIE_OPTIMISATION_TESTS.md`
+- [x] **Archiver** `.prompts/`
+- [x] **Archiver** `.sessions/`
+- [x] **Archiver** `.agents/tests/`
+- [x] **Archiver** `.agents/memory-leak-analysis.md`
+- [x] **Créer** `.contextrc` avec stratégie de chargement
+- [ ] **Mettre à jour** `INDEX.md` avec références aux fichiers archivés
+- [ ] **Documenter** la procédure dans `.agents/PROCEDURES.md`
+
+---
+
+**Document créé** : Session 96 (2026-04-18)  
+**Prochaine révision** : Session 106 (ou quand contexte >10k tokens)

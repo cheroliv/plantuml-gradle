@@ -214,16 +214,6 @@ class RagPipelineSteps(private val world: PlantumlWorld) {
         )
     }
 
-    @Given("the prompt file has not been modified")
-    fun promptFileHasNotBeenModified() {
-        val promptFile = File(world.projectDir, "prompts/rag-test.prompt")
-        if (promptFile.exists()) {
-            val originalTime = promptFile.lastModified()
-            Thread.sleep(100)
-            assertThat(promptFile.lastModified()).isEqualTo(originalTime)
-        }
-    }
-
     @Then("unchanged prompts should be skipped")
     fun verifyUnchangedPromptsSkipped() {
         assertThat(world.buildResult).isNotNull
@@ -237,15 +227,6 @@ class RagPipelineSteps(private val world: PlantumlWorld) {
     fun verifyOnlyNewOrModifiedPromptsIndexed() {
         assertThat(world.buildResult).isNotNull
         assertThat(world.buildResult!!.output).contains("BUILD SUCCESSFUL")
-    }
-
-    @Given("one prompt file is deleted")
-    fun deleteOnePromptFile() {
-        val ragDir = File(world.projectDir, "generated/rag")
-        if (ragDir.exists()) {
-            val promptFiles = ragDir.listFiles { file -> file.name.contains("attempt-history") }
-            promptFiles?.firstOrNull()?.delete()
-        }
     }
 
     @Then("the deleted prompt embeddings should be removed")

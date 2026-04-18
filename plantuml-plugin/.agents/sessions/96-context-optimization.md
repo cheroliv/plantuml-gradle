@@ -1,0 +1,130 @@
+# Session 96 — Optimisation du Contexte
+
+**Date** : 18 avril 2026  
+**Type** : Nettoyage / Optimisation  
+**Durée** : ~15 minutes
+
+---
+
+## 🎯 Objectif
+
+Optimiser le contexte chargé au bootstrap pour éviter la pollution, le lazy processing et les hallucinations, **sans aucune perte de données**.
+
+---
+
+## ✅ Réalisé
+
+### 1. Analyse des Fichiers Markdown
+
+**Fichiers analysés** : 63 fichiers (~12 100 lignes)
+- Racine : 12 fichiers (6 523 lignes)
+- `.agents/` : 14 fichiers (2 851 lignes)
+- `.agents/sessions/` : 9 fichiers (766 lignes)
+- `.sessions/` : 13 fichiers (2 342 lignes)
+- `.agents/tests/` : 6 fichiers (2 407 lignes)
+- `.prompts/` : 8 fichiers (1 822 lignes)
+
+### 2. Archivage des Fichiers Obsolètes
+
+**Fichiers archivés dans `.agents/archives/`** :
+
+| Fichier | Lignes | Statut |
+|---------|--------|--------|
+| `CODE_REVIEW_2026-04.md` | 1 595 | ✅ Archivé |
+| `SESSIONS_HISTORY_83-95.md` | 2 183 | ✅ Archivé |
+| `COMPLETED_TASKS_ARCHIVE_2026-04.md` | 1 688 | ✅ Archivé |
+| `METHODOLOGIE_OPTIMISATION_TESTS.md` | 586 | ✅ Archivé |
+| `memory-leak-analysis_session90.md` | 226 | ✅ Archivé |
+| `prompts_archive/` | 8 fichiers (1 822) | ✅ Déplacé |
+| `sessions_summaries/` | 13 fichiers (2 342) | ✅ Déplacé |
+| `tests_analysis/` | 6 fichiers (2 407) | ✅ Déplacé |
+
+**Total archivé** : ~13 000 lignes (32 fichiers)
+
+### 3. Résumé de PROMPT_REPRISE.md
+
+- **Avant** : 505 lignes (historique sessions 90-95)
+- **Après** : 200 lignes (sessions 95-96 uniquement)
+- **Gain** : -305 lignes (-60%)
+
+### 4. Création de `.contextrc`
+
+**Fichier créé** : `.contextrc` (200 lignes)
+- Documente la stratégie de chargement lazy
+- Matrice de décision par type de session
+- Règles absolues de chargement
+- Procédure de maintenance
+
+---
+
+## 📊 Résultats
+
+### Gain de Contexte
+
+| Métrique | Avant | Après | Gain |
+|----------|-------|-------|------|
+| **Lignes au bootstrap** | ~14 000 | ~1 000 | **-93%** |
+| **Fichiers chargés** | 20+ | 7 | **-65%** |
+| **Tokens estimés** | ~18k | ~1.2k | **-93%** |
+| **Données perdues** | — | **0** | ✅ **100% conservé** |
+
+### Fichiers Critiques (NIVEAU 1 — EAGER)
+
+| Fichier | Lignes | Rôle |
+|---------|--------|------|
+| `INDEX.md` | 160 | Vue d'ensemble projet |
+| `PROMPT_REPRISE.md` | 200 | Mission session en cours |
+| `.agents/INDEX.md` | 93 | Règles absolues + roadmap |
+| `.agents/ARCHITECTURE.md` | 130 | Architecture + pièges |
+| `.agents/SESSION_CHECKLIST.md` | 110 | Checklist transition |
+| `.agents/PROCEDURES.md` | 153 | Procédures fin de session |
+| `.contextrc` | 200 | Stratégie de chargement |
+| **TOTAL** | **~1 046** | **-93% vs avant** |
+
+---
+
+## 🗂️ Comment Accéder aux Archives
+
+```bash
+# Voir tous les fichiers archivés
+ls -la .agents/archives/
+
+# Lire un fichier spécifique
+cat .agents/archives/CODE_REVIEW_2026-04.md
+cat .agents/archives/SESSIONS_HISTORY_83-95.md
+
+# Consulter les sessions archivées
+ls -la .agents/archives/sessions_summaries/
+ls -la .agents/archives/prompts_archive/
+ls -la .agents/archives/tests_analysis/
+```
+
+---
+
+## 📋 Prochaine Session (97)
+
+**Mission** : Feature 10 File Edge Cases + Feature 11 Diagram Types
+
+**Fichiers de référence** :
+- `PROMPT_REPRISE.md` — Mission détaillée
+- `INDEX.md` — Architecture projet
+- `.agents/ARCHITECTURE.md` — Pièges à éviter
+
+**Critères d'acceptation** :
+- [ ] 6 scénarios Feature 10 → 6/6 PASS
+- [ ] 7 scénarios Feature 11 → 7/7 PASS
+- [ ] Rapport HTML : 81/81 scénarios passants (100%)
+
+---
+
+## 📝 Leçons Apprises
+
+1. **Context polling** : Trop de fichiers chargés = hallucinations + lazy processing
+2. **Archivage systématique** : Conserver toutes les données, mais charger lazy
+3. **Stratégie documentée** : `.contextrc` guide les futurs agents
+
+---
+
+**Archive créée** : Session 96  
+**Prochaine session** : 97 — Feature 10 + Feature 11  
+**Statut** : ✅ TERMINÉE

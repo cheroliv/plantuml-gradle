@@ -1,4 +1,4 @@
-@wip @files
+@files
 Feature: File Edge Cases
 
   @files @utf8
