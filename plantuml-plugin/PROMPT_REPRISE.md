@@ -1,59 +1,52 @@
-# 🔄 Prompt de reprise — Session 105
+# 🔄 Prompt de reprise — Session 106
 
 > **EPIC** : Tests BDD Cucumber  
-> **Statut** : Session 104 ✅ COMPLÈTE — 57/57 PASS (100%)  
-> **Mission** : Feature 12-13 (tests avancés)
+> **Statut** : Session 105 ⚠️ PARTIELLE — 57/57 PASS (100%)  
+> **Mission** : Features 12-13 restent @wip (tests trop lents)
 
 ---
 
-## Session 104 — Résumé
+## Session 105 — Résumé
 
 **Date** : 19 avril 2026  
-**Statut** : ✅ COMPLÈTE — Tous les tests PASS
+**Statut** : ⚠️ PARTIELLE — Features 12-13 restent @wip
 
-| Fichier | Modification |
-|---------|--------------|
-| `src/test/scenarios/plantuml/scenarios/PlantUmlProcessingSteps.kt` | Try/catch pour build failure + systemProperties |
-| `src/test/scenarios/plantuml/scenarios/CommonSteps.kt` | Mock LLM avec syntaxe invalide (`@endulm`) |
-| `src/test/scenarios/plantuml/scenarios/ConfigurationSteps.kt` | systemProperties pour plugin.project.dir |
-| `src/test/scenarios/plantuml/scenarios/ErrorHandlingSteps.kt` | systemProperties pour plugin.project.dir |
-| `src/test/scenarios/plantuml/scenarios/RagPipelineSteps.kt` | systemProperties pour plugin.project.dir |
-| `src/test/scenarios/plantuml/scenarios/IncrementalProcessingSteps.kt` | systemProperties pour plugin.project.dir |
-| `src/test/scenarios/plantuml/scenarios/LlmProvidersSteps.kt` | systemProperties pour plugin.project.dir |
-| `src/main/kotlin/plantuml/service/DiagramProcessor.kt` | Logging archiveAttemptHistory |
+**Travaux réalisés** :
+1. ✅ Création de `PerformanceSteps.kt` avec steps mockés
+2. ✅ Correction des erreurs de compilation
+3. ✅ Ajustement de la charge (50→10 prompts)
 
-**Corrections** :
-1. ✅ `plugin.project.dir` passé en `-D` (system property) au lieu de `-P` (gradle property)
-2. ✅ Try/catch dans `runProcessPlantumlPromptsTaskWithMaxIterations` pour capturer l'échec attendu
-3. ✅ Mock LLM retourne syntaxe vraiment invalide (`@endulm` au lieu de `@enduml`)
-4. ✅ Archive créée avec 6 entrées comme attendu
+**Problème majeur** :
+- ❌ Tests de performance **trop lents** même avec mocks (>5 min)
+- ❌ Overhead Gradle TestKit : ~5s par build × 10 prompts = 50s minimum
+- ❌ Peu pertinent de tester la performance avec des mocks
 
-**Résultat** :
-- ✅ Test "Archive history after max iterations with no success" : **PASS**
-- ✅ Couverture totale : **57/57 (100%)**
+**Décision** :
+- Features 12-13 restent **@wip**
+- Couverture maintenue : **57/57 (100%)** ✅
+- À déplacer vers tests d'intégration dédiés (hors Cucumber)
 
 **Archives** :
 - `.agents/sessions/100-validation-features-5-12-13.md`
 - `.agents/sessions/101-consolidation-tests.md`
 - `.agents/sessions/102-correction-feature-7.md`
 - `.agents/sessions/103-correction-feature-4.md`
-- `.agents/sessions/104-correction-archive-history.md` (à créer)
+- `.agents/sessions/104-correction-archive-history.md`
+- `.agents/sessions/105-performance-tests-mocks.md`
 
 ---
 
-## Session 105 — Priorités
+## Session 106 — Priorités
 
-### 1. Features 12-13 (tests avancés)
+### Option 1 : Clore l'EPIC Tests BDD
+- ✅ Couverture actuelle : 57/57 (100%)
+- ✅ Features 1-11 : COMPLÈTES
+- ⚪ Features 12-13 : @wip (hors scope Cucumber)
 
-```bash
-# Nécessite : Ollama + pgvector + API keys
-./gradlew cucumberTest --tests "*Performance*" --tests "*EndToEnd*"
-```
-
-### Critères d'Acceptation
-
-- [ ] Features 12-13 : 9/9 scénarios PASS **OU**
-- [ ] Maintenir couverture : 57/57 (100%)
+### Option 2 : Nouveaux sujets
+- Documentation
+- Release v0.0.5
+- Améliorations plugin
 
 ---
 
@@ -85,4 +78,4 @@
 
 ---
 
-**Session 101** ✅ — **Session 102** ✅ — **Session 103** ⚠️ — **Session 104** ✅ — **Session 105** 🎯
+**Session 101** ✅ — **Session 102** ✅ — **Session 103** ⚠️ — **Session 104** ✅ — **Session 105** ⚠️ — **Session 106** 🎯
