@@ -210,7 +210,12 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
         val maxIterations = project.findProperty("plantuml.langchain4j.maxIterations") as? Int
             ?: config.langchain4j.maxIterations
 
-        val diagram = diagramProcessor.processPrompt(promptContent, maxIterations,logger)
+        val diagram = try {
+            diagramProcessor.processPrompt(promptContent, maxIterations, logger)
+        } catch (e: IllegalStateException) {
+            logger.lifecycle("  → Error: ${e.message}")
+            throw e
+        }
 
         if (diagram != null) {
             // Validate PlantUML syntax
@@ -276,6 +281,9 @@ abstract class ProcessPlantumlPromptsTask : DefaultTask() {
             }
         } else {
             logger.lifecycle("  → Failed to generate valid diagram after $maxIterations iterations")
+            // Delete the processed prompt file
+            promptFile.delete()
+            throw RuntimeException("Failed to generate valid PlantUML diagram after max attempts ($maxIterations iterations exhausted). Check logs for details.")
         }
 
         // Delete the processed prompt file

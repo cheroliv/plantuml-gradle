@@ -16,20 +16,20 @@ class DiagramTypesSteps(private val world: PlantumlWorld) {
         
         val plantumlCode = when {
             content.contains("sequence", ignoreCase = true) -> 
-                "@startuml\nactor User\nparticipant System\nUser -> System: Login\n@enduml"
+                "@startuml\\nactor User\\nparticipant System\\nUser -> System: Login\\n@enduml"
             content.contains("class", ignoreCase = true) -> 
-                "@startuml\nclass Book\nclass Library\nBook --> Library\n@enduml"
+                "@startuml\\nclass Book\\nclass Library\\nBook --> Library\\n@enduml"
             content.contains("component", ignoreCase = true) -> 
-                "@startuml\ncomponent [API]\ncomponent [Database]\n[API] --> [Database]\n@enduml"
+                "@startuml\\ncomponent [API]\\ncomponent [Database]\\n[API] --> [Database]\\n@enduml"
             content.contains("use case", ignoreCase = true) -> 
-                "@startuml\nactor User\nusecase Login\nUser --> Login\n@enduml"
+                "@startuml\\nactor User\\nusecase Login\\nUser --> Login\\n@enduml"
             content.contains("activity", ignoreCase = true) -> 
-                "@startuml\nstart\n:Process Order;\nstop\n@enduml"
+                "@startuml\\nstart\\n:Process Order;\\nstop\\n@enduml"
             content.contains("state", ignoreCase = true) -> 
-                "@startuml\n[*] --> Red\nRed --> Green\n@enduml"
+                "@startuml\\n[*] --> Red\\nRed --> Green\\n@enduml"
             content.contains("deployment", ignoreCase = true) -> 
-                "@startuml\nnode Cloud\nnode DB\nCloud --> DB\n@enduml"
-            else -> "@startuml\nactor User\n@enduml"
+                "@startuml\\nnode Cloud\\nnode DB\\nCloud --> DB\\n@enduml"
+            else -> "@startuml\\nactor User\\n@enduml"
         }
         
         world.startMockLlm(
@@ -40,7 +40,7 @@ class DiagramTypesSteps(private val world: PlantumlWorld) {
                 "description": "Generated diagram"
               }
             }
-        """.trimIndent().replace("\n", "\\n")
+        """.trimIndent()
         )
     }
 

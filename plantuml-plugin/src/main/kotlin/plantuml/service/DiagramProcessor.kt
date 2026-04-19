@@ -145,9 +145,20 @@ class DiagramProcessor(
 
         // Send prompt to LLM via ChatModel
         val initialResponse = chatModel.chat(fullPrompt)
-        // Extract PlantUML code from JSON response
-        val extractedCode = extractPlantUmlFromResponse(initialResponse)
-        attemptHistory.add(AttemptEntry(prompt, initialResponse, 0, false)) // We don't know validity yet
+        
+        // Extract PlantUML code from JSON response, catching parse errors
+        var parseError: String? = null
+        val extractedCode = try {
+            extractPlantUmlFromResponse(initialResponse)
+        } catch (e: IllegalStateException) {
+            // JSON parsing failed - capture error for history
+            parseError = e.message
+            logger.warn("Invalid LLM response format: ${e.message}")
+            // Return a placeholder that will fail validation
+            "// INVALID_JSON_RESPONSE"
+        }
+        
+        attemptHistory.add(AttemptEntry(prompt, initialResponse, 0, false, parseError))
         var currentCode = extractedCode
         var iterations = 0
         var validationResult: SyntaxValidationResult
@@ -159,21 +170,30 @@ class DiagramProcessor(
             if (validationResult is SyntaxValidationResult.Invalid) {
                 // Prepare correction prompt with previous attempt history
                 val historyContext = buildHistoryContext(attemptHistory.takeLast(3)) // Last 3 attempts for context
+                
+                val errorDetails = if (parseError != null) {
+                    "The LLM response had invalid JSON format:\n$parseError\n\nPlease return ONLY valid JSON with PlantUML code wrapped in @startuml and @enduml tags."
+                } else {
+                    "The following PlantUML code has syntax errors:\n$currentCode\n\nError: ${validationResult.errorMessage}\n\nPlease correct the code and return ONLY valid PlantUML code wrapped in @startuml and @enduml tags."
+                }
+                
                 val correctionPrompt = """
                     $historyContext
                     
-                    The following PlantUML code has syntax errors:
-                    $currentCode
+                    $errorDetails
                     
-                    Error: ${validationResult.errorMessage}
-                    
-                    Please correct the code and return ONLY valid PlantUML code wrapped in @startuml and @enduml tags.
                     Learn from previous attempts to avoid repeating the same mistakes.
                 """.trimIndent()
 
                 val correctionResponse = chatModel.chat(correctionPrompt)
                 // Extract PlantUML code from JSON response (mock controls validity, don't auto-fix)
-                currentCode = extractPlantUmlFromResponse(correctionResponse)
+                currentCode = try {
+                    extractPlantUmlFromResponse(correctionResponse)
+                } catch (e: IllegalStateException) {
+                    parseError = e.message
+                    logger.warn("Invalid LLM response format on correction: ${e.message}")
+                    "// INVALID_JSON_RESPONSE"
+                }
                 // Re-validate after correction to check if we should continue iterating
                 validationResult = plantumlService.validateSyntax(currentCode)
                 iterations++
@@ -183,7 +203,7 @@ class DiagramProcessor(
                         currentCode,
                         iterations,
                         validationResult is SyntaxValidationResult.Valid,
-                        if (validationResult is SyntaxValidationResult.Invalid) validationResult.errorMessage else null
+                        if (validationResult is SyntaxValidationResult.Invalid) validationResult.errorMessage else parseError
                     )
                 )
             } else {
@@ -335,6 +355,9 @@ class DiagramProcessor(
      * @return Extracted PlantUML code
      */
     private fun extractPlantUmlFromResponse(response: String): String {
+        // If response looks like JSON (starts with { or [), it must be valid JSON
+        val looksLikeJson = response.trimStart().startsWith("{") || response.trimStart().startsWith("[")
+        
         return try {
             // Try to parse as JSON and extract code
             val jsonNode = objectMapper.readTree(response)
@@ -349,9 +372,17 @@ class DiagramProcessor(
             if (jsonNode.has("code")) {
                 return jsonNode.get("code").asText()
             }
-            // Fallback to full response
+            // JSON is valid but doesn't contain expected structure - this is a malformed response
+            if (looksLikeJson) {
+                throw IllegalStateException("Invalid LLM response format: JSON response does not contain 'plantuml' or 'code' field. Response: ${response.take(200)}")
+            }
+            // Not JSON, return as-is
             response
-        } catch (e: Exception) {
+        } catch (e: com.fasterxml.jackson.core.JsonParseException) {
+            // If the top-level JSON is malformed, throw descriptive error
+            if (looksLikeJson) {
+                throw IllegalStateException("Invalid LLM response format: malformed JSON detected. The LLM response could not be parsed. Please ensure the LLM returns valid JSON. Response: ${response.take(200)}")
+            }
             // Not JSON, return as-is
             response
         }

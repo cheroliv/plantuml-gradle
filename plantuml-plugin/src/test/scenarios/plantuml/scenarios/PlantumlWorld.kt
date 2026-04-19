@@ -1,5 +1,6 @@
 package plantuml.scenarios
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.sun.net.httpserver.HttpServer
 import com.sun.net.httpserver.HttpServer.create
 import kotlinx.coroutines.*
@@ -326,8 +327,10 @@ class PlantumlWorld {
         log.info("Mock LLM server started on port $port with ${mockResponseQueue?.size ?: 1} response(s) - Ollama/OpenAI/Gemini/Mistral/Anthropic endpoints")
     }
 
+    private val objectMapper = ObjectMapper()
+    
     private fun escapeJson(value: String): String =
-        "\"${value.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n")}\""
+        objectMapper.writeValueAsString(value)
 
     fun stopMockLlm() {
         mockServer?.stop(0)
