@@ -1,8 +1,27 @@
-# 🔄 Prompt de reprise — Session 107
+# 🔄 Prompt de reprise — Session 108
 
 > **EPIC** : Pool de Clés API Rotatives  
-> **Statut** : Session 106 ✅ — 240/240 tests PASS (100%)  
-> **Mission** : Implémenter pool de clés API par provider
+> **Statut** : Session 107 ✅ — Nettoyage documentation  
+> **Mission** : Implémenter pool de clés API par provider (Phase 1)
+
+---
+
+## Session 107 — Résumé
+
+**Date** : 19 avril 2026  
+**Statut** : ✅ TERMINÉE — Nettoyage documentation
+
+**Travaux réalisés** :
+1. ✅ Suppression `CONTEXT_2_NIVEAUX.md` (153 lignes) — documentation évidence
+2. ✅ `ROADMAP.md` : Référence retirée
+3. ✅ `PROMPT_REPRISE.md` : Mission Session 108 clarifiée
+
+**Résultats** :
+- ✅ Documentation allégée (153 lignes inutiles supprimées)
+- ✅ Roadmap clarifiée pour Session 108
+
+**Archives** :
+- `.agents/sessions/107-nettoyage-clarification.md`
 
 ---
 
@@ -25,28 +44,28 @@
 **Archives** :
 - `.agents/sessions/106-correction-tests-unitaires-fonctionnels.md`
 
-**Note** : Fichier `CONTEXT_2_NIVEAUX.md` supprimé — structure projet évidente (racine = consommateur, plugin/ = code source)
-
 ---
 
-## Session 107 — Priorités
+## Session 108 — Priorités
+
+### Pool de Clés API — Phase 1
 
 ```bash
-# 1. Revue des changements
-git diff
+# 1. Modifier models.kt
+# → data class ApiKeyEntry + pool: List<ApiKeyEntry>
 
-# 2. Commit (si validé)
-git commit -m "fix: Session 106 — Correction 6 tests (5 unit + 1 func)"
+# 2. Créer ApiKeyPool.kt
+# → Rotation round-robin + gestion quotas
 
-# 3. Validation
-git status
+# 3. Tests unitaires
+./gradlew test --tests "*ApiKeyPool*"
 ```
 
 ### Critères d'Acceptation
 
-- [ ] Revue code effectuée (`git diff`)
-- [ ] Commit effectué
-- [ ] `git status` propre
+- [ ] `ApiKeyEntry` data class créée
+- [ ] `ApiKeyPool` classe créée avec rotation
+- [ ] Tests unitaires PASS
 
 ---
 
@@ -68,4 +87,4 @@ git status
 
 ---
 
-**Session 102** ✅ — **Session 103** ✅ — **Session 104** ✅ — **Session 105** ✅ — **Session 106** ✅ — **Session 107** 🚀
+**Session 103** ✅ — **Session 104** ✅ — **Session 105** ✅ — **Session 106** ✅ — **Session 107** ✅ — **Session 108** 🚀

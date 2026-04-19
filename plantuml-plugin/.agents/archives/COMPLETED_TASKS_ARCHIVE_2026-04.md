@@ -2,6 +2,29 @@
 
 ## Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+### Session 107 — 2026-04-19 : Nettoyage Documentation ✅
+
+#### ✅ Contexte
+- **Session 106** : Correction 6 tests — 240/240 PASS
+- **Problème** : Fichier `CONTEXT_2_NIVEAUX.md` créé pour confusion IA one-time
+- **Objectif** : Supprimer documentation inutile
+
+#### ✅ Tâches réalisées
+- ✅ **Suppression** : `.agents/CONTEXT_2_NIVEAUX.md` (153 lignes)
+- ✅ **ROADMAP.md** : Référence retirée
+- ✅ **PROMPT_REPRISE.md** : Mission Session 108 clarifiée
+
+#### ✅ Résultats
+- ✅ Documentation allégée (153 lignes inutiles supprimées)
+- ✅ Roadmap clarifiée pour Session 108 (Pool de Clés API)
+
+#### 📝 Prochaine session (108)
+- EPIC Pool de Clés API Rotatives — Phase 1
+- Modifier `models.kt` → `ApiKeyEntry` + `pool`
+- Créer `ApiKeyPool.kt` → Rotation round-robin
+
+---
+
 ### Session 106 — 2026-04-19 : Correction 6 Tests (5 unit + 1 func) ✅
 
 #### ✅ Contexte
