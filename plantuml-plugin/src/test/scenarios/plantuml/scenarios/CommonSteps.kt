@@ -114,7 +114,7 @@ class CommonSteps(private val world: PlantumlWorld) {
             """
             {
               "plantuml": {
-                "code": "@startumlnactor User\n@endulm",
+                "code": "actor User",
                 "description": "Invalid PlantUML diagram"
               }
             }
@@ -122,7 +122,7 @@ class CommonSteps(private val world: PlantumlWorld) {
             """
             {
               "plantuml": {
-                "code": "@startumlnactor User\n@endulm",
+                "code": "actor User",
                 "description": "Invalid PlantUML diagram"
               }
             }
@@ -130,7 +130,7 @@ class CommonSteps(private val world: PlantumlWorld) {
             """
             {
               "plantuml": {
-                "code": "@startumlnactor User\n@endulm",
+                "code": "actor User",
                 "description": "Invalid PlantUML diagram"
               }
             }
@@ -138,7 +138,7 @@ class CommonSteps(private val world: PlantumlWorld) {
             """
             {
               "plantuml": {
-                "code": "@startumlnactor User\n@endulm",
+                "code": "actor User",
                 "description": "Invalid PlantUML diagram"
               }
             }
@@ -146,7 +146,7 @@ class CommonSteps(private val world: PlantumlWorld) {
             """
             {
               "plantuml": {
-                "code": "@startumlnactor User\n@endulm",
+                "code": "actor User",
                 "description": "Invalid PlantUML diagram"
               }
             }
@@ -154,7 +154,7 @@ class CommonSteps(private val world: PlantumlWorld) {
             """
             {
               "plantuml": {
-                "code": "@startumlnactor User\n@endulm",
+                "code": "actor User",
                 "description": "Invalid PlantUML diagram"
               }
             }

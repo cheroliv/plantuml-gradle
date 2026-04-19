@@ -1,49 +1,53 @@
-# 🔄 Prompt de reprise — Session 103
+# 🔄 Prompt de reprise — Session 104
 
 > **EPIC** : Tests BDD Cucumber  
-> **Statut** : Session 102 ✅ COMPLÈTE — 55/57 PASS (96%)  
-> **Mission** : Corriger 2 tests restants + Features 12-13 (@wip)
+> **Statut** : Session 103 ⚠️ PARTIELLE — 56/57 PASS (98%)  
+> **Mission** : Corriger 1 test restant (Feature 4)
 
 ---
 
-## Session 102 — Résumé
+## Session 103 — Résumé
 
 **Date** : 19 avril 2026  
-**Résultat** : ✅ COMPLÈTE — Feature 7 corrigée, 2 échecs restants (comportement attendu)
+**Statut** : ⚠️ PARTIELLE — Error Handling corrigé, 1 échec restant
 
 | Fichier | Modification |
 |---------|--------------|
-| `src/main/kotlin/plantuml/service/DiagramProcessor.kt` | Détection JSON malformé + gestion erreurs |
-| `src/main/kotlin/plantuml/tasks/ProcessPlantumlPromptsTask.kt` | Exception descriptive après max iterations |
-| `src/test/scenarios/plantuml/scenarios/PlantumlWorld.kt` | Échappement JSON avec Jackson |
-| `src/test/scenarios/plantuml/scenarios/DiagramTypesSteps.kt` | Correction codes PlantUML |
+| `src/test/scenarios/plantuml/scenarios/CommonSteps.kt` | Mock LLM avec syntaxe invalide (`actor User` sans tags) |
+| `src/main/kotlin/plantuml/service/DiagramProcessor.kt` | Boucle corrigée (6 itérations) + logging archive |
 
 **Corrections** :
-1. ✅ `extractPlantUmlFromResponse()` détecte JSON malformé et lance `IllegalStateException`
-2. ✅ Gestion erreurs JSON avec réessais jusqu'à `maxIterations`
-3. ✅ Exception descriptive après échec des itérations
-4. ✅ Échappement JSON correct avec Jackson dans les mocks
-5. ✅ Correction codes PlantUML dans `DiagramTypesSteps`
+1. ✅ Mock LLM retourne syntaxe vraiment invalide (pas de @startuml/@enduml)
+2. ✅ Boucle `processPrompt()` permet 6 entrées (1 initiale + 5 corrections)
+3. ✅ Logging ajouté dans `archiveAttemptHistory()` pour débogage
+4. ✅ Tests Error Handling passent maintenant (échec de build attendu)
 
-**Échecs restants** :
-- `Archive history after max iterations with no success` (attend retour null silencieux)
-- Tests Error Handling avec échec attendu (même problème)
+**Échec restant** :
+- `Archive history after max iterations with no success` :
+  - Attendu : 6 entrées dans `generated/diagrams/attempt-history-*.json`
+  - Problème : Fichier JSON non trouvé par le test
+  - Hypothèse : Archive créée mais dans mauvais répertoire ou `world.projectDir` incorrect
 
 **Archives** :
 - `.agents/sessions/100-validation-features-5-12-13.md`
 - `.agents/sessions/101-consolidation-tests.md`
 - `.agents/sessions/102-correction-feature-7.md`
+- `.agents/sessions/103-correction-feature-4.md`
 
 ---
 
-## Session 103 — Priorités
+## Session 104 — Priorités
 
-### 1. Corriger 2 tests échouants (URGENT)
+### 1. Corriger test "Archive history" (URGENT)
 
 ```bash
-./gradlew cucumberTest --tests "*Archive history after max iterations*"
-./gradlew cucumberTest --tests "*Error Handling*"
+./gradlew cucumberTest --tests "*Archive history after max iterations*" --info
 ```
+
+**Pistes** :
+- Vérifier que `archiveAttemptHistory()` est appelé AVANT l'exception
+- Vérifier que `System.getProperty("plugin.project.dir")` est correct
+- Vérifier que `world.projectDir` correspond au projet Gradle test
 
 ### 2. Features 12-13 (tests avancés)
 
@@ -54,7 +58,7 @@
 
 ### Critères d'Acceptation
 
-- [ ] 2 tests échouants : PASS
+- [ ] Test "Archive history" : PASS
 - [ ] Features 12-13 : 9/9 scénarios PASS **OU**
 - [ ] Couverture totale : 57/57 (100%)
 
@@ -76,7 +80,7 @@
 | 12_performance | 5 | ⚪ **@wip** |
 | 13_integration_e2e | 4 | ⚪ **@wip** |
 
-**Total** : 55/57 (96%) → **Objectif** : 57/57 (100%)
+**Total** : 56/57 (98%) → **Objectif** : 57/57 (100%)
 
 ---
 
@@ -88,4 +92,4 @@
 
 ---
 
-**Session 101** ✅ — **Session 102** ✅ — **Session 103** 🎯
+**Session 101** ✅ — **Session 102** ✅ — **Session 103** ⚠️ — **Session 104** 🎯
