@@ -215,7 +215,6 @@ langchain4j:
 ## 🔗 Références
 
 - **TODO.adoc** : `plantuml-plugin/TODO.adoc` (idées originales)
-- **Contexte 2 niveaux** : `.agents/CONTEXT_2_NIVEAUX.md`
 - **Procédures** : `.agents/PROCEDURES.md`
 - **Archive Session 106** : `.agents/sessions/106-correction-tests-unitaires-fonctionnels.md`
 

@@ -1,8 +1,8 @@
 # 🔄 Prompt de reprise — Session 107
 
-> **EPIC** : Consolidation & Qualité des Tests  
+> **EPIC** : Pool de Clés API Rotatives  
 > **Statut** : Session 106 ✅ — 240/240 tests PASS (100%)  
-> **Mission** : Commit corrections + revue code
+> **Mission** : Implémenter pool de clés API par provider
 
 ---
 
@@ -24,6 +24,8 @@
 
 **Archives** :
 - `.agents/sessions/106-correction-tests-unitaires-fonctionnels.md`
+
+**Note** : Fichier `CONTEXT_2_NIVEAUX.md` supprimé — structure projet évidente (racine = consommateur, plugin/ = code source)
 
 ---
 
