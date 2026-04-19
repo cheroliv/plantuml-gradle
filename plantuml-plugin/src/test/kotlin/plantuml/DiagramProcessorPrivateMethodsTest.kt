@@ -60,7 +60,7 @@ class DiagramProcessorPrivateMethodsTest {
     fun `generateSimulatedLlmResponse should return valid PlantUML code`() {
         val prompt = "Create a class diagram for User and System"
 
-        val result = callPrivateMethod(processor, "generateSimulatedLlmResponse", listOf(prompt)) as String
+        val result = callPrivateMethod(processor, "generateSimulatedLlmResponse", listOf(prompt, 5)) as String
 
         assertTrue(result.contains("@startuml"))
         assertTrue(result.contains("@enduml"))
@@ -71,7 +71,7 @@ class DiagramProcessorPrivateMethodsTest {
     fun `generateSimulatedLlmResponse should handle empty prompt`() {
         val prompt = ""
 
-        val result = callPrivateMethod(processor, "generateSimulatedLlmResponse", listOf(prompt)) as String
+        val result = callPrivateMethod(processor, "generateSimulatedLlmResponse", listOf(prompt, 5)) as String
 
         assertTrue(result.contains("@startuml"))
         assertTrue(result.contains("@enduml"))

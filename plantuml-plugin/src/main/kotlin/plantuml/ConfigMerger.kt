@@ -17,7 +17,7 @@ object ConfigMerger {
             input = mergeInputConfig(envConfig.input, propertiesConfig.input, yamlConfig.input, cliParams),
             output = mergeOutputConfig(envConfig.output, propertiesConfig.output, yamlConfig.output, cliParams),
             langchain4j = mergeLangchain4jConfig(envConfig.langchain4j, propertiesConfig.langchain4j, yamlConfig.langchain4j, cliParams),
-            git = mergeGitConfig(envConfig.git, yamlConfig.git, cliParams),
+            git = mergeGitConfig(envConfig.git, propertiesConfig.git, yamlConfig.git, cliParams),
             rag = mergeRagConfig(envConfig.rag, propertiesConfig.rag, yamlConfig.rag, cliParams)
         )
     }
@@ -30,7 +30,7 @@ object ConfigMerger {
             input = mergeInputConfig(envConfig.input, propertiesConfig.input, yamlConfig.input, cliParams),
             output = mergeOutputConfig(envConfig.output, propertiesConfig.output, yamlConfig.output, cliParams),
             langchain4j = mergeLangchain4jConfig(envConfig.langchain4j, propertiesConfig.langchain4j, yamlConfig.langchain4j, cliParams),
-            git = mergeGitConfig(envConfig.git, yamlConfig.git, cliParams),
+            git = mergeGitConfig(envConfig.git, propertiesConfig.git, yamlConfig.git, cliParams),
             rag = mergeRagConfig(envConfig.rag, propertiesConfig.rag, yamlConfig.rag, cliParams)
         )
     }
@@ -266,13 +266,13 @@ object ConfigMerger {
         )
     }
 
-    private fun mergeGitConfig(env: GitConfig, yaml: GitConfig, cli: Map<String, Any?>): GitConfig {
+    private fun mergeGitConfig(env: GitConfig, props: GitConfig, yaml: GitConfig, cli: Map<String, Any?>): GitConfig {
         @Suppress("UNCHECKED_CAST")
         return GitConfig(
-            userName = cli["git.userName"]?.toString() ?: (if (env.userName != "github-actions[bot]") env.userName else (if (yaml.userName != "github-actions[bot]") yaml.userName else "github-actions[bot]")),
-            userEmail = cli["git.userEmail"]?.toString() ?: (if (env.userEmail != "github-actions[bot]@users.noreply.github.com") env.userEmail else (if (yaml.userEmail != "github-actions[bot]@users.noreply.github.com") yaml.userEmail else "github-actions[bot]@users.noreply.github.com")),
-            commitMessage = cli["git.commitMessage"]?.toString() ?: (if (env.commitMessage != "chore: update PlantUML diagrams [skip ci]") env.commitMessage else (if (yaml.commitMessage != "chore: update PlantUML diagrams [skip ci]") yaml.commitMessage else "chore: update PlantUML diagrams [skip ci]")),
-            watchedBranches = cli["git.watchedBranches"] as? List<String> ?: (if (env.watchedBranches != listOf("main", "develop")) env.watchedBranches else (if (yaml.watchedBranches != listOf("main", "develop")) yaml.watchedBranches else listOf("main", "develop")))
+            userName = cli["git.userName"]?.toString() ?: (if (env.userName != "github-actions[bot]") env.userName else (if (yaml.userName != "github-actions[bot]") yaml.userName else props.userName)),
+            userEmail = cli["git.userEmail"]?.toString() ?: (if (env.userEmail != "github-actions[bot]@users.noreply.github.com") env.userEmail else (if (yaml.userEmail != "github-actions[bot]@users.noreply.github.com") yaml.userEmail else props.userEmail)),
+            commitMessage = cli["git.commitMessage"]?.toString() ?: (if (env.commitMessage != "chore: update PlantUML diagrams [skip ci]") env.commitMessage else (if (yaml.commitMessage != "chore: update PlantUML diagrams [skip ci]") yaml.commitMessage else props.commitMessage)),
+            watchedBranches = cli["git.watchedBranches"] as? List<String> ?: (if (env.watchedBranches != listOf("main", "develop")) env.watchedBranches else (if (yaml.watchedBranches != listOf("main", "develop")) yaml.watchedBranches else props.watchedBranches))
         )
     }
 

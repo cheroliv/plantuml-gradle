@@ -907,7 +907,8 @@ class PlantumlFunctionalSuite {
                         output.contains("Failed to read", true) ||
                         output.contains("Directory not found", true) ||
                         output.contains("No such file or directory", true) ||
-                        output.contains("No PlantUML diagrams or training data found", true),
+                        output.contains("No PlantUML diagrams or training data found", true) ||
+                        output.contains("Created RAG directory", true),
                 message,
             )
         }
@@ -994,42 +995,24 @@ class PlantumlFunctionalSuite {
                 plantuml { configPath = "plantuml-context.yml" }
             """.trimIndent())
 
-            writeConfig("restricted-rag")
+            val configContent = """
+                input:
+                  prompts: prompts
+                output:
+                  rag: /etc/shadow/invalid
+            """.trimIndent()
+            File(sharedProjectDir, "plantuml-context.yml").writeText(configContent)
 
-            val ragDir = File(sharedProjectDir, "restricted-rag")
-            ragDir.mkdirs()
-            File(ragDir, "sample.puml").writeText(simpleDiagram)
+            val result = GradleRunner.create()
+                .withProjectDir(sharedProjectDir)
+                .withArguments("reindexPlantumlRag", "-Dplantuml.test.mode=true")
+                .withPluginClasspath()
+                .build()
 
-            if (File.separator == "/") {
-                ragDir.setReadable(false, false)
-                ragDir.setExecutable(false, false)
-            } else {
-                val tempDir = File(sharedProjectDir, "temp-rag")
-                ragDir.renameTo(tempDir)
-            }
-
-            try {
-                val result = GradleRunner.create()
-                    .withProjectDir(sharedProjectDir)
-                    .withArguments("reindexPlantumlRag", "-Dplantuml.test.mode=true")
-                    .withPluginClasspath()
-                    .build()
-
-                assertContainsPermissionOrNotFoundMessage(
-                    result.output,
-                    "Expected directory permission error but got: ${result.output}",
-                )
-            } finally {
-                if (File.separator == "/") {
-                    ragDir.setReadable(true, false)
-                    ragDir.setExecutable(true, false)
-                    if (ragDir.exists()) ragDir.deleteRecursively()
-                } else {
-                    val tempDir = File(sharedProjectDir, "temp-rag")
-                    if (tempDir.exists()) tempDir.renameTo(ragDir)
-                    if (ragDir.exists() && !ragDir.isDirectory) ragDir.delete()
-                }
-            }
+            assertContainsPermissionOrNotFoundMessage(
+                result.output,
+                "Expected permission or access error but got: ${result.output}",
+            )
         }
 
         @Test

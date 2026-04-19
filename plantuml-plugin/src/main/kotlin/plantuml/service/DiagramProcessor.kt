@@ -359,7 +359,7 @@ class DiagramProcessor(
             rectangle "System" {
               User --> (Feature)
             }
-            @endulm
+            @enduml
         """.trimIndent()
     }
 
