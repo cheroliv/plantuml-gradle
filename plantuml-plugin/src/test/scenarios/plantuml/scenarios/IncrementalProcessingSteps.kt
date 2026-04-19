@@ -52,13 +52,14 @@ class IncrementalProcessingSteps(private val world: PlantumlWorld) {
             properties["plantuml.langchain4j.ollama.baseUrl"] = "http://localhost:$it"
             properties["plantuml.langchain4j.ollama.modelName"] = "smollm:135m"
         }
+        val systemProperties = mutableMapOf<String, String>()
         world.projectDir?.let {
-            properties["plugin.project.dir"] = it.absolutePath
+            systemProperties["plugin.project.dir"] = it.absolutePath
         }
         properties["plantuml.test.mode"] = "true"
 
         try {
-            world.executeGradle("processPlantumlPrompts", properties = properties)
+            world.executeGradle("processPlantumlPrompts", properties = properties, systemProperties = systemProperties)
         } catch (e: Exception) {
             world.exception = e
         }
@@ -255,13 +256,14 @@ class IncrementalProcessingSteps(private val world: PlantumlWorld) {
             properties["plantuml.langchain4j.ollama.baseUrl"] = "http://localhost:$it"
             properties["plantuml.langchain4j.ollama.modelName"] = "smollm:135m"
         }
+        val systemProperties = mutableMapOf<String, String>()
         world.projectDir?.let {
-            properties["plugin.project.dir"] = it.absolutePath
+            systemProperties["plugin.project.dir"] = it.absolutePath
         }
         properties["plantuml.test.mode"] = "true"
 
         try {
-            world.executeGradle("processPlantumlPrompts", "--rerun-tasks", properties = properties)
+            world.executeGradle("processPlantumlPrompts", "--rerun-tasks", properties = properties, systemProperties = systemProperties)
         } catch (e: Exception) {
             world.exception = e
         }

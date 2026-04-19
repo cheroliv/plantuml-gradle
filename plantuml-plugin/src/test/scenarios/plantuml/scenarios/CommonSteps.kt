@@ -114,48 +114,48 @@ class CommonSteps(private val world: PlantumlWorld) {
             """
             {
               "plantuml": {
-                "code": "actor User",
-                "description": "Invalid PlantUML diagram"
+                "code": "@startuml\nactor User\n@endulm",
+                "description": "Invalid PlantUML diagram - typo @endulm"
               }
             }
         """.trimIndent(),
             """
             {
               "plantuml": {
-                "code": "actor User",
-                "description": "Invalid PlantUML diagram"
+                "code": "@startuml\nactor User\n@endulm",
+                "description": "Invalid PlantUML diagram - typo @endulm"
               }
             }
         """.trimIndent(),
             """
             {
               "plantuml": {
-                "code": "actor User",
-                "description": "Invalid PlantUML diagram"
+                "code": "@startuml\nactor User\n@endulm",
+                "description": "Invalid PlantUML diagram - typo @endulm"
               }
             }
         """.trimIndent(),
             """
             {
               "plantuml": {
-                "code": "actor User",
-                "description": "Invalid PlantUML diagram"
+                "code": "@startuml\nactor User\n@endulm",
+                "description": "Invalid PlantUML diagram - typo @endulm"
               }
             }
         """.trimIndent(),
             """
             {
               "plantuml": {
-                "code": "actor User",
-                "description": "Invalid PlantUML diagram"
+                "code": "@startuml\nactor User\n@endulm",
+                "description": "Invalid PlantUML diagram - typo @endulm"
               }
             }
         """.trimIndent(),
             """
             {
               "plantuml": {
-                "code": "actor User",
-                "description": "Invalid PlantUML diagram"
+                "code": "@startuml\nactor User\n@endulm",
+                "description": "Invalid PlantUML diagram - typo @endulm"
               }
             }
         """.trimIndent()

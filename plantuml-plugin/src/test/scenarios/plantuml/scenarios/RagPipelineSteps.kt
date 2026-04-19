@@ -170,12 +170,13 @@ class RagPipelineSteps(private val world: PlantumlWorld) {
             properties["plantuml.rag.password"] = "test"
             properties["plantuml.rag.tableName"] = "embeddings_test"
         }
+        val systemProperties = mutableMapOf<String, String>()
         world.projectDir?.let {
-            properties["plugin.project.dir"] = it.absolutePath
+            systemProperties["plugin.project.dir"] = it.absolutePath
         }
         properties["plantuml.test.mode"] = "true"
 
-        world.executeGradle("reindexPlantumlRag", properties = properties)
+        world.executeGradle("reindexPlantumlRag", properties = properties, systemProperties = systemProperties)
     }
 
     @Then("embeddings should be stored in pgvector")

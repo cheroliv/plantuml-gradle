@@ -17,12 +17,18 @@ class PlantUmlProcessingSteps(private val world: PlantumlWorld) {
             properties["plantuml.langchain4j.ollama.modelName"] = "smollm:135m"
         }
         properties["plantuml.langchain4j.maxIterations"] = maxIterations.toString()
-        world.projectDir?.let {
-            properties["plugin.project.dir"] = it.absolutePath
-        }
         properties["plantuml.test.mode"] = "true"
 
-        world.executeGradle("processPlantumlPrompts", properties = properties)
+        val systemProperties = mutableMapOf<String, String>()
+        world.projectDir?.let {
+            systemProperties["plugin.project.dir"] = it.absolutePath
+        }
+
+        try {
+            world.executeGradle("processPlantumlPrompts", properties = properties, systemProperties = systemProperties)
+        } catch (e: Exception) {
+            world.exception = e
+        }
     }
 
     @Then("a PNG image should be created")

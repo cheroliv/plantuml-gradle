@@ -88,12 +88,13 @@ class ClaudeDiagram
             properties["plantuml.langchain4j.ollama.modelName"] = "smollm:135m"
             properties["plantuml.langchain4j.requested.provider"] = provider
         }
+        val systemProperties = mutableMapOf<String, String>()
         world.projectDir?.let {
-            properties["plugin.project.dir"] = it.absolutePath
+            systemProperties["plugin.project.dir"] = it.absolutePath
         }
         properties["plantuml.test.mode"] = "true"
 
-        world.executeGradle("processPlantumlPrompts", properties = properties)
+        world.executeGradle("processPlantumlPrompts", properties = properties, systemProperties = systemProperties)
     }
 
     @When("I run processPlantumlPrompts task with provider {string} and model {string}")
@@ -106,12 +107,13 @@ class ClaudeDiagram
             properties["plantuml.langchain4j.ollama.modelName"] = model
             properties["plantuml.langchain4j.requested.provider"] = provider
         }
+        val systemProperties = mutableMapOf<String, String>()
         world.projectDir?.let {
-            properties["plugin.project.dir"] = it.absolutePath
+            systemProperties["plugin.project.dir"] = it.absolutePath
         }
         properties["plantuml.test.mode"] = "true"
 
-        world.executeGradle("processPlantumlPrompts", properties = properties)
+        world.executeGradle("processPlantumlPrompts", properties = properties, systemProperties = systemProperties)
     }
 
     @Then("the generation should complete without API key")

@@ -265,7 +265,7 @@ class DiagramProcessor(
      * @param history Complete list of [AttemptEntry] from prompt processing
      */
     private fun archiveAttemptHistory(history: List<AttemptEntry>, logger: Logger) {
-        logger.info("archiveAttemptHistory: START - history.size={}, config={}", history.size, config)
+        System.out.println("📦 [ARCHIVE] START - entries=${history.size}, projectDirProp=${System.getProperty("plugin.project.dir")}")
         // Always archive if there is at least one attempt
         if (history.isNotEmpty()) {
             try {
@@ -279,13 +279,11 @@ class DiagramProcessor(
                 val projectDir = File(projectDirPath)
                 val diagramsDir = File(projectDir, diagramsPath)
                 
-                logger.info("archiveAttemptHistory: diagramsPath={}, projectDirPath={}, diagramsDir={}, diagramsDir.exists={}", 
-                    diagramsPath, projectDirPath, diagramsDir.absolutePath, diagramsDir.exists())
+                System.out.println("📦 [ARCHIVE] diagramsPath=$diagramsPath, projectDirPath=$projectDirPath, diagramsDir=${diagramsDir.absolutePath}, exists=${diagramsDir.exists()}")
                 
                 if (!diagramsDir.exists()) {
                     val created = diagramsDir.mkdirs()
-                    logger.info("archiveAttemptHistory: Created diagrams directory: {}, success={}, pwd={}", 
-                        diagramsDir.absolutePath, created, System.getProperty("user.dir"))
+                    System.out.println("📦 [ARCHIVE] Created diagrams directory: ${diagramsDir.absolutePath}, success=$created")
                 }
 
                 // Create a filename based on timestamp
@@ -297,14 +295,14 @@ class DiagramProcessor(
                 val historyJson = convertHistoryToJson(history)
                 historyFile.writeText(historyJson)
                 
-                logger.info("archiveAttemptHistory: SUCCESS - Archived {} entries to {}, exists={}", 
-                    history.size, historyFile.absolutePath, historyFile.exists())
+                System.out.println("📦 [ARCHIVE] SUCCESS - Archived ${history.size} entries to ${historyFile.absolutePath}, exists=${historyFile.exists()}")
 
             } catch (e: Exception) {
+                System.out.println("📦 [ARCHIVE] FAILED - ${e.message}")
                 logger.error("archiveAttemptHistory: FAILED - {}", e.message, e)
             }
         } else {
-            logger.info("archiveAttemptHistory: SKIPPED - history is empty")
+            System.out.println("📦 [ARCHIVE] SKIPPED - history is empty")
         }
     }
 

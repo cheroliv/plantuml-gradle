@@ -221,12 +221,13 @@ class ErrorHandlingSteps(private val world: PlantumlWorld) {
         properties["plantuml.langchain4j.ollama.modelName"] = "smollm:135m"
         properties["plantuml.langchain4j.timeout"] = "${timeoutSeconds}s"
         properties["plantuml.test.mode"] = "true"
+        val systemProperties = mutableMapOf<String, String>()
         world.projectDir?.let {
-            properties["plugin.project.dir"] = it.absolutePath
+            systemProperties["plugin.project.dir"] = it.absolutePath
         }
 
         try {
-            world.executeGradle("processPlantumlPrompts", properties = properties)
+            world.executeGradle("processPlantumlPrompts", properties = properties, systemProperties = systemProperties)
         } catch (e: Exception) {
             world.exception = e
         }
@@ -254,8 +255,9 @@ class ErrorHandlingSteps(private val world: PlantumlWorld) {
     fun runProcessPlantumlPromptsTaskWithInvalidConfig() = runBlocking {
         val properties = mutableMapOf<String, String>()
         properties["plantuml.test.mode"] = "true"
+        val systemProperties = mutableMapOf<String, String>()
         world.projectDir?.let {
-            properties["plugin.project.dir"] = it.absolutePath
+            systemProperties["plugin.project.dir"] = it.absolutePath
         }
         if (world.mockServerPort != null) {
             properties["plantuml.langchain4j.model"] = "ollama"
@@ -264,7 +266,7 @@ class ErrorHandlingSteps(private val world: PlantumlWorld) {
         }
 
         try {
-            world.executeGradle("processPlantumlPrompts", properties = properties)
+            world.executeGradle("processPlantumlPrompts", properties = properties, systemProperties = systemProperties)
         } catch (e: Exception) {
             world.exception = e
         }
