@@ -62,7 +62,8 @@
 
 - ❌ Jamais de commit sans permission
 - ❌ Jamais de tests en fin de session sans demande
-- ✅ **Stratégie LAZY/EAGER** : Charger uniquement `PROMPT_REPRISE.md` + `API_KEY_POOL_CONTEXT.md`
+- ✅ **Stratégie LAZY/EAGER** : Charger `PROMPT_REPRISE.md` + `API_KEY_POOL_ESSENTIALS.md`
+- ✅ **Référence** : `API_KEY_POOL_REFERENCE.md` (LAZY, sur demande)
 - ✅ Toujours archiver + mettre à jour ce fichier
 
 ---

@@ -1,0 +1,618 @@
+= 🤖 Modus Operandi — Stratégie LAZY/EAGER pour OpenCode
+:toc: left
+:toclevels: 4
+:icons: font
+:last-update-label: Dernière mise à jour
+:sectnums:
+
+[abstract]
+--
+**Document de référence** — Stratégie de gestion du contexte et de l'agent OpenCode
+
+Ce document formalise la méthodologie LAZY/EAGER pour optimiser l'efficacité d'OpenCode
+sur des projets complexes (EPIC multi-sessions, 10+ fichiers, 100+ décisions).
+
+**Inspiré de** : `plantuml-api/AGENT_MODUS_OPERANDI.adoc` — Adapté au projet `plantuml-plugin`
+--
+
+---
+
+== 🎯 PARTIE 1 — VUE D'ENSEMBLE
+
+=== 1.1 Problème Résolu
+
+**Contexte** : Les LLM (OpenCode, etc.) ont une fenêtre de contexte limitée (~100k-200k tokens).
+
+**Symptômes** :
+
+* ❌ Saturation du contexte (trop de fichiers chargés)
+* ❌ Dilution de l'attention (LLM perdu dans les détails)
+* ❌ Tokens gaspillés sur des infos non critiques
+* ❌ Hallucinations (LLM invente car contexte saturé)
+* ❌ Rappels chronophages (réexpliquer à chaque session)
+
+**Solution** : Séparer l'information en 2 catégories (**LAZY** / **EAGER**)
+
+=== 1.2 Principes Fondamentaux
+
+[cols="1,4", options="header"]
+|===
+|Principe |Description
+
+|**LAZY/EAGER**
+|Séparer l'information critique (toujours chargée) des détails (chargés sur demande).
+**EAGER** = Tableau de bord de voiture. **LAZY** = Manuel du propriétaire.
+
+|**1 session = 1 objectif**
+|Une session traite UNE seule tâche (1 fichier, 1 feature, 1 bug).
+Durée cible : 15-30 minutes.
+
+|**Archive systématique**
+|Chaque session terminée est archivée avec résumé et prochaines étapes.
+Rien ne se perd, tout se retrouve.
+
+|**Git manuel**
+|L'agent NE JAMAIS committer sans permission explicite.
+C'est l'utilisateur qui gère Git.
+
+|**Tests sur demande**
+|L'agent NE JAMAIS lancer de tests en fin de session sans demande.
+Les tests prennent 1-3 minutes.
+|===
+
+=== 1.3 Analogie
+
+[cols="1,2,2", options="header"]
+|===
+|Type |EAGER (toujours chargé) |LAZY (sur demande)
+
+|**Voiture**
+|Tableau de bord (vitesse, carburant, alertes)
+|Manuel du propriétaire (détails techniques, historique)
+
+|**Projet**
+|`PROMPT_REPRISE.md` + `*_ESSENTIALS.md`
+|Archives sessions, références détaillées
+
+|**Taille**
+|≤ 100 lignes total (~5k tokens)
+|Illimité (lu uniquement si besoin)
+
+|**Chargement**
+|Automatique (début session)
+|Sur demande explicite ("Je charge X ?")
+|===
+
+---
+
+== 📁 PARTIE 2 — STRUCTURE DES FICHIERS
+
+=== 2.1 Arborescence
+
+[source,bash]
+----
+plantuml-plugin/
+├── .agents/                          # Documentation agent
+│   ├── INDEX.md                      # Règles absolues + sessions récentes (EAGER)
+│   ├── API_KEY_POOL_ESSENTIALS.md    # Contexte métier critique (EAGER)
+│   ├── API_KEY_POOL_REFERENCE.md     # Architecture complète (LAZY)
+│   ├── PROMPT_REPRISE.md             # Mission session en cours (EAGER)
+│   ├── PROCEDURES.md                 # Procédure fin de session (LAZY)
+│   ├── AGENT_METHODOLOGIES.md        # Méthodologies détection (LAZY)
+│   ├── sessions/                     # Archives par session (LAZY)
+│   │   ├── 108-api-key-pool-design.md
+│   │   ├── 109-data-models.md
+│   │   └── ...
+│   └── archives/                     # Archives mensuelles (> 50 sessions)
+│       └── 2026-04.md
+│
+├── PROMPT_REPRISE.md                 # Fichier EAGER principal (racine)
+└── src/                              # Code source
+----
+
+=== 2.2 Politique de Chargement
+
+[cols="2,1,2,3", options="header"]
+|===
+|Fichier |Type |Taille Max |Quand Charger
+
+|`PROMPT_REPRISE.md`
+|**EAGER**
+|≤ 70 lignes
+|**Début session** (automatique)
+
+|`API_KEY_POOL_ESSENTIALS.md`
+|**EAGER**
+|≤ 50 lignes
+|**Début session** (automatique si EPIC concernée)
+
+|`.agents/INDEX.md` (règles)
+|**EAGER**
+|≤ 100 lignes
+|**Début session** (automatique)
+
+|`API_KEY_POOL_REFERENCE.md`
+|LAZY
+|Illimité
+|Sur besoin (détails architecture)
+
+|`.agents/sessions/{N}*.md`
+|LAZY
+|Illimité
+|Sur demande (détails session N)
+
+|`PROCEDURES.md`
+|LAZY
+|Illimité
+|Sur besoin (fin de session)
+|===
+
+=== 2.3 Comment l'Agent Sait Quoi Charger ?
+
+==== Début de Session
+
+**Chargement automatique (EAGER)** :
+1. `PROMPT_REPRISE.md` → Mission, priorités, contexte
+2. `.agents/INDEX.md` (section règles) → Règles absolues
+3. `*_ESSENTIALS.md` (si EPIC active) → Contexte métier critique
+
+**Si besoin de détails** :
+* Architecture ? → `.agents/API_KEY_POOL_REFERENCE.md` (LAZY)
+* Détails session N ? → `.agents/sessions/{N}-{titre}.md` (LAZY)
+* Procédure fin ? → `.agents/PROCEDURES.md` (LAZY)
+
+==== Fin de Session
+
+**Mots-clés déclencheurs** :
+* `"nouvelle session"`
+* `"je quitte"`
+* `"session terminée"`
+* `"à plus tard"`
+* `"on arrête là"`
+
+**Action** : Exécuter les 5 étapes de la procédure d'archivage (Section 4.3) **SILENCIEUSEMENT**
+
+---
+
+== ⚠️ PARTIE 3 — RÈGLES ABSOLUES
+
+=== 3.1 Commits/Git — INTERDICTION FORMELLE
+
+**L'agent NE DOIT JAMAIS** exécuter de commit, push, merge, ou toute commande git
+modifiant l'historique **SANS permission explicite de l'utilisateur**.
+
+[cols="1,4", options="header"]
+|===
+|Autorisé |`git status`, `git diff`, `git log`, `git show` (lecture seule)
+
+|Interdit
+|`git add`, `git commit`, `git push`, `git merge`, `git rebase` (sauf ordre explicite)
+|===
+
+**Procédure obligatoire avant tout commit** :
+
+1. Montrer les modifications (`git diff --stat`)
+2. Demander : `"Veux-tu que je commit ces changements ?"`
+3. **Attendre confirmation explicite** (`"oui"`, `"commit"`, `"vas-y"`)
+4. **Seulement après** : exécuter le commit
+
+=== 3.2 Tests en Fin de Session — INTERDICTION FORMELLE
+
+**L'agent NE DOIT JAMAIS** lancer de tests (`./gradlew test`, etc.) lors de la
+procédure de fin de session **SANS permission explicite de l'utilisateur**.
+
+**Raison** : Les tests prennent 1-3 minutes et ralentissent inutilement la clôture.
+
+=== 3.3 Secrets et Credentials — SÉCURITÉ MAXIMALE
+
+**INTERDICTION ABSOLUE** :
+
+* ❌ Jamais de secrets en dur dans le code
+* ❌ Jamais de credentials dans les fichiers de config
+* ❌ Jamais de tokens API commités dans Git
+
+**Solution** : Utiliser des références (`keyRef: ${GOOGLE_API_KEY_1}`)
+
+---
+
+== 🔄 PARTIE 4 — CYCLE DE VIE D'UNE SESSION
+
+=== 4.1 Démarrage de Session
+
+==== Prompt d'Ouverture (Template)
+
+[source]
+----
+Nouvelle session. Contexte chargé :
+1. PROMPT_REPRISE.md (mission en cours)
+2. INDEX.md (règles absolues)
+3. API_KEY_POOL_ESSENTIALS.md (contexte métier)
+
+Mission : [Décrire la tâche UNIQUE de cette session]
+
+Contrainte : 1 fichier à la fois, validation après chaque changement.
+----
+
+=== 4.2 Pendant la Session
+
+==== Règles de Travail
+
+* ✅ **1 fichier à la fois** : Modifier un seul fichier avant de passer au suivant
+* ✅ **Validation immédiate** : Compiler après chaque modification
+* ✅ **Contexte léger** : Maximum 50k tokens EAGER (~3000 lignes)
+* ✅ **Progression visible** : Mettre à jour `PROMPT_REPRISE.md` en temps réel
+
+=== 4.3 Fin de Session — Procédure en 5 Étapes
+
+==== ÉTAPE 1 : Vérifier l'état (optionnel)
+
+[source,bash]
+----
+# Seulement si demandé explicitement
+./gradlew test
+----
+
+⚠️ **INTERDICTION** : Jamais exécuter de tests sans demande explicite.
+
+==== ÉTAPE 2 : Créer l'Archive LAZY
+
+**Fichier** : `.agents/sessions/{N}-{type}-{sujet}.md`
+
+**Structure** :
+```markdown
+# Session {N} — {Titre}
+
+**Date** : {date} | **Statut** : ✅/⚠️/❌ | **Type** : {feature/debug/test}
+
+## Contexte
+{1-2 paragraphes}
+
+## Actions
+| Fichier | Modification |
+|---------|--------------|
+| `file.kt` | -X lignes |
+
+## Commandes
+{cmd}
+
+## Résultats
+| Critère | Statut |
+|---------|--------|
+| Compilation | ✅ |
+
+## Prochaines Étapes
+1. {action}
+```
+
+==== ÉTAPE 3 : Mettre à jour le Résumé EAGER
+
+**Fichier** : `PROMPT_REPRISE.md`
+
+**Contraintes** :
+* Maximum **70 lignes**
+* **1 référence** à l'archive LAZY
+* **Commandes** session N+1
+* **Critères d'acceptation** clairs
+
+==== ÉTAPE 4 : Nettoyer INDEX.md (si besoin)
+
+**Vérifier** : `.agents/INDEX.md` dépasse-t-il 100 lignes ?
+
+**Si OUI** : Archiver anciennes sessions dans `.agents/archives/`
+
+**Si NON** : ✅ Ne rien toucher
+
+==== ÉTAPE 5 : Valider la Cohérence
+
+**Checklist** :
+
+- [ ] Archive LAZY créée
+- [ ] Résumé EAGER mis à jour (< 70 lignes)
+- [ ] Référence croisée présente (EAGER → LAZY)
+- [ ] Commandes session N+1 testables
+- [ ] Critères d'acceptation clairs
+
+---
+
+== 📊 PARTIE 5 — MÉTRIQUES ET SEUILS
+
+=== 5.1 Métriques de Session Idéale
+
+[cols="1,3", options="header"]
+|===
+|Métrique |Cible
+
+|**Durée**
+|15-30 minutes
+
+|**Fichiers modifiés**
+|1-3 maximum
+
+|**Échanges LLM**
+|5-10 messages
+
+|**Contexte tokens EAGER**
+|< 50k (~3000 lignes)
+
+|**Fichiers EAGER chargés**
+|2-3 maximum
+|===
+
+=== 5.2 Signes Qu'il Faut Changer de Session
+
+* [ ] Le LLM répète des erreurs déjà corrigées
+* [ ] Plus de 3 fichiers modifiés en parallèle
+* [ ] Conversation > 50 messages
+* [ ] Tu te dis `"il faudrait qu'on reparte sur de bonnes bases"`
+
+**Règle d'or** : Mieux vaut 5 sessions de 20 minutes qu'une session de 2 heures. 🎯
+
+=== 5.3 Seuils d'Alerte
+
+[cols="2,1,3", options="header"]
+|===
+|Fichier |Seuil |Action
+
+|`PROMPT_REPRISE.md`
+|> 70 lignes
+|⚠️ Proposer nettoyage
+
+|`.agents/INDEX.md`
+|> 100 lignes
+|⚠️ Archiver anciennes sessions
+
+|`.agents/sessions/`
+|> 20 fichiers
+|⚠️ Compresser sessions > 30 jours
+|===
+
+---
+
+== 🎯 PARTIE 6 — TYPES DE SESSIONS ET DÉTECTION
+
+=== 6.1 Tableau de Détection
+
+[cols="1,2,2,2", options="header"]
+|===
+|# |Type de Session |Indices Détectés |Méthodologie Proposée
+
+|1
+|**Création fichier**
+|`"créer"`, `"models.kt"`, `"data class"`
+|`"Veux-tu que j'applique la méthodologie de création ?"`
+
+|2
+|**Debug**
+|`"debug"`, `"échec"`, `"erreur"`, `"NullPointerException"`
+|Aucune — Agir directement
+
+|3
+|**Test unitaire**
+|`"créer test"`, `"couverture"`, `"*Test.kt"`
+|`"Veux-tu que je consulte l'analyse de couverture ?"`
+
+|4
+|**Fin de session**
+|`"session terminée"`, `"je quitte"`, `"à plus tard"`
+|**PROCÉDURE AUTOMATIQUE** (5 étapes)
+|===
+
+=== 6.2 Format de Proposition Obligatoire
+
+**Template** :
+```
+🎯 Méthodologie détectée : [Type de session]
+
+Je peux appliquer :
+- [NOM_DU_FICHIER].md
+- Checklist : [Point 1], [Point 2], [Point 3]
+
+Veux-tu que je charge ce fichier et applique cette méthodologie ?
+```
+
+=== 6.3 Exceptions — Ne PAS Proposer
+
+[cols="2,3,2", options="header"]
+|===
+|Cas |Raison |Comportement
+
+|Session déjà en cours
+|Méthodologie déjà chargée
+|Continuer sans re-proposer
+
+|Utilisateur a spécifié la méthode
+|Déjà dans le prompt
+|Charger directement (pas de question)
+
+|Session urgente
+|`"corriger bug critique"`
+|Agir immédiatement
+
+|Fin de session
+|`"je quitte"`
+|**PROCÉDURE AUTOMATIQUE** (pas de question)
+|===
+
+---
+
+== 📈 PARTIE 7 — AMÉLIORATION CONTINUE
+
+=== 7.1 Métriques de Suivi
+
+[cols="1,3,3", options="header"]
+|===
+|Métrique |Cible |Mesure Actuelle
+
+|**Détections correctes**
+|>90%
+|Sessions où méthodologie proposée était pertinente
+
+|**Faux positifs**
+|<5%
+|Sessions où méthodologie proposée était incorrecte
+
+|**Confirmations utilisateur**
+|>80%
+|Utilisateurs acceptant la proposition
+
+|**Durée moyenne session**
+|15-30 min
+|Temps entre prompt d'ouverture et archivage
+|===
+
+=== 7.2 Revue de Session (Hebdomadaire)
+
+**Questions à se poser** :
+
+1. ✅ Les sessions étaient-elles assez courtes (≤ 30 min) ?
+2. ✅ Les archives sont-elles bien organisées ?
+3. ✅ Le contexte est-il resté léger (< 50k tokens) ?
+4. ✅ Les règles Git/tests ont-elles été respectées ?
+
+**Actions correctives** :
+
+* Si sessions trop longues → Découper en sous-tâches
+* Si contexte saturé → Archiver plus agressivement
+* Si règles non respectées → Rappeler en début de session
+
+---
+
+== 📚 PARTIE 8 — CHECKLIST DE DÉMARRAGE
+
+Pour appliquer ce modus operandi à un **nouveau projet** :
+
+- [ ] Créer le dossier `.agents/`
+- [ ] Créer `.agents/INDEX.md` (règles absolues + roadmap)
+- [ ] Créer `PROMPT_REPRISE.md` (session 001)
+- [ ] Créer `*_ESSENTIALS.md` (contexte métier EAGER)
+- [ ] Créer `*_REFERENCE.md` (architecture LAZY)
+- [ ] Créer `.agents/sessions/` (dossier vide)
+- [ ] Créer `.agents/archives/` (dossier vide)
+- [ ] Copier ce fichier à la racine
+- [ ] Mettre à jour `.gitignore`
+
+---
+
+== 🔗 PARTIE 9 — RÉFÉRENCES
+
+=== 9.1 Fichiers de Référence
+
+[cols="1,4", options="header"]
+|===
+|Fichier |Rôle
+
+|`PROMPT_REPRISE.md`
+|Contexte session actuelle (EAGER, ≤ 70 lignes)
+
+|`INDEX.md`
+|Règles absolues + sessions récentes (EAGER, ≤ 100 lignes)
+
+|`*_ESSENTIALS.md`
+|Contexte métier critique (EAGER, ≤ 50 lignes)
+
+|`*_REFERENCE.md`
+|Architecture complète (LAZY, illimité)
+
+|`.agents/sessions/{N}*.md`
+|Archives détaillées par session (LAZY)
+
+|`AGENT_MODUS_OPERANDI.adoc`
+|Ce fichier — Méthodologie complète (LAZY)
+|===
+
+=== 9.2 Ressources Externes
+
+* https://opencode.ai[Documentation OpenCode]
+* https://docs.github.com/en/actions[GitHub Actions Documentation]
+
+---
+
+[appendix]
+== ANNEXE A — GLOSSAIRE
+
+**EAGER** : Information chargée automatiquement au début de chaque session (critique)
+
+**LAZY** : Information chargée uniquement sur demande explicite (détails)
+
+**Session** : Période de travail continue avec OpenCode (15-30 minutes idéalement)
+
+**Archive** : Fichier Markdown détaillant une session terminée
+
+**Contexte** : Ensemble des informations chargées dans la fenêtre de conversation OpenCode
+
+**Token** : Unité de texte pour les LLM (~4 caractères = 1 token)
+
+**EPIC** : Ensemble de fonctionnalités liées (ex: EPIC Pool de Clés API)
+
+---
+
+[appendix]
+== ANNEXE B — HISTORIQUE DES VERSIONS
+
+[cols="1,2,3,2", options="header"]
+|===
+|Version |Date |Changements |Auteur
+
+|1.0
+|2026-04-20
+|Création du document — Adaptation plantuml-api
+|OpenCode
+
+|1.1
+|À venir
+|Intégration retours d'expérience (sessions 109+)
+|À venir
+|===
+
+---
+
+[appendix]
+== ANNEXE C — INDEX DES SECTIONS
+
+|===
+|Section |Sujet |Ligne
+
+|1
+|Vue d'ensemble
+|Principes fondamentaux
+
+|2
+|Structure des fichiers
+|Arborescence + politique de chargement
+
+|3
+|Règles absolues
+|Git, tests, secrets
+
+|4
+|Cycle de vie d'une session
+|Démarrage, pendant, fin (5 étapes)
+
+|5
+|Métriques et seuils
+|Session idéale + signes de changement
+
+|6
+|Types de sessions et détection
+|Tableau de détection
+
+|7
+|Amélioration continue
+|Métriques + revue hebdomadaire
+
+|8
+|Checklist de démarrage
+|10 points pour nouveau projet
+
+|9
+|Références
+|Fichiers + ressources externes
+|===
+
+---
+
+**Document créé** : 2026-04-20 +
+**Projet** : PlantUML Gradle Plugin +
+**Inspiration** : `plantuml-api/AGENT_MODUS_OPERANDI.adoc` +
+**Version** : 1.0 +
+**Statut** : ✅ COMPLET ET AUTONOME
