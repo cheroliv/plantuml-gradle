@@ -42,16 +42,16 @@
 
 | # | Date | Type | Sujet | Fichier | Score |
 |---|------|------|-------|---------|-------|
+| 108 | 2026-04-20 | design | API Key Pool Architecture | `108-api-key-pool-design.md` | 9.0/10 |
+| 107 | 2026-04-19 | docs | Nettoyage documentation | `107-nettoyage-clarification.md` | 9.0/10 |
+| 106 | 2026-04-19 | fix | Correction 6 tests (5 unit + 1 func) | `106-correction-tests-unitaires-fonctionnels.md` | 9.0/10 |
+| 105 | 2026-04-19 | test | Performance tests mockés (57/57) | `105-performance-tests-mockes.md` | 9.0/10 |
+| 104 | 2026-04-19 | test | Feature 7 (55/57 PASS) | `104-feature-7-tests.md` | 9.0/10 |
+| 103 | 2026-04-19 | test | Error Handling (56/57 PASS) | `103-error-handling-tests.md` | 9.0/10 |
+| 102 | 2026-04-18 | test | Consolidation tests (46/57) | `102-consolidation-tests.md` | 9.0/10 |
+| 101 | 2026-04-18 | test | Consolidation tests suite | `101-consolidation-tests-suite.md` | 9.0/10 |
 | 100 | 2026-04-18 | test | Feature 5 RAG Pipeline (4/4 PASS) | `100-validation-features-5-12-13.md` | 9.0/10 |
 | 99 | 2026-04-18 | test | Validation Features 10-11 (13/13 PASS) | `99-validation-complete-features-10-11.md` | 9.0/10 |
-| 98 | 2026-04-18 | test | Validation Features 10-11 partiel | `98-validation-features-10-11.md` | 9.0/10 |
-| 97 | 2026-04-18 | fix | Résolution conflits steps | `97-conflits-resolus.md` | 9.0/10 |
-| 96 | 2026-04-18 | test | Feature 10-11 partiel + mock LLM | `96-feature10-11-partiel.md` | 9.0/10 |
-| 95 | 2026-04-18 | test | Feature 8 Config 100% + Feature 9 Incremental | `95-feature8-fin-feature9-incremental.md` | 9.0/10 |
-| 94 | 2026-04-18 | test | Attempt History 100% + Feature 8 | `94-attempt-history-100-percent.md` | 9.0/10 |
-| 93 | 2026-04-18 | fix | Attempt History corrections partielles | `93-attempt-history-fixes-partiel.md` | 9.0/10 |
-| 91 | 2026-04-18 | test | Memory Leak Validation | `91-memory-leak-validation.md` | 9.0/10 |
-| 87 | 2026-04-17 | test | Error Handling Tests (75% complété) | `87-error-handling-tests.md` | 9.0/10 |
 
 ---
 

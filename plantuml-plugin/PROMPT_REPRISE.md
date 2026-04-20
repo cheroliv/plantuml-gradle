@@ -1,81 +1,60 @@
-# 🔄 Prompt de reprise — Session 108
+# 🔄 Prompt de reprise — Session 109
 
 > **EPIC** : Pool de Clés API Rotatives  
-> **Statut** : Session 107 ✅ — Nettoyage documentation  
-> **Mission** : Implémenter pool de clés API par provider (Phase 1)
+> **Statut** : Session 108 ✅ — Architecture validée  
+> **Mission** : Implémenter data models (`models.kt`, `Provider.kt`)
 
 ---
 
-## Session 107 — Résumé
+## Session 108 — Résumé
 
-**Date** : 19 avril 2026  
-**Statut** : ✅ TERMINÉE — Nettoyage documentation
+**Date** : 20 avril 2026  
+**Résultat** : ✅ Architecture + modèle de données validés
 
-**Travaux réalisés** :
-1. ✅ Suppression `CONTEXT_2_NIVEAUX.md` (153 lignes) — documentation évidence
-2. ✅ `ROADMAP.md` : Référence retirée
-3. ✅ `PROMPT_REPRISE.md` : Mission Session 108 clarifiée
+**Fichiers créés** :
+- `.agents/sessions/108-api-key-pool-design.md` (archive)
 
-**Résultats** :
-- ✅ Documentation allégée (153 lignes inutiles supprimées)
-- ✅ Roadmap clarifiée pour Session 108
-
-**Archives** :
-- `.agents/sessions/107-nettoyage-clarification.md`
+**Archive** : `.agents/sessions/108-api-key-pool-design.md`
 
 ---
 
-## Session 106 — Résumé
-
-**Date** : 19 avril 2026  
-**Statut** : ✅ TERMINÉE — 6 tests corrigés (5 unit + 1 func)
-
-**Travaux réalisés** :
-1. ✅ Correction `DiagramProcessorPrivateMethodsTest` (2 tests) — paramètre `maxIterations` manquant
-2. ✅ Correction `ConfigMergerTest` + `ConfigMergerBranchCoverageTest` — paramètre `props: GitConfig`
-3. ✅ Correction `DiagramProcessorTest` — typo `@endulm` → `@enduml`
-4. ✅ Correction `PlantumlFunctionalSuite` — test permission directory
-
-**Résultats** :
-- ✅ 190/190 tests unitaires PASS (100%)
-- ✅ 50/50 tests fonctionnels PASS (100%), 10 SKIP
-- ✅ Total : 240/240 tests (100%)
-
-**Archives** :
-- `.agents/sessions/106-correction-tests-unitaires-fonctionnels.md`
-
----
-
-## Session 108 — Priorités
-
-### Pool de Clés API — Phase 1
+## Session 109 — Priorités
 
 ```bash
-# 1. Modifier models.kt
-# → data class ApiKeyEntry + pool: List<ApiKeyEntry>
+# 1. Créer models.kt
+# → ApiKeyEntry, QuotaConfig, ApiKeyPoolConfig, etc.
 
-# 2. Créer ApiKeyPool.kt
-# → Rotation round-robin + gestion quotas
+# 2. Créer Provider.kt
+# → Enum Provider + ServiceType + RotationStrategy
 
-# 3. Tests unitaires
-./gradlew test --tests "*ApiKeyPool*"
+# 3. Compiler
+./gradlew compileKotlin
 ```
 
 ### Critères d'Acceptation
 
 - [ ] `ApiKeyEntry` data class créée
-- [ ] `ApiKeyPool` classe créée avec rotation
-- [ ] Tests unitaires PASS
+- [ ] `QuotaConfig` data class créée
+- [ ] `ApiKeyPoolConfig` data class créée
+- [ ] `Provider` enum créé (9 providers)
+- [ ] `ServiceType` enum créé (10 services)
+- [ ] `RotationStrategy` enum créé
+- [ ] Compilation OK
 
 ---
 
-## Couverture Tests
+## Roadmap EPIC
 
-| Type | Tests | Statut |
-|------|-------|--------|
-| Unitaires | 190/190 | ✅ PASS |
-| Fonctionnels | 50/50 | ✅ PASS |
-| **Total** | **240/240** | **✅ 100%** |
+| Session | Objectif | Progression |
+|---------|----------|-------------|
+| 108 | Architecture | ✅ 100% |
+| **109** | **Data models** | 🟡 **0%** |
+| 110 | Rotation engine | ⏳ Pending |
+| 111 | Quota tracker | ⏳ Pending |
+| 112 | Audit logger | ⏳ Pending |
+| 113-114 | Providers (Google, HF) | ⏳ Pending |
+| 115 | GitHub Secrets | ⏳ Pending |
+| 116-117 | Tests | ⏳ Pending |
 
 ---
 
@@ -83,8 +62,9 @@
 
 - ❌ Jamais de commit sans permission
 - ❌ Jamais de tests en fin de session sans demande
+- ✅ **Stratégie LAZY/EAGER** : Charger uniquement `PROMPT_REPRISE.md` + `API_KEY_POOL_CONTEXT.md`
 - ✅ Toujours archiver + mettre à jour ce fichier
 
 ---
 
-**Session 103** ✅ — **Session 104** ✅ — **Session 105** ✅ — **Session 106** ✅ — **Session 107** ✅ — **Session 108** 🚀
+**Session 108** ✅ — **Session 109** 🚀
