@@ -1,8 +1,8 @@
 # 📊 Index des Sessions — PlantUML Gradle Plugin
 
-**Dernière mise à jour** : 2026-04-18  
-**Session en cours** : 101  
-**Session terminée** : 100 (Feature 5 RAG Pipeline validée)
+**Dernière mise à jour** : 2026-04-20  
+**Session en cours** : 110  
+**Session terminée** : 109 (Formalisation LAZY/EAGER)
 
 ---
 

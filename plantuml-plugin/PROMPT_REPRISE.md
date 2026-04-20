@@ -1,24 +1,26 @@
-# 🔄 Prompt de reprise — Session 109
+# 🔄 Prompt de reprise — Session 110
 
 > **EPIC** : Pool de Clés API Rotatives  
-> **Statut** : Session 108 ✅ — Architecture validée  
+> **Statut** : Session 109 ✅ — Stratégie LAZY/EAGER formalisée  
 > **Mission** : Implémenter data models (`models.kt`, `Provider.kt`)
 
 ---
 
-## Session 108 — Résumé
+## Session 109 — Résumé
 
 **Date** : 20 avril 2026  
-**Résultat** : ✅ Architecture + modèle de données validés
+**Résultat** : ✅ Documentation stratégique + contexte EAGER optimisé
 
 **Fichiers créés** :
-- `.agents/sessions/108-api-key-pool-design.md` (archive)
+- `.agents/API_KEY_POOL_ESSENTIALS.md` (EAGER, 50 lignes)
+- `AGENT_MODUS_OPERANDI.adoc` (LAZY, 900+ lignes)
+- `.agents/sessions/109-formalisation-lazy-eager.md` (archive)
 
-**Archive** : `.agents/sessions/108-api-key-pool-design.md`
+**Archive** : `.agents/sessions/109-formalisation-lazy-eager.md`
 
 ---
 
-## Session 109 — Priorités
+## Session 110 — Priorités
 
 ```bash
 # 1. Créer models.kt
