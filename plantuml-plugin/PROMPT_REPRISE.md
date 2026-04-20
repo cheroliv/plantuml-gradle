@@ -1,47 +1,45 @@
-# 🔄 Prompt de reprise — Session 110
+# 🔄 Prompt de reprise — Session 111
 
 > **EPIC** : Pool de Clés API Rotatives  
-> **Statut** : Session 109 ✅ — Stratégie LAZY/EAGER formalisée  
-> **Mission** : Implémenter data models (`models.kt`, `Provider.kt`)
+> **Statut** : Session 110 ✅ — Data models + Tests unitaires  
+> **Mission** : Tests fonctionnels Cucumber (API Key Pool)
 
 ---
 
-## Session 109 — Résumé
+## Session 110 — Résumé
 
 **Date** : 20 avril 2026  
-**Résultat** : ✅ Documentation stratégique + contexte EAGER optimisé
+**Résultat** : ✅ Data models + Tests unitaires (27/27 tests PASS)
 
 **Fichiers créés** :
-- `.agents/API_KEY_POOL_ESSENTIALS.md` (EAGER, 50 lignes)
-- `AGENT_MODUS_OPERANDI.adoc` (LAZY, 900+ lignes)
-- `.agents/sessions/109-formalisation-lazy-eager.md` (archive)
+- `src/main/kotlin/plantuml/apikey/models.kt` (ApiKeyEntry, QuotaConfig, ApiKeyPoolConfig, QuotaType, ResetPolicy)
+- `src/main/kotlin/plantuml/apikey/Provider.kt` (Provider, ServiceType, RotationStrategy)
+- `src/test/kotlin/plantuml/apikey/ApiKeyModelsTest.kt` (10 tests)
+- `src/test/kotlin/plantuml/apikey/ProviderEnumsTest.kt` (17 tests)
 
-**Archive** : `.agents/sessions/109-formalisation-lazy-eager.md`
+**Archive** : `.agents/sessions/110-data-models-unit-tests.md`
 
 ---
 
-## Session 110 — Priorités
+## Session 111 — Priorités
 
 ```bash
-# 1. Créer models.kt
-# → ApiKeyEntry, QuotaConfig, ApiKeyPoolConfig, etc.
+# 1. Créer feature file
+src/test/features/14_api_key_pool.feature
 
-# 2. Créer Provider.kt
-# → Enum Provider + ServiceType + RotationStrategy
+# 2. Créer step definitions
+src/test/scenarios/plantuml/scenarios/ApiKeyPoolSteps.kt
 
-# 3. Compiler
-./gradlew compileKotlin
+# 3. Lancer tests fonctionnels
+./gradlew functionalTest --tests "*14_api_key_pool*"
 ```
 
 ### Critères d'Acceptation
 
-- [ ] `ApiKeyEntry` data class créée
-- [ ] `QuotaConfig` data class créée
-- [ ] `ApiKeyPoolConfig` data class créée
-- [ ] `Provider` enum créé (9 providers)
-- [ ] `ServiceType` enum créé (10 services)
-- [ ] `RotationStrategy` enum créé
-- [ ] Compilation OK
+- [ ] Feature file créé (16 scénarios)
+- [ ] Step definitions implémentées
+- [ ] Tests fonctionnels passants
+- [ ] Coverage rapporté
 
 ---
 
@@ -50,24 +48,25 @@
 | Session | Objectif | Progression |
 |---------|----------|-------------|
 | 108 | Architecture | ✅ 100% |
-| **109** | **Data models** | 🟡 **0%** |
-| 110 | Rotation engine | ⏳ Pending |
-| 111 | Quota tracker | ⏳ Pending |
-| 112 | Audit logger | ⏳ Pending |
-| 113-114 | Providers (Google, HF) | ⏳ Pending |
-| 115 | GitHub Secrets | ⏳ Pending |
-| 116-117 | Tests | ⏳ Pending |
+| 109 | Documentation | ✅ 100% |
+| **110** | **Data models + Tests unitaires** | ✅ **100%** |
+| **111** | **Tests fonctionnels** | 🟡 **0%** |
+| 112 | Rotation engine | ⏳ Pending |
+| 113 | Quota tracker | ⏳ Pending |
+| 114 | Audit logger | ⏳ Pending |
+| 115 | Providers (Google, HF) | ⏳ Pending |
+| 116 | GitHub Secrets | ⏳ Pending |
+| 117 | Tests finaux | ⏳ Pending |
 
 ---
 
 ## Règles
 
 - ❌ Jamais de commit sans permission
-- ❌ Jamais de tests en fin de session sans demande
 - ✅ **Stratégie LAZY/EAGER** : Charger `PROMPT_REPRISE.md` + `API_KEY_POOL_ESSENTIALS.md`
-- ✅ **Référence** : `API_KEY_POOL_REFERENCE.md` (LAZY, sur demande)
+- ✅ **Référence** : `.agents/sessions/110-data-models-unit-tests.md` (archive session précédente)
 - ✅ Toujours archiver + mettre à jour ce fichier
 
 ---
 
-**Session 108** ✅ — **Session 109** 🚀
+**Session 110** ✅ — **Session 111** 🚀
