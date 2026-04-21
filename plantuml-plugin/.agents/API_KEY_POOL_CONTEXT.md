@@ -30,14 +30,121 @@ Rotation automatique de clés API par provider pour maximiser l'utilisation des 
 
 | Provider | Quota Freemium | Stratégie Multi-Comptes |
 |----------|----------------|------------------------|
-| **Google** | 60 req/min | 3 comptes = 180 req/min |
-| **HuggingFace** | 30k tokens/mois | 5 comptes = 150k tokens/mois |
-| **Groq** | 30 req/min | 3 comptes = 90 req/min |
-| **Ollama Local** | Illimité | Prioritaire (pas d'auth) |
-| **OpenAI** | $5 credits (3 mois) | Multiples comptes |
-| **Anthropic** | Limité (essai) | Multiples comptes |
+| **Google** | 60 req/min | 30 comptes = 1800 req/min |
+| **HuggingFace** | 30k tokens/mois | 30 comptes = 900k tokens/mois |
+| **Groq** | 30 req/min | 30 comptes = 900 req/min |
+| **Ollama Local** | Illimité | Local uniquement (pas d'auth) |
+| **Ollama Cloud** | Payant à l'usage | Clé API unique + baseUrl distante |
+| **OpenAI** | $5 credits (3 mois) | 30 comptes = $150 credits |
+| **Mistral** | Credits gratuits | 30 comptes |
+| **GitHub** | 5000 req/h | 30 comptes = 150k req/h |
+| **GitLab** | CI/CD minutes | 30 comptes |
 
 **Services supportés** : LLM_CHAT, LLM_GENERATION, DATASET, API_REST, EMBEDDING, IMAGE_GENERATION, SECRETS, ACTIONS
+
+---
+
+## ⚠️ Ollama Cloud — Connaissance Critique (Session 118)
+
+**Sujet** : Utiliser Ollama Cloud en CI (GitHub Actions) avec modèles lourds (Qwen 72B, etc.)
+
+### Architecture Ollama (particularité)
+
+Ollama utilise une **architecture client unique** qui gère à la fois :
+- **Local** : `localhost:11434` → modèles locaux
+- **Cloud** : `https://ollama.com` → modèles cloud (suffixe `-cloud`)
+
+Le **même client** (`ollama` CLI ou libraries) fait le routage vers la bonne cible.
+
+---
+
+### Hiérarchie des comptes (Clarification Session 118)
+
+```
+1 compte Google
+    └──→ 1 compte Ollama (via OAuth2 "Sign in with Google")
+            ├──→ n API Keys (pour appels HTTP directs)
+            └──→ n Device Keys (pour client Ollama : CLI, libraries, CI)
+```
+
+**Règles** :
+- ✅ 1 Google = 1 Ollama (via OAuth2)
+- ✅ 1 Ollama = n API Keys (tu peux en créer plusieurs)
+- ✅ 1 Ollama = n Device Keys (une par appareil/CI)
+- ✅ API Key = pour curl/HTTP direct (format Ollama `/api/chat`)
+- ✅ Device Key = pour client Ollama (CLI, langchain4j, CI sans navigateur)
+
+---
+
+### Authentification Cloud en CI
+
+**Problème** : `ollama signin` nécessite un navigateur (impossible en CI).
+
+**Solution** : Device Key SSH via GitHub Secrets.
+
+#### 0. Prérequis - Créer le compte Ollama
+1. Aller sur `ollama.com`
+2. "Sign in" → "Sign in with Google"
+3. Choisir ton compte Google (ex: `cheroliv.developer@gmail.com`)
+4. ✅ Compte Ollama créé automatiquement
+
+#### 1. Générer la clé SSH (une fois, localement)
+```bash
+ssh-keygen -t ed25519 -C "github-actions-ci" -f ollama-ci-key
+```
+
+#### 2. Ajouter la clé publique sur ollama.com
+- Copier `ollama-ci-key.pub`
+- Aller sur `ollama.com/settings/keys` → "Add Ollama Public Key"
+- Coller le contenu de `.pub`
+
+#### 3. Ajouter la clé privée dans GitHub Secrets
+- Copier `ollama-ci-key` (clé privée)
+- GitHub Repo → Settings → Secrets → `OLLAMA_DEVICE_PRIVATE_KEY`
+
+#### 4. CI GitHub Actions
+```yaml
+- name: Install Ollama
+  run: curl -fsSL https://ollama.com/install.sh | sh
+
+- name: Setup Device Key
+  run: |
+    mkdir -p ~/.ollama
+    echo "${{ secrets.OLLAMA_DEVICE_PRIVATE_KEY }}" > ~/.ollama/id_ed25519
+    chmod 600 ~/.ollama/id_ed25519
+
+- name: Pull Cloud Model
+  run: ollama pull qwen:72b-cloud
+
+- name: Run Tests
+  env:
+    OLLAMA_HOST: "https://ollama.com"
+  run: ./gradlew test
+```
+
+---
+
+### Config YAML (`plantuml-test-context.yml`)
+```yaml
+ollama:
+  - baseUrl: "https://ollama.com"
+    modelName: "qwen:72b-cloud"  # suffixe -cloud requis
+```
+
+### Endpoints
+
+| Mode | Endpoint | Auth |
+|------|----------|------|
+| **Local** | `http://localhost:11434/api/chat` | Aucune |
+| **Cloud** | `https://ollama.com/api/chat` | Device Key SSH (`~/.ollama/id_ed25519`) |
+
+### Gain CI
+
+- Container unique (`ollama/ollama`) ou binaire
+- Même code pour local et cloud (change juste `OLLAMA_HOST`)
+- Authentification SSH = pas de navigateur requis
+
+**Référence** : https://docs.ollama.com/cloud
 
 ---
 
@@ -193,9 +300,10 @@ data class ApiKeyPoolConfig(
 ## Références
 
 - **Archive Session 108** : `.agents/sessions/108-api-key-pool-design.md`
-- **Prompt Reprise** : `PROMPT_REPRISE.md` (session 109)
+- **Archive Session 117** : `.agents/sessions/117-fichiers-contexte-yaml.md`
+- **Prompt Reprise** : `PROMPT_REPRISE.md`
 - **Règles** : `.agents/INDEX.md`
 
 ---
 
-**Dernière mise à jour** : Session 108 (20 avril 2026)
+**Dernière mise à jour** : Session 117 (21 avril 2026)

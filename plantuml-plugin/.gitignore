@@ -2,16 +2,13 @@
 .idea
 .kotlin
 build
-.goose
 local.properties
 doc
+TODO.adoc
+plantuml-test-context.yml
 # Dossiers de test et scripts de dev
 dev-tools/
 test-project/
 gen/
 generated/
 test-rag/
-TODO.adoc
-accounts.txt
-motsdepasse.csv
-plantuml-test-context.yml

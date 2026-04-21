@@ -1,82 +1,91 @@
-# 🔄 Prompt de reprise — Session 116
+# 🔄 Prompt de reprise — Session 119
 
 > **EPIC** : Pool de Clés API Rotatives + Dataset Fine-tuning  
-> **Statut** : Session 115 ✅ — Reconstruction Historique & Plan Dataset  
-> **Mission** : Fournir fichiers de contexte PlantUML avec emails/clés API
+> **Statut** : Session 118 ✅ — Authentification Ollama Cloud CI documentée  
+> **Mission** : Générer clés API + tester rotation du pool
 
 ---
 
-## Session 115 — Résumé
+## Session 118 — Résumé
 
 **Date** : 21 avril 2026  
-**Résultat** : ✅ Reconstruction historique + Plan dataset fine-tuning (3 fichiers créés)
+**Résultat** : ✅ Authentification Ollama Cloud CI documentée
 
-**Fichiers créés** :
-- `.agents/HISTORIQUE_RECONSTRUCTION_GIT.md` (~800 lignes) — Reconstruction via Git (115 sessions)
-- `.agents/DATASET_FINETUNING_PLAN.md` (~400 lignes) — Plan de dataset (sources, catégories, métriques)
-- `.agents/DATASET_FINETUNING_MODE_OPERATOIRE.md` (~900 lignes) — Mode opératoire (6 phases, 13 scripts Python)
-- `.agents/sessions/115-reconstruction-dataset.md` — Archive de la session
+**Connaissances clés** :
+- Architecture Ollama : client unique pour local + cloud
+- Device Key SSH ≠ API Key
+- Procédure CI : clé SSH → GitHub Secrets → `~/.ollama/id_ed25519`
+- Endpoint cloud : `https://ollama.com/api/chat`
+- Modèles cloud : suffixe `-cloud` requis (ex: `qwen:72b-cloud`)
 
-**Décisions clés** :
-- Dataset JSONL avec 100+ exemples (train/val/test : 80/10/10)
-- 5 catégories : Architecture, Tests, Code, RAG/LLM, Documentation
-- Pipeline en 6 phases : Extraction → Transformation → Consolidation → Validation
-- 115 sessions reconstructées via Git + archives
+**Fichiers mis à jour** :
+- `.agents/API_KEY_POOL_CONTEXT.md` — Section Ollama Cloud mise à jour
+- `.agents/sessions/118-ollama-cloud-ci-auth.md` — Archive de session
 
-**Archive** : `.agents/sessions/115-reconstruction-dataset.md`
+**Architecture** :
+```
+Client Ollama (CI)
+    ├── Local  → localhost:11434 (pas d'auth)
+    └── Cloud  → https://ollama.com (Device Key SSH)
+```
+
+**Procédure CI** :
+1. Générer clé SSH (`ssh-keygen -t ed25519`)
+2. Ajouter publique sur ollama.com
+3. Ajouter privée dans GitHub Secrets (`OLLAMA_DEVICE_PRIVATE_KEY`)
+4. CI : installer Ollama + setup clé + `OLLAMA_HOST=https://ollama.com`
+
+**Archive** : `.agents/sessions/118-ollama-cloud-ci-auth.md`
 
 ---
 
-## Session 116 — Priorités
+## Session 119 — Priorités
 
-**Mission** : Fournir des fichiers de contexte PlantUML avec emails/clés API
+**Mission** : Générer les clés API et tester la rotation
 
-### 1. Créer fichiers de contexte riches
-
-```yaml
-# plantuml-context.yml (production)
-langchain4j:
-  apiKeyPool:
-    openai:
-      - email: "user1@example.com"
-        apiKey: "sk-..."
-      - email: "user2@example.com"
-        apiKey: "sk-..."
-    gemini:
-      - email: "user1@gmail.com"
-        apiKey: "..."
-    huggingface:
-      - email: "user@example.com"
-        apiKey: "hf_..."
-    mistral:
-      - email: "user@example.com"
-        apiKey: "..."
-    groq:
-      - email: "user@example.com"
-        apiKey: "..."
-```
-
-### 2. Valider le format YAML
+### 1. Générer les clés API (OAuth2 Google)
 
 ```bash
-# Vérifier la syntaxe YAML
-python3 -c "import yaml; yaml.safe_load(open('plantuml-context.yml'))"
+# Pour chaque compte Gmail, créer des comptes sur :
+# - https://aistudio.google.com/apikey (Google AI)
+# - https://huggingface.co/settings/tokens (HF)
+# - https://platform.openai.com/api-keys (OpenAI)
+# - https://console.mistral.ai/api-keys (Mistral)
+# - https://console.groq.com/keys (Groq)
+# - https://github.com/settings/tokens (GitHub)
+# - https://gitlab.com/-/profile/personal_access_tokens (GitLab)
 ```
 
-### 3. Tester avec le plugin
+### 2. Remplir les fichiers YAML
 
 ```bash
-# Traiter des prompts avec le contexte riche
+# Éditer les fichiers et remplacer les XXX par les vraies clés
+# - ../plantuml-context.yml (production)
+# - ./plantuml-test-context.yml (tests)
+```
+
+### 3. Valider et tester
+
+```bash
+# Vérifier syntaxe YAML
+python3 -c "import yaml; yaml.safe_load(open('../plantuml-context.yml'))"
+python3 -c "import yaml; yaml.safe_load(open('plantuml-test-context.yml'))"
+
+# Tester avec le plugin
 ./gradlew processPlantumlPrompts
+
+# Vérifier les logs d'audit
+tail -f /var/log/plantuml/api-key-pool.log
 ```
 
 ### Critères d'Acceptation
 
-- [ ] Fichiers de contexte créés avec credentials réels (emails, clés API)
-- [ ] Format YAML valide (parsing OK)
-- [ ] Plugin lit correctement les credentials
-- [ ] API Key Pool fonctionnel avec multiples clés
-- [ ] Rotation de clés testée (au moins 2 clés par provider)
+- [ ] Clés API générées pour tous les providers
+- [ ] Fichiers YAML remplis avec vraies clés
+- [ ] Syntaxe YAML validée
+- [ ] Rotation testée (round-robin fonctionnel)
+- [ ] Audit logging opérationnel
+- [ ] Tests unitaires passent avec le pool
 
 ---
 
@@ -90,8 +99,10 @@ python3 -c "import yaml; yaml.safe_load(open('plantuml-context.yml'))"
 | **113** | **Quota tracker + Reset** | ✅ **100%** |
 | **114** | **Documentation Architecture** | ✅ **100%** |
 | **115** | **Reconstruction + Dataset Plan** | ✅ **100%** |
-| **116** | **Fichiers contexte (emails/clés)** | 🟡 **0%** |
-| 117-119 | Tests finaux + Validation | ⏳ Pending |
+| **117** | **Fichiers contexte (emails/clés)** | ✅ **100%** |
+| **118** | **Ollama Cloud CI Auth** | ✅ **100%** |
+| **119** | **Génération clés API + tests** | 🟡 **0%** |
+| 119 | Validation finale | ⏳ Pending |
 
 ---
 
@@ -104,4 +115,4 @@ python3 -c "import yaml; yaml.safe_load(open('plantuml-context.yml'))"
 
 ---
 
-**Session 115** ✅ — **Session 116** 🚀
+**Session 117** ✅ — **Session 118** 🚀

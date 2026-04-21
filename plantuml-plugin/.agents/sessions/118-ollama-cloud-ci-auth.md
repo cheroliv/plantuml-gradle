@@ -1,0 +1,220 @@
+# Session 118 — Ollama Cloud CI Authentication
+
+**Date** : 21 avril 2026  
+**Statut** : ✅ Terminée  
+**Sujet** : Authentification Ollama Cloud pour GitHub Actions (CI sans navigateur)
+
+---
+
+## Résumé
+
+Cette session a permis de clarifier l'architecture d'authentification d'Ollama Cloud et la procédure correcte pour l'utiliser en CI GitHub Actions **sans authentification navigateur**.
+
+---
+
+## Brainstorming & Apprentissages
+
+### 1. Question initiale
+
+> "Pour que ma CI GitHub Actions puisse utiliser Ollama Cloud, faut-il un testcontainer ou docker-compose qui lance Ollama, ou suis-je enregistré auprès d'Ollama Cloud pour bénéficier d'une clé API ?"
+
+### 2. Erreurs initiales de l'agent
+
+| Erreur | Correction |
+|--------|-----------|
+| "Pas besoin du client Ollama en CI" | ❌ **Faux** : Le client est **nécessaire** (CLI ou container) |
+| "Endpoint: `api.ollama.cloud`" | ❌ **Faux** : Endpoint = `https://ollama.com` |
+| "Auth avec `OLLAMA_API_KEY`" | ❌ **Confusion** : API Key ≠ Device Key |
+| "Format OpenAI `/v1/chat/completions`" | ❌ **Faux** : Format Ollama = `/api/chat` |
+
+### 3. Découverte clé : Architecture Ollama
+
+Ollama utilise une **architecture client unique** :
+
+```
+Client Ollama (CLI / libraries)
+    ├── Local  → localhost:11434 (pas d'auth)
+    └── Cloud  → https://ollama.com (Device Key SSH)
+```
+
+**Particularité** : Le même binaire/CLI gère les deux modes. On ne peut pas s'affranchir du client.
+
+### 4. Deux types de clés sur Ollama
+
+| Type | Usage | Format | Où |
+|------|-------|--------|-----|
+| **API Key** | Appels API directs (HTTP/curl) | `195f4025961a...` | `ollama.com/settings/keys` |
+| **Device Key** | Client Ollama (CLI, libraries) | `ssh-ed25519 AAAA...` | `ollama.com/settings/keys` → Device Keys |
+
+### 5. Hiérarchie des comptes (Clarification Session 118)
+
+```
+1 compte Google
+    └──→ 1 compte Ollama (via OAuth2 "Sign in with Google")
+            ├──→ n API Keys (pour appels HTTP directs)
+            └──→ n Device Keys (pour client Ollama : CLI, libraries, CI)
+```
+
+**Règles** :
+- ✅ 1 Google = 1 Ollama (via OAuth2)
+- ✅ 1 Ollama = n API Keys (tu peux en créer plusieurs)
+- ✅ 1 Ollama = n Device Keys (une par appareil/CI)
+- ✅ API Key = pour curl/HTTP direct (format Ollama `/api/chat`)
+- ✅ Device Key = pour client Ollama (CLI, langchain4j, CI sans navigateur)
+
+### 6. Problème CI : Pas de navigateur
+
+`ollama signin` ouvre un navigateur → **Impossible en CI**.
+
+**Solution** : Device Key SSH pré-générée + GitHub Secrets.
+
+---
+
+## Procédure Finale (4 étapes)
+
+### Étape 0 : Prérequis - Compte Google → Ollama
+
+1. Aller sur `ollama.com`
+2. "Sign in" → "Sign in with Google"
+3. Choisir ton compte Google (ex: `cheroliv.developer@gmail.com`)
+4. ✅ Compte Ollama créé automatiquement
+
+### Étape 1 : Générer la clé SSH (localement, une fois)
+
+```bash
+ssh-keygen -t ed25519 -C "github-actions-ci" -f ollama-ci-key
+```
+
+### Étape 2 : Ajouter la clé publique sur ollama.com
+
+1. Copier le contenu de `ollama-ci-key.pub`
+2. Aller sur `ollama.com/settings/keys`
+3. Section "Device Keys" → "Add Ollama Public Key"
+4. Coller le contenu `.pub`
+
+### Étape 3 : Ajouter la clé privée dans GitHub Secrets
+
+1. Copier le contenu de `ollama-ci-key` (clé privée)
+2. GitHub Repo → Settings → Secrets and variables → Actions
+3. New secret → `OLLAMA_DEVICE_PRIVATE_KEY`
+4. Coller le contenu de la clé privée
+
+### Étape 4 : GitHub Actions Workflow
+
+```yaml
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Ollama
+        run: curl -fsSL https://ollama.com/install.sh | sh
+
+      - name: Setup Device Key
+        run: |
+          mkdir -p ~/.ollama
+          echo "${{ secrets.OLLAMA_DEVICE_PRIVATE_KEY }}" > ~/.ollama/id_ed25519
+          chmod 600 ~/.ollama/id_ed25519
+
+      - name: Pull Cloud Model
+        run: ollama pull qwen:72b-cloud
+
+      - name: Run Tests
+        env:
+          OLLAMA_HOST: "https://ollama.com"
+        run: ./gradlew test
+```
+
+---
+
+## Configuration YAML
+
+### `plantuml-test-context.yml`
+```yaml
+ollama:
+  - baseUrl: "https://ollama.com"
+    modelName: "qwen:72b-cloud"  # ⚠️ suffixe -cloud requis pour cloud
+```
+
+### Endpoints
+
+| Mode | Endpoint | Auth |
+|------|----------|------|
+| **Local** | `http://localhost:11434/api/chat` | Aucune |
+| **Cloud** | `https://ollama.com/api/chat` | Device Key SSH (`~/.ollama/id_ed25519`) |
+
+### Modèles Cloud
+
+Les modèles cloud ont le suffixe `-cloud` :
+- `qwen:72b-cloud`
+- `gpt-oss:120b-cloud`
+- `llama3.1:405b-cloud`
+
+Liste : https://ollama.com/search?c=cloud
+
+---
+
+## Alternatives (non retenues)
+
+| Approche | Pourquoi rejetée |
+|----------|-----------------|
+| **API Key + curl** | Format Ollama ≠ OpenAI, langchain4j gère déjà le client |
+| **Testcontainer Ollama** | Container = local, pas cloud. Incompatible avec l'usage cloud |
+| **`ollama signin` en CI** | Nécessite navigateur, impossible en headless CI |
+| **Wrapper HTTP maison** | Langchain4j fait déjà le travail, reinventer la roue = perte de temps |
+
+---
+
+## Décisions d'Architecture
+
+| Décision | Valeur | Rationale |
+|----------|--------|-----------|
+| **Client Ollama en CI** | Oui (binaire ou container) | Nécessaire pour router vers cloud |
+| **Authentification** | Device Key SSH | Pas de navigateur en CI |
+| **Stockage clé** | GitHub Secrets | Sécurisé, injecté à l'exécution |
+| **Modèles** | Suffixe `-cloud` | Requis pour router vers cloud |
+| **Host** | `OLLAMA_HOST=https://ollama.com` | Route le client vers cloud |
+
+---
+
+## Critères d'Acceptation
+
+- [x] Procédure d'authentification documentée
+- [x] Workflow GitHub Actions prêt à l'emploi
+- [x] Configuration YAML mise à jour
+- [x] Distinction API Key vs Device Key clarifiée
+- [x] Architecture Ollama (local/cloud) comprise
+- [ ] Workflow testé en CI réelle
+- [ ] Modèle cloud pullé avec succès en CI
+- [ ] Tests exécutés avec modèle cloud
+
+---
+
+## Références
+
+- **Documentation Ollama Cloud** : https://docs.ollama.com/cloud
+- **Ollama Settings Keys** : https://ollama.com/settings/keys
+- **Modèles Cloud** : https://ollama.com/search?c=cloud
+- **Archive Session** : `.agents/sessions/118-ollama-cloud-ci-auth.md`
+- **Contexte persisté** : `.agents/API_KEY_POOL_CONTEXT.md` (section "Ollama Cloud")
+
+---
+
+## Leçons Apprises
+
+1. **Toujours vérifier la doc officielle** avant de faire des suppositions
+2. **Ollama ≠ OpenAI** (endpoints, formats, auth différents)
+3. **Device Key ≠ API Key** (SSH vs token, client vs API directe)
+4. **Le client Ollama est indispensable** même pour le cloud
+5. **CI sans navigateur** = authentification SSH pré-configurée
+
+---
+
+**Session 118** ✅ — Prête pour la Session 119

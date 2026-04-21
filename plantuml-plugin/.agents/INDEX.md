@@ -42,7 +42,8 @@
 
 | # | Date | Type | Sujet | Fichier | Score |
 |---|------|------|-------|---------|-------|
-| 115 | 2026-04-21 | docs | Reconstruction Historique & Dataset Plan | `115-reconstruction-dataset.md` | 9.0/10 |
+| 118 | 2026-04-21 | docs | Authentification Ollama Cloud CI | `118-ollama-cloud-ci-auth.md` | 9.0/10 |
+| 117 | 2026-04-21 | docs | Reconstruction Historique & Dataset Plan | `115-reconstruction-dataset.md` | 9.0/10 |
 | 114 | 2026-04-21 | docs | Documentation Architecture & Organisation | `114-documentation-architecture.md` | 9.0/10 |
 | 113 | 2026-04-20 | feat | Quota Tracker + Reset + Audit | `113-quota-tracker-reset.md` | 9.0/10 |
 | 112 | 2026-04-20 | feat | LlmService + ConfigLoader + ApiKeyPool | `112-llmservice-configloader-apikeypool.md` | 9.0/10 |
@@ -94,11 +95,14 @@
 
 ## 🔗 Fichiers Associés
 
-| Fichier | Rôle |
-|---------|------|
-| `PROMPT_REPRISE.md` | Contexte session actuelle |
-| `AGENT_SESSION_MANAGER.md` | Procédure d'archivage |
-| `.agents/sessions/` | Archives détaillées par session |
+| Fichier | Rôle | Confidentialité |
+|---------|------|-----------------|
+| `PROMPT_REPRISE.md` | Contexte session actuelle | ✅ Public |
+| `AGENT_SESSION_MANAGER.md` | Procédure d'archivage | ✅ Public |
+| `.agents/sessions/` | Archives détaillées par session | ✅ Public |
+| `ECOSYSTEM_OVERVIEW.md` | Vue d'écosystème Gradle-SaaS | 🟢 Public |
+| `BYOI_MODEL.md` | Modèle "Bring Your Own Infrastructure" | 🔒 Interne |
+| `API_KEY_POOL_CONTEXT.md` | Pool de clés API rotatives | ✅ Public |
 
 ---
 

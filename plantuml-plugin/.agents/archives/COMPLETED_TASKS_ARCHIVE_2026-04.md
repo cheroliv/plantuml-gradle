@@ -2,6 +2,38 @@
 
 ## Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+### Session 117 — 2026-04-21 : Fichiers contexte YAML + pool clés API ✅
+
+#### ✅ Contexte
+- **Session 116** : Fichiers contexte (emails/clés) — Structure créée
+- **Objectif** : Créer fichiers YAML avec 30 comptes Gmail pour production + tests
+
+#### ✅ Tâches réalisées
+- ✅ **plantuml-context.yml** (Production) : 27 comptes Gmail, 7 providers
+- ✅ **plantuml-test-context.yml** (Tests) : 3 comptes dédiés
+- ✅ **Providers configurés** : Google, HuggingFace, OpenAI, Mistral, Groq, GitHub, GitLab
+- ✅ **Stratégie OAuth2** : Gmail → autres plateformes (210 comptes potentiels)
+- ✅ **Sécurité** : Fichiers dans `.gitignore` (hors Git)
+
+#### ✅ Résultats
+- ✅ **30 comptes Gmail répartis** : 27 prod + 3 tests
+- ✅ **7 providers** avec structure complète de clés API
+- ✅ **Rotation round-robin** configurée
+- ✅ **Audit logging** activé
+- ✅ **Sécurité** : Aucun credential dans Git
+
+#### 📝 Leçons apprises
+- ✅ OAuth2 Google permet de créer des comptes sur toutes les plateformes
+- ✅ Séparation prod/tests isole les quotas et facilite le debug
+- ✅ Potentiel : 30 × 7 = 210 comptes gratuits
+
+#### 📝 Prochaine session (118)
+- Générer les clés API sur chaque plateforme
+- Remplir les fichiers YAML avec les vraies clés
+- Tester la rotation du pool
+
+---
+
 ### Session 112 — 2026-04-20 : LlmService + ConfigLoader avec ApiKeyPool ✅
 
 #### ✅ Contexte
