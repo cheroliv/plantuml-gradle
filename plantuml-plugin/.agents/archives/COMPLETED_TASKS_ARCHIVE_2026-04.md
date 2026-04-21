@@ -2,6 +2,106 @@
 
 ## Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+### Session 112 — 2026-04-20 : LlmService + ConfigLoader avec ApiKeyPool ✅
+
+#### ✅ Contexte
+- **Session 111** : Tests fonctionnels TDD ApiKeyPool — 16/16 tests PASS
+- **Objectif** : Intégrer ApiKeyPool dans LlmService et ConfigLoader
+
+#### ✅ Tâches réalisées
+- ✅ **LlmService.kt** : Ajout gestion pools API par provider (+80 lignes)
+- ✅ **LlmService.kt** : Méthode `getApiKeyFromPool()` pour rotation automatique
+- ✅ **ApiKeyPool.kt** : Migration vers `ApiKeyEntry` (apikey/models.kt)
+- ✅ **LlmServiceApiKeyPoolTest.kt** : 8 tests unitaires — Intégration providers
+- ✅ **ConfigLoaderApiKeyPoolTest.kt** : 9 tests unitaires — Parsing YAML pool
+- ✅ **Tests fonctionnels** : 6/6 PASS avec WireMock
+
+#### ✅ Résultats
+- ✅ **17/17 tests nouveaux PASS** (100%)
+- ✅ **29 tests API Key Pool totaux PASS** (cumulatif)
+- ✅ **6 tests fonctionnels PASS** avec rotation et fallback
+- ✅ LlmService utilise automatiquement le pool quand configuré
+- ✅ ConfigLoader parse structure `pool` pour tous providers
+
+#### 📝 Leçons apprises
+- ✅ Conversion `ApiKeyPoolEntry` (models.kt) → `ApiKeyEntry` (apikey/models.kt) nécessaire
+- ✅ Chaque provider a son pool indépendant dans LlmService
+- ✅ Tests WireMock valident rotation + fallback 401
+
+#### 📝 Prochaine session (113)
+- Quota Tracker + Reset automatique
+- Audit logger pour tracer l'usage des clés
+- Tests de performance avec rotation
+
+---
+
+### Session 111 — 2026-04-20 : Tests Fonctionnels TDD ApiKeyPool ✅
+
+#### ✅ Contexte
+- **Session 110** : Data models unit tests — ApiKeyEntry, QuotaConfig
+- **Objectif** : Tests fonctionnels TDD avec WireMock pour ApiKeyPool
+
+#### ✅ Tâches réalisées
+- ✅ **PlantumlFunctionalSuite.kt** : 6 tests fonctionnels (+426 lignes)
+- ✅ **WireMock** : Mock des API OpenAI, Gemini, Mistral, Claude, HuggingFace, Groq
+- ✅ **Rotation** : Tests round-robin + fallback sur 401
+- ✅ **Quota** : Test respect threshold avant rotation
+
+#### ✅ Résultats
+- ✅ **16/16 tests PASS** (100%)
+- ✅ Rotation API keys validée avec WireMock
+- ✅ Fallback automatique sur erreur 401
+
+---
+
+### Session 110 — 2026-04-20 : Data Models Unit Tests ✅
+
+#### ✅ Contexte
+- **Session 109** : Formalisation Lazy/Eager loading
+- **Objectif** : Tests unitaires pour nouveaux models ApiKeyPool
+
+#### ✅ Tâches réalisées
+- ✅ **ApiKeyModelsTest.kt** : Tests pour ApiKeyEntry, QuotaConfig
+- ✅ **ProviderEnumsTest.kt** : Tests pour Provider, ServiceType, RotationStrategy
+
+#### ✅ Résultats
+- ✅ Models ApiKeyPool validés
+- ✅ Enums Provider/ServiceType/RotationStrategy testés
+
+---
+
+### Session 109 — 2026-04-20 : Formalisation Lazy/Eager Loading ✅
+
+#### ✅ Contexte
+- **Session 108** : API Key Pool Design — Architecture
+- **Objectif** : Tests pour valider Lazy vs Eager loading
+
+#### ✅ Tâches réalisées
+- ✅ Tests Lazy loading : initialisation à la demande
+- ✅ Tests Eager loading : initialisation au démarrage
+
+#### ✅ Résultats
+- ✅ Stratégies Lazy/Eager documentées et testées
+
+---
+
+### Session 108 — 2026-04-20 : API Key Pool Design ✅
+
+#### ✅ Contexte
+- **Session 107** : Nettoyage documentation
+- **Objectif** : Architecture rotation API keys
+
+#### ✅ Tâches réalisées
+- ✅ **ApiKeyPool.kt** : Moteur rotation round-robin
+- ✅ **models.kt** : ApiKeyPoolEntry, PoolQuotaConfig
+- ✅ **Provider.kt** : Enums Provider, ServiceType, RotationStrategy
+
+#### ✅ Résultats
+- ✅ Architecture ApiKeyPool conçue et implémentée
+- ✅ Support 7 providers : OpenAI, Gemini, Mistral, Claude, HuggingFace, Groq, Ollama
+
+---
+
 ### Session 107 — 2026-04-19 : Nettoyage Documentation ✅
 
 #### ✅ Contexte

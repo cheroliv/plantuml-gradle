@@ -1,45 +1,82 @@
-# 🔄 Prompt de reprise — Session 111
+# 🔄 Prompt de reprise — Session 116
 
-> **EPIC** : Pool de Clés API Rotatives  
-> **Statut** : Session 110 ✅ — Data models + Tests unitaires  
-> **Mission** : Tests fonctionnels Cucumber (API Key Pool)
+> **EPIC** : Pool de Clés API Rotatives + Dataset Fine-tuning  
+> **Statut** : Session 115 ✅ — Reconstruction Historique & Plan Dataset  
+> **Mission** : Fournir fichiers de contexte PlantUML avec emails/clés API
 
 ---
 
-## Session 110 — Résumé
+## Session 115 — Résumé
 
-**Date** : 20 avril 2026  
-**Résultat** : ✅ Data models + Tests unitaires (27/27 tests PASS)
+**Date** : 21 avril 2026  
+**Résultat** : ✅ Reconstruction historique + Plan dataset fine-tuning (3 fichiers créés)
 
 **Fichiers créés** :
-- `src/main/kotlin/plantuml/apikey/models.kt` (ApiKeyEntry, QuotaConfig, ApiKeyPoolConfig, QuotaType, ResetPolicy)
-- `src/main/kotlin/plantuml/apikey/Provider.kt` (Provider, ServiceType, RotationStrategy)
-- `src/test/kotlin/plantuml/apikey/ApiKeyModelsTest.kt` (10 tests)
-- `src/test/kotlin/plantuml/apikey/ProviderEnumsTest.kt` (17 tests)
+- `.agents/HISTORIQUE_RECONSTRUCTION_GIT.md` (~800 lignes) — Reconstruction via Git (115 sessions)
+- `.agents/DATASET_FINETUNING_PLAN.md` (~400 lignes) — Plan de dataset (sources, catégories, métriques)
+- `.agents/DATASET_FINETUNING_MODE_OPERATOIRE.md` (~900 lignes) — Mode opératoire (6 phases, 13 scripts Python)
+- `.agents/sessions/115-reconstruction-dataset.md` — Archive de la session
 
-**Archive** : `.agents/sessions/110-data-models-unit-tests.md`
+**Décisions clés** :
+- Dataset JSONL avec 100+ exemples (train/val/test : 80/10/10)
+- 5 catégories : Architecture, Tests, Code, RAG/LLM, Documentation
+- Pipeline en 6 phases : Extraction → Transformation → Consolidation → Validation
+- 115 sessions reconstructées via Git + archives
+
+**Archive** : `.agents/sessions/115-reconstruction-dataset.md`
 
 ---
 
-## Session 111 — Priorités
+## Session 116 — Priorités
+
+**Mission** : Fournir des fichiers de contexte PlantUML avec emails/clés API
+
+### 1. Créer fichiers de contexte riches
+
+```yaml
+# plantuml-context.yml (production)
+langchain4j:
+  apiKeyPool:
+    openai:
+      - email: "user1@example.com"
+        apiKey: "sk-..."
+      - email: "user2@example.com"
+        apiKey: "sk-..."
+    gemini:
+      - email: "user1@gmail.com"
+        apiKey: "..."
+    huggingface:
+      - email: "user@example.com"
+        apiKey: "hf_..."
+    mistral:
+      - email: "user@example.com"
+        apiKey: "..."
+    groq:
+      - email: "user@example.com"
+        apiKey: "..."
+```
+
+### 2. Valider le format YAML
 
 ```bash
-# 1. Créer feature file
-src/test/features/14_api_key_pool.feature
+# Vérifier la syntaxe YAML
+python3 -c "import yaml; yaml.safe_load(open('plantuml-context.yml'))"
+```
 
-# 2. Créer step definitions
-src/test/scenarios/plantuml/scenarios/ApiKeyPoolSteps.kt
+### 3. Tester avec le plugin
 
-# 3. Lancer tests fonctionnels
-./gradlew functionalTest --tests "*14_api_key_pool*"
+```bash
+# Traiter des prompts avec le contexte riche
+./gradlew processPlantumlPrompts
 ```
 
 ### Critères d'Acceptation
 
-- [ ] Feature file créé (16 scénarios)
-- [ ] Step definitions implémentées
-- [ ] Tests fonctionnels passants
-- [ ] Coverage rapporté
+- [ ] Fichiers de contexte créés avec credentials réels (emails, clés API)
+- [ ] Format YAML valide (parsing OK)
+- [ ] Plugin lit correctement les credentials
+- [ ] API Key Pool fonctionnel avec multiples clés
+- [ ] Rotation de clés testée (au moins 2 clés par provider)
 
 ---
 
@@ -47,26 +84,24 @@ src/test/scenarios/plantuml/scenarios/ApiKeyPoolSteps.kt
 
 | Session | Objectif | Progression |
 |---------|----------|-------------|
-| 108 | Architecture | ✅ 100% |
-| 109 | Documentation | ✅ 100% |
-| **110** | **Data models + Tests unitaires** | ✅ **100%** |
-| **111** | **Tests fonctionnels** | 🟡 **0%** |
-| 112 | Rotation engine | ⏳ Pending |
-| 113 | Quota tracker | ⏳ Pending |
-| 114 | Audit logger | ⏳ Pending |
-| 115 | Providers (Google, HF) | ⏳ Pending |
-| 116 | GitHub Secrets | ⏳ Pending |
-| 117 | Tests finaux | ⏳ Pending |
+| 108-110 | Architecture + Models | ✅ 100% |
+| **111** | **Tests fonctionnels TDD** | ✅ **100%** |
+| **112** | **LlmService + ConfigLoader** | ✅ **100%** |
+| **113** | **Quota tracker + Reset** | ✅ **100%** |
+| **114** | **Documentation Architecture** | ✅ **100%** |
+| **115** | **Reconstruction + Dataset Plan** | ✅ **100%** |
+| **116** | **Fichiers contexte (emails/clés)** | 🟡 **0%** |
+| 117-119 | Tests finaux + Validation | ⏳ Pending |
 
 ---
 
 ## Règles
 
 - ❌ Jamais de commit sans permission
-- ✅ **Stratégie LAZY/EAGER** : Charger `PROMPT_REPRISE.md` + `API_KEY_POOL_ESSENTIALS.md`
-- ✅ **Référence** : `.agents/sessions/110-data-models-unit-tests.md` (archive session précédente)
-- ✅ Toujours archiver + mettre à jour ce fichier
+- ✅ Fichiers de contexte = `.gitignore` (credentials sensibles)
+- ✅ Valider YAML avant test
+- ✅ Archive + PROMPT_REPRISE mis à jour en fin de session
 
 ---
 
-**Session 110** ✅ — **Session 111** 🚀
+**Session 115** ✅ — **Session 116** 🚀

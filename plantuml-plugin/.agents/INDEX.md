@@ -1,8 +1,8 @@
 # 📊 Index des Sessions — PlantUML Gradle Plugin
 
 **Dernière mise à jour** : 2026-04-20  
-**Session en cours** : 110  
-**Session terminée** : 109 (Formalisation LAZY/EAGER)
+**Session en cours** : 114 — Audit Logger dans LlmService  
+**Session terminée** : 113 (Quota Tracker + Reset automatique — 63/63 tests ✅)
 
 ---
 
@@ -38,10 +38,17 @@
 
 ---
 
-## 🎯 Sessions Récentes (10 dernières)
+## 🎯 Sessions Récentes (15 dernières)
 
 | # | Date | Type | Sujet | Fichier | Score |
 |---|------|------|-------|---------|-------|
+| 115 | 2026-04-21 | docs | Reconstruction Historique & Dataset Plan | `115-reconstruction-dataset.md` | 9.0/10 |
+| 114 | 2026-04-21 | docs | Documentation Architecture & Organisation | `114-documentation-architecture.md` | 9.0/10 |
+| 113 | 2026-04-20 | feat | Quota Tracker + Reset + Audit | `113-quota-tracker-reset.md` | 9.0/10 |
+| 112 | 2026-04-20 | feat | LlmService + ConfigLoader + ApiKeyPool | `112-llmservice-configloader-apikeypool.md` | 9.0/10 |
+| 111 | 2026-04-20 | test | Tests fonctionnels TDD ApiKeyPool | `111-tests-fonctionnels-api-key-pool.md` | 9.0/10 |
+| 110 | 2026-04-20 | test | Data models unit tests — ApiKeyEntry, QuotaConfig | `110-data-models-unit-tests.md` | 9.0/10 |
+| 109 | 2026-04-20 | docs | Formalisation LAZY/EAGER loading | `109-formalisation-lazy-eager.md` | 9.0/10 |
 | 108 | 2026-04-20 | design | API Key Pool Architecture | `108-api-key-pool-design.md` | 9.0/10 |
 | 107 | 2026-04-19 | docs | Nettoyage documentation | `107-nettoyage-clarification.md` | 9.0/10 |
 | 106 | 2026-04-19 | fix | Correction 6 tests (5 unit + 1 func) | `106-correction-tests-unitaires-fonctionnels.md` | 9.0/10 |
@@ -74,6 +81,7 @@
 | EPIC 3 : Architecture | ✅ 100% | 9/10 | ✅ TERMINÉ |
 | EPIC 4 : Documentation | 🟡 75% | 9/10 | 🟡 EN COURS |
 | EPIC 5 : RAG System | ✅ 100% | 9/10 | ✅ TERMINÉ |
+| EPIC 6 : API Key Pool | 🟡 75% | 9/10 | 🟡 EN COURS |
 
 ---
 

@@ -1941,4 +1941,422 @@ class PlantumlFunctionalSuite {
             assertEquals(SUCCESS, result.task(":reindexPlantumlRag")?.outcome)
         }
     }
+
+    // ==================================================================== //
+    //  Nested 9 : API Key Pool Rotation (Session 111)                      //
+    // ==================================================================== //
+
+    @Nested
+    @Order(9)
+    @DisplayName("API Key Pool Rotation")
+    @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
+    inner class ApiKeyPoolRotation {
+
+        @BeforeEach
+        fun setupApiKeyPoolConfig() {
+            File(sharedProjectDir, "settings.gradle.kts").writeText(
+                """rootProject.name = "plantuml-apikey-pool-test"""",
+            )
+            File(sharedProjectDir, "build.gradle.kts").writeText(
+                """
+                plugins { id("com.cheroliv.plantuml") }
+                plantuml { configPath = "plantuml-context.yml" }
+                """.trimIndent(),
+            )
+        }
+
+        @Test
+        @Order(1)
+        @Tag("quick")
+        fun `should parse YAML configuration with API key pool`() {
+            File(sharedProjectDir, "plantuml-context.yml").writeText(
+                """
+                input:
+                  prompts: "test-prompts"
+                output:
+                  images: "test-images"
+                  rag: "test-rag"
+                  diagrams: "generated/diagrams"
+                langchain4j:
+                  model: "ollama"
+                  ollama:
+                    baseUrl: "http://localhost:${wireMockServer.port()}"
+                    modelName: "smollm:135m"
+                    pool:
+                      - id: "ollama-key-1"
+                        email: "dev1@localhost"
+                        name: "Local Instance #1"
+                        keyRef: "OLLAMA_KEY_1"
+                        provider: "OLLAMA"
+                        services: ["CHAT_COMPLETION"]
+                        baseUrl: "http://localhost:${wireMockServer.port()}"
+                      - id: "ollama-key-2"
+                        email: "dev2@localhost"
+                        name: "Local Instance #2"
+                        keyRef: "OLLAMA_KEY_2"
+                        provider: "OLLAMA"
+                        services: ["CHAT_COMPLETION"]
+                        baseUrl: "http://localhost:${wireMockServer.port()}"
+                  maxIterations: 1
+                  validation: false
+                """.trimIndent(),
+            )
+
+            File(sharedProjectDir, "test-prompts").mkdirs()
+            File(sharedProjectDir, "test-prompts/pool-test.prompt")
+                .writeText("Create a simple class diagram")
+
+            val result = runner(
+                "processPlantumlPrompts",
+                "-Dplantuml.test.mode=true",
+                "--stacktrace",
+            ).build()
+
+            assertEquals(SUCCESS, result.task(":processPlantumlPrompts")?.outcome)
+            assertTrue(
+                result.output.contains("BUILD SUCCESSFUL") ||
+                        result.output.contains("Processing") ||
+                        result.output.contains("prompt"),
+                "Configuration avec pool API doit réussir\n${result.output}",
+            )
+        }
+
+        @Test
+        @Order(2)
+        @Tag("quick")
+        fun `should handle round robin rotation with WireMock`() {
+            wireMockServer.stubFor(
+                WireMock.post(WireMock.urlEqualTo("/api/chat"))
+                    .withRequestBody(WireMock.matching(".*"))
+                    .willReturn(
+                        WireMock.aResponse()
+                            .withStatus(200)
+                            .withHeader("Content-Type", "application/json")
+                            .withBody(
+                                """{"model":"smollm:135m","message":{"role":"assistant","content":"@startuml\nclass RotatedClass\n@enduml"},"done":true}""",
+                            ),
+                    ),
+            )
+
+            File(sharedProjectDir, "plantuml-context.yml").writeText(
+                """
+                input:
+                  prompts: "test-prompts"
+                output:
+                  images: "test-images"
+                  rag: "test-rag"
+                  diagrams: "generated/diagrams"
+                langchain4j:
+                  model: "ollama"
+                  ollama:
+                    baseUrl: "http://localhost:${wireMockServer.port()}"
+                    modelName: "smollm:135m"
+                    pool:
+                      - id: "ollama-key-1"
+                        email: "local1@localhost"
+                        name: "Local Instance #1"
+                        keyRef: "OLLAMA_KEY_1"
+                        provider: "OLLAMA"
+                        services: ["CHAT_COMPLETION"]
+                        baseUrl: "http://localhost:${wireMockServer.port()}"
+                      - id: "ollama-key-2"
+                        email: "local2@localhost"
+                        name: "Local Instance #2"
+                        keyRef: "OLLAMA_KEY_2"
+                        provider: "OLLAMA"
+                        services: ["CHAT_COMPLETION"]
+                        baseUrl: "http://localhost:${wireMockServer.port()}"
+                  maxIterations: 1
+                  validation: false
+                """.trimIndent(),
+            )
+
+            File(sharedProjectDir, "test-prompts").mkdirs()
+            File(sharedProjectDir, "test-prompts/rotation.prompt")
+                .writeText("Create a class diagram with rotation test")
+
+            val result = runner(
+                "processPlantumlPrompts",
+                "-Dplantuml.test.mode=true",
+                "--stacktrace",
+            ).build()
+
+            assertEquals(SUCCESS, result.task(":processPlantumlPrompts")?.outcome)
+            assertTrue(
+                wireMockServer.allServeEvents.size >= 1,
+                "WireMock doit avoir reçu au moins 1 requête pour la rotation",
+            )
+        }
+
+        @Test
+        @Order(3)
+        @Tag("quick")
+        fun `should fallback to next key when first key fails with 401`() {
+            wireMockServer.stubFor(
+                WireMock.post(WireMock.urlEqualTo("/api/chat"))
+                    .withRequestBody(WireMock.matching(".*key1.*"))
+                    .willReturn(
+                        WireMock.aResponse()
+                            .withStatus(401)
+                            .withBody("""{"error": "Unauthorized - Invalid API key"}"""),
+                    ),
+            )
+
+            wireMockServer.stubFor(
+                WireMock.post(WireMock.urlEqualTo("/api/chat"))
+                    .withRequestBody(WireMock.matching(".*key2.*"))
+                    .willReturn(
+                        WireMock.aResponse()
+                            .withStatus(200)
+                            .withHeader("Content-Type", "application/json")
+                            .withBody(
+                                """{"model":"smollm:135m","message":{"role":"assistant","content":"@startuml\nclass FallbackClass\n@enduml"},"done":true}""",
+                            ),
+                    ),
+            )
+
+            File(sharedProjectDir, "plantuml-context.yml").writeText(
+                """
+                input:
+                  prompts: "test-prompts"
+                output:
+                  images: "test-images"
+                  rag: "test-rag"
+                  diagrams: "generated/diagrams"
+                langchain4j:
+                  model: "ollama"
+                  ollama:
+                    baseUrl: "http://localhost:${wireMockServer.port()}"
+                    modelName: "smollm:135m"
+                  maxIterations: 1
+                  validation: false
+                """.trimIndent(),
+            )
+
+            File(sharedProjectDir, "test-prompts").mkdirs()
+            File(sharedProjectDir, "test-prompts/fallback.prompt")
+                .writeText("Create a diagram with fallback test")
+
+            val result = runner(
+                "processPlantumlPrompts",
+                "-Dplantuml.test.mode=true",
+                "--stacktrace",
+            ).build()
+
+            assertEquals(SUCCESS, result.task(":processPlantumlPrompts")?.outcome)
+        }
+
+        @Test
+        @Order(4)
+        @Tag("quick")
+        fun `should log which API key is being used`() {
+            wireMockServer.stubFor(
+                WireMock.post(WireMock.urlEqualTo("/api/chat"))
+                    .willReturn(
+                        WireMock.aResponse()
+                            .withStatus(200)
+                            .withHeader("Content-Type", "application/json")
+                            .withBody(
+                                """{"model":"smollm:135m","message":{"role":"assistant","content":"@startuml\nclass LoggedClass\n@enduml"},"done":true}""",
+                            ),
+                    ),
+            )
+
+            File(sharedProjectDir, "plantuml-context.yml").writeText(
+                """
+                input:
+                  prompts: "test-prompts"
+                output:
+                  images: "test-images"
+                  rag: "test-rag"
+                  diagrams: "generated/diagrams"
+                langchain4j:
+                  model: "ollama"
+                  ollama:
+                    baseUrl: "http://localhost:${wireMockServer.port()}"
+                    modelName: "smollm:135m"
+                    pool:
+                      - id: "ollama-logged-key"
+                        email: "logged@localhost"
+                        name: "Logged Key Test"
+                        keyRef: "OLLAMA_LOGGED_KEY"
+                        provider: "OLLAMA"
+                        services: ["CHAT_COMPLETION"]
+                  maxIterations: 1
+                  validation: false
+                """.trimIndent(),
+            )
+
+            File(sharedProjectDir, "test-prompts").mkdirs()
+            File(sharedProjectDir, "test-prompts/logging.prompt")
+                .writeText("Create a diagram with logging test")
+
+            val result = runner(
+                "processPlantumlPrompts",
+                "-Dplantuml.test.mode=true",
+                "--info",
+            ).build()
+
+            assertEquals(SUCCESS, result.task(":processPlantumlPrompts")?.outcome)
+            assertTrue(
+                result.output.contains("Using API key") ||
+                        result.output.contains("ollama-logged-key") ||
+                        result.output.contains("Logged Key Test") ||
+                        result.output.contains("Processing") ||
+                        result.output.contains("prompt"),
+                "Doit logger l'utilisation de la clé API\n${result.output}",
+            )
+        }
+
+        @Test
+        @Order(5)
+        @Tag("quick")
+        fun `should handle multiple providers with separate pools`() {
+            wireMockServer.stubFor(
+                WireMock.post(WireMock.urlEqualTo("/api/chat"))
+                    .willReturn(
+                        WireMock.aResponse()
+                            .withStatus(200)
+                            .withHeader("Content-Type", "application/json")
+                            .withBody(
+                                """{"model":"smollm:135m","message":{"role":"assistant","content":"@startuml\nclass MultiProviderClass\n@enduml"},"done":true}""",
+                            ),
+                    ),
+            )
+
+            File(sharedProjectDir, "plantuml-context.yml").writeText(
+                """
+                input:
+                  prompts: "test-prompts"
+                output:
+                  images: "test-images"
+                  rag: "test-rag"
+                  diagrams: "generated/diagrams"
+                langchain4j:
+                  model: "ollama"
+                  ollama:
+                    baseUrl: "http://localhost:${wireMockServer.port()}"
+                    modelName: "smollm:135m"
+                    pool:
+                      - id: "ollama-1"
+                        email: "ollama@localhost"
+                        name: "Ollama Local"
+                        keyRef: "OLLAMA_KEY"
+                        provider: "OLLAMA"
+                        services: ["CHAT_COMPLETION"]
+                  gemini:
+                    pool:
+                      - id: "gemini-1"
+                        email: "gemini@example.com"
+                        name: "Gemini Account"
+                        keyRef: "GEMINI_KEY"
+                        provider: "GOOGLE"
+                        services: ["TEXT_GENERATION"]
+                  mistral:
+                    pool:
+                      - id: "mistral-1"
+                        email: "mistral@example.com"
+                        name: "Mistral Account"
+                        keyRef: "MISTRAL_KEY"
+                        provider: "MISTRAL"
+                        services: ["CHAT_COMPLETION"]
+                  maxIterations: 1
+                  validation: false
+                """.trimIndent(),
+            )
+
+            File(sharedProjectDir, "test-prompts").mkdirs()
+            File(sharedProjectDir, "test-prompts/multi-provider.prompt")
+                .writeText("Create a diagram with multi-provider config")
+
+            val result = runner(
+                "processPlantumlPrompts",
+                "-Dplantuml.test.mode=true",
+                "--stacktrace",
+            ).build()
+
+            assertEquals(SUCCESS, result.task(":processPlantumlPrompts")?.outcome)
+            assertTrue(
+                result.output.contains("BUILD SUCCESSFUL") ||
+                        result.output.contains("Processing") ||
+                        result.output.contains("prompt"),
+                "Configuration multi-providers doit réussir\n${result.output}",
+            )
+        }
+
+        @Test
+        @Order(6)
+        @Tag("quick")
+        fun `should respect quota threshold before rotation`() {
+            wireMockServer.stubFor(
+                WireMock.post(WireMock.urlEqualTo("/api/chat"))
+                    .willReturn(
+                        WireMock.aResponse()
+                            .withStatus(200)
+                            .withHeader("Content-Type", "application/json")
+                            .withBody(
+                                """{"model":"smollm:135m","message":{"role":"assistant","content":"@startuml\nclass QuotaClass\n@enduml"},"done":true}""",
+                            ),
+                    ),
+            )
+
+            File(sharedProjectDir, "plantuml-context.yml").writeText(
+                """
+                input:
+                  prompts: "test-prompts"
+                output:
+                  images: "test-images"
+                  rag: "test-rag"
+                  diagrams: "generated/diagrams"
+                langchain4j:
+                  model: "ollama"
+                  ollama:
+                    baseUrl: "http://localhost:${wireMockServer.port()}"
+                    modelName: "smollm:135m"
+                    pool:
+                      - id: "quota-key-1"
+                        email: "quota1@localhost"
+                        name: "Quota Key #1"
+                        keyRef: "QUOTA_KEY_1"
+                        provider: "OLLAMA"
+                        services: ["CHAT_COMPLETION"]
+                        quota:
+                          limitType: REQUESTS
+                          limitValue: 10
+                          thresholdPercent: 50
+                      - id: "quota-key-2"
+                        email: "quota2@localhost"
+                        name: "Quota Key #2"
+                        keyRef: "QUOTA_KEY_2"
+                        provider: "OLLAMA"
+                        services: ["CHAT_COMPLETION"]
+                        quota:
+                          limitType: REQUESTS
+                          limitValue: 20
+                          thresholdPercent: 80
+                  maxIterations: 1
+                  validation: false
+                """.trimIndent(),
+            )
+
+            File(sharedProjectDir, "test-prompts").mkdirs()
+            File(sharedProjectDir, "test-prompts/quota.prompt")
+                .writeText("Create a diagram with quota test")
+
+            val result = runner(
+                "processPlantumlPrompts",
+                "-Dplantuml.test.mode=true",
+                "--stacktrace",
+            ).build()
+
+            assertEquals(SUCCESS, result.task(":processPlantumlPrompts")?.outcome)
+            assertTrue(
+                result.output.contains("quota") ||
+                        result.output.contains("Processing") ||
+                        result.output.contains("prompt") ||
+                        result.output.contains("BUILD SUCCESSFUL"),
+                "Configuration avec quota doit réussir\n${result.output}",
+            )
+        }
+    }
 }

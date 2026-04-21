@@ -1,5 +1,13 @@
 # Historique des Sessions
 
+**Session 115** (2026-04-21) : Reconstruction Historique & Plan Dataset — 3 fichiers créés ✅  
+**Session 114** (2026-04-21) : Documentation Architecture & Organisation — 3 fichiers créés ✅  
+**Session 113** (2026-04-20) : Quota Tracker + Reset + Audit — 63/63 tests PASS ✅  
+**Session 112** (2026-04-20) : LlmService + ConfigLoader avec ApiKeyPool — 17/17 tests PASS ✅  
+**Session 111** (2026-04-20) : Tests fonctionnels TDD ApiKeyPool — 16/16 tests PASS ✅  
+**Session 110** (2026-04-20) : Data models unit tests — ApiKeyEntry, QuotaConfig ✅  
+**Session 109** (2026-04-20) : Formalisation Lazy/Eager loading — Tests ✅  
+**Session 108** (2026-04-20) : API Key Pool Design — Architecture rotation ✅  
 **Session 107** (2026-04-19) : Nettoyage documentation — 153 lignes supprimées ✅  
 **Session 106** (2026-04-19) : Correction 6 tests — 240/240 PASS (100%) ✅  
 **Session 105** (2026-04-19) : Tests performance mockés — 57/57 maintenu ✅  

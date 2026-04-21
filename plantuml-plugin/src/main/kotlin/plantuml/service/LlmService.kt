@@ -6,7 +6,14 @@ import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel
 import dev.langchain4j.model.mistralai.MistralAiChatModel
 import dev.langchain4j.model.ollama.OllamaChatModel
 import dev.langchain4j.model.openai.OpenAiChatModel
+import plantuml.ApiKeyPoolEntry
 import plantuml.PlantumlConfig
+import plantuml.PoolQuotaConfig
+import plantuml.apikey.ApiKeyPool
+import plantuml.apikey.ApiKeyEntry
+import plantuml.apikey.Provider
+import plantuml.apikey.QuotaAuditLogger
+import plantuml.apikey.QuotaConfig
 import java.time.Duration
 
 /**
@@ -25,7 +32,74 @@ import java.time.Duration
  *
  * @param config PlantUML configuration containing LLM provider settings
  */
-class LlmService(private val config: PlantumlConfig) {
+class LlmService(
+    private val config: PlantumlConfig,
+    internal var auditLogger: QuotaAuditLogger = QuotaAuditLogger()
+) {
+
+    private val apiKeyPools = mutableMapOf<String, ApiKeyPool>()
+
+    init {
+        initializeApiKeyPools()
+    }
+
+    private fun initializeApiKeyPools() {
+        val openaiPool = config.langchain4j.openai.pool
+        if (openaiPool.isNotEmpty()) {
+            apiKeyPools["openai"] = ApiKeyPool(openaiPool.map { it.toApiKeyEntry() })
+        }
+
+        val geminiPool = config.langchain4j.gemini.pool
+        if (geminiPool.isNotEmpty()) {
+            apiKeyPools["gemini"] = ApiKeyPool(geminiPool.map { it.toApiKeyEntry() })
+        }
+
+        val mistralPool = config.langchain4j.mistral.pool
+        if (mistralPool.isNotEmpty()) {
+            apiKeyPools["mistral"] = ApiKeyPool(mistralPool.map { it.toApiKeyEntry() })
+        }
+
+        val claudePool = config.langchain4j.claude.pool
+        if (claudePool.isNotEmpty()) {
+            apiKeyPools["claude"] = ApiKeyPool(claudePool.map { it.toApiKeyEntry() })
+        }
+
+        val huggingfacePool = config.langchain4j.huggingface.pool
+        if (huggingfacePool.isNotEmpty()) {
+            apiKeyPools["huggingface"] = ApiKeyPool(huggingfacePool.map { it.toApiKeyEntry() })
+        }
+
+        val groqPool = config.langchain4j.groq.pool
+        if (groqPool.isNotEmpty()) {
+            apiKeyPools["groq"] = ApiKeyPool(groqPool.map { it.toApiKeyEntry() })
+        }
+    }
+
+    private fun ApiKeyPoolEntry.toApiKeyEntry(): ApiKeyEntry {
+        return ApiKeyEntry(
+            id = this.id,
+            email = this.email,
+            name = this.name,
+            keyRef = this.keyRef,
+            provider = Provider.valueOf(this.provider.uppercase()),
+            services = this.services.map { plantuml.apikey.ServiceType.valueOf(it.uppercase()) },
+            quota = QuotaConfig(
+                limitValue = this.quota.limitValue,
+                thresholdPercent = this.quota.thresholdPercent
+            )
+        )
+    }
+
+    private fun getApiKeyFromPool(provider: String): String? {
+        val pool = apiKeyPools[provider.lowercase()]
+        val keyEntry = pool?.getNextKey()
+        
+        if (keyEntry != null) {
+            auditLogger.logInfo(keyEntry.provider, "Using API key from pool: ${keyEntry.id}")
+        }
+        
+        return keyEntry?.keyRef
+    }
 
     /**
      * Creates and configures a LangChain4j [ChatModel] based on the active provider.
@@ -34,6 +108,13 @@ class LlmService(private val config: PlantumlConfig) {
      * @throws IllegalArgumentException if provider name is invalid
      */
     fun createChatModel(): ChatModel? {
+        val provider = config.langchain4j.model
+        
+        auditLogger.logInfo(
+            plantuml.apikey.Provider.valueOf(provider.uppercase()),
+            "Creating chat model for provider: $provider"
+        )
+        
         // Return null only in simple test mode without mock LLM server
         // If mock LLM server is configured (localhost baseUrl), use real Ollama model
         val isTestMode = System.getProperty("plantuml.test.mode") == "true" || System.getenv("TEST_ENV") == "true"
@@ -51,7 +132,13 @@ class LlmService(private val config: PlantumlConfig) {
             "claude" -> createClaudeModel()
             "huggingface" -> createHuggingFaceModel()
             "groq" -> createGroqModel()
-            else -> createOllamaModel() // Default to Ollama
+            else -> {
+                auditLogger.logError(
+                    plantuml.apikey.Provider.UNKNOWN,
+                    "Unknown provider: $provider, defaulting to Ollama"
+                )
+                createOllamaModel()
+            }
         }
     }
 
@@ -73,8 +160,9 @@ class LlmService(private val config: PlantumlConfig) {
      * @return Configured [OpenAiChatModel] with GPT-4 model
      */
     private fun createOpenAiModel(): ChatModel {
+        val apiKey = getApiKeyFromPool("openai") ?: config.langchain4j.openai.apiKey
         val builder = OpenAiChatModel.builder()
-            .apiKey(config.langchain4j.openai.apiKey)
+            .apiKey(apiKey)
             .modelName(config.langchain4j.openai.modelName)
             .temperature(0.7)
             .timeout(Duration.ofSeconds(getTimeoutInSeconds()))
@@ -91,12 +179,15 @@ class LlmService(private val config: PlantumlConfig) {
      *
      * @return Configured [GoogleAiGeminiChatModel] with gemini-pro model
      */
-    private fun createGeminiModel(): ChatModel = GoogleAiGeminiChatModel.builder()
-        .apiKey(config.langchain4j.gemini.apiKey)
-        .modelName(config.langchain4j.gemini.modelName)
-        .temperature(0.7)
-        .timeout(Duration.ofSeconds(getTimeoutInSeconds()))
-        .build()
+    private fun createGeminiModel(): ChatModel {
+        val apiKey = getApiKeyFromPool("gemini") ?: config.langchain4j.gemini.apiKey
+        return GoogleAiGeminiChatModel.builder()
+            .apiKey(apiKey)
+            .modelName(config.langchain4j.gemini.modelName)
+            .temperature(0.7)
+            .timeout(Duration.ofSeconds(getTimeoutInSeconds()))
+            .build()
+    }
 
     /**
      * Creates a Mistral AI chat model.
@@ -104,8 +195,9 @@ class LlmService(private val config: PlantumlConfig) {
      * @return Configured [MistralAiChatModel] with mistral-large-latest model
      */
     private fun createMistralModel(): ChatModel {
+        val apiKey = getApiKeyFromPool("mistral") ?: config.langchain4j.mistral.apiKey
         val builder = MistralAiChatModel.builder()
-            .apiKey(config.langchain4j.mistral.apiKey)
+            .apiKey(apiKey)
             .modelName(config.langchain4j.mistral.modelName)
             .temperature(0.7)
             .timeout(Duration.ofSeconds(getTimeoutInSeconds()))
@@ -123,8 +215,9 @@ class LlmService(private val config: PlantumlConfig) {
      * @return Configured [AnthropicChatModel] with claude-3-opus-20240229 model
      */
     private fun createClaudeModel(): ChatModel {
+        val apiKey = getApiKeyFromPool("claude") ?: config.langchain4j.claude.apiKey
         val builder = AnthropicChatModel.builder()
-            .apiKey(config.langchain4j.claude.apiKey)
+            .apiKey(apiKey)
             .modelName(config.langchain4j.claude.modelName)
             .temperature(0.7)
             .timeout(Duration.ofSeconds(getTimeoutInSeconds()))
@@ -142,8 +235,9 @@ class LlmService(private val config: PlantumlConfig) {
      * @return Configured [OpenAiChatModel] pointing to HuggingFace inference API
      */
     private fun createHuggingFaceModel(): ChatModel {
+        val apiKey = getApiKeyFromPool("huggingface") ?: config.langchain4j.huggingface.apiKey
         return OpenAiChatModel.builder()
-            .apiKey(config.langchain4j.huggingface.apiKey)
+            .apiKey(apiKey)
             .baseUrl("https://api-inference.huggingface.co")
             .modelName("gpt2") // Default model, can be made configurable
             .temperature(0.7)
@@ -156,13 +250,16 @@ class LlmService(private val config: PlantumlConfig) {
      *
      * @return Configured [OpenAiChatModel] pointing to Groq API with llama3-8b model
      */
-    private fun createGroqModel(): ChatModel = OpenAiChatModel.builder()
-        .apiKey(config.langchain4j.groq.apiKey)
-        .baseUrl("https://api.groq.com/openai/v1")
-        .modelName("llama3-8b-8192") // Default model, can be made configurable
-        .temperature(0.7)
-        .timeout(Duration.ofSeconds(getTimeoutInSeconds()))
-        .build()
+    private fun createGroqModel(): ChatModel {
+        val apiKey = getApiKeyFromPool("groq") ?: config.langchain4j.groq.apiKey
+        return OpenAiChatModel.builder()
+            .apiKey(apiKey)
+            .baseUrl("https://api.groq.com/openai/v1")
+            .modelName("llama3-8b-8192") // Default model, can be made configurable
+            .temperature(0.7)
+            .timeout(Duration.ofSeconds(getTimeoutInSeconds()))
+            .build()
+    }
     
     /**
      * Returns timeout duration in seconds based on environment.

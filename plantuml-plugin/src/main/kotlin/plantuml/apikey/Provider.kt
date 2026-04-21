@@ -14,7 +14,8 @@ enum class Provider {
     GROK,
     OPENAI,
     ANTHROPIC,
-    GITHUB
+    GITHUB,
+    UNKNOWN
 }
 
 /**

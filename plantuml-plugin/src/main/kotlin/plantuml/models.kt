@@ -123,10 +123,12 @@ data class GitConfig(
  *
  * @property baseUrl Ollama server base URL (default: "http://localhost:11434")
  * @property modelName Ollama model name to use (default: "smollm:135m")
+ * @property pool List of Ollama instances for rotation (optional)
  */
 data class OllamaConfig(
     val baseUrl: String = "http://localhost:11434",
-    val modelName: String = "smollm:135m"
+    val modelName: String = "smollm:135m",
+    val pool: List<ApiKeyPoolEntry> = emptyList()
 )
 
 /**
@@ -135,11 +137,49 @@ data class OllamaConfig(
  * @property apiKey API key for the LLM provider (default: empty)
  * @property baseUrl Base URL for the API (optional, for custom endpoints)
  * @property modelName Model name to use (optional, for provider-specific models)
+ * @property pool List of API keys for rotation (optional)
  */
 data class ApiKeyConfig(
     val apiKey: String = "",
     val baseUrl: String = "",
-    val modelName: String = ""
+    val modelName: String = "",
+    val pool: List<ApiKeyPoolEntry> = emptyList()
+)
+
+/**
+ * Entry in the API key rotation pool.
+ *
+ * @property id Unique identifier for this key entry
+ * @property email Email associated with the API key account
+ * @property name Friendly name for this key
+ * @property keyRef Reference to the API key (e.g., env var name)
+ * @property provider The API provider name
+ * @property services List of services this key can access
+ * @property baseUrl Base URL for the API (optional, overrides provider default)
+ * @property quota Quota configuration for this key
+ */
+data class ApiKeyPoolEntry(
+    val id: String = "",
+    val email: String = "",
+    val name: String = "",
+    val keyRef: String = "",
+    val provider: String = "",
+    val services: List<String> = emptyList(),
+    val baseUrl: String = "",
+    val quota: PoolQuotaConfig = PoolQuotaConfig()
+)
+
+/**
+ * Quota configuration for an API key in the pool.
+ *
+ * @property limitType Type of quota limit (REQUESTS, TOKENS, etc.)
+ * @property limitValue Maximum allowed value
+ * @property thresholdPercent Percentage at which rotation is triggered (default: 80)
+ */
+data class PoolQuotaConfig(
+    val limitType: String = "REQUESTS",
+    val limitValue: Long = 1000,
+    val thresholdPercent: Int = 80
 )
 
 /**

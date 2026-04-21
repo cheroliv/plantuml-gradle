@@ -1,0 +1,158 @@
+# Session 113 — Quota Tracker + Reset automatique
+
+**Date** : 20 avril 2026  
+**Statut** : ✅ **TERMINÉE**  
+**Mission** : Quota Tracker + Reset automatique + Audit Logger
+
+---
+
+## Résumé
+
+Session dédiée à l'implémentation complète du système de quota tracking avec reset automatique et audit logging pour le pool de clés API.
+
+### Architecture implémentée
+
+```
+QuotaTracker → Track l'usage par clé
+     ↓
+QuotaResetManager → Reset automatique selon policy (DAILY, WEEKLY, MONTHLY, MANUAL, NEVER)
+     ↓
+QuotaAuditLogger → Audit logger pour tracer chaque utilisation
+     ↓
+ApiKeyPool (mis à jour) → Intègre les 3 composants
+```
+
+---
+
+## Fichiers créés
+
+### Main
+| Fichier | Description | Lignes |
+|---------|-------------|--------|
+| `src/main/kotlin/plantuml/apikey/QuotaTracker.kt` | Track l'usage par clé | 68 |
+| `src/main/kotlin/plantuml/apikey/QuotaResetManager.kt` | Reset automatique selon policy | 140 |
+| `src/main/kotlin/plantuml/apikey/QuotaAuditLogger.kt` | Audit logger pour tracer chaque utilisation | 156 |
+
+### Tests
+| Fichier | Description | Tests | Lignes |
+|---------|-------------|-------|--------|
+| `src/test/kotlin/plantuml/apikey/QuotaTrackerTest.kt` | Tests unitaires QuotaTracker | 11 | 147 |
+| `src/test/kotlin/plantuml/apikey/QuotaResetManagerTest.kt` | Tests unitaires QuotaResetManager | 11 | 142 |
+| `src/test/kotlin/plantuml/apikey/QuotaAuditLoggerTest.kt` | Tests unitaires QuotaAuditLogger | 11 | 147 |
+| `src/functionalTest/kotlin/plantuml/QuotaResetFunctionalTest.kt` | Tests fonctionnels | 3 | 130 |
+
+### Modifiés
+| Fichier | Modifications |
+|---------|---------------|
+| `src/main/kotlin/plantuml/apikey/ApiKeyPool.kt` | Intégration QuotaTracker + ResetManager + AuditLogger (+80 lignes) |
+| `src/main/kotlin/plantuml/apikey/Provider.kt` | Ajout UNKNOWN enum |
+| `src/test/kotlin/plantuml/apikey/ApiKeyPoolTest.kt` | +3 tests (auto reset + audit) |
+
+---
+
+## Tests
+
+### Unitaires
+| Classe | Tests | Statut |
+|--------|-------|--------|
+| QuotaTrackerTest | 11 | ✅ PASS |
+| QuotaResetManagerTest | 11 | ✅ PASS |
+| QuotaAuditLoggerTest | 11 | ✅ PASS |
+| ApiKeyPoolTest | 13 | ✅ PASS |
+| LlmServiceApiKeyPoolTest | 8 | ✅ PASS |
+| ConfigLoaderApiKeyPoolTest | 9 | ✅ PASS |
+| **Total** | **63** | **✅ 100%** |
+
+### Fonctionnels
+| Test | Statut |
+|------|--------|
+| test automatic reset when quota exceeded | ✅ PASS |
+| test key rotation with quota management | ✅ PASS |
+| test audit logger tracks all operations | ✅ PASS |
+| **Total** | **3/3 PASS** |
+
+---
+
+## Critères d'acceptation
+
+- [x] `QuotaTracker` track l'usage par clé
+- [x] Reset automatique quand quota dépassé
+- [x] Audit logger trace chaque utilisation
+- [x] 100% tests unitaires PASS
+- [x] Tests fonctionnels avec WireMock PASS
+
+---
+
+## Fonctionnalités implémentées
+
+### QuotaTracker
+- `trackUsage(entryId)` — Incrémente le compteur d'usage
+- `getUsage(entryId)` — Retourne le compteur actuel
+- `isQuotaExceeded(entry)` — Vérifie si seuil dépassé
+- `reset(entryId)` — Reset un compteur spécifique
+- `resetAll()` — Reset tous les compteurs
+- `getUsagePercentage(entry)` — Pourcentage d'usage (0-100%)
+
+### QuotaResetManager
+- `checkAndReset(entry)` — Vérifie et reset si quota dépassé
+- `manualReset(entryId)` — Reset manuel
+- `getResetCount(entryId)` — Nombre de resets effectués
+- `getLastReset(entryId)` — Timestamp du dernier reset
+- Support des policies : DAILY, WEEKLY, MONTHLY, MANUAL, NEVER
+
+### QuotaAuditLogger
+- `logUsage(entry, count)` — Log chaque utilisation
+- `logQuotaExceeded(entry, count)` — Log quota dépassé
+- `logReset(entryId, count, isManual)` — Log reset (auto/manual)
+- `logRotation(from, to, reason)` — Log rotation de clé
+- `getLogs()` — Retourne tous les logs
+- `getLogsForEntry(entryId)` — Filtre par clé
+- `getLogsByType(eventType)` — Filtre par type d'événement
+- `clear()` — Efface les logs
+
+### ApiKeyPool (mis à jour)
+- Intègre automatiquement QuotaTracker, QuotaResetManager, QuotaAuditLogger
+- Reset automatique quand quota dépassé (configurable via `autoResetEnabled`)
+- Audit logging activable/désactivable via `auditEnabled`
+- Nouvelles méthodes :
+  - `getTracker()` — Accès au QuotaTracker
+  - `getResetManager()` — Accès au QuotaResetManager
+  - `getAuditLogger()` — Accès au QuotaAuditLogger
+  - `getUsagePercentage(entry)` — Pourcentage d'usage
+  - `manualReset(entryId)` — Reset manuel avec logging
+  - `getAuditLogs()` — Accès aux logs d'audit
+
+---
+
+## Roadmap EPIC
+
+| Session | Objectif | Progression |
+|---------|----------|-------------|
+| 108-110 | Architecture + Models | ✅ 100% |
+| **111** | **Tests fonctionnels TDD** | ✅ **100%** |
+| **112** | **LlmService + ConfigLoader** | ✅ **100%** |
+| **113** | **Quota tracker + Reset** | ✅ **100%** |
+| 114 | Audit logger (intégration LlmService) | ⏳ **Prochaine** |
+| 115-117 | Providers + Tests finaux | ⏳ Pending |
+
+---
+
+## Archive
+
+**Fichier** : `.agents/sessions/113-quota-tracker-reset.md`
+
+---
+
+## Session 114 — Prochaine étape
+
+**Objectif** : Intégrer l'Audit Logger dans LlmService pour un logging complet des opérations LLM.
+
+**Tâches** :
+1. Ajouter Audit Logger dans LlmService
+2. Logger chaque appel LLM (succès/échec)
+3. Logger les rotations de clés
+4. Tests unitaires + fonctionnels
+
+---
+
+**Session 113** ✅ — **Session 114** 🚀

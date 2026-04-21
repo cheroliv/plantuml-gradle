@@ -12,3 +12,6 @@ gen/
 generated/
 test-rag/
 TODO.adoc
+accounts.txt
+motsdepasse.csv
+plantuml-test-context.yml
