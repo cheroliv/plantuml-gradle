@@ -57,11 +57,11 @@ L'agent **NE DOIT JAMAIS** :
 
 '''
 
-== 🧹 Nettoyage AGENTS.md — Vérification systématique
+== 🧹 Vérification du contexte — Nettoyage systématique
 
 **Objectif** : Identifier les sections à transférer vers d'autres fichiers pour alléger le contexte
 
-=== Étape 1 : Analyser le contenu actuel de AGENTS.md
+=== Étape 1 : Analyser le contenu actuel de AGENT.adoc
 
 **Question** : Y a-t-il des sections trop détaillées ou redondantes ?
 
@@ -96,17 +96,17 @@ L'agent **NE DOIT JAMAIS** :
 
 **Signes qu'un transfert est nécessaire** :
 
-* 🔴 AGENTS.md dépasse 100 lignes
+* 🔴 AGENT.adoc dépasse 200 lignes
 * 🔴 Sections trop détaillées (commandes, méthodologie, pièges)
 * 🔴 Redondance avec d'autres fichiers de référence
 * 🔴 Contenu qui peut être consulté "sur besoin" (pas "toujours")
 
 **Comment transférer** :
 
-. ✅ Identifier la section redondante dans AGENTS.md
+. ✅ Identifier la section redondante dans AGENT.adoc
 . ✅ Vérifier si un fichier dédié existe déjà (tableau ci-dessus)
 . ✅ Déplacer le contenu vers le fichier dédié
-. ✅ Remplacer par un renvoi court dans AGENTS.md (ex: "**Voir** : `AGENT_REFERENCE.adoc`")
+. ✅ Remplacer par un renvoi court dans AGENT.adoc (ex: "**Voir** : `AGENT_REFERENCE.adoc`")
 . ✅ Mettre à jour ce fichier (SESSION_PROCEDURE.adoc) avec le nouveau transfert
 
 === Étape 4 : Exemple Session 45
@@ -123,11 +123,9 @@ L'agent **NE DOIT JAMAIS** :
 | "📝 Mise à jour" | SESSION_PROCEDURE.adoc | ✅ Transféré
 |===
 
-**Résultat** : AGENTS.md 133 → 77 lignes (-42%)
-
 === Étape 5 : Checklist de fin de vérification
 
-* [ ] AGENTS.md < 100 lignes (si le fichier existe)
+* [ ] AGENT.adoc reste cohérent et concis
 * [ ] Sections essentielles préservées (Contexte, Points d'attention, Architecture, État actuel)
 * [ ] Redondances transférées vers fichiers dédiés
 * [ ] Renvois courts ajoutés pour sections transférées
@@ -140,7 +138,7 @@ L'agent **NE DOIT JAMAIS** :
 |===
 | Fichier | Rôle | Chargement
 
-| `AGENTS.md` | Architecture, décisions, méthodologie | **Toujours** (si existe)
+| `AGENT.adoc` | Architecture, décisions, méthodologie | **Toujours** (via opencode.json)
 | `AGENT_REFERENCE.adoc` | Référence rapide (commandes, providers, pièges) | **Sur besoin**
 | `PROMPT_REPRISE.adoc` | Mission session en cours | **Début session**
 | `SESSIONS_HISTORY.adoc` | Historique complet sessions | **Sur besoin**
@@ -152,12 +150,12 @@ L'agent **NE DOIT JAMAIS** :
 
 == 🗂️ État des Fichiers de Mémoire
 
-**Objectif** : Permettre le transfert d'éléments depuis `AGENTS.md` vers d'autres fichiers
+**Objectif** : Permettre le transfert d'éléments depuis `AGENT.adoc` vers d'autres fichiers
 
 |===
-| Fichier | Contenu | Taille | Transfert depuis AGENTS.md
+| Fichier | Contenu | Taille | Transfert depuis AGENT.adoc
 
-| `AGENTS.md` | Contexte, architecture, points d'attention, état actuel | ~77 lignes | **Source**
+| `AGENT.adoc` | Contexte, architecture, points d'attention,état actuel | ~180 lignes | **Source**
 | `AGENT_REFERENCE.adoc` | Commandes, providers LLM, méthodologie optimisation, pièges | ~410 lignes | ✅ Sections "Décisions techniques", "Optimisation des tests", "Méthodologie"
 | `SESSION_PROCEDURE.adoc` | Procédure fin de session, tableau des références | ~60 lignes | ✅ Sections "Références", "Mise à jour"
 | `PROMPT_REPRISE.adoc` | Mission session en cours, backlog | ~120 lignes | ❌ Indépendant
@@ -165,20 +163,20 @@ L'agent **NE DOIT JAMAIS** :
 | `COMPLETED_TASKS_ARCHIVE.adoc` | Archive tâches terminées | Variable | ❌ Indépendant
 |===
 
-=== Quand transférer du contenu depuis `AGENTS.md`
+=== Quand transférer du contenu depuis `AGENT.adoc`
 
 **Signes qu'un transfert est nécessaire** :
 
-* 🔴 `AGENTS.md` dépasse 100 lignes
+* 🔴 `AGENT.adoc` dépasse 200 lignes
 * 🔴 Sections trop détaillées (commandes, méthodologie, pièges)
 * 🔴 Redondance avec d'autres fichiers de référence
 
 **Comment transférer** :
 
-. ✅ Identifier la section redondante dans `AGENTS.md`
+. ✅ Identifier la section redondante dans `AGENT.adoc`
 . ✅ Vérifier si un fichier dédié existe déjà (`AGENT_REFERENCE.adoc`, `SESSION_PROCEDURE.adoc`)
 . ✅ Déplacer le contenu vers le fichier dédié
-. ✅ Remplacer par un renvoi court dans `AGENTS.md` (ex: "**Voir** : `AGENT_REFERENCE.adoc`")
+. ✅ Remplacer par un renvoi court dans `AGENT.adoc` (ex: "**Voir** : `AGENT_REFERENCE.adoc`")
 . ✅ Mettre à jour ce tableau avec le nouveau transfert
 
 '''

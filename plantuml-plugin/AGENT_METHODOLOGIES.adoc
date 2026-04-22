@@ -16,7 +16,7 @@ Ce document décrit le *mécanisme de détection automatique* qui permet à l'ag
 
 == 🎯 Menu des Méthodologies
 
-=== Tableau de détection (dans AGENTS.md)
+=== Tableau de détection (dans AGENT.adoc)
 
 [options="header"]
 |===
@@ -389,7 +389,7 @@ J'ai fini pour cette session
 * ❌ Aucune question posée
 * ✅ **PROCÉDURE AUTOMATIQUE** (5 étapes) :
 .. Vérifier tests (`./gradlew test`)
-.. Mettre à jour `AGENTS.md`
+.. Mettre à jour `AGENT.adoc`
 .. Mettre à jour `COMPLETED_TASKS_ARCHIVE.adoc`
 .. Mettre à jour `PROMPT_REPRISE.adoc`
 .. Mettre à jour `TEST_COVERAGE_ANALYSIS.adoc` (si besoin)
@@ -709,7 +709,7 @@ J'ai fini pour cette session
 .. Utilisateur a déjà spécifié méthodologie ?
 .. Session urgente ?
 
-. **Consulter AGENTS.md** :
+. **Consulter AGENT.adoc** :
 .. Ligne 291-366 (Menu des méthodologies)
 .. Match avec tableau
 
@@ -872,7 +872,7 @@ fun attemptHistoryShouldHaveEntries(expectedCount: Int) {
 
 == 🔗 Références
 
-* **AGENTS.md** : Lignes 291-366 (Menu des méthodologies)
+* **AGENT.adoc** : Lignes 291-366 (Menu des méthodologies)
 * **METHODOLOGIE_OPTIMISATION_TESTS.adoc** : Techniques d'optimisation
 * **TEST_COVERAGE_ANALYSIS.adoc** : Couverture des tests unitaires
 * **COMPLETED_TASKS_ARCHIVE.adoc** : Historique des sessions

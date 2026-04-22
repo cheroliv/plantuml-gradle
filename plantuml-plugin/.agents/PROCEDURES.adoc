@@ -17,7 +17,7 @@ _Solution_ : Séparer l'information en 2 catégories :
 
 |===
 | Type | Caractéristiques | Exemples
-| _EAGER_ | • Critique pour démarrer<br>• < 100 lignes<br>• Lu automatiquement | `PROMPT_REPRISE.adoc`, `AGENTS.md`
+| _EAGER_ | • Critique pour démarrer<br>• < 100 lignes<br>• Lu automatiquement | `PROMPT_REPRISE.adoc`, `AGENT.adoc`
 | _LAZY_ | • Détails complets<br>• Illimité<br>• Lu sur demande explicite | `.agents/sessions/{N}*.adoc`, `AGENT_REFERENCE.adoc`
 |===
 
@@ -220,9 +220,9 @@ _Contraintes_ :
 
 '''
 
-=== ÉTAPE 4 : Nettoyer AGENTS.md (si besoin)
+=== ÉTAPE 4 : Vérifier la cohérence du contexte (si besoin)
 
-_Vérifier_ : `AGENTS.md` dépasse-t-il 100 lignes ?
+_Vérifier_ : `AGENT.adoc` dépasse-t-il 200 lignes ?
 
 _Si OUI_ :
 
@@ -252,7 +252,7 @@ _Checklist_ :
 |===
 | Fichier | Type | Taille Max | Quand Charger
 | `PROMPT_REPRISE.adoc` | _EAGER_ | 100 lignes | _Début session_ (auto)
-| `AGENTS.md` | _EAGER_ | 100 lignes | _Toujours_ (auto)
+| `AGENT.adoc` | _EAGER_ | 200 lignes | _Toujours_ (auto via opencode.json)
 | `AGENT_REFERENCE.adoc` | LAZY | Illimité | Sur besoin (commandes, pièges)
 | `.agents/sessions/{N}*.adoc` | LAZY | Illimité | Sur demande (détails session)
 | `.agents/ARCHITECTURE.adoc` | LAZY | Illimité | Sur besoin (architecture)
@@ -269,7 +269,7 @@ _Checklist_ :
 
 _Chargement automatique (EAGER)_ :
 . `PROMPT_REPRISE.adoc` → Mission, priorités, contexte
-. `AGENTS.md` → Architecture, règles, points d'attention
+. `AGENT.adoc` → Architecture, règles, points d'attention
 
 _Si besoin de détails_ :
 * Commandes ? → `AGENT_REFERENCE.adoc`

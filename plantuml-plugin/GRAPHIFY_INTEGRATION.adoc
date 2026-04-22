@@ -77,7 +77,7 @@ graphify opencode install
 
 Cette commande fait trois choses :
 
-1. Écrit une section dans `AGENTS.md` demandant à l'agent de lire `graphify-out/GRAPH_REPORT.adoc` avant de répondre aux questions d'architecture
+1. Écrit une section dans `AGENT.adoc` demandant à l'agent de lire `graphify-out/GRAPH_REPORT.adoc` avant de répondre aux questions d'architecture
 2. Installe un plugin `.opencode/plugins/graphify.js` qui injecte un rappel avant chaque appel d'outil bash : _"graphify: Knowledge graph exists. Read GRAPH_REPORT.adoc for god nodes and community structure before searching raw files."_
 3. Enregistre le plugin dans `opencode.json`
 
@@ -664,7 +664,7 @@ plantuml-plugin/
 │   └── plugins/
 │       └── graphify.js                        # NOUVEAU — hook always-on
 ├── PROMPT_REPRISE.adoc                         # EXISTANT — EAGER (200 lignes max)
-├── AGENTS.md                                 # MODIFIÉ — section graphify ajoutée
+├── AGENT.adoc                                 # MODIFIÉ — section graphify ajoutée
 ├── .agents/
 │   ├── INDEX.adoc                              # EXISTANT — EAGER (300 lignes max)
 │   ├── ARCHITECTURE.adoc                        # EXISTANT — DEVIENT LAZY
@@ -700,7 +700,7 @@ Ajouter une section `## 🔗 Knowledge Graph (Graphify)` :
 **Règle** : Toujours lire `GRAPH_REPORT.adoc` avant de chercher dans les fichiers source.
 ----
 
-=== Modifications à AGENTS.md
+=== Modifications à AGENT.adoc
 
 Ajouter après la section architecture :
 
@@ -763,7 +763,7 @@ graphify-out/cache/
 | 7 | Ajouter `graphify-out/cache/` au `.gitignore` | ☐
 | 8 | Committer `GRAPH_REPORT.adoc` + `graph.json` | ☐
 | 9 | Ajouter section Graphify à `INDEX.adoc` | ☐
-| 10 | Ajouter section Graphify à `AGENTS.md` | ☐
+| 10 | Ajouter section Graphify à `AGENT.adoc` | ☐
 | 11 | Ajouter contexte Graphify à `PROMPT_REPRISE.adoc` | ☐
 | 12 | Installer le hook git (`graphify hook install`) — optionnel | ☐
 | 13 | Déplacer `ECOSYSTEM_OVERVIEW.adoc` en LAZY | ☐

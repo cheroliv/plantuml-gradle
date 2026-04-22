@@ -45,7 +45,7 @@ et ce projet adhère au versionnage sémantique link:https://semver.org/spec/v2.
 === Modifié
 
 * Structure du projet organisée selon les patterns architechturels établis
-* Documentation initiale dans AGENTS.md
+* Documentation initiale dans AGENT.adoc
 
 link:https://github.com/cheroliv/plantuml-gradle/compare/v1.2026.0...HEAD[Non publié]
 link:https://github.com/cheroliv/plantuml-gradle/releases/tag/v1.2026.0[1.2026.0]

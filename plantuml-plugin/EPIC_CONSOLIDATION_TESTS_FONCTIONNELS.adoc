@@ -144,7 +144,7 @@ class PlantumlFunctionalSuite {  // ← 1 seule JVM Gradle
 * **Validation** :
 ** ✅ `./gradlew functionalTest` : 40 PASS, 6 SKIP, 0 FAIL
 ** ✅ Temps total < 1m15s (cible : -45s de cold start)
-** ✅ Mise à jour documentation (`AGENTS.md`, `SESSIONS_HISTORY.adoc`)
+** ✅ Mise à jour documentation (`AGENT.adoc`, `SESSIONS_HISTORY.adoc`)
 
 '''
 
@@ -285,7 +285,7 @@ fun `should apply plugin successfully`() {
 
 == 📚 Fichiers de Référence
 
-* `AGENTS.md` — Architecture, décisions, méthodologie
+* `AGENT.adoc` — Architecture, décisions, méthodologie
 * `PROMPT_REPRISE.adoc` — Mission session en cours
 * `AGENT_REFERENCE.adoc` — Méthodologie optimisation tests
 * `COMPLETED_TASKS_ARCHIVE.adoc` — Archive tâches terminées

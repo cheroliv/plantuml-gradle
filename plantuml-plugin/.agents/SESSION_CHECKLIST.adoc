@@ -31,7 +31,7 @@ _Note_ : `git status` est à exécuter manuellement par l'utilisateur pour véri
 ____
 
 === 2. Mettre à jour les fichiers de contexte
-* [ ] `AGENTS.md` — Section "État actuel" (mettre à jour)
+* [ ] `AGENT.adoc` — Section "État actuel" (mettre à jour)
 * [ ] `COMPLETED_TASKS_ARCHIVE.adoc` — Déplacer les tâches terminées
 * [ ] `PROMPT_REPRISE.adoc` — Mettre à jour la mission si changée
 
@@ -71,7 +71,7 @@ Dans `COMPLETED_TASKS_ARCHIVE.adoc`, ajouter :
 [source]
 ----
 Nouvelle session. Contexte chargé :
-1. AGENTS.md (architecture, décisions, méthodologie)
+1. AGENT.adoc (architecture, décisions, méthodologie)
 2. PROMPT_REPRISE.adoc (mission en cours)
 
 Mission : [Décrire la tâche unique de cette session]

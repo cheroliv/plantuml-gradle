@@ -9,7 +9,7 @@
 **Ce fichier est dans `plantuml-plugin/`**, la racine de travail du projet.
 
 La racine du depot git (`plantuml-gradle/`) ne contient QUE le repo git et les fichiers
-de bootstrap opencode (`AGENTS.md`, `AGENT.adoc` racine). TOUT le reste vit ici.
+de build Gradle. TOUT le reste (code, tests, gouvernance, documentation agent) vit ici.
 
 * Les chemins dans ce fichier sont relatifs a **`plantuml-plugin/`**
 * L'agent travaille depuis **`plantuml-plugin/`**
@@ -75,10 +75,9 @@ plantuml-plugin/                    # ⭐ RACINE DE TRAVAIL (ce repertoire)
 plantuml-gradle/                   # RACINE GIT (ne contient que le repo + bootstrap)
 ├── plantuml-plugin/               # ⭐ RACINE DE TRAVAIL
 ├── settings.gradle.kts            # Settings multi-projets
-├── AGENTS.md                      # Bootstrap opencode → pointe ici
-├── AGENT.adoc                     # Avertissement → pointe ici
 ├── README_truth*.adoc             # Doc consommateur de plugin (pas notre gouvernance)
-└── opencode.json                  # Configuration opencode
+├── opencode.json                  # Configuration opencode → pointe vers AGENT.adoc
+└── build.gradle.kts               # Build racine
 ----
 
 === Composants Cles

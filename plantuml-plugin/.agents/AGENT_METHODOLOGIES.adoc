@@ -16,7 +16,7 @@ _Principe_ : L'agent détecte le type de session via des mots-clés et propose l
 
 == 🎯 Menu des Méthodologies
 
-=== Tableau de détection (dans AGENTS.md)
+=== Tableau de détection (dans AGENT.adoc)
 
 |===
 | # | Type de session | Indices détectés | Méthodologie proposée | Fichier à charger
@@ -244,7 +244,7 @@ _Agent exécute_ :
 * ❌ Aucune question posée
 * ✅ _PROCÉDURE AUTOMATIQUE_ (5 étapes) :
   . Vérifier tests (`./gradlew test`)
-  . Mettre à jour `AGENTS.md`
+  . Mettre à jour `AGENT.adoc`
   . Mettre à jour `COMPLETED_TASKS_ARCHIVE.adoc`
   . Mettre à jour `PROMPT_REPRISE.adoc`
   . Mettre à jour `TEST_COVERAGE_ANALYSIS.adoc` (si besoin)
@@ -534,7 +534,7 @@ _Mise à jour_ :
    * Utilisateur a déjà spécifié méthodologie ?
    * Session urgente ?
 
-. _Consulter AGENTS.md_ :
+. _Consulter AGENT.adoc_ :
    * Ligne 291-366 (Menu des méthodologies)
    * Match avec tableau
 
@@ -582,7 +582,7 @@ _Mise à jour_ :
 
 == 🔗 Références
 
-* _AGENTS.md_ : Lignes 291-366 (Menu des méthodologies)
+* _AGENT.adoc_ : Lignes 291-366 (Menu des méthodologies)
 * _METHODOLOGIE_OPTIMISATION_TESTS.adoc_ : Techniques d'optimisation
 * _TEST_COVERAGE_ANALYSIS.adoc_ : Couverture des tests unitaires
 * _COMPLETED_TASKS_ARCHIVE.adoc_ : Historique des sessions

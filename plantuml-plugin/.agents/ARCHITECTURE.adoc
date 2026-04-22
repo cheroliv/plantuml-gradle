@@ -1,4 +1,4 @@
-= AGENTS.md — PlantUML Gradle Plugin
+= ARCHITECTURE — PlantUML Gradle Plugin
 
 ____
 _Langue_ : Communication en français, code en anglais.

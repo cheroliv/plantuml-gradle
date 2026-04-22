@@ -14,7 +14,7 @@ ____
 
 |===
 | Niveau | Fichier | Chargement | Rôle
-| _N1_ | `AGENTS.md` | _Toujours_ | Architecture, décisions, méthodologie
+| _N1_ | `AGENT.adoc` | _Toujours_ | Architecture, décisions, méthodologie
 | _N2_ | `AGENT_REFERENCE.adoc` | _Sur besoin_ | Référence rapide (ce fichier)
 | _N3_ | `PROMPT_REPRISE.adoc` | _Début session_ | Mission session en cours
 | _N4_ | `SESSIONS_HISTORY.adoc` | _Sur besoin_ | Historique complet sessions
@@ -313,7 +313,7 @@ _🚫 RÈGLE D'OR_ :
 === 5 Étapes
 
 . _Vérifier les tests_ : `./gradlew test`
-. _Mettre à jour `AGENTS.md`_ (section "État actuel")
+. _Mettre à jour `AGENT.adoc`_ (section "État actuel")
 . _Mettre à jour `COMPLETED_TASKS_ARCHIVE.adoc`_
 . _Mettre à jour `PROMPT_REPRISE.adoc`_
 . _Mettre à jour `TEST_COVERAGE_ANALYSIS.adoc`_ (si besoin)
@@ -334,7 +334,7 @@ _⚠️ Périmètre d'action — Tests unitaires uniquement_ :
 
 |===
 | Fichier | Quand charger
-| `AGENTS.md` | _Toujours_ (architecture, méthodologie)
+| `AGENT.adoc` | _Toujours_ (architecture, méthodologie)
 | `AGENT_REFERENCE.adoc` | _Sur besoin_ (référence rapide)
 | `PROMPT_REPRISE.adoc` | _Début session_ (mission en cours)
 | `METHODOLOGIE_OPTIMISATION_TESTS.adoc` | _Session optimisation_
@@ -431,7 +431,7 @@ _Prompt d'ouverture_ :
 [source]
 ----
 Nouvelle session. Contexte chargé :
-1. AGENTS.md (architecture, décisions, méthodologie)
+1. AGENT.adoc (architecture, décisions, méthodologie)
 2. PROMPT_REPRISE.adoc (mission en cours)
 
 Mission : [Décrire la tâche unique de cette session]
