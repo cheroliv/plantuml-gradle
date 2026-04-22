@@ -273,7 +273,99 @@ plantuml {
 | plantuml
 | Rebuilds the RAG index with collected PlantUML diagrams
 
+| `generateKnowledgeGraphDiagram`
+| plantuml
+| Generates a knowledge graph diagram from `graphify-out/graph.json` (deterministic, no LLM)
+
+| `generateDiagramDocs`
+| plantuml
+| Generates diagram documentation (dogfooding)
+
 |===
+
+== Knowledge Graph Diagram — Graphify Integration
+
+The plugin integrates with https://github.com/nicholasgasior/graphify[Graphify] to generate knowledge graph diagrams from your codebase.
+This is a **deterministic** task — no LLM is required.
+
+=== Prerequisites
+
+Install Graphify and generate the knowledge graph:
+
+[source,bash]
+----
+# Install graphify
+pip install graphify
+
+# Run graphify on your project (at root)
+graphify . --no-viz
+----
+
+This produces `graphify-out/graph.json` at the project root.
+
+=== Usage
+
+[source,bash]
+----
+# Generate the full knowledge graph diagram (all communities)
+./gradlew generateKnowledgeGraphDiagram
+
+# Filter by community
+./gradlew generateKnowledgeGraphDiagram -Pplantuml.kg.community=community_0
+
+# Generate with limited nodes for readability
+./gradlew generateKnowledgeGraphDiagram -Pplantuml.kg.maxNodes=15
+
+# Combine filters
+./gradlew generateKnowledgeGraphDiagram -Pplantuml.kg.community=community_0 -Pplantuml.kg.maxNodes=15
+
+# Filter by edge type only
+./gradlew generateKnowledgeGraphDiagram -Pplantuml.kg.edgeTypes=EXTRACTED
+
+# Filter by node type
+./gradlew generateKnowledgeGraphDiagram -Pplantuml.kg.nodeTypes=code
+
+# Custom output directory
+./gradlew generateKnowledgeGraphDiagram -Pplantuml.kg.outputDir=docs/knowledge-graph
+----
+
+=== Properties
+
+[cols="1,1,2"]
+|===
+| Property | Default | Description
+
+| `plantuml.kg.community`
+| _(none — all communities)_
+| Filter communities by name (substring match)
+
+| `plantuml.kg.edgeTypes`
+| _(all)_
+| Comma-separated edge types: `EXTRACTED`, `INFERRED`, `AMBIGUOUS`
+
+| `plantuml.kg.minConfidence`
+| `0.0`
+| Minimum confidence threshold for edges
+
+| `plantuml.kg.maxNodes`
+| _(unlimited)_
+| Maximum number of nodes to render
+
+| `plantuml.kg.nodeTypes`
+| _(all)_
+| Comma-separated node types to include (e.g. `class`, `code`)
+
+| `plantuml.kg.outputDir`
+| `diagrams/knowledge-graph`
+| Output directory for generated `.puml` and `.png` files
+|===
+
+=== Output
+
+The task generates:
+
+* `knowledge-graph-full.puml` + `knowledge-graph-full.png` (no community filter)
+* `knowledge-graph-{filter}.puml` + `knowledge-graph-{filter}.png` (with community filter)
 
 == AI Integration — LLM Pipeline
 

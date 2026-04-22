@@ -273,7 +273,99 @@ plantuml {
 | plantuml
 | Reconstruit l'index RAG avec les diagrammes PlantUML collectés
 
+| `generateKnowledgeGraphDiagram`
+| plantuml
+| Génère un diagramme de graphe de connaissance à partir de `graphify-out/graph.json` (déterministe, sans LLM)
+
+| `generateDiagramDocs`
+| plantuml
+| Génère la documentation des diagrammes (dogfooding)
+
 |===
+
+== Diagramme de Graphe de Connaissance — Intégration Graphify
+
+Le plugin s'intègre avec https://github.com/nicholasgasior/graphify[Graphify] pour générer des diagrammes de graphe de connaissance à partir de votre codebase.
+C'est une tâche **déterministe** — aucun LLM requis.
+
+=== Prérequis
+
+Installer Graphify et générer le graphe de connaissance :
+
+[source,bash]
+----
+# Installer graphify
+pip install graphify
+
+# Exécuter graphify sur votre projet (à la racine)
+graphify . --no-viz
+----
+
+Cela produit `graphify-out/graph.json` à la racine du projet.
+
+=== Utilisation
+
+[source,bash]
+----
+# Générer le diagramme complet (toutes les communautés)
+./gradlew generateKnowledgeGraphDiagram
+
+# Filtrer par communauté
+./gradlew generateKnowledgeGraphDiagram -Pplantuml.kg.community=community_0
+
+# Limiter le nombre de nœuds pour la lisibilité
+./gradlew generateKnowledgeGraphDiagram -Pplantuml.kg.maxNodes=15
+
+# Combiner les filtres
+./gradlew generateKnowledgeGraphDiagram -Pplantuml.kg.community=community_0 -Pplantuml.kg.maxNodes=15
+
+# Filtrer par type d'arête uniquement
+./gradlew generateKnowledgeGraphDiagram -Pplantuml.kg.edgeTypes=EXTRACTED
+
+# Filtrer par type de nœud
+./gradlew generateKnowledgeGraphDiagram -Pplantuml.kg.nodeTypes=code
+
+# Répertoire de sortie personnalisé
+./gradlew generateKnowledgeGraphDiagram -Pplantuml.kg.outputDir=docs/knowledge-graph
+----
+
+=== Propriétés
+
+[cols="1,1,2"]
+|===
+| Propriété | Défaut | Description
+
+| `plantuml.kg.community`
+| _(aucune — toutes les communautés)_
+| Filtrer les communautés par nom (correspondance sous-chaîne)
+
+| `plantuml.kg.edgeTypes`
+| _(toutes)_
+| Types d'arêtes séparés par virgules : `EXTRACTED`, `INFERRED`, `AMBIGUOUS`
+
+| `plantuml.kg.minConfidence`
+| `0.0`
+| Seuil minimum de confiance pour les arêtes
+
+| `plantuml.kg.maxNodes`
+| _(illimité)_
+| Nombre maximum de nœuds à afficher
+
+| `plantuml.kg.nodeTypes`
+| _(tous)_
+| Types de nœuds séparés par virgules (ex. `class`, `code`)
+
+| `plantuml.kg.outputDir`
+| `diagrams/knowledge-graph`
+| Répertoire de sortie pour les fichiers `.puml` et `.png`
+|===
+
+=== Sortie
+
+La tâche génère :
+
+* `knowledge-graph-full.puml` + `knowledge-graph-full.png` (sans filtre de communauté)
+* `knowledge-graph-{filtre}.puml` + `knowledge-graph-{filtre}.png` (avec filtre de communauté)
 
 == Intégration IA — Pipeline LLM
 

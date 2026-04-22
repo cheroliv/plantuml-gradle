@@ -1,12 +1,23 @@
 = 📊 Index des Sessions — PlantUML Gradle Plugin
 
-_Dernière mise à jour_ : 2026-04-22  
-_Session en cours_ : 128 — EPIC 10 Intégration Graphify (tests fonctionnels, docs, articles)  
-_Session terminee_ : 127 (Tests intégration graphify, 380/380 PASS, 3 bugs fix)
+_Dernière mise à jour_ : 2026-04-23  
+_Session en cours_ : 129 — EPIC 10 Intégration Graphify (tests renderer, article blog, archi diagrams)  
+_Session terminee_ : 128 (Tests fonctionnels 15/15, renderer amélioré, 4 readmes, règle 0 publishToMavenLocal)
 
 '''
 
 == ⚠️ RÈGLES ABSOLUES
+
+=== 0. PUBLISH TO MAVEN LOCAL — OBLIGATOIRE APRÈS TOUTE MODIFICATION DU CODE SOURCE
+
+_Toute modification du code source du plugin DOIT être suivie de `./gradlew -q publishToMavenLocal` AVANT tout test fonctionnel ou validation via un projet consommateur._
+
+* ❌ _Interdit_ : Tester le plugin via le projet parent sans avoir republié le JAR
+* ❌ _Interdit_ : Considérer que le code source modifié = le JAR consommé par le projet parent
+* ✅ _Obligatoire_ : `./gradlew -q publishToMavenLocal` après chaque `compileKotlin` réussi si le code a changé
+* ✅ _Obligatoire_ : `./gradlew -q publishToMavenLocal` avant `./gradlew generateKnowledgeGraphDiagram` depuis le projet parent
+
+_Raison_ : Le projet parent (`plantuml-gradle/`) consomme le plugin via `mavenLocal`. Le code source corrigé ne prend effet QUE si le JAR est republié. Oublier cette étape = tester une version périmée = faux positifs.
 
 === 1. COMMITS/GIT
 
@@ -71,6 +82,7 @@ _Aucune étape ne peut être marquée [✅] si le fichier n'a pas été effectiv
 
 |===
 | # | Date | Type | Sujet | Fichier | Score
+| 128 | 2026-04-23 | test+feat+docs | EPIC 10 Tests Fonctionnels + Renderer + Readmes | `128-epic10-functional-tests-renderer-docs.adoc` | 8.5/10
 | 127 | 2026-04-22 | test+fix | EPIC 10 Tests Intégration Graphify (380/380 PASS, 3 bugs) | `127-epic10-graphify-tests.adoc` | 9.0/10
 | 126 | 2026-04-22 | docs | Article blog fg (0104) + réflexion distillation IA | `126-blog-fg-command.adoc` | 9.0/10
 | 125 | 2026-04-22 | feat | EPIC 9 Knowledge Graph Diagram (Parser+Renderer+Task) | `125-epic9-knowledge-graph-diagram.adoc` | 9.0/10
@@ -127,7 +139,7 @@ _Aucune étape ne peut être marquée [✅] si le fichier n'a pas été effectiv
 | EPIC 7 : Dogfooding Plugin | ✅ 100% | 9/10 | ✅ Phase 1 ✅, Phase 2 abandonnée (incohérence archi)
 | EPIC 8 : Migration AsciiDoc | ✅ 100% | 9/10 | ✅ TERMINÉ
 | EPIC 9 : Knowledge Graph Diagram | 🟡 95% | 9/10 | 🟡 Parser adapté format graphify natif, 380/380 tests
-| EPIC 10 : Intégration Graphify (dev cycle) | 🔵 30% | — | 🟡 Session 127 : tests OK, reste docs + articles
+| EPIC 10 : Intégration Graphify (dev cycle) | 🔵 60% | — | 🟡 Session 128 : 15 func tests, renderer amélioré, readmes OK, reste article + tests renderer
 |===
 
 '''

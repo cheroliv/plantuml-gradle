@@ -2,6 +2,26 @@
 
 == Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+=== Session 128 — 2026-04-23 : Tests Fonctionnels + Renderer + Readmes ✅
+
+==== ✅ Contexte
+* _Session 127_ : 380/380 PASS, parser graphify adapté
+* _Objectif_ : Tests fonctionnels GradleRunner, documenter Readmes
+
+==== ✅ Taches realisees
+* ✅ 15 tests fonctionnels GradleRunner pour `generateKnowledgeGraphDiagram`
+* ✅ Bug mavenLocal découvert et corrigé : JAR périmé avec `$node.name` → republié
+* ✅ Règle 0 ajoutée INDEX.adoc : `publishToMavenLocal` OBLIGATOIRE après modif code
+* ✅ Renderer amélioré : `left to right direction`, `cleanLabel()`, regroupement par type (Classes/Files), filtre `nodeTypes`
+* ✅ `community.nodes` intersecté avec `filteredNodeNames` pour `maxNodes`
+* ✅ 4 readmes mis à jour (consommateur EN/FR, contributeur EN/FR) avec section Graphify
+* ✅ Validation visuelle confirmée par l'utilisateur
+
+==== Notes lecons apprises
+* **Règle critique** : Code source modifié ≠ JAR consommé. TOUJOURS `publishToMavenLocal`
+* Tester le JAR publié (via GradleRunner) est aussi important que tester le code source (via unit tests)
+* 380 tests unitaires PASS ne valent rien si le consommateur utilise un JAR périmé
+
 === Session 127 — 2026-04-22 : Tests Intégration Graphify + 3 Bug Fixes ✅
 
 ==== ✅ Contexte

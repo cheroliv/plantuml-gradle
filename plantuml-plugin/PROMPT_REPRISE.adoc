@@ -1,60 +1,63 @@
-= Prompt de reprise — Session 128
+= Prompt de reprise — Session 129
 
 ____
 **EPIC** : EPIC 10 — Intégration Graphify dans le cycle de dev
-**Statut** : Session 127 OK — Tests intégration graphify 380/380 PASS, 3 bugs fix
-**Mission** : Tests fonctionnels GradleRunner, documenter Readmes, écrire articles
+**Statut** : Session 128 OK — 15 tests fonctionnels, renderer refactoré, readmes mis à jour, bug $node.name fixé
+**Mission** : Tests renderer, article blog, diagrammes architecture
 ____
 
 '''
 
-== Session 127 — Resume
+== Session 128 — Resume
 
-**Date** : 22 avril 2026
-**Resultat** : OK — 40+ tests ajoutés, 3 bugs corrigés
+**Date** : 23 avril 2026
+**Resultat** : OK — 15 tests fonctionnels GradleRunner, renderer amélioré, 4 readmes mis à jour
 
 **Connaissances cles** :
 
-* graphify 0.4.29 format natif : `links` (pas `edges`), `community` int (pas array), `label` (pas `name`), ID→label resolution nécessaire
-* Jackson `asDouble()` sur text node retourne 0.0 (pas null) — utiliser `isNumber` check
-* Kotlin interpolation : `$node.name` → `toString()` + `.name`, il faut `${node.name}`
-* Tests fonctionnels GradleRunner recommandés pour graphify (2-3 tests), Cucumber skip
+* Bug `$node.name` : code source corrigé mais JAR mavenLocal périmé — TOUJOURS `publishToMavenLocal` après modif code plugin
+* Renderer amélioré : `left to right direction`, `cleanLabel()` (supprime backticks/préfixes `.`), regroupement par type (folder Classes/Files), filtre `nodeTypes`
+* `community.nodes` référencie des noms pas limités par `maxNodes` — intersecter avec `filteredNodeNames`
+* `graphify-out/graph.json` : tous les nodes sont `file_type: "code"`, `community` int, `links` (pas edges), `confidence` string (pas numeric)
+* Règle 0 ajoutée INDEX.adoc : `publishToMavenLocal` OBLIGATOIRE après chaque modif code source
 
-**Archive** : `.agents/sessions/127-epic10-graphify-tests.adoc`
+**Archive** : `.agents/sessions/128-epic10-graphify-functional-tests.adoc`
 
 '''
 
-== Session 128 — Priorites
+== Session 129 — Priorites
 
 **Mission** : EPIC 10 — Intégration Graphify dans le cycle de dev
 
-=== 1. Ajouter tests fonctionnels GradleRunner pour generateKnowledgeGraphDiagram
+=== 1. Couverture renderer — tests unitaires manquants
 
-* 2-3 tests dans `functionalTest` source set
-* Tester : application réelle du plugin, résolution propriétés Gradle, cycle de vie tâche
-* Skipper Cucumber (rapport bénéfice/coût faible pour pipeline déterministe sans LLM)
+* `cleanLabel()` : backticks, préfixes `.`, labels avec backticks Kotlin
+* Filtre `nodeTypes` : vérifier que les nœuds hors type sont exclus
+* `isMethodNode()` : patterns regex `()`, `^.+`, backticks
+* Régression `$node.name` → test qui crée un PUML et vérifie absence de `toString()`
 
-=== 2. Documenter dans les Readmes
+=== 2. Article cheroliv.com
 
-* Mettre à jour README.adoc avec la procédure graphify
-* Documenter la commande `generateKnowledgeGraphDiagram`
-* Ajouter des exemples de filtres CLI
+* "Intégrer Graphify dans un workflow Gradle"
+* Pipeline : `graphify . --no-viz` → `generateKnowledgeGraphDiagram` → diagrammes
+* Diagrammes PlantUML du pipeline
 
-=== 3. Écrire des articles sur l'intégration graphify
+=== 3. Diagrammes d'architecture mis à jour
 
-* Article cheroliv.com : comment graphify s'intègre dans un workflow Gradle
-* Diagrammes PlantUML du pipeline graphify → plugin → documentation
+* Les PlantUML embarqués dans les READMEs sont obsolètes (pas de KG)
+* Mettre à jour les diagrammes d'architecture dans `plantuml-plugin/README_truth.adoc`
 
 === Criteres d'Acceptation
 
-* [ ] 2-3 tests fonctionnels GradleRunner pour generateKnowledgeGraphDiagram
-* [ ] Readmes mis à jour avec procédure graphify
-* [ ] Au moins un article blog publié sur l'intégration
+* [ ] Tests unitaires renderer : cleanLabel, nodeTypes, isMethodNode, régression toString
+* [ ] Article blog publié sur l'intégration graphify
+* [ ] Diagrammes d'architecture à jour dans les readmes
 
 '''
 
 == Regles
 
+* Règle 0 : `publishToMavenLocal` après chaque modif code plugin
 * Jamais de commit sans permission
-* Racine de travail = `plantuml-plugin/` (pas `plantuml-gradle/`)
-* Archive + PROMPT_REPRISE mis a jour en fin de session
+* Racine de travail = `plantuml-plugin/`
+* Archive + PROMPT_REPRISE mis à jour en fin de session

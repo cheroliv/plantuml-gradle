@@ -441,6 +441,14 @@ plantuml {
 | plantuml-rag
 | Supprime et reconstruit entièrement l'index d'embeddings pgvector
 
+| `generateKnowledgeGraphDiagram`
+| plantuml
+| Génère un diagramme de graphe de connaissance depuis `graphify-out/graph.json` (déterministe, sans LLM)
+
+| `generateDiagramDocs`
+| plantuml
+| Génère la documentation des diagrammes (dogfooding)
+
 | `help`
 | help
 | Affiche les informations d'aide du plugin

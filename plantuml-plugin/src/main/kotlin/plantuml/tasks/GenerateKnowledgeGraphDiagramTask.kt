@@ -36,6 +36,7 @@ abstract class GenerateKnowledgeGraphDiagramTask : DefaultTask() {
         val maxNodesStr = project.findProperty("plantuml.kg.maxNodes")?.toString()
         val outputDirStr = project.findProperty("plantuml.kg.outputDir")?.toString() ?: "diagrams/knowledge-graph"
 
+        val nodeTypesStr = project.findProperty("plantuml.kg.nodeTypes")?.toString()
         val edgeTypes = if (edgeTypesStr != null) {
             edgeTypesStr.split(",").map { parseEdgeType(it.trim()) }.toSet()
         } else {
@@ -44,6 +45,11 @@ abstract class GenerateKnowledgeGraphDiagramTask : DefaultTask() {
 
         val minConfidence = minConfidenceStr?.toDoubleOrNull() ?: 0.0
         val maxNodes = maxNodesStr?.toIntOrNull() ?: Int.MAX_VALUE
+        val nodeTypes = if (nodeTypesStr != null) {
+            nodeTypesStr.split(",").map { it.trim().lowercase() }.toSet()
+        } else {
+            null
+        }
 
         val parser = KnowledgeGraphParser(graphFile)
         val graph = parser.parse()
@@ -59,7 +65,8 @@ abstract class GenerateKnowledgeGraphDiagramTask : DefaultTask() {
             communityFilter = communityFilter,
             edgeTypes = edgeTypes,
             minConfidence = minConfidence,
-            maxNodes = maxNodes
+            maxNodes = maxNodes,
+            nodeTypes = nodeTypes
         )
 
         val outputDir = project.file(outputDirStr)

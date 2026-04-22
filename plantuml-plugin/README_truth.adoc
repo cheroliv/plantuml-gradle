@@ -87,6 +87,8 @@ package "tasks" {
   component "ProcessPlantumlPromptsTask" as PPT
   component "ValidatePlantumlSyntaxTask" as VST
   component "ReindexPlantumlRagTask" as RRT
+  component "GenerateKnowledgeGraphDiagramTask" as KGDT
+  component "GenerateDiagramDocsTask" as GDDT
 }
 
 package "Infrastructure" {
@@ -99,6 +101,8 @@ Plugin --> Manager
 Plugin --> PPT
 Plugin --> VST
 Plugin --> RRT
+Plugin --> KGDT
+Plugin --> GDDT
 Manager --> Models
 PPT --> DP
 DP --> LS
@@ -441,6 +445,14 @@ plantuml {
 | plantuml-rag
 | Drops and fully rebuilds the pgvector embedding index
 
+| `generateKnowledgeGraphDiagram`
+| plantuml
+| Generates a knowledge graph diagram from `graphify-out/graph.json` (deterministic, no LLM)
+
+| `generateDiagramDocs`
+| plantuml
+| Generates diagram documentation (dogfooding)
+
 | `help`
 | help
 | Displays plugin help information
@@ -573,6 +585,126 @@ Properties available for tasks:
 | `generated/rag`
 | Output directory for RAG embeddings
 |===
+
+=== Knowledge Graph Integration — Graphify
+
+The `generateKnowledgeGraphDiagram` task is **deterministic** (no LLM) and reads `graphify-out/graph.json`.
+
+==== Components
+
+[cols="1,2"]
+|===
+| Component | Role
+
+| `KnowledgeGraphParser`
+| Parses `graph.json` — supports 3 formats: graphify native (`nodes`+`links`), legacy (`communities` array), flat
+
+| `KnowledgeGraphRenderer`
+| Renders `KnowledgeGraph` to PlantUML — groups nodes by type (Classes/Files), filters, clean labels
+
+| `GenerateKnowledgeGraphDiagramTask`
+| Gradle task — orchestrates parse → render → validate → PNG
+
+| `kgmodels.kt`
+| `KnowledgeGraph`, `KnowledgeGraphNode`, `KnowledgeGraphEdge`, `KnowledgeGraphCommunity`, `EdgeType`
+
+| `GraphifyPromptAdapter`
+| Generates `.prompt` files from graph.json communities
+|===
+
+==== Knowledge Graph data flow
+
+[plantuml]
+----
+@startuml
+participant "Gradle" as G
+participant "GenerateKnowledgeGraphDiagramTask" as Task
+participant "KnowledgeGraphParser" as Parser
+participant "KnowledgeGraphRenderer" as Renderer
+participant "PlantumlService" as PS
+
+collections "graphify-out/graph.json" as JSON
+
+G -> Task : execute
+Task -> JSON : read
+Task -> Parser : parse(graph.json)
+Parser --> Task : KnowledgeGraph
+Task -> Renderer : render(graph, filters)
+Renderer --> Task : PlantUML code
+Task -> PS : validateSyntax(plantumlCode)
+alt valid
+  Task -> PS : generateImage → .png
+else invalid
+  Task -> Task : save .puml with warning
+end
+----
+
+==== Graphify native format
+
+The parser auto-detects the graphify native format:
+
+[source,json]
+----
+{
+  "nodes": [
+    {"id": "0", "label": "MyService", "file_type": "code", "community": 0}
+  ],
+  "links": [
+    {"source": "0", "target": "1", "relation": "calls", "confidence": "EXTRACTED", "weight": 0.9}
+  ]
+}
+----
+
+Key points:
+
+* `community` is an integer → rendered as `community_0`, `community_1`, etc.
+* `links` (not `edges`) is the graphify native key
+* `confidence` can be a string (`EXTRACTED`/`INFERRED`) or a numeric score
+* Numeric IDs are resolved to labels via `idToLabel` mapping
+
+==== Gradle properties for KG
+
+[cols="1,1,2"]
+|===
+| Property | Default | Description
+
+| `-Pplantuml.kg.community`
+| _(all)_
+| Filter communities by name (substring match)
+
+| `-Pplantuml.kg.edgeTypes`
+| _(all)_
+| Comma-separated: `EXTRACTED`, `INFERRED`, `AMBIGUOUS`
+
+| `-Pplantuml.kg.minConfidence`
+| `0.0`
+| Minimum confidence for edges
+
+| `-Pplantuml.kg.maxNodes`
+| _(unlimited)_
+| Max nodes to render (useful for large graphs)
+
+| `-Pplantuml.kg.nodeTypes`
+| _(all)_
+| Comma-separated node types (e.g. `class`, `code`)
+
+| `-Pplantuml.kg.outputDir`
+| `diagrams/knowledge-graph`
+| Output directory for `.puml` and `.png` files
+|===
+
+==== Example usage
+
+[source,bash]
+----
+# Full diagram
+./gradlew generateKnowledgeGraphDiagram
+
+# Single community with limited nodes
+./gradlew generateKnowledgeGraphDiagram \
+  -Pplantuml.kg.community=community_0 \
+  -Pplantuml.kg.maxNodes=15
+----
 
 === Prompt strategy
 

@@ -1,0 +1,68 @@
+= Archive Session 128 — EPIC 10 Tests Fonctionnels + Renderer + Docs
+
+_Date_ : 23 avril 2026
+_Type_ : test + feat + docs
+_Score_ : 8.5/10
+
+== Contexte
+
+_Session 127_ : 380/380 PASS, 3 bugs fix, parser adapté format graphify natif
+_Objectif_ : Tests fonctionnels GradleRunner, documenter Readmes, écrire articles
+
+== Taches realisees
+
+=== 1. Tests fonctionnels GradleRunner pour generateKnowledgeGraphDiagram
+
+* 15 tests dans `KnowledgeGraphDiagramFunctionalTest.kt`
+* Couvre : graph.json absent, format graphify natif, labels propres (régression toString), confidence string, résolution ID→label, filtres (community/edgeTypes/maxNodes/minConfidence/nodeTypes/outputDir), PNG générée, graph vide, format legacy, JSON corrompu, filtre community inexistant
+* 15/15 PASS
+
+=== 2. Bug découvert : JAR mavenLocal périmé
+
+* Le code source avait `${node.name}` (corrigé session 127) mais le JAR 0.0.0 dans mavenLocal contenait encore `$node.name` (sans accolades)
+* Le projet parent consomme le plugin via mavenLocal → diagrammes cassés en production
+* Fix : `publishToMavenLocal` après chaque modification du code source du plugin
+* Règle 0 ajoutée dans INDEX.adoc
+
+=== 3. Renderer amélioré
+
+* `left to right direction` + `nodesep`/`ranksep` pour la lisibilité
+* `cleanLabel()` : supprime backticks, préfixes `.` des labels
+* Regroupement par type : `folder "Classes"`, `folder "Files"`
+* Filtre `nodeTypes` ajouté (propriété `-Pplantuml.kg.nodeTypes`)
+* `sanitizeId()` nettoie les backticks et virgules
+* Fix `community.nodes` intersecté avec `filteredNodeNames` pour `maxNodes`
+
+=== 4. 4 Readmes mis à jour
+
+* `plantuml-gradle/README_truth.adoc` (consommateur EN) : + section Graphify + propriétés KG
+* `plantuml-gradle/README_truth_fr.adoc` (consommateur FR) : + section Graphify + propriétés KG
+* `plantuml-plugin/README_truth.adoc` (contributeur EN) : + composants KG + data flow + architecture
+* `plantuml-plugin/README_truth_fr.adoc` (contributeur FR) : + tâches KG
+
+=== 5. Validation visuelle
+
+* `./gradlew generateKnowledgeGraphDiagram -Pplantuml.kg.community=community_0 -Pplantuml.kg.maxNodes=15` → diagramme lisible confirmé par l'utilisateur
+
+== Taches non realisees
+
+* Article blog cheroliv.com (renvoyé session 129)
+* Tests unitaires renderer : cleanLabel, nodeTypes, isMethodNode (renvoyé session 129)
+* Diagrammes architecture PlantUML dans readmes obsolètes (renvoyé session 129)
+
+== Connaissances cles
+
+* **Règle 0** : `publishToMavenLocal` OBLIGATOIRE après chaque modif code plugin — le JAR consommé ≠ le code source
+* `community.nodes` dans le KnowledgeGraph n'est pas limité par `maxNodes` — il faut intersecter avec `filteredNodeNames`
+* graphify 0.4.29 : tous les nodes ont `file_type: "code"`, `community` int, `links`, `confidence` string
+* `cleanLabel()` nécessaire pour les IDs Kotlin avec backticks et préfixes `.`
+
+== Fichiers modifies
+
+* `src/functionalTest/kotlin/plantuml/KnowledgeGraphDiagramFunctionalTest.kt` — NOUVEAU (15 tests)
+* `src/main/kotlin/plantuml/service/KnowledgeGraphRenderer.kt` — refactor complet
+* `src/main/kotlin/plantuml/tasks/GenerateKnowledgeGraphDiagramTask.kt` — +nodeTypes property
+* `.agents/INDEX.adoc` — Règle 0 publishToMavenLocal
+* `PROMPT_REPRISE.adoc` — session 129
+* `README_truth.adoc` (x2 consommateur) — + section Graphify
+* `README_truth.adoc` (x2 contributeur) — + KG tasks/components
