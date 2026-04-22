@@ -46,6 +46,12 @@ ____
 * Liens croisés INFERRED entre communautés
 * Style distinct dans le renderer
 
+=== 4. Écrire article blog cheroliv.com
+
+* Tips Unix : `Ctrl+Z` suspend un process, `fg` le reprend dans le même terminal
+* Contexte : process opencode suspendu, récupéré intact avec `fg`
+* Article technique courts et pratiques sur cheroliv.com
+
 === Criteres d'Acceptation
 
 * [ ] `./gradlew generateKnowledgeGraphDiagram` fonctionnel avec vrai graph.json

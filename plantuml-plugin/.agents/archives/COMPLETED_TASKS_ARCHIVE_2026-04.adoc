@@ -26,10 +26,12 @@
 * KnowledgeGraphParser doit override les nodes basiques (communities) quand des nodes riches (root-level avec attributes) existent — dédup intelligente
 * sanitizeId() : supprimer `()` plutôt que les remplacer par `_` pour des IDs PlantUML propres
 * PlantUML `legend` est le bon endroit pour la légende de type d'arêtes
+* `Ctrl+Z` suspend un process Unix (SIGTSTP) — `fg` le reprend dans le même terminal, contenu intact. Un process opencode suspendu a été récupéré intact avec cette méthode.
 
 ==== Prochaine session (126)
 * Valider end-to-end avec vrai `graphify-out/graph.json`
 * Ajouter support hyperedges et `semantically_similar_to`
+* Écrire article blog cheroliv.com : tips Unix `Ctrl+Z`/`fg`
 
 === Session 124 — 2026-04-22 : Correction Timeout ReindexPlantumlRagIntegrationTest ✅
 
