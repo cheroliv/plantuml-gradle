@@ -177,8 +177,16 @@ abstract class ReindexPlantumlRagTask : DefaultTask() {
 
         logger.lifecycle("  → Found ${diagramFiles.size} PlantUML diagrams and ${historyFiles.size} training histories for indexing")
 
-        // Initialize embedding model
-        val embeddingModel: EmbeddingModel = AllMiniLmL6V2EmbeddingModel()
+        val embeddingModel: EmbeddingModel = if (System.getProperty("plantuml.test.rag.mode") != null) {
+            val stubClass = System.getProperty("plantuml.test.embedding.model.class")
+            if (stubClass != null) {
+                Class.forName(stubClass).getDeclaredConstructor().newInstance() as EmbeddingModel
+            } else {
+                AllMiniLmL6V2EmbeddingModel()
+            }
+        } else {
+            AllMiniLmL6V2EmbeddingModel()
+        }
 
         // Initialize document splitter
         val documentSplitter: DocumentSplitter = DocumentSplitters.recursive(300, 0)

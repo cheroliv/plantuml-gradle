@@ -1,8 +1,8 @@
 = 📊 Index des Sessions — PlantUML Gradle Plugin
 
 _Dernière mise à jour_ : 2026-04-22  
-_Session en cours_ : 123 — Correction tests + stabilisation  
-_Session terminée_ : 122 (Migration gouvernance — 9.0/10)
+_Session en cours_ : 125 — A determiner selon BACKLOG.adoc  
+_Session terminee_ : 124 (Correction timeout ReindexPlantumlRagIntegrationTest)
 
 '''
 
@@ -71,6 +71,8 @@ _Aucune étape ne peut être marquée [✅] si le fichier n'a pas été effectiv
 
 |===
 | # | Date | Type | Sujet | Fichier | Score
+| 124 | 2026-04-22 | fix | Correction timeout ReindexPlantumlRagIntegrationTest | `124-fix-timeout-integration-test.adoc` | 9.0/10
+| 123 | 2026-04-22 | fix | Correction 9 tests en echec (resolveProvider) | `123-fix-tests-echec.adoc` | 9.0/10
 | 122 | 2026-04-22 | docs | Migration gouvernance vers plantuml-plugin/ | `122-migration-gouvernance-racine.adoc` | 9.0/10
 | 121 | 2026-04-22 | docs | Migration AsciiDoc complète | `121-migration-asciidoc.adoc` | 9.0/10
 | 120 | 2026-04-22 | feat | Implémentation Phase 1 Dogfooding | `120-dogfooding-implementation-phase1.adoc` | 9.0/10

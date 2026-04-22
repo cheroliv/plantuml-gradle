@@ -1,0 +1,116 @@
+= Session 124 — Correction Timeout ReindexPlantumlRagIntegrationTest
+:toc: left
+:toclevels: 2
+
+== Date
+
+22 avril 2026
+
+== Resultat
+
+✅ Timeout ReindexPlantumlRagIntegrationTest corrige — 10/10 tests PASSED
+
+== Contexte
+
+Le test `ReindexPlantumlRagIntegrationTest` timeout systematiquement apres 1 minute.
+Le test utilisait Testcontainers (PostgreSQL + pgvector) + le vrai modele ONNX
+`AllMiniLmL6V2EmbeddingModel` dans un test unitaire avec timeout JUnit 30s / Gradle 60s.
+
+== Diagnostics
+
+=== Cause racine
+
+**Triple latence cumulative** :
+
+1. **Testcontainers** : Demarrage PostgreSQL container (~15-20s)
+2. **AllMiniLmL6V2EmbeddingModel** : Modele ONNX ~5s par embedding
+3. **3 embeddings par test** (diagram1 + diagram2 + history) × 10 tests = ~150s total
+
+Le timeout JUnit (30s) et Gradle (60s) ne pouvaient pas absorber cette latence.
+
+=== Analyse architecturale
+
+Le test utilisait `ProjectBuilder` (in-process, meme JVM) mais avec des dependances
+au monde reel (Testcontainers + modele ONNX). Selon la regle d'or du projet :
+
+* `ProjectBuilder` = test unitaire = memes deps que `src/test/` → doit etre rapide (<30s)
+* `GradleRunner` = test fonctionnel = `src/functionalTest/` → peut etre plus long
+
+== Corrections
+
+=== 1. StubEmbeddingModel — Embedding instantane
+
+[source,kotlin]
+----
+class StubEmbeddingModel : EmbeddingModel {
+    override fun embed(text: String): Response<Embedding> {
+        val vector = FloatArray(384) { index -> index.toFloat() / 384f }
+        return Response.from(Embedding.from(vector))
+    }
+    override fun dimension(): Int = 384
+}
+----
+
+Fichier : `src/test/kotlin/plantuml/StubEmbeddingModel.kt`
+
+=== 2. Injection du stub dans ReindexPlantumlRagTask
+
+[source,kotlin]
+----
+// Avant : toujours le modele ONNX lent
+val embeddingModel: EmbeddingModel = AllMiniLmL6V2EmbeddingModel()
+
+// Apres : stub injectable via system property en mode test
+val embeddingModel: EmbeddingModel = if (System.getProperty("plantuml.test.rag.mode") != null) {
+    val stubClass = System.getProperty("plantuml.test.embedding.model.class")
+    if (stubClass != null) {
+        Class.forName(stubClass).getDeclaredConstructor().newInstance() as EmbeddingModel
+    } else {
+        AllMiniLmL6V2EmbeddingModel()
+    }
+} else {
+    AllMiniLmL6V2EmbeddingModel()
+}
+----
+
+Fichier : `ReindexPlantumlRagTask.kt:181`
+
+=== 3. Test reecrit en mode SIMULATION
+
+* Suppression de `@Container`, `PostgreSQLContainer`, `Duration.ofMinutes(2)`
+* Suppression du bloc `rag:` dans le YAML de config (pas de databaseUrl = SIMULATION)
+* `@BeforeEach` : `System.setProperty("plantuml.test.rag.mode", "simulation")`
+* `@BeforeEach` : `System.setProperty("plantuml.test.embedding.model.class", "plantuml.StubEmbeddingModel")`
+* `@AfterEach` : `System.clearProperty(...)` pour nettoyer
+
+Fichier : `src/test/kotlin/plantuml/ReindexPlantumlRagIntegrationTest.kt`
+
+=== 4. Suppression des dependances inutiles
+
+Le test ne depend plus de :
+* `org.testcontainers.containers.PostgreSQLContainer`
+* `org.testcontainers.junit.jupiter.Container`
+* `org.testcontainers.junit.jupiter.Testcontainers`
+* `java.time.Duration` (pour container startup timeout)
+
+== Resultats
+
+* ✅ 10/10 tests PASSED en <42s total
+* ✅ Aucun timeout
+* ✅ Aucune dependance a Testcontainers dans le test
+* ✅ Aucune dependance au modele ONNX dans le test
+* ✅ `./gradlew test` passe sans probleme
+
+== Lecons apprises
+
+* **ProjectBuilder = meme JVM = meme classpath** : la reflexion `Class.forName()` fonctionne
+  car le stub est dans `src/test/kotlin/` et le test aussi
+* **Separation unitaire/fonctionnel** : un test avec `ProjectBuilder` doit mocker le monde reel
+* **Latence cumulative** : Testcontainers (20s) + ONNX (5s/embedding) = timeout certain
+  en dessous de 60s
+* **Injection par system property** : plus simple que `@Internal` property Gradle
+  pour les tests unitaires in-process
+
+== Prochaine session (125)
+
+* A determiner selon BACKLOG.adoc

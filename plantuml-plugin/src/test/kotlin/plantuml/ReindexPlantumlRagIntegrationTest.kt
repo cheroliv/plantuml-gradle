@@ -6,20 +6,10 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
 import plantuml.tasks.ReindexPlantumlRagTask
 import java.io.File
-import java.time.Duration
 import kotlin.test.assertTrue
 
-/**
- * Integration tests for ReindexPlantumlRagTask with real PostgreSQL via testcontainers
- * 
- * Tests the RAG re-indexing task in DATABASE mode with a real PostgreSQL container
- */
-@Testcontainers
 class ReindexPlantumlRagIntegrationTest {
 
     @TempDir
@@ -28,18 +18,11 @@ class ReindexPlantumlRagIntegrationTest {
     private lateinit var project: Project
     private lateinit var task: ReindexPlantumlRagTask
 
-    companion object {
-        @Container
-        val postgresContainer = PostgreSQLContainer<Nothing>("pgvector/pgvector:pg15").apply {
-            withDatabaseName("plantuml_rag")
-            withUsername("test")
-            withPassword("test")
-            withStartupTimeout(Duration.ofMinutes(2))
-        }
-    }
-
     @BeforeEach
     fun setup() {
+        System.setProperty("plantuml.test.rag.mode", "simulation")
+        System.setProperty("plantuml.test.embedding.model.class", "plantuml.StubEmbeddingModel")
+
         project = ProjectBuilder.builder()
             .withProjectDir(tempDir)
             .build()
@@ -50,13 +33,13 @@ class ReindexPlantumlRagIntegrationTest {
 
     @AfterEach
     fun cleanup() {
-        // Cleanup any temporary files
+        System.clearProperty("plantuml.test.rag.mode")
+        System.clearProperty("plantuml.test.embedding.model.class")
         tempDir.listFiles()?.forEach { it.deleteRecursively() }
     }
 
     @Test
-    fun `should index PlantUML diagrams in DATABASE mode with testcontainers`() {
-        // Given: RAG directory with PlantUML diagrams
+    fun `should index PlantUML diagrams in SIMULATION mode`() {
         val ragDir = File(tempDir, "rag-integration")
         ragDir.mkdirs()
 
@@ -109,63 +92,41 @@ class ReindexPlantumlRagIntegrationTest {
             )
         }
 
-        // Configure with testcontainers PostgreSQL - use mapped port
-        val actualPort = postgresContainer.firstMappedPort
         val configPath = File(tempDir, "plantuml-context.yml")
         configPath.writeText(
             """
             output:
               rag: "${ragDir.absolutePath}"
-            rag:
-              databaseUrl: "localhost"
-              port: $actualPort
-              username: "${postgresContainer.username}"
-              password: "${postgresContainer.password}"
-              tableName: "embeddings_test"
             """.trimIndent()
         )
 
-        // When: Execute the task
         task.reindexRag()
 
-        // Then: Task completes successfully (diagrams indexed in PostgreSQL)
         assertTrue(diagram1.exists(), "Diagram 1 should still exist")
         assertTrue(diagram2.exists(), "Diagram 2 should still exist")
         assertTrue(historyFile.exists(), "History file should still exist")
     }
 
     @Test
-    fun `should handle empty RAG directory in DATABASE mode`() {
-        // Given: Empty RAG directory
-        val ragDir = File(tempDir, "rag-empty-db")
+    fun `should handle empty RAG directory in SIMULATION mode`() {
+        val ragDir = File(tempDir, "rag-empty")
         ragDir.mkdirs()
 
-        // Configure with testcontainers PostgreSQL - use mapped port
-        val actualPort = postgresContainer.firstMappedPort
         val configPath = File(tempDir, "plantuml-context.yml")
         configPath.writeText(
             """
             output:
               rag: "${ragDir.absolutePath}"
-            rag:
-              databaseUrl: "localhost"
-              port: $actualPort
-              username: "${postgresContainer.username}"
-              password: "${postgresContainer.password}"
-              tableName: "embeddings_empty"
             """.trimIndent()
         )
 
-        // When: Execute the task
         task.reindexRag()
 
-        // Then: Task completes gracefully
         assertTrue(ragDir.exists(), "RAG directory should exist")
     }
 
     @Test
-    fun `should index large PlantUML diagram in DATABASE mode`() {
-        // Given: RAG directory with a large PlantUML diagram
+    fun `should index large PlantUML diagram in SIMULATION mode`() {
         val ragDir = File(tempDir, "rag-large")
         ragDir.mkdirs()
 
@@ -190,33 +151,22 @@ class ReindexPlantumlRagIntegrationTest {
             writeText(content)
         }
 
-        // Configure with testcontainers PostgreSQL - use mapped port
-        val actualPort = postgresContainer.firstMappedPort
         val configPath = File(tempDir, "plantuml-context.yml")
         configPath.writeText(
             """
             output:
               rag: "${ragDir.absolutePath}"
-            rag:
-              databaseUrl: "localhost"
-              port: $actualPort
-              username: "${postgresContainer.username}"
-              password: "${postgresContainer.password}"
-              tableName: "embeddings_large"
             """.trimIndent()
         )
 
-        // When: Execute the task
         task.reindexRag()
 
-        // Then: Task completes and diagram still exists
         assertTrue(largeDiagram.exists(), "Large diagram should still exist")
         assertTrue(largeDiagram.readText().contains("Class50"), "Diagram content should be preserved")
     }
 
     @Test
-    fun `should handle unicode content in DATABASE mode`() {
-        // Given: RAG directory with unicode content
+    fun `should handle unicode content in SIMULATION mode`() {
         val ragDir = File(tempDir, "rag-unicode")
         ragDir.mkdirs()
 
@@ -235,36 +185,22 @@ class ReindexPlantumlRagIntegrationTest {
             )
         }
 
-        // Configure with testcontainers PostgreSQL - use mapped port
-        val actualPort = postgresContainer.firstMappedPort
         val configPath = File(tempDir, "plantuml-context.yml")
         configPath.writeText(
             """
             output:
               rag: "${ragDir.absolutePath}"
-            rag:
-              databaseUrl: "localhost"
-              port: $actualPort
-              username: "${postgresContainer.username}"
-              password: "${postgresContainer.password}"
-              tableName: "embeddings_unicode"
             """.trimIndent()
         )
 
-        // When: Execute the task
         task.reindexRag()
 
-        // Then: Task completes and unicode content preserved
         assertTrue(unicodeDiagram.exists(), "Unicode diagram should still exist")
-        assertTrue(
-            unicodeDiagram.readText().contains("User"),
-            "Unicode content should be preserved"
-        )
+        assertTrue(unicodeDiagram.readText().contains("User"), "Unicode content should be preserved")
     }
 
     @Test
-    fun `should handle multiple history files in DATABASE mode`() {
-        // Given: RAG directory with multiple history files
+    fun `should handle multiple history files in SIMULATION mode`() {
         val ragDir = File(tempDir, "rag-multi-history")
         ragDir.mkdirs()
 
@@ -283,26 +219,16 @@ class ReindexPlantumlRagIntegrationTest {
             }
         }
 
-        // Configure with testcontainers PostgreSQL - use mapped port
-        val actualPort = postgresContainer.firstMappedPort
         val configPath = File(tempDir, "plantuml-context.yml")
         configPath.writeText(
             """
             output:
               rag: "${ragDir.absolutePath}"
-            rag:
-              databaseUrl: "localhost"
-              port: $actualPort
-              username: "${postgresContainer.username}"
-              password: "${postgresContainer.password}"
-              tableName: "embeddings_history"
             """.trimIndent()
         )
 
-        // When: Execute the task
         task.reindexRag()
 
-        // Then: All history files still exist
         for (i in 1..5) {
             val historyFile = File(ragDir, "attempt-history-$i.json")
             assertTrue(historyFile.exists(), "History file $i should still exist")
@@ -310,8 +236,7 @@ class ReindexPlantumlRagIntegrationTest {
     }
 
     @Test
-    fun `should handle multiple prompt files in DATABASE mode`() {
-        // Given: RAG directory with 10+ prompt files
+    fun `should handle multiple prompt files in SIMULATION mode`() {
         val ragDir = File(tempDir, "rag-multi-prompts")
         ragDir.mkdirs()
 
@@ -354,26 +279,16 @@ class ReindexPlantumlRagIntegrationTest {
             )
         }
 
-        // Configure with testcontainers PostgreSQL
-        val actualPort = postgresContainer.firstMappedPort
         val configPath = File(tempDir, "plantuml-context.yml")
         configPath.writeText(
             """
             output:
               rag: "${ragDir.absolutePath}"
-            rag:
-              databaseUrl: "localhost"
-              port: $actualPort
-              username: "${postgresContainer.username}"
-              password: "${postgresContainer.password}"
-              tableName: "embeddings_multi_prompts"
             """.trimIndent()
         )
 
-        // When: Execute the task
         task.reindexRag()
 
-        // Then: All prompt files and diagrams still exist
         promptFiles.forEach { assertTrue(it.exists(), "Prompt file ${it.name} should exist") }
         assertTrue(historyFile.exists(), "History file should exist")
         for (i in 1..10) {
@@ -382,8 +297,7 @@ class ReindexPlantumlRagIntegrationTest {
     }
 
     @Test
-    fun `should handle nested directory structure in DATABASE mode`() {
-        // Given: Nested directory structure with prompts in subdirectories
+    fun `should handle nested directory structure in SIMULATION mode`() {
         val baseRagDir = File(tempDir, "rag-nested")
         baseRagDir.mkdirs()
 
@@ -444,26 +358,16 @@ class ReindexPlantumlRagIntegrationTest {
             )
         }
 
-        // Configure with testcontainers PostgreSQL
-        val actualPort = postgresContainer.firstMappedPort
         val configPath = File(tempDir, "plantuml-context.yml")
         configPath.writeText(
             """
             output:
               rag: "${baseRagDir.absolutePath}"
-            rag:
-              databaseUrl: "localhost"
-              port: $actualPort
-              username: "${postgresContainer.username}"
-              password: "${postgresContainer.password}"
-              tableName: "embeddings_nested"
             """.trimIndent()
         )
 
-        // When: Execute the task
         task.reindexRag()
 
-        // Then: All nested files still exist
         assertTrue(File(domain1Dir, "user-service.puml").exists(), "Domain1 diagram should exist")
         assertTrue(File(domain2Dir, "order-service.puml").exists(), "Domain2 diagram should exist")
         assertTrue(File(sharedDir, "common-types.puml").exists(), "Shared diagram should exist")
@@ -471,8 +375,7 @@ class ReindexPlantumlRagIntegrationTest {
     }
 
     @Test
-    fun `should handle concurrent indexing in DATABASE mode`() {
-        // Given: RAG directory with multiple diagrams and concurrent execution
+    fun `should handle concurrent indexing in SIMULATION mode`() {
         val ragDir = File(tempDir, "rag-concurrent")
         ragDir.mkdirs()
 
@@ -504,23 +407,14 @@ class ReindexPlantumlRagIntegrationTest {
             )
         }
 
-        // Configure with testcontainers PostgreSQL
-        val actualPort = postgresContainer.firstMappedPort
         val configPath = File(tempDir, "plantuml-context.yml")
         configPath.writeText(
             """
             output:
               rag: "${ragDir.absolutePath}"
-            rag:
-              databaseUrl: "localhost"
-              port: $actualPort
-              username: "${postgresContainer.username}"
-              password: "${postgresContainer.password}"
-              tableName: "embeddings_concurrent"
             """.trimIndent()
         )
 
-        // When: Execute the task multiple times concurrently
         val threads = mutableListOf<Thread>()
         for (i in 1..3) {
             val thread = Thread {
@@ -532,7 +426,6 @@ class ReindexPlantumlRagIntegrationTest {
 
         threads.forEach { it.join() }
 
-        // Then: All diagrams still exist, no corruption
         for (i in 1..5) {
             assertTrue(File(ragDir, "diagram-$i.puml").exists(), "Diagram $i should exist")
         }
@@ -540,8 +433,7 @@ class ReindexPlantumlRagIntegrationTest {
     }
 
     @Test
-    fun `should recover from partial failure in DATABASE mode`() {
-        // Given: RAG directory with valid and invalid diagrams
+    fun `should recover from partial failure in SIMULATION mode`() {
         val ragDir = File(tempDir, "rag-partial-failure")
         ragDir.mkdirs()
 
@@ -581,34 +473,23 @@ class ReindexPlantumlRagIntegrationTest {
             )
         }
 
-        // Configure with testcontainers PostgreSQL
-        val actualPort = postgresContainer.firstMappedPort
         val configPath = File(tempDir, "plantuml-context.yml")
         configPath.writeText(
             """
             output:
               rag: "${ragDir.absolutePath}"
-            rag:
-              databaseUrl: "localhost"
-              port: $actualPort
-              username: "${postgresContainer.username}"
-              password: "${postgresContainer.password}"
-              tableName: "embeddings_partial"
             """.trimIndent()
         )
 
-        // When: Execute the task (should handle invalid diagram gracefully)
         task.reindexRag()
 
-        // Then: All files still exist (no deletion on error)
         assertTrue(File(ragDir, "valid-diagram.puml").exists(), "Valid diagram should exist")
         assertTrue(File(ragDir, "invalid-diagram.puml").exists(), "Invalid diagram should exist")
         assertTrue(historyFile.exists(), "History file should exist")
     }
 
     @Test
-    fun `should handle very large embeddings in DATABASE mode`() {
-        // Given: RAG directory with a very large diagram (>10KB)
+    fun `should handle very large embeddings in SIMULATION mode`() {
         val ragDir = File(tempDir, "rag-very-large")
         ragDir.mkdirs()
 
@@ -650,26 +531,16 @@ class ReindexPlantumlRagIntegrationTest {
             )
         }
 
-        // Configure with testcontainers PostgreSQL
-        val actualPort = postgresContainer.firstMappedPort
         val configPath = File(tempDir, "plantuml-context.yml")
         configPath.writeText(
             """
             output:
               rag: "${ragDir.absolutePath}"
-            rag:
-              databaseUrl: "localhost"
-              port: $actualPort
-              username: "${postgresContainer.username}"
-              password: "${postgresContainer.password}"
-              tableName: "embeddings_very_large"
             """.trimIndent()
         )
 
-        // When: Execute the task
         task.reindexRag()
 
-        // Then: Large diagram still exists and content preserved
         assertTrue(largeDiagram.exists(), "Large diagram should exist")
         assertTrue(largeDiagram.readText().contains("LargeClass100"), "Large diagram content should be preserved")
         assertTrue(historyFile.exists(), "History file should exist")

@@ -1,6 +1,8 @@
 = Historique des Sessions
 
-_Session 122_ (2026-04-22) : Migration gouvernance vers plantuml-plugin/ — AGENT.adoc + opencode.json créés, racine git nettoyée ✅
+_Session 124_ (2026-04-22) : Correction timeout ReindexPlantumlRagIntegrationTest — StubEmbeddingModel + mode SIMULATION OK ✅
+_Session 123_ (2026-04-22) : Correction 9 tests en echec — resolveProvider() GEMINI/CLAUDE mapping OK ✅
+_Session 122_ (2026-04-22) : Migration gouvernance vers plantuml-plugin/ — racine git nettoyée, 12 fichiers actifs harmonisés ✅
 _Session 121_ (2026-04-22) : Migration AsciiDoc complète — 100+ fichiers .md → .adoc ✅
 _Session 120_ (2026-04-22) : Implémentation Phase 1 Dogfooding — GraphifyPromptAdapter + GenerateDiagramDocsTask ✅
 _Session 119_ (2026-04-22) : Documentation Graphify + Auto-documentation Plugin — 9.0/10 ✅  

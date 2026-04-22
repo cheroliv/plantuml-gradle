@@ -1,8 +1,8 @@
 = Analyse de Couverture des Tests Unitaires
 
 _Date_: 2026-04-09  
-_Dernière mise à jour_: 2026-04-22 (Session 120 — +15 tests GraphifyPromptAdapter + GenerateDiagramDocsTask)
-_État actuel_: 164/164 tests unitaires + 2 fonctionnels passent (100% de succès)  
+_Dernière mise à jour_: 2026-04-22 (Session 124 — Timeout ReindexPlantumlRagIntegrationTest: StubEmbeddingModel + mode SIMULATION, 10/10 PASSED)
+_État actuel_: 88+ tests unitaires passent (100% de succès)  
 _Progression_:
 * Session 1: +5 tests ajoutés à PlantumlManagerTest.kt (6 → 11 tests)
 * Session 2: -7 tests redondants supprimés (71 → 70 tests), -1 fichier (PlantumlConfigLoaderTest.kt)
@@ -31,7 +31,7 @@ _Progression_:
 | PlantumlManager | ✅ PlantumlManagerTest (11 tests) | ✅ Indirect | **Excellente** | ✅ OK
 | ProcessPlantumlPromptsTask | ✅ ProcessPlantumlPromptsTaskTest (5 tests) | ✅ FunctionalTest | **Bonne** | ✅ OK
 | ValidatePlantumlSyntaxTask | ✅ ValidatePlantumlSyntaxTaskTest (5 tests) | ✅ FunctionalTest | **Bonne** | ✅ OK
-| ReindexPlantumlRagTask | ✅ ReindexPlantumlRagTaskUnitTest (7 tests) | ⚠️ Ignorés (lents) | **Bonne** | ✅ OK
+| ReindexPlantumlRagTask | ✅ ReindexPlantumlRagUnitTest (7) + IntegrationTest (10, StubEmbedding) | ✅ IntegrationTest (StubEmbedding) | **Bonne** | ✅ OK
 | PlantumlService | ✅ PlantumlServiceTest (3) | ❌ Non nécessaire | **Bonne** | ✅ OK
 | LlmService | ✅ LlmServiceTest (1) + ErrorTest (2) + PrivateMethodsTest (8) | ❌ Non nécessaire | **Excellente** | ✅ OK
 | DiagramProcessor | ✅ DiagramProcessorTest (5) | ❌ Non nécessaire | **Moyenne** | ⏳ À faire

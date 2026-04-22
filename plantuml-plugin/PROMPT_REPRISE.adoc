@@ -1,60 +1,47 @@
-= 🔄 Prompt de reprise — Session 123
+= Prompt de reprise — Session 125
 
 ____
-**EPIC** : Stabilisation + Correction tests
-**Statut** : Session 122 ✅ — Migration gouvernance vers plantuml-plugin/
-**Mission** : Corriger les 9 tests en échec préexistants (Issue #3 BACKLOG)
+**EPIC** : Stabilisation
+**Statut** : Session 124 OK — Timeout ReindexPlantumlRagIntegrationTest corrige
+**Mission** : A determiner selon BACKLOG.adoc
 ____
 
 '''
 
-== Session 122 — Résumé
+== Session 124 — Resume
 
 **Date** : 22 avril 2026
-**Résultat** : ✅ Migration gouvernance agent vers plantuml-plugin/
+**Resultat** : OK — 10/10 tests integration PASSED sans timeout
 
-**Connaissances clés** :
+**Connaissances cles** :
 
-* `plantuml-gradle/` = repo git UNIQUEMENT, ZERO fichiers de gouvernance agent
-* `plantuml-plugin/` = racine de travail, TOUT y vit
-* Bootstrap opencode = `opencode.json` → `AGENT.adoc` (un seul fichier, pas de AGENTS.md redondant)
-* Fichiers supprimés de `plantuml-gradle/` : `AGENTS.md`, `AGENT.adoc`, `session-summary.adoc`, `opencode.json`
-* Fichiers créés dans `plantuml-plugin/` : `AGENT.adoc`, `opencode.json`
+* Cause racine : Testcontainers (20s) + AllMiniLmL6V2EmbeddingModel ONNX (5s/embedding) = timeout certain sous 30s/60s
+* Correction : StubEmbeddingModel (instantane) + mode SIMULATION + injection par system property
+* `ProjectBuilder` = meme JVM = reflexion `Class.forName()` fonctionne pour charger le stub
+* Regle d'or : `ProjectBuilder` (test unitaire) doit mocker le monde reel, `GradleRunner` (test fonctionnel) peut lancer l'infrastructure reelle
 
-**Archive** : `.agents/sessions/122-migration-gouvernance-racine.adoc`
-
-'''
-
-== Session 123 — Priorités
-
-**Mission** : Corriger les 9 tests en échec + stabilisation
-
-=== 1. Corriger les 9 tests en échec préexistants
-
-[source]
-----
-LlmServicePrivateMethodsTest > createClaudeModel should return AnthropicChatModel with correct API key() FAILED
-LlmServicePrivateMethodsTest > createGeminiModel should return GoogleAiGeminiChatModel with correct API key() FAILED
-ProviderEnumsTest > Provider enum should have 9 values() FAILED
-LlmServiceApiKeyPoolTest > should use pool key when pool is configured for Claude FAILED
-LlmServiceApiKeyPoolTest > should use pool key when pool is configured for Gemini FAILED
-LlmServiceErrorTest > should handle various error scenarios gracefully() > [2] "unsupported-model" FAILED
-LlmServiceErrorTest > should handle various error scenarios gracefully() > [5] "fallback-default" FAILED
-LlmServiceTest > should create chat model for all supported providers() > [3] GEMINI FAILED
-LlmServiceTest > should create chat model for all supported providers() > [5] CLAUDE FAILED
-----
-
-=== 2. Vérifier ./gradlew check passe
-
-=== Critères d'Acceptation
-
-* [ ] Les 9 tests en échec sont corrigés
-* [ ] `./gradlew check` tous les tests passent
+**Archive** : `.agents/sessions/124-fix-timeout-integration-test.adoc`
 
 '''
 
-== Règles
+== Session 125 — Priorites
 
-* ❌ Jamais de commit sans permission
-* ✅ Racine de travail = `plantuml-plugin/` (pas `plantuml-gradle/`)
-* ✅ Archive + PROMPT_REPRISE mis à jour en fin de session
+**Mission** : A determiner selon BACKLOG.adoc
+
+=== 1. Consulter BACKLOG.adoc
+
+* Identifier la prochaine priorite
+* Evaluer le contexte necessaire
+
+=== Criteres d'Acceptation
+
+* [ ] BACKLOG.adoc consulte
+* [ ] Mission session 125 definie
+
+'''
+
+== Regles
+
+* Jamais de commit sans permission
+* Racine de travail = `plantuml-plugin/` (pas `plantuml-gradle/`)
+* Archive + PROMPT_REPRISE mis a jour en fin de session

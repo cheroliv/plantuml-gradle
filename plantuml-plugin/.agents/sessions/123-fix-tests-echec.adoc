@@ -1,0 +1,84 @@
+= Session 123 — Correction 9 tests en echec
+:toc: left
+:toclevels: 2
+
+== Date
+
+22 avril 2026
+
+== Resultat
+
+✅ Les 9 tests en echec sont corriges
+
+== Contexte
+
+Les tests echouaient depuis plusieurs sessions suite a un decalage entre le model string
+utilise dans la config (`"gemini"`, `"claude"`) et l'enum `Provider` qui utilise
+`GOOGLE` et `ANTHROPIC`.
+
+== Diagnostics
+
+=== Cause racine
+
+**`Provider.valueOf(provider.uppercase())`** dans `LlmService.kt` ne supportait pas les alias :
+- `"gemini"` → `Provider.valueOf("GEMINI")` → **IllegalArgumentException** (aucune valeur GEMINI)
+- `"claude"` → `Provider.valueOf("CLAUDE")` → **IllegalArgumentException** (aucune valeur CLAUDE)
+- `"unsupported-model"` → `Provider.valueOf("UNSUPPORTED-MODEL")` → **IllegalArgumentException**
+
+L'enum `Provider` a aussi 10 valeurs (9 providers + UNKNOWN), mais le test attendait 9.
+
+=== Impact sur les 9 tests
+
+| # | Test | Cause |
+|---|------|-------|
+| 1 | `ProviderEnumsTest > Provider enum should have 9 values` | Enum a 10 valeurs (UNKNOWN en plus) |
+| 2 | `LlmServiceTest > GEMINI` | Provider.valueOf("GEMINI") n'existe pas |
+| 3 | `LlmServiceTest > CLAUDE` | Provider.valueOf("CLAUDE") n'existe pas |
+| 4 | `LlmServiceApiKeyPoolTest > Gemini` | toApiKeyEntry() utilise Provider.valueOf("GOOGLE") OK, mais createChatModel() crash via Provider.valueOf("GEMINI") |
+| 5 | `LlmServiceApiKeyPoolTest > Claude` | Idem avec CLAUDE/ANTHROPIC |
+| 6 | `LlmServiceErrorTest > unsupported-model` | Provider.valueOf("UNSUPPORTED-MODEL") crash |
+| 7 | `LlmServiceErrorTest > fallback-default` | Provider.valueOf("GEMINI") crash |
+| 8 | `LlmServicePrivateMethodsTest > createGeminiModel` | Idem |
+| 9 | `LlmServicePrivateMethodsTest > createClaudeModel` | Idem |
+
+== Corrections
+
+=== 1. LlmService.kt — Ajout de `resolveProvider()`
+
+Fonction de mapping qui remplace `Provider.valueOf()` :
+
+[source,kotlin]
+----
+private fun resolveProvider(name: String): Provider {
+    val upper = name.uppercase()
+    return when (upper) {
+        "GEMINI" -> Provider.GOOGLE
+        "CLAUDE" -> Provider.ANTHROPIC
+        else -> Provider.entries.find { it.name == upper } ?: Provider.UNKNOWN
+    }
+}
+----
+
+- Ligne 84 : `toApiKeyEntry()` → `resolveProvider(this.provider)` au lieu de `Provider.valueOf(this.provider.uppercase())`
+- Ligne 114 : `auditLogger.logInfo()` → `resolveProvider(provider)` au lieu de `Provider.valueOf(provider.uppercase())`
+
+=== 2. ProviderEnumsTest.kt — Correction du count
+
+- `should have 9 values` → `should have 10 values` (9 providers + UNKNOWN)
+- Ajout test `Provider should contain UNKNOWN`
+
+== Fichiers modifies
+
+| Fichier | Changement |
+|---------|------------|
+| `src/main/kotlin/plantuml/service/LlmService.kt` | Ajout `resolveProvider()`, remplacement 2x `Provider.valueOf()` |
+| `src/test/kotlin/plantuml/apikey/ProviderEnumsTest.kt` | Count 9→10, ajout test UNKNOWN |
+
+== Tests passes
+
+Tous les 9 tests en echec passent maintenant. Bilan : 88+ tests unitaires OK, 0 echec.
+
+== Note
+
+`ReindexPlantumlRagIntegrationTest` timeout (1min) — probleme preexistant, non lie.
+A traiter en session 124.
