@@ -9,6 +9,7 @@ import plantuml.tasks.ProcessPlantumlPromptsTask
 import plantuml.tasks.ReindexPlantumlRagTask
 import plantuml.tasks.ValidatePlantumlSyntaxTask
 import plantuml.tasks.GenerateDiagramDocsTask
+import plantuml.tasks.GenerateKnowledgeGraphDiagramTask
 import java.io.File
 
 /**
@@ -83,6 +84,7 @@ object PlantumlManager {
             project.tasks.register("validatePlantumlSyntax", ValidatePlantumlSyntaxTask::class.java)
             project.tasks.register("reindexPlantumlRag", ReindexPlantumlRagTask::class.java)
             project.tasks.register("generateDiagramDocs", GenerateDiagramDocsTask::class.java)
+            project.tasks.register("generateKnowledgeGraphDiagram", GenerateKnowledgeGraphDiagramTask::class.java)
         }
     }
 

@@ -1,58 +1,57 @@
-= Prompt de reprise — Session 125
+= Prompt de reprise — Session 126
 
 ____
 **EPIC** : EPIC 9 — Knowledge Graph Diagram via PlantUML
-**Statut** : Session 124 OK — Timeout ReindexPlantumlRagIntegrationTest corrigé
-**Mission** : Implémenter GenerateKnowledgeGraphDiagramTask — JSON > PlantUML déterministe
+**Statut** : Session 125 OK — GenerateKnowledgeGraphDiagramTask implémenté (80%)
+**Mission** : Valider end-to-end avec vrai graph.json + support hyperedges
 ____
 
 '''
 
-== Session 124 — Resume
+== Session 125 — Resume
 
 **Date** : 22 avril 2026
-**Resultat** : OK — 10/10 tests integration PASSED sans timeout
+**Resultat** : OK — EPIC 9 implémenté à 80%, 336/336 tests PASSED
 
 **Connaissances cles** :
 
-* StubEmbeddingModel + mode SIMULATION remplace Testcontainers + AllMiniLmL6V2EmbeddingModel ONNX
-* Injection par System.getProperty en mode test
-* `./gradlew test` passe en 42s
+* `GenerateKnowledgeGraphDiagramTask` : transformation déterministe JSON → PlantUML (pas de LLM)
+* `KnowledgeGraphParser` : supporte format plat (strings) et riche (objets avec type/confidence)
+* `KnowledgeGraphRenderer` : packages/rectangles, `-->` EXTRACTED, `..>` INFERRED, `--x` AMBIGUOUS
+* 4 filtres CLI : `-Pplantuml.kg.community`, `-Pplantuml.kg.edgeTypes`, `-Pplantuml.kg.minConfidence`, `-Pplantuml.kg.maxNodes`
+* Fichiers créés : `kgmodels.kt`, `KnowledgeGraphParser.kt`, `KnowledgeGraphRenderer.kt`, `GenerateKnowledgeGraphDiagramTask.kt` + 3 fichiers de tests
+* `PlantumlManager` + `PlantumlPlugin` modifiés pour enregistrer la tâche et le lifecycle `docs`
 
-**Archive** : `.agents/sessions/124-fix-timeout-integration-test.adoc`
+**Archive** : `.agents/sessions/125-epic9-knowledge-graph-diagram.adoc`
 
 '''
 
-== Session 125 — Priorites
+== Session 126 — Priorites
 
-**Mission** : EPIC 9 — Knowledge Graph Diagram via PlantUML
+**Mission** : EPIC 9 — Complétion Knowledge Graph Diagram
 
-=== 1. Creer GenerateKnowledgeGraphDiagramTask
+=== 1. Valider end-to-end avec vrai graph.json
 
-* Parser `graphify-out/graph.json` directement (pas de LLM)
-* Generer du PlantUML natif : packages/rectangles pour communautes, nodes pour sommets
-* Arretes : `-->` EXTRACTED, `..>` INFERRED, `--x` AMBIGUOUS
-* Couleurs par communaute (palette automatique)
+* Lancer `graphify . --no-viz` pour générer `graphify-out/graph.json`
+* `./gradlew generateKnowledgeGraphDiagram` — vérifier le PlantUML généré
+* Tester les filtres : `-Pplantuml.kg.community="service layer"`
 
-=== 2. Ajouter proprietes de filtre CLI
+=== 2. Support hyperedges (3+ noeuds)
 
-* `-Pplantuml.kg.community` — communaute specifique
-* `-Pplantuml.kg.edgeTypes` — filtrer par type d'arrete
-* `-Pplantuml.kg.minConfidence` — seuil de confiance
-* `-Pplantuml.kg.maxNodes` — limiter le nombre de noeuds
+* Parser les hyperedges du graph JSON
+* Rendu PlantUML : rectangle groupant les noeuds participants
 
-=== 3. Integrer dans le pipeline Gradle
+=== 3. Support semantically_similar_to
 
-* Tache `generateKnowledgeGraphDiagram` depend de `graphify-out/graph.json`
-* Rendu PNG via `plantumlService.generateImage()`
-* Lifecycle task `docs` mis a jour
+* Liens croisés INFERRED entre communautés
+* Style distinct dans le renderer
 
 === Criteres d'Acceptation
 
-* [ ] `GenerateKnowledgeGraphDiagramTask` implementee
-* [ ] Tests unitaires passes
-* [ ] `./gradlew generateKnowledgeGraphDiagram -Pplantuml.kg.community="service layer"` fonctionnel
-* [ ] EPIC 9 ajoute au BACKLOG comme top priorite
+* [ ] `./gradlew generateKnowledgeGraphDiagram` fonctionnel avec vrai graph.json
+* [ ] Hyperedges supportés
+* [ ] `semantically_similar_to` visible dans le diagramme
+* [ ] EPIC 9 → 100%
 
 '''
 

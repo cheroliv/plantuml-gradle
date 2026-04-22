@@ -1,5 +1,6 @@
 = Historique des Sessions
 
+_Session 125_ (2026-04-22) : EPIC 9 Knowledge Graph Diagram — GenerateKnowledgeGraphDiagramTask + Parser + Renderer (336/336 tests PASS) ✅
 _Session 124_ (2026-04-22) : Correction timeout ReindexPlantumlRagIntegrationTest — StubEmbeddingModel + mode SIMULATION OK ✅
 _Session 123_ (2026-04-22) : Correction 9 tests en echec — resolveProvider() GEMINI/CLAUDE mapping OK ✅
 _Session 122_ (2026-04-22) : Migration gouvernance vers plantuml-plugin/ — racine git nettoyée, 12 fichiers actifs harmonisés ✅

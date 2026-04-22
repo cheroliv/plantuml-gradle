@@ -1,0 +1,100 @@
+= Session 125 — EPIC 9 Knowledge Graph Diagram
+:toc: left
+:toclevels: 2
+
+== Date
+
+22 avril 2026
+
+== Resultat
+
+✅ EPIC 9 implémenté à 80% — GenerateKnowledgeGraphDiagramTask + Parser + Renderer + 30 tests unitaires
+
+== Contexte
+
+Le pipeline existant (`GraphifyPromptAdapter` + `GenerateDiagramDocsTask`) génère des diagrammes de classes UML via LLM à partir de `graph.json`, mais ce n'est pas une représentation du Knowledge Graph lui-même. EPIC 9 vise une transformation déterministe JSON → PlantUML sans LLM.
+
+== Taches realisees
+
+=== 1. Data models — kgmodels.kt
+
+* `EdgeType` enum : EXTRACTED, INFERRED, AMBIGUOUS
+* `KnowledgeGraphEdge` : source, target, label, type, confidence
+* `KnowledgeGraphNode` : name, type, community, attributes
+* `KnowledgeGraphCommunity` : name, color, nodes, edges
+* `KnowledgeGraph` : nodes, edges, communities
+
+=== 2. KnowledgeGraphParser — service/KnowledgeGraphParser.kt
+
+* Parse `graph.json` avec support de :
+** Format plat : `communities[].edges` comme strings (`"A --> B"`)
+** Format riche : `communities[].edges` comme objets (`{source, target, label, type, confidence}`)
+** Root-level `nodes` (objets avec attributes ou strings simples)
+** Root-level `edges` (objets ou strings)
+* Déduplication automatique des nodes et edges
+* Override : un node riche (root-level) remplace un node basique (issue du parsing communities)
+
+=== 3. KnowledgeGraphRenderer — service/KnowledgeGraphRenderer.kt
+
+* Transformation déterministe KnowledgeGraph → PlantUML :
+** `package` par communauté avec couleurs auto (palette 15 couleurs)
+** `node` pour chaque sommet (avec attributes si présents)
+** `-->` pour EXTRACTED (trait plein)
+** `..>` pour INFERRED (pointillé, label confiance)
+** `--x` pour AMBIGUOUS
+** Légende automatique avec types d'arêtes et filtre actif
+** Cross-community edges séparés des intra-community edges
+* Filtres supportés :
+** `-Pplantuml.kg.community` — filtrer par communauté
+** `-Pplantuml.kg.edgeTypes` — filtrer par type d'arête
+** `-Pplantuml.kg.minConfidence` — seuil de confiance
+** `-Pplantuml.kg.maxNodes` — limiter le nombre de noeuds
+
+=== 4. GenerateKnowledgeGraphDiagramTask — tasks/GenerateKnowledgeGraphDiagramTask.kt
+
+* Tâche Gradle `generateKnowledgeGraphDiagram`
+* Lit `graphify-out/graph.json`, parse, rend, valide, génère PNG
+* Propriétés CLI de filtre
+* Output dans `diagrams/knowledge-graph/`
+
+=== 5. Intégration pipeline Gradle
+
+* `PlantumlManager.Tasks.registerTasks()` : ajout `generateKnowledgeGraphDiagram`
+* `PlantumlPlugin.apply()` : lifecycle `docs` dépend de `generateKnowledgeGraphDiagram`
+
+=== 6. Tests unitaires
+
+* `KnowledgeGraphRendererTest` : 13 tests (rendu, filtres, sanitize, légende, cross-community)
+* `KnowledgeGraphParserTest` : 10 tests (parse plat, riche, root-level, dédup, types d'arêtes)
+* `GenerateKnowledgeGraphDiagramTaskTest` : 7 tests (enregistrement, génération, filtres, PNG)
+
+== Resultats
+
+* ✅ 336/336 tests PASSED
+* ✅ `./gradlew compileKotlin` passe
+* ✅ Transformation déterministe JSON → PlantUML (pas de LLM)
+* ✅ Filtres CLI fonctionnels (community, edgeTypes, minConfidence, maxNodes)
+
+== Fichiers modifies
+
+|===
+| Fichier | Action
+| `src/main/kotlin/plantuml/kgmodels.kt` | CRÉÉ
+| `src/main/kotlin/plantuml/service/KnowledgeGraphParser.kt` | CRÉÉ
+| `src/main/kotlin/plantuml/service/KnowledgeGraphRenderer.kt` | CRÉÉ
+| `src/main/kotlin/plantuml/tasks/GenerateKnowledgeGraphDiagramTask.kt` | CRÉÉ
+| `src/test/kotlin/plantuml/service/KnowledgeGraphRendererTest.kt` | CRÉÉ
+| `src/test/kotlin/plantuml/service/KnowledgeGraphParserTest.kt` | CRÉÉ
+| `src/test/kotlin/plantuml/tasks/GenerateKnowledgeGraphDiagramTaskTest.kt` | CRÉÉ
+| `src/main/kotlin/plantuml/PlantumlManager.kt` | MODIFIÉ (import + registerTasks)
+| `src/main/kotlin/plantuml/PlantumlPlugin.kt` | MODIFIÉ (docs lifecycle)
+| `BACKLOG.adoc` | MODIFIÉ (EPIC 9 progression)
+| `.agents/INDEX.adoc` | MODIFIÉ (roadmap EPIC 9)
+|===
+
+== Prochaine session (126)
+
+* Valider avec un vrai `graph.json` (lancer `graphify . --no-viz`)
+* `./gradlew generateKnowledgeGraphDiagram -Pplantuml.kg.community="service layer"` end-to-end
+* Ajouter support hyperedges (3+ noeuds)
+* Ajouter support `semantically_similar_to` (lien croisé entre communautés)

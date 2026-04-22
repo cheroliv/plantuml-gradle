@@ -1,8 +1,8 @@
 = Analyse de Couverture des Tests Unitaires
 
 _Date_: 2026-04-09  
-_Dernière mise à jour_: 2026-04-22 (Session 124 — Timeout ReindexPlantumlRagIntegrationTest: StubEmbeddingModel + mode SIMULATION, 10/10 PASSED)
-_État actuel_: 88+ tests unitaires passent (100% de succès)  
+_Dernière mise à jour_: 2026-04-22 (Session 125 — EPIC 9 KnowledgeGraphRenderer + Parser + Task, 30 tests ajoutés)
+_État actuel_: 336 tests unitaires passent (100% de succès)  
 _Progression_:
 * Session 1: +5 tests ajoutés à PlantumlManagerTest.kt (6 → 11 tests)
 * Session 2: -7 tests redondants supprimés (71 → 70 tests), -1 fichier (PlantumlConfigLoaderTest.kt)
@@ -19,6 +19,7 @@ _Progression_:
 * Session 19: +0 tests (Activation et optimisation LargeFileAndPathTest — 4 tests activés, -31% code)
 * Session 120: +10 tests (GraphifyPromptAdapterTest.kt) + 5 tests (GenerateDiagramDocsTaskTest.kt)
 * Session 121: +0 tests (Migration AsciiDoc — aucun test modifié)
+* Session 125: +30 tests (KnowledgeGraphRendererTest 13 + KnowledgeGraphParserTest 10 + GenerateKnowledgeGraphDiagramTaskTest 7)
 
 '''
 
@@ -36,6 +37,9 @@ _Progression_:
 | LlmService | ✅ LlmServiceTest (1) + ErrorTest (2) + PrivateMethodsTest (8) | ❌ Non nécessaire | **Excellente** | ✅ OK
 | DiagramProcessor | ✅ DiagramProcessorTest (5) | ❌ Non nécessaire | **Moyenne** | ⏳ À faire
 | models.kt (data classes) | ✅ ModelsDataClassTest (11 tests) | ❌ Non nécessaire | **Excellente** | ✅ OK
+| KnowledgeGraphRenderer | ✅ KnowledgeGraphRendererTest (13 tests) | ❌ Non nécessaire | **Excellente** | ✅ OK
+| KnowledgeGraphParser | ✅ KnowledgeGraphParserTest (10 tests) | ❌ Non nécessaire | **Excellente** | ✅ OK
+| GenerateKnowledgeGraphDiagramTask | ✅ GenerateKnowledgeGraphDiagramTaskTest (7 tests) | ❌ Non nécessaire | **Bonne** | ✅ OK
 |===
 
 ---

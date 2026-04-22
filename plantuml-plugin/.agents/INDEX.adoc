@@ -1,8 +1,8 @@
 = 📊 Index des Sessions — PlantUML Gradle Plugin
 
 _Dernière mise à jour_ : 2026-04-22  
-_Session en cours_ : 125 — EPIC 9 Knowledge Graph Diagram via PlantUML  
-_Session terminee_ : 124 (Correction timeout ReindexPlantumlRagIntegrationTest)
+_Session en cours_ : 126 — EPIC 9 Knowledge Graph Diagram (validation end-to-end)  
+_Session terminee_ : 125 (EPIC 9 Knowledge Graph Diagram — implémentation 80%)
 
 '''
 
@@ -71,6 +71,7 @@ _Aucune étape ne peut être marquée [✅] si le fichier n'a pas été effectiv
 
 |===
 | # | Date | Type | Sujet | Fichier | Score
+| 125 | 2026-04-22 | feat | EPIC 9 Knowledge Graph Diagram (Parser+Renderer+Task) | `125-epic9-knowledge-graph-diagram.adoc` | 9.0/10
 | 124 | 2026-04-22 | fix | Correction timeout ReindexPlantumlRagIntegrationTest | `124-fix-timeout-integration-test.adoc` | 9.0/10
 | 123 | 2026-04-22 | fix | Correction 9 tests en echec (resolveProvider) | `123-fix-tests-echec.adoc` | 9.0/10
 | 122 | 2026-04-22 | docs | Migration gouvernance vers plantuml-plugin/ | `122-migration-gouvernance-racine.adoc` | 9.0/10
@@ -123,7 +124,7 @@ _Aucune étape ne peut être marquée [✅] si le fichier n'a pas été effectiv
 | EPIC 6 : API Key Pool | ✅ 100% | 9/10 | ✅ TERMINÉ
 | EPIC 7 : Dogfooding Plugin | ✅ 100% | 9/10 | ✅ Phase 1 ✅, Phase 2 abandonnée (incohérence archi)
 | EPIC 8 : Migration AsciiDoc | ✅ 100% | 9/10 | ✅ TERMINÉ
-| EPIC 9 : Knowledge Graph Diagram | 🔴 0% | - | 🔴 À DÉMARRER
+| EPIC 9 : Knowledge Graph Diagram | 🟡 80% | 9/10 | 🟡 Session 125 en cours
 |===
 
 '''

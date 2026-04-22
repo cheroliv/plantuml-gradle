@@ -24,7 +24,8 @@ class PlantumlPlugin : Plugin<Project> {
 
             project.tasks.register("docs") {
                 it.group = "plantuml"
-                it.description = "Full documentation pipeline: generate prompts + process + validate"
+                it.description = "Full documentation pipeline: knowledge graph + generate prompts + process + validate"
+                it.dependsOn("generateKnowledgeGraphDiagram")
                 it.dependsOn("generateDiagramDocs")
                 it.dependsOn("processPlantumlPrompts")
                 it.finalizedBy("validatePlantumlSyntax")

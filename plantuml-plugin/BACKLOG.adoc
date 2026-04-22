@@ -11,8 +11,22 @@ ____
 
 === EPIC 9 : Knowledge Graph Diagram — Représentation graphique du Knowledge Graph via PlantUML
 
-**Statut** : 🔴 **À DÉMARRER** — **PRIORITÉ MAXIMALE**
-**Session** : 125 (à implémenter)
+**Statut** : 🟡 **EN COURS** — **Session 125 en cours**
+**Session** : 125 (implémentation en cours)
+
+==== Contexte
+
+Le pipeline actuel lit `graphify-out/graph.json` via `GraphifyPromptAdapter` et produit des **diagrammes de classes UML** par communauté. Ce n'est *pas* une représentation du Knowledge Graph lui-même — on perd la topologie globale, les arêtes croisées entre communautés, les types d'arête (EXTRACTED/INFERRED/AMBIGUOUS), les scores de confiance, les hyperedges, et les liens sémantiques.
+
+==== Progression Session 125
+
+* [x] **Data models** (`kgmodels.kt`) — EdgeType, KnowledgeGraphEdge, KnowledgeGraphNode, KnowledgeGraphCommunity, KnowledgeGraph
+* [x] **KnowledgeGraphParser** (`service/KnowledgeGraphParser.kt`) — Parse `graph.json` (communities et root-level nodes/edges), supporte format plat et riche
+* [x] **KnowledgeGraphRenderer** (`service/KnowledgeGraphRenderer.kt`) — Transformation déterministe JSON → PlantUML : packages/rectangles pour communautés, `-->` EXTRACTED, `..>` INFERRED, `--x` AMBIGUOUS, couleurs auto, légende
+* [x] **GenerateKnowledgeGraphDiagramTask** (`tasks/GenerateKnowledgeGraphDiagramTask.kt`) — Tâche Gradle avec filtres CLI
+* [x] **Intégration pipeline** — Task enregistrée dans `PlantumlManager`, lifecycle `docs` mis à jour
+* [x] **Tests unitaires** — KnowledgeGraphRendererTest (13 tests), KnowledgeGraphParserTest (10 tests), GenerateKnowledgeGraphDiagramTaskTest (7 tests)
+* [x] **336/336 tests PASSED** — `./gradlew test` passe sans échec
 
 ==== Contexte
 

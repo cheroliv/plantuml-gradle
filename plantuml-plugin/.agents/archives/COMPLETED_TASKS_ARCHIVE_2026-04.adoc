@@ -2,6 +2,35 @@
 
 == Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+=== Session 125 — 2026-04-22 : EPIC 9 Knowledge Graph Diagram ✅
+
+==== ✅ Contexte
+* _Session 124_ : Correction timeout ReindexPlantumlRagIntegrationTest
+* _Objectif_ : Implémenter GenerateKnowledgeGraphDiagramTask — transformation déterministe JSON → PlantUML
+
+==== ✅ Taches realisees
+* ✅ _kgmodels.kt_ : Data models (EdgeType, KnowledgeGraphEdge/Node/Community/Graph)
+* ✅ _KnowledgeGraphParser.kt_ : Parse graph.json (format plat + riche, dédup nodes/edges)
+* ✅ _KnowledgeGraphRenderer.kt_ : Transformation PlantUML (packages, `-->`/`..>`/`--x`, légende, couleurs auto)
+* ✅ _GenerateKnowledgeGraphDiagramTask.kt_ : Tâche Gradle avec filtres CLI
+* ✅ Intégration pipeline : PlantumlManager + PlantumlPlugin (lifecycle `docs`)
+* ✅ 30 tests unitaires (Renderer 13, Parser 10, Task 7)
+
+==== ✅ Resultats
+* ✅ 336/336 tests PASSED
+* ✅ `./gradlew generateKnowledgeGraphDiagram` fonctionnel
+* ✅ Filtres CLI : `-Pplantuml.kg.community`, `-Pplantuml.kg.edgeTypes`, `-Pplantuml.kg.minConfidence`, `-Pplantuml.kg.maxNodes`
+* ✅ Transformation déterministe (pas de LLM)
+
+==== Notes lecons apprises
+* KnowledgeGraphParser doit override les nodes basiques (communities) quand des nodes riches (root-level avec attributes) existent — dédup intelligente
+* sanitizeId() : supprimer `()` plutôt que les remplacer par `_` pour des IDs PlantUML propres
+* PlantUML `legend` est le bon endroit pour la légende de type d'arêtes
+
+==== Prochaine session (126)
+* Valider end-to-end avec vrai `graphify-out/graph.json`
+* Ajouter support hyperedges et `semantically_similar_to`
+
 === Session 124 — 2026-04-22 : Correction Timeout ReindexPlantumlRagIntegrationTest ✅
 
 ==== ✅ Contexte
