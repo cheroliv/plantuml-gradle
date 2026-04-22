@@ -22,6 +22,7 @@ La migration AsciiDoc (session 121) avait été faite avec la vision que `plantu
 | `plantuml-gradle/session-summary.adoc` | Supprimé |
 | `plantuml-gradle/opencode.json` | Supprimé |
 | `plantuml-gradle/AGENTS.md` (2e version) | Supprimé — écrit puis remplacé par AGENT.adoc seul |
+| 12 fichiers actifs | Harmonisation `AGENTS.md` → `AGENT.adoc` dans tous les fichiers de gouvernance |
 
 == Résultats
 
@@ -31,6 +32,7 @@ La migration AsciiDoc (session 121) avait été faite avec la vision que `plantu
 | opencode.json bootstrap correct | ✅ |
 | Chemins relatifs cohérents (plus de préfixe plantuml-plugin/) | ✅ |
 | Aucun test modifié | ✅ (N/A) |
+| Références AGENTS.md remplacées par AGENT.adoc dans fichiers actifs | ✅ |
 
 == Leçons Apprises
 
@@ -38,6 +40,7 @@ La migration AsciiDoc (session 121) avait été faite avec la vision que `plantu
 * L'unique bootstrap opencode = `opencode.json` → `AGENT.adoc`
 * `AGENTS.md` était redondant avec `AGENT.adoc` — un seul fichier suffit
 * La session 121 avait créé des fichiers à la racine git par erreur d'architecture
+* 12 fichiers de gouvernance actifs avaient encore des références obsolètes à `AGENTS.md` — tous corrigés
 
 == Prochaine Session (123)
 

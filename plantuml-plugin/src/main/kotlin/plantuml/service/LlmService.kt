@@ -75,13 +75,22 @@ class LlmService(
         }
     }
 
+    private fun resolveProvider(name: String): Provider {
+        val upper = name.uppercase()
+        return when (upper) {
+            "GEMINI" -> Provider.GOOGLE
+            "CLAUDE" -> Provider.ANTHROPIC
+            else -> Provider.entries.find { it.name == upper } ?: Provider.UNKNOWN
+        }
+    }
+
     private fun ApiKeyPoolEntry.toApiKeyEntry(): ApiKeyEntry {
         return ApiKeyEntry(
             id = this.id,
             email = this.email,
             name = this.name,
             keyRef = this.keyRef,
-            provider = Provider.valueOf(this.provider.uppercase()),
+            provider = resolveProvider(this.provider),
             services = this.services.map { plantuml.apikey.ServiceType.valueOf(it.uppercase()) },
             quota = QuotaConfig(
                 limitValue = this.quota.limitValue,
@@ -111,7 +120,7 @@ class LlmService(
         val provider = config.langchain4j.model
         
         auditLogger.logInfo(
-            plantuml.apikey.Provider.valueOf(provider.uppercase()),
+            resolveProvider(provider),
             "Creating chat model for provider: $provider"
         )
         

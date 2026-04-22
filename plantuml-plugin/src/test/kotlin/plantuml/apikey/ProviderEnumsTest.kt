@@ -7,9 +7,9 @@ import kotlin.test.assertTrue
 class ProviderEnumsTest {
 
     @Test
-    fun `Provider enum should have 9 values`() {
+    fun `Provider enum should have 10 values`() {
         val providers = Provider.entries
-        assertEquals(9, providers.size)
+        assertEquals(10, providers.size)
     }
 
     @Test
@@ -55,6 +55,11 @@ class ProviderEnumsTest {
     @Test
     fun `Provider should contain GITHUB`() {
         assertTrue(Provider.entries.contains(Provider.GITHUB))
+    }
+
+    @Test
+    fun `Provider should contain UNKNOWN`() {
+        assertTrue(Provider.entries.contains(Provider.UNKNOWN))
     }
 
     @Test
