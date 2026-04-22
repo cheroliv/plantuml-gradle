@@ -897,6 +897,9 @@ rectangle "PlantUML Internal Components" {
   component "PlantumlService"
   component "RagManager"
   component "PgVectorService"
+  component "KnowledgeGraphParser"
+  component "KnowledgeGraphRenderer"
+  component "GraphifyPromptAdapter"
 }
 
 rectangle "RAG Pipeline" {
@@ -904,9 +907,14 @@ rectangle "RAG Pipeline" {
   component "pgvector\n(Docker)"
 }
 
+rectangle "Knowledge Graph Pipeline" {
+  collections "graphify-out/graph.json" as KGJSON
+}
+
 rectangle "External Systems" {
   component "LLM Providers\n(Ollama / OpenAI / Gemini / Mistral / HF / Groq / Claude)"
   component "PlantUML\n(syntax validation + image generation)"
+  component "Graphify\n(pip install graphify)"
 }
 
 Developer --> "Gradle Build System"
@@ -918,10 +926,19 @@ Developer --> "Gradle Build System"
 "PlantumlManager" --> "PlantumlService"
 "PlantumlManager" --> "RagManager"
 "PlantumlManager" --> "PgVectorService"
+"PlantumlManager" --> "KnowledgeGraphParser"
+"PlantumlManager" --> "KnowledgeGraphRenderer"
+"PlantumlManager" --> "GraphifyPromptAdapter"
 
 "RagManager" --> "AllMiniLmL6V2\n(ONNX in-process)"
 "RagManager" --> "pgvector\n(Docker)"
 "PgVectorService" --> "pgvector\n(Docker)"
+
+"KnowledgeGraphParser" --> KGJSON
+"KnowledgeGraphRenderer" --> "PlantumlService"
+"GraphifyPromptAdapter" --> KGJSON
+
+"Graphify\n(pip install graphify)" --> KGJSON
 
 "LlmService" --> "LLM Providers\n(Ollama / OpenAI / Gemini / Mistral / HF / Groq / Claude)"
 "PlantumlService" --> "PlantUML\n(syntax validation + image generation)"
@@ -942,6 +959,7 @@ skinparam componentStyle rectangle
 package "Domain Core" {
   component "Diagram Generation Logic"
   component "RAG Retrieval"
+  component "Knowledge Graph Rendering\n(KnowledgeGraphRenderer)"
   component "PlantUML Context\n(PlantumlDiagram)"
 }
 
@@ -950,6 +968,8 @@ package "Application Layer" {
   component "DiagramProcessor"
   component "PlantumlService"
   component "RagManager"
+  component "KnowledgeGraphParser"
+  component "GraphifyPromptAdapter"
 }
 
 package "Ports" {
@@ -957,6 +977,7 @@ package "Ports" {
   interface "Embedding Store Port"
   interface "Docker Service Port"
   interface "PlantUML Validator Port"
+  interface "Knowledge Graph Data Port"
 }
 
 package "Adapters" {
@@ -970,6 +991,8 @@ package "Adapters" {
   component "PgVectorEmbeddingStore"
   component "PgVectorService\n(docker-java)"
   component "PlantUML Validator"
+  component "Graphify JSON Adapter\n(KnowledgeGraphParser)"
+  component "Graphify Prompt Adapter\n(GraphifyPromptAdapter)"
   component "Gradle Task Adapter\n(ProcessPlantumlPromptsTask)"
 }
 
@@ -977,6 +1000,7 @@ package "Adapters" {
 "RagManager" --> "Embedding Store Port"
 "RagManager" --> "Docker Service Port"
 "PlantumlService" --> "PlantUML Validator Port"
+"KnowledgeGraphParser" --> "Knowledge Graph Data Port"
 
 "LLM Port" --> "Ollama Adapter"
 "LLM Port" --> "OpenAI Adapter"
@@ -989,11 +1013,16 @@ package "Adapters" {
 "Embedding Store Port" --> "PgVectorEmbeddingStore"
 "Docker Service Port" --> "PgVectorService\n(docker-java)"
 "PlantUML Validator Port" --> "PlantUML Validator"
+"Knowledge Graph Data Port" --> "Graphify JSON Adapter\n(KnowledgeGraphParser)"
 
 "Gradle Task Adapter\n(ProcessPlantumlPromptsTask)" --> "DiagramProcessor"
 "Gradle Task Adapter\n(ProcessPlantumlPromptsTask)" --> "LlmService"
 "Gradle Task Adapter\n(ValidatePlantumlSyntaxTask)" --> "PlantumlService"
 "Gradle Task Adapter\n(ReindexPlantumlRagTask)" --> "RagManager"
+"Gradle Task Adapter\n(GenerateKnowledgeGraphDiagramTask)" --> "KnowledgeGraphParser"
+"Gradle Task Adapter\n(GenerateKnowledgeGraphDiagramTask)" --> "Knowledge Graph Rendering\n(KnowledgeGraphRenderer)"
+"Gradle Task Adapter\n(GenerateKnowledgeGraphDiagramTask)" --> "PlantumlService"
+"Gradle Task Adapter\n(GenerateDiagramDocsTask)" --> "Graphify Prompt Adapter\n(GraphifyPromptAdapter)"
 @enduml
 ----
 
@@ -1002,6 +1031,7 @@ This architecture delivers:
 * independence from LLM providers (7 supported)
 * swappable RAG store (pgvector today, any backend tomorrow)
 * ability to replace PlantUML validator
+* deterministic Knowledge Graph pipeline (no LLM required)
 * high testability through dependency injection
 * complete decoupling between Gradle and business logic
 

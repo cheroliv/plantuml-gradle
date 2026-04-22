@@ -81,30 +81,44 @@ package "service" {
   component "PlantumlService\n(syntaxe + images)" as PS
   component "DiagramProcessor\n(LLL + retry)" as DP
   component "LlmService\n(fournisseurs)" as LS
+  component "KnowledgeGraphParser\n(graph.json → KG)" as KGP
+  component "KnowledgeGraphRenderer\n(KG → PlantUML)" as KGR
+  component "GraphifyPromptAdapter\n(KG → .prompt)" as GPA
 }
 
 package "tasks" {
   component "ProcessPlantumlPromptsTask" as PPT
   component "ValidatePlantumlSyntaxTask" as VST
   component "ReindexPlantumlRagTask" as RRT
+  component "GenerateKnowledgeGraphDiagramTask" as KGDT
+  component "GenerateDiagramDocsTask" as GDDT
 }
 
 package "Infrastructure" {
   component "pgvector\n(Docker)" as PG
   component "AllMiniLmL6V2\n(ONNX en-process)" as Embed
   component "Fournisseurs LLM\n(Ollama/OpenAI/Gemini…)" as LLM
+  collections "graphify-out/graph.json" as KGJSON
 }
 
 Plugin --> Manager
 Plugin --> PPT
 Plugin --> VST
 Plugin --> RRT
+Plugin --> KGDT
+Plugin --> GDDT
 Manager --> Models
 PPT --> DP
 DP --> LS
 LS --> LLM
 RRT --> PG
 RRT --> Embed
+KGDT --> KGP
+KGDT --> KGR
+KGDT --> PS
+GDDT --> GPA
+KGP --> KGJSON
+GPA --> KGJSON
 @enduml
 ----
 
@@ -758,7 +772,7 @@ et n'a pas de conséquences négatives sur le classement du plugin sur le Portal
 [plantuml]
 ----
 @startuml
-actor Developer
+actor Developpeur
 
 rectangle "Environnement Développeur" {
   rectangle "Système de Build Gradle" {
@@ -773,6 +787,9 @@ rectangle "Composants Internes PlantUML" {
   component "PlantumlService"
   component "RagManager"
   component "PgVectorService"
+  component "KnowledgeGraphParser"
+  component "KnowledgeGraphRenderer"
+  component "GraphifyPromptAdapter"
 }
 
 rectangle "Pipeline RAG" {
@@ -780,12 +797,17 @@ rectangle "Pipeline RAG" {
   component "pgvector\n(Docker)"
 }
 
+rectangle "Pipeline Knowledge Graph" {
+  collections "graphify-out/graph.json" as KGJSON
+}
+
 rectangle "Systèmes Externes" {
   component "Fournisseurs LLM\n(Ollama / OpenAI / Gemini / Mistral / HF / Groq / Claude)"
   component "PlantUML\n(validation syntaxe + génération images)"
+  component "Graphify\n(pip install graphify)"
 }
 
-Developer --> "Système de Build Gradle"
+Developpeur --> "Système de Build Gradle"
 "Système de Build Gradle" --> "Plugin Gradle PlantUML"
 
 "Plugin Gradle PlantUML" --> "PlantumlManager"
@@ -794,10 +816,19 @@ Developer --> "Système de Build Gradle"
 "PlantumlManager" --> "PlantumlService"
 "PlantumlManager" --> "RagManager"
 "PlantumlManager" --> "PgVectorService"
+"PlantumlManager" --> "KnowledgeGraphParser"
+"PlantumlManager" --> "KnowledgeGraphRenderer"
+"PlantumlManager" --> "GraphifyPromptAdapter"
 
 "RagManager" --> "AllMiniLmL6V2\n(ONNX en-process)"
 "RagManager" --> "pgvector\n(Docker)"
 "PgVectorService" --> "pgvector\n(Docker)"
+
+"KnowledgeGraphParser" --> KGJSON
+"KnowledgeGraphRenderer" --> "PlantumlService"
+"GraphifyPromptAdapter" --> KGJSON
+
+"Graphify\n(pip install graphify)" --> KGJSON
 
 "LlmService" --> "Fournisseurs LLM\n(Ollama / OpenAI / Gemini / Mistral / HF / Groq / Claude)"
 "PlantumlService" --> "PlantUML\n(validation syntaxe + génération images)"
@@ -818,6 +849,7 @@ skinparam componentStyle rectangle
 package "Domaine Cœur" {
   component "Logique de Génération Diagrammes"
   component "Récupération RAG"
+  component "Rendu Knowledge Graph\n(KnowledgeGraphRenderer)"
   component "Contexte PlantUML\n(PlantumlDiagram)"
 }
 
@@ -826,6 +858,8 @@ package "Couche Application" {
   component "DiagramProcessor"
   component "PlantumlService"
   component "RagManager"
+  component "KnowledgeGraphParser"
+  component "GraphifyPromptAdapter"
 }
 
 package "Ports" {
@@ -833,6 +867,7 @@ package "Ports" {
   interface "Port Store Embeddings"
   interface "Port Service Docker"
   interface "Port Validateur PlantUML"
+  interface "Port Données Knowledge Graph"
 }
 
 package "Adapters" {
@@ -846,6 +881,8 @@ package "Adapters" {
   component "PgVectorEmbeddingStore"
   component "PgVectorService\n(docker-java)"
   component "Validateur PlantUML"
+  component "Adaptateur JSON Graphify\n(KnowledgeGraphParser)"
+  component "Adaptateur Prompt Graphify\n(GraphifyPromptAdapter)"
   component "Adaptateur Tâche Gradle\n(ProcessPlantumlPromptsTask)"
 }
 
@@ -853,6 +890,7 @@ package "Adapters" {
 "RagManager" --> "Port Store Embeddings"
 "RagManager" --> "Port Service Docker"
 "PlantumlService" --> "Port Validateur PlantUML"
+"KnowledgeGraphParser" --> "Port Données Knowledge Graph"
 
 "Port LLM" --> "Adaptateur Ollama"
 "Port LLM" --> "Adaptateur OpenAI"
@@ -865,11 +903,16 @@ package "Adapters" {
 "Port Store Embeddings" --> "PgVectorEmbeddingStore"
 "Port Service Docker" --> "PgVectorService\n(docker-java)"
 "Port Validateur PlantUML" --> "Validateur PlantUML"
+"Port Données Knowledge Graph" --> "Adaptateur JSON Graphify\n(KnowledgeGraphParser)"
 
 "Adaptateur Tâche Gradle\n(ProcessPlantumlPromptsTask)" --> "DiagramProcessor"
 "Adaptateur Tâche Gradle\n(ProcessPlantumlPromptsTask)" --> "LlmService"
 "Adaptateur Tâche Gradle\n(ValidatePlantumlSyntaxTask)" --> "PlantumlService"
 "Adaptateur Tâche Gradle\n(ReindexPlantumlRagTask)" --> "RagManager"
+"Adaptateur Tâche Gradle\n(GenerateKnowledgeGraphDiagramTask)" --> "KnowledgeGraphParser"
+"Adaptateur Tâche Gradle\n(GenerateKnowledgeGraphDiagramTask)" --> "Rendu Knowledge Graph\n(KnowledgeGraphRenderer)"
+"Adaptateur Tâche Gradle\n(GenerateKnowledgeGraphDiagramTask)" --> "PlantumlService"
+"Adaptateur Tâche Gradle\n(GenerateDiagramDocsTask)" --> "Adaptateur Prompt Graphify\n(GraphifyPromptAdapter)"
 @enduml
 ----
 
@@ -878,6 +921,7 @@ Cette architecture délivre :
 * indépendance des fournisseurs LLM (7 supportés)
 * store RAG interchangeable (pgvector aujourd'hui, n'importe quel backend demain)
 * capacité à remplacer le validateur PlantUML
+* pipeline Knowledge Graph déterministe (aucun LLM requis)
 * testabilité élevée grâce à l'injection de dépendances
 * découplage complet entre Gradle et la logique métier
 

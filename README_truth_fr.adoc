@@ -75,6 +75,64 @@ skinparam packageStyle rectangle
 
 package "Plugin PlantUML" {
   [PlantumlPlugin] as plugin
+  [PlantumlManager] as manager
+
+  package "Tâches" {
+    [ProcessPlantumlPromptsTask] as processTask
+    [ValidatePlantumlSyntaxTask] as validateTask
+    [ReindexPlantumlRagTask] as reindexTask
+    [GenerateKnowledgeGraphDiagramTask] as kgTask
+    [GenerateDiagramDocsTask] as docsTask
+  }
+
+  package "Services" {
+    [PlantumlService] as service
+    [DiagramProcessor] as processor
+    [LlmService] as llm
+    [RagManager] as rag
+    [KnowledgeGraphParser] as kgParser
+    [KnowledgeGraphRenderer] as kgRenderer
+    [GraphifyPromptAdapter] as gpa
+  }
+
+  plugin --> manager : délègue la logique
+  manager --> processTask : enregistre
+  manager --> validateTask : enregistre
+  manager --> reindexTask : enregistre
+  manager --> kgTask : enregistre
+  manager --> docsTask : enregistre
+  processTask --> processor : utilise
+  processor --> llm : utilise
+  processor --> service : utilise
+  validateTask --> service : utilise
+  reindexTask --> rag : utilise
+  kgTask --> kgParser : utilise
+  kgTask --> kgRenderer : utilise
+  kgTask --> service : utilise
+  docsTask --> gpa : utilise
+}
+
+collections "graphify-out/graph.json" as kgJson
+kgParser --> kgJson : lit
+gpa --> kgJson : lit
+
+note top of plugin
+  Classe principale du plugin qui applique
+  l'extension et enregistre les tâches
+end note
+
+note right of kgTask
+  Pipeline déterministe —
+  aucun LLM requis
+end note
+
+@enduml
+----
+@startuml
+skinparam packageStyle rectangle
+
+package "Plugin PlantUML" {
+  [PlantumlPlugin] as plugin
   [PlantumlExtension] as extension
   [PlantumlManager] as manager
 
@@ -498,6 +556,165 @@ Le plugin utilise une stratégie de prompt ciblée pour la génération PlantUML
 | `org.jetbrains.kotlinx:kotlinx-coroutines-core`
 | Opérations asynchrones
 |===
+
+== Détails d'Architecture
+
+=== Vue C4 — Contexte du Plugin
+
+[plantuml]
+----
+@startuml
+actor Développeur
+
+rectangle "Environnement Développeur" {
+  rectangle "Système de Build Gradle" {
+    component "Plugin Gradle PlantUML"
+  }
+}
+
+rectangle "Composants Internes Plugin" {
+  component "PlantumlManager"
+  component "LlmService"
+  component "DiagramProcessor"
+  component "PlantumlService"
+  component "RagManager"
+  component "PgVectorService"
+  component "KnowledgeGraphParser"
+  component "KnowledgeGraphRenderer"
+  component "GraphifyPromptAdapter"
+}
+
+rectangle "Pipeline RAG" {
+  component "AllMiniLmL6V2\n(ONNX en-process)"
+  component "pgvector\n(Docker)"
+}
+
+rectangle "Pipeline Knowledge Graph" {
+  collections "graphify-out/graph.json" as KGJSON
+}
+
+rectangle "Systèmes Externes" {
+  component "Fournisseurs LLM\n(Ollama / OpenAI / Gemini / Mistral / HF / Groq / Claude)"
+  component "PlantUML\n(validation syntaxe + génération images)"
+  component "Graphify\n(pip install graphify)"
+}
+
+Développeur --> "Système de Build Gradle"
+"Système de Build Gradle" --> "Plugin Gradle PlantUML"
+
+"Plugin Gradle PlantUML" --> "PlantumlManager"
+"PlantumlManager" --> "LlmService"
+"PlantumlManager" --> "DiagramProcessor"
+"PlantumlManager" --> "PlantumlService"
+"PlantumlManager" --> "RagManager"
+"PlantumlManager" --> "PgVectorService"
+"PlantumlManager" --> "KnowledgeGraphParser"
+"PlantumlManager" --> "KnowledgeGraphRenderer"
+"PlantumlManager" --> "GraphifyPromptAdapter"
+
+"RagManager" --> "AllMiniLmL6V2\n(ONNX en-process)"
+"RagManager" --> "pgvector\n(Docker)"
+"PgVectorService" --> "pgvector\n(Docker)"
+
+"KnowledgeGraphParser" --> KGJSON
+"KnowledgeGraphRenderer" --> "PlantumlService"
+"GraphifyPromptAdapter" --> KGJSON
+
+"Graphify\n(pip install graphify)" --> KGJSON
+
+"LlmService" --> "Fournisseurs LLM\n(Ollama / OpenAI / Gemini / Mistral / HF / Groq / Claude)"
+"PlantumlService" --> "PlantUML\n(validation syntaxe + génération images)"
+@enduml
+----
+
+=== Architecture Hexagonale (Ports & Adaptateurs)
+
+Le plugin suit une architecture hexagonale qui sépare la logique métier,
+les interfaces externes et les technologies d'infrastructure.
+
+[plantuml]
+----
+@startuml
+skinparam componentStyle rectangle
+
+package "Domaine Cœur" {
+  component "Logique de Génération Diagrammes"
+  component "Récupération RAG"
+  component "Rendu Knowledge Graph\n(KnowledgeGraphRenderer)"
+  component "Contexte PlantUML\n(PlantumlDiagram)"
+}
+
+package "Couche Application" {
+  component "LlmService"
+  component "DiagramProcessor"
+  component "PlantumlService"
+  component "RagManager"
+  component "KnowledgeGraphParser"
+  component "GraphifyPromptAdapter"
+}
+
+package "Ports" {
+  interface "Port LLM"
+  interface "Port Store Embeddings"
+  interface "Port Service Docker"
+  interface "Port Validateur PlantUML"
+  interface "Port Données Knowledge Graph"
+}
+
+package "Adaptateurs" {
+  component "Adaptateur Ollama"
+  component "Adaptateur OpenAI"
+  component "Adaptateur Gemini"
+  component "Adaptateur Mistral"
+  component "Adaptateur HuggingFace"
+  component "Adaptateur Groq"
+  component "Adaptateur Claude"
+  component "PgVectorEmbeddingStore"
+  component "PgVectorService\n(docker-java)"
+  component "Validateur PlantUML"
+  component "Adaptateur JSON Graphify\n(KnowledgeGraphParser)"
+  component "Adaptateur Prompt Graphify\n(GraphifyPromptAdapter)"
+  component "Adaptateur Tâche Gradle\n(ProcessPlantumlPromptsTask)"
+}
+
+"LlmService" --> "Port LLM"
+"RagManager" --> "Port Store Embeddings"
+"RagManager" --> "Port Service Docker"
+"PlantumlService" --> "Port Validateur PlantUML"
+"KnowledgeGraphParser" --> "Port Données Knowledge Graph"
+
+"Port LLM" --> "Adaptateur Ollama"
+"Port LLM" --> "Adaptateur OpenAI"
+"Port LLM" --> "Adaptateur Gemini"
+"Port LLM" --> "Adaptateur Mistral"
+"Port LLM" --> "Adaptateur HuggingFace"
+"Port LLM" --> "Adaptateur Groq"
+"Port LLM" --> "Adaptateur Claude"
+
+"Port Store Embeddings" --> "PgVectorEmbeddingStore"
+"Port Service Docker" --> "PgVectorService\n(docker-java)"
+"Port Validateur PlantUML" --> "Validateur PlantUML"
+"Port Données Knowledge Graph" --> "Adaptateur JSON Graphify\n(KnowledgeGraphParser)"
+
+"Adaptateur Tâche Gradle\n(ProcessPlantumlPromptsTask)" --> "DiagramProcessor"
+"Adaptateur Tâche Gradle\n(ProcessPlantumlPromptsTask)" --> "LlmService"
+"Adaptateur Tâche Gradle\n(ValidatePlantumlSyntaxTask)" --> "PlantumlService"
+"Adaptateur Tâche Gradle\n(ReindexPlantumlRagTask)" --> "RagManager"
+"Adaptateur Tâche Gradle\n(GenerateKnowledgeGraphDiagramTask)" --> "KnowledgeGraphParser"
+"Adaptateur Tâche Gradle\n(GenerateKnowledgeGraphDiagramTask)" --> "Rendu Knowledge Graph\n(KnowledgeGraphRenderer)"
+"Adaptateur Tâche Gradle\n(GenerateKnowledgeGraphDiagramTask)" --> "PlantumlService"
+"Adaptateur Tâche Gradle\n(GenerateDiagramDocsTask)" --> "Adaptateur Prompt Graphify\n(GraphifyPromptAdapter)"
+@enduml
+----
+
+Cette architecture délivre :
+
+* indépendance des fournisseurs LLM (7 supportés)
+* store RAG interchangeable (pgvector aujourd'hui, n'importe quel backend demain)
+* capacité à remplacer le validateur PlantUML
+* pipeline Knowledge Graph déterministe (aucun LLM requis)
+* testabilité élevée grâce à l'injection de dépendances
+* découplage complet entre Gradle et la logique métier
 
 == Prérequis du consommateur
 
