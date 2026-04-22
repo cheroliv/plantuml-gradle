@@ -1,0 +1,60 @@
+= Session 130 — EPIC 10 Tests Unitaires Renderer
+
+____
+**Date** : 23 avril 2026
+**Type** : test
+**EPIC** : EPIC 10 — Intégration Graphify dans le cycle de dev
+**Score** : 8.0/10
+____
+
+== Mission
+
+Compléter la couverture de tests unitaires du `KnowledgeGraphRenderer` : `cleanLabel()`, `isMethodNode()`, filtre `nodeTypes`, régression `toString()`.
+
+== Résultat
+
+✅ **15 tests unitaires ajoutés** — 40/40 PASS
+
+== Tests Ajoutés
+
+=== cleanLabel (5 tests — testé indirectement via rendu)
+
+| Test | Cas | Résultat
+| `cleanLabel should strip leading dots` | `.hiddenMethod` → `hiddenMethod` | ✅
+| `cleanLabel should strip multiple leading dots` | `..deepHidden` → `deepHidden` | ✅
+| `cleanLabel should strip backticks` | `` `forEach` `` → `forEach` | ✅
+| `cleanLabel should strip backticks with Kotlin method signature` | `` `equals`(other: Any) `` → `equals(other: Any)` | ✅
+| `cleanLabel should strip leading dots and backticks combined` | `` .`apply` `` → `apply` | ✅
+
+=== isMethodNode (5 tests)
+
+| Test | Cas | Résultat
+| `isMethodNode should match trailing parentheses` | `toString()` → true | ✅
+| `isMethodNode should match leading dot` | `.apply` → true | ✅
+| `isMethodNode should match backtick pattern` | `` `forEach` `` → true | ✅
+| `isMethodNode should not match regular class name` | `LlmService` → false | ✅
+| `isMethodNode should not match plain node name` | `ConfigLoader` → false | ✅
+
+=== nodeTypes filter (3 tests)
+
+| Test | Cas | Résultat
+| `nodeTypes filter should include only matching types` | `setOf("class")` garde class, exclut code | ✅
+| `nodeTypes filter should exclude nodes not in set` | `setOf("code")` garde code, exclut class | ✅
+| `nodeTypes null should include all types` | null → tous les types inclus | ✅
+
+=== Régression toString (1 test)
+
+| Test | Cas | Résultat
+| `rendered output should not contain toString artifact` | Pas de `KnowledgeGraphNode(`, `KnowledgeGraphEdge(`, `KnowledgeGraphCommunity(` | ✅
+
+== Connaissances clés
+
+* `cleanLabel()` est `private` — testée indirectement via les labels rendus dans le PUML
+* `isMethodNode()` est `public` — testée directement
+* Filtre `nodeTypes` testé via `render()` avec vérification de présence/absence de nœuds
+* Le cache de build Gradle (`--build-cache`) peut masquer les modifications de fichiers de test si le mtime ne change pas — utiliser `--rerun-tasks` pour forcer la réexécution
+
+== Lacunes restantes
+
+* Article blog cheroliv.com
+* Diagrammes d'architecture obsolètes dans README_truth.adoc

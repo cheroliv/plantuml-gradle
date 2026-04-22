@@ -2,6 +2,38 @@
 
 == Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+=== Session 130 — 2026-04-23 : Tests Unitaires Renderer ✅
+
+==== ✅ Contexte
+* _Session 129_ : Fichiers graphify commités
+* _Objectif_ : Couvrir les lacunes de tests unitaires du KnowledgeGraphRenderer
+
+==== ✅ Taches realisees
+* ✅ 5 tests `cleanLabel()` : leading dots, multiple dots, backticks, Kotlin method signature, dots+backticks combined
+* ✅ 5 tests `isMethodNode()` : trailing parens, leading dot, backtick pattern, negative class name, negative plain name
+* ✅ 3 tests `nodeTypes` filter : inclusion, exclusion, null = all
+* ✅ 1 test régression `toString()` : pas d'artefact data class dans sortie PUML
+* ✅ 40/40 KnowledgeGraphRendererTest PASS
+
+==== Notes lecons apprises
+* `cleanLabel()` privé → testé indirectement via labels rendus dans PUML
+* Cache build Gradle peut masquer modifs de test → `--rerun-tasks`
+
+=== Session 129 — 2026-04-23 : Git Commit Graphify Data ✅
+
+==== ✅ Contexte
+* _Session 128_ : 15 tests fonctionnels, renderer amélioré, 4 readmes
+* _Objectif_ : Commiter les fichiers en attente dans le dépôt git
+
+==== ✅ Taches realisees
+* ✅ Commit `d3e78bf` : diagrammes KG (PNG + PUML), graph HTML/JSON, rapports — 9 fichiers
+* ✅ Commit `abdb9b1` : cache graphify (322 JSON) + KnowledgeGraphRenderer.class — 323 fichiers
+* ✅ Séparation initiale : .class et cache exclus, puis inclus sur demande utilisateur
+
+==== Notes lecons apprises
+* `git reset HEAD -- <pattern>` permet d'unstage sélectivement avant un commit
+* Les fichiers générés (cache hash, .class) sont rarement commités — mais l'utilisateur décide
+
 === Session 128 — 2026-04-23 : Tests Fonctionnels + Renderer + Readmes ✅
 
 ==== ✅ Contexte

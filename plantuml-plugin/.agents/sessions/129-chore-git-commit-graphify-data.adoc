@@ -1,0 +1,46 @@
+= Session 129 — Git Commit Graphify Data
+:toc: left
+:icons: font
+
+== Contexte
+
+* _Session 128_ : 15 tests fonctionnels, renderer amélioré, 4 readmes, règle 0 publishToMavenLocal
+* _Objectif initial_ : Tests renderer, article blog, diagrammes architecture
+* _Objectif réel_ : Commit des fichiers en attente dans le dépôt git
+
+== Taches realisees
+
+* ✅ Commit `d3e78bf` : diagrammes KG (PNG + PUML), graph HTML/JSON, rapports GRAPH_REPORT.md — 9 fichiers, cache et .class exclus
+* ✅ Commit `abdb9b1` : cache graphify (322 fichiers JSON) + KnowledgeGraphRenderer.class — après confirmation utilisateur
+
+== Connaissances cles
+
+* `git reset HEAD -- <pattern>` pour unstage sélectif avant commit
+* Les fichiers `.class` compilés et les caches hashés ne sont généralement pas commités — mais l'utilisateur peut choisir de les inclure
+* `graphify-out/` dupliqué à la racine git et dans `plantuml-plugin/` — même contenu, même nombre de fichiers (161 cache chacun)
+
+== Fichiers modifies
+
+* `diagrams/knowledge-graph/knowledge-graph-community_0.png` (nouveau)
+* `diagrams/knowledge-graph/knowledge-graph-community_0.puml` (nouveau)
+* `graphify-out/GRAPH_REPORT.md` (nouveau)
+* `graphify-out/graph.html` (nouveau)
+* `graphify-out/graph.json` (nouveau)
+* `graphify-out/graph_test.json` (nouveau)
+* `graphify-out/cache/*.json` (161 fichiers, nouveau)
+* `plantuml-plugin/graphify-out/GRAPH_REPORT.md` (nouveau)
+* `plantuml-plugin/graphify-out/graph.html` (nouveau)
+* `plantuml-plugin/graphify-out/graph.json` (nouveau)
+* `plantuml-plugin/graphify-out/cache/*.json` (161 fichiers, nouveau)
+* `plantuml-plugin/plantuml/service/KnowledgeGraphRenderer.class` (nouveau)
+
+== Score
+
+5.0/10 — Session minimale (git commit uniquement), pas de code ni tests
+
+== Prochaine session (130)
+
+* Reprendre les priorités de la session 129 :
+  - Tests unitaires renderer (cleanLabel, nodeTypes, isMethodNode, régression toString)
+  - Article blog cheroliv.com sur l'intégration Graphify
+  - Diagrammes d'architecture mis à jour

@@ -1,5 +1,7 @@
 = Historique des Sessions
 
+_Session 130_ (2026-04-23) : EPIC 10 Tests Unitaires Renderer — 15 tests ajoutés, cleanLabel/isMethodNode/nodeTypes/toString (40/40 PASS) ✅
+_Session 129_ (2026-04-23) : Git Commit graphify data — 2 commits, 332 fichiers (diagrammes + cache + .class) ✅
 _Session 128_ (2026-04-23) : EPIC 10 Tests Fonctionnels + Renderer amélioré + Readmes — 15 func tests, bug mavenLocal fix, 4 readmes ✅
 _Session 127_ (2026-04-22) : EPIC 10 Tests Intégration Graphify — 380/380 PASS, 3 bugs fix, 40+ tests ajoutés ✅
 _Session 126_ (2026-04-22) : Article blog fg (0104) + réflexion distillation IA — 9.0/10 ✅

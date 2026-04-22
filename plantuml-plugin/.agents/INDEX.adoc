@@ -1,8 +1,8 @@
 = 📊 Index des Sessions — PlantUML Gradle Plugin
 
 _Dernière mise à jour_ : 2026-04-23  
-_Session en cours_ : 129 — EPIC 10 Intégration Graphify (tests renderer, article blog, archi diagrams)  
-_Session terminee_ : 128 (Tests fonctionnels 15/15, renderer amélioré, 4 readmes, règle 0 publishToMavenLocal)
+_Session en cours_ : 131 — EPIC 10 Intégration Graphify (article blog, diagrammes architecture)  
+_Session terminee_ : 130 (Tests unitaires renderer — 15 tests, 40/40 PASS)
 
 '''
 
@@ -82,6 +82,8 @@ _Aucune étape ne peut être marquée [✅] si le fichier n'a pas été effectiv
 
 |===
 | # | Date | Type | Sujet | Fichier | Score
+| 130 | 2026-04-23 | test | EPIC 10 Tests Unitaires Renderer (15 tests, 40/40 PASS) | `130-epic10-renderer-unit-tests.adoc` | 8.0/10
+| 129 | 2026-04-23 | chore | Git Commit graphify data (2 commits, 332 fichiers) | `129-chore-git-commit-graphify-data.adoc` | 5.0/10
 | 128 | 2026-04-23 | test+feat+docs | EPIC 10 Tests Fonctionnels + Renderer + Readmes | `128-epic10-functional-tests-renderer-docs.adoc` | 8.5/10
 | 127 | 2026-04-22 | test+fix | EPIC 10 Tests Intégration Graphify (380/380 PASS, 3 bugs) | `127-epic10-graphify-tests.adoc` | 9.0/10
 | 126 | 2026-04-22 | docs | Article blog fg (0104) + réflexion distillation IA | `126-blog-fg-command.adoc` | 9.0/10
@@ -139,7 +141,7 @@ _Aucune étape ne peut être marquée [✅] si le fichier n'a pas été effectiv
 | EPIC 7 : Dogfooding Plugin | ✅ 100% | 9/10 | ✅ Phase 1 ✅, Phase 2 abandonnée (incohérence archi)
 | EPIC 8 : Migration AsciiDoc | ✅ 100% | 9/10 | ✅ TERMINÉ
 | EPIC 9 : Knowledge Graph Diagram | 🟡 95% | 9/10 | 🟡 Parser adapté format graphify natif, 380/380 tests
-| EPIC 10 : Intégration Graphify (dev cycle) | 🔵 60% | — | 🟡 Session 128 : 15 func tests, renderer amélioré, readmes OK, reste article + tests renderer
+| EPIC 10 : Intégration Graphify (dev cycle) | 🔵 75% | — | 🟡 Session 130 : 15 tests renderer ajoutés (40/40), reste article blog + archi diagrams
 |===
 
 '''

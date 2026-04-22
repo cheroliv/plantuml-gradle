@@ -1,55 +1,45 @@
-= Prompt de reprise — Session 129
+= Prompt de reprise — Session 131
 
 ____
 **EPIC** : EPIC 10 — Intégration Graphify dans le cycle de dev
-**Statut** : Session 128 OK — 15 tests fonctionnels, renderer refactoré, readmes mis à jour, bug $node.name fixé
-**Mission** : Tests renderer, article blog, diagrammes architecture
+**Statut** : Session 130 OK — 15 tests unitaires renderer ajoutés (40/40 PASS)
+**Mission** : Article blog, diagrammes architecture
 ____
 
 '''
 
-== Session 128 — Resume
+== Session 130 — Resume
 
 **Date** : 23 avril 2026
-**Resultat** : OK — 15 tests fonctionnels GradleRunner, renderer amélioré, 4 readmes mis à jour
+**Resultat** : OK — 15 tests unitaires renderer (cleanLabel, isMethodNode, nodeTypes, régression toString)
 
 **Connaissances cles** :
 
-* Bug `$node.name` : code source corrigé mais JAR mavenLocal périmé — TOUJOURS `publishToMavenLocal` après modif code plugin
-* Renderer amélioré : `left to right direction`, `cleanLabel()` (supprime backticks/préfixes `.`), regroupement par type (folder Classes/Files), filtre `nodeTypes`
-* `community.nodes` référencie des noms pas limités par `maxNodes` — intersecter avec `filteredNodeNames`
-* `graphify-out/graph.json` : tous les nodes sont `file_type: "code"`, `community` int, `links` (pas edges), `confidence` string (pas numeric)
-* Règle 0 ajoutée INDEX.adoc : `publishToMavenLocal` OBLIGATOIRE après chaque modif code source
+* `cleanLabel()` private → testée indirectement via labels rendus
+* Cache build Gradle peut masquer modifs test → `--rerun-tasks`
+* 40/40 tests PASS sur KnowledgeGraphRendererTest
 
-**Archive** : `.agents/sessions/128-epic10-graphify-functional-tests.adoc`
+**Archive** : `.agents/sessions/130-epic10-renderer-unit-tests.adoc`
 
 '''
 
-== Session 129 — Priorites
+== Session 131 — Priorites
 
 **Mission** : EPIC 10 — Intégration Graphify dans le cycle de dev
 
-=== 1. Couverture renderer — tests unitaires manquants
-
-* `cleanLabel()` : backticks, préfixes `.`, labels avec backticks Kotlin
-* Filtre `nodeTypes` : vérifier que les nœuds hors type sont exclus
-* `isMethodNode()` : patterns regex `()`, `^.+`, backticks
-* Régression `$node.name` → test qui crée un PUML et vérifie absence de `toString()`
-
-=== 2. Article cheroliv.com
+=== 1. Article cheroliv.com
 
 * "Intégrer Graphify dans un workflow Gradle"
 * Pipeline : `graphify . --no-viz` → `generateKnowledgeGraphDiagram` → diagrammes
 * Diagrammes PlantUML du pipeline
 
-=== 3. Diagrammes d'architecture mis à jour
+=== 2. Diagrammes d'architecture mis à jour
 
 * Les PlantUML embarqués dans les READMEs sont obsolètes (pas de KG)
 * Mettre à jour les diagrammes d'architecture dans `plantuml-plugin/README_truth.adoc`
 
 === Criteres d'Acceptation
 
-* [ ] Tests unitaires renderer : cleanLabel, nodeTypes, isMethodNode, régression toString
 * [ ] Article blog publié sur l'intégration graphify
 * [ ] Diagrammes d'architecture à jour dans les readmes
 

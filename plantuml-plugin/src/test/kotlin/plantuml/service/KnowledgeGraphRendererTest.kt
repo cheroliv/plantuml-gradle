@@ -457,4 +457,157 @@ class KnowledgeGraphRendererTest {
     fun `should sanitize IDs with quotes`() {
         assertEquals("MyNode", renderer.sanitizeId("My'\"Node"))
     }
+
+    @Test
+    fun `cleanLabel should strip leading dots`() {
+        val graph = KnowledgeGraph(
+            nodes = listOf(KnowledgeGraphNode(name = ".hiddenMethod", community = "test")),
+            communities = listOf(KnowledgeGraphCommunity(name = "test", nodes = listOf(".hiddenMethod")))
+        )
+        val result = renderer.render(graph)
+        assertFalse(result.contains("\".hiddenMethod\""))
+        assertTrue(result.contains("\"hiddenMethod\""))
+    }
+
+    @Test
+    fun `cleanLabel should strip multiple leading dots`() {
+        val graph = KnowledgeGraph(
+            nodes = listOf(KnowledgeGraphNode(name = "..deepHidden", community = "test")),
+            communities = listOf(KnowledgeGraphCommunity(name = "test", nodes = listOf("..deepHidden")))
+        )
+        val result = renderer.render(graph)
+        assertFalse(result.contains("\"..deepHidden\""))
+        assertTrue(result.contains("\"deepHidden\""))
+    }
+
+    @Test
+    fun `cleanLabel should strip backticks`() {
+        val graph = KnowledgeGraph(
+            nodes = listOf(KnowledgeGraphNode(name = "`forEach`", community = "test")),
+            communities = listOf(KnowledgeGraphCommunity(name = "test", nodes = listOf("`forEach`")))
+        )
+        val result = renderer.render(graph)
+        assertFalse(result.contains("\"`forEach`\""))
+        assertTrue(result.contains("\"forEach\""))
+    }
+
+    @Test
+    fun `cleanLabel should strip backticks with Kotlin method signature`() {
+        val graph = KnowledgeGraph(
+            nodes = listOf(KnowledgeGraphNode(name = "`equals`(other: Any)", community = "test")),
+            communities = listOf(KnowledgeGraphCommunity(name = "test", nodes = listOf("`equals`(other: Any)")))
+        )
+        val result = renderer.render(graph)
+        assertFalse(result.contains('`'))
+        assertTrue(result.contains("equals(other: Any)"))
+    }
+
+    @Test
+    fun `cleanLabel should strip leading dots and backticks combined`() {
+        val graph = KnowledgeGraph(
+            nodes = listOf(KnowledgeGraphNode(name = ".`apply`", community = "test")),
+            communities = listOf(KnowledgeGraphCommunity(name = "test", nodes = listOf(".`apply`")))
+        )
+        val result = renderer.render(graph)
+        assertFalse(result.contains("\".`apply`\""))
+        assertTrue(result.contains("\"apply\""))
+    }
+
+    @Test
+    fun `isMethodNode should match trailing parentheses`() {
+        val node = KnowledgeGraphNode(name = "toString()", community = "test")
+        assertTrue(renderer.isMethodNode(node))
+    }
+
+    @Test
+    fun `isMethodNode should match leading dot`() {
+        val node = KnowledgeGraphNode(name = ".apply", community = "test")
+        assertTrue(renderer.isMethodNode(node))
+    }
+
+    @Test
+    fun `isMethodNode should match backtick pattern`() {
+        val node = KnowledgeGraphNode(name = "`forEach`", community = "test")
+        assertTrue(renderer.isMethodNode(node))
+    }
+
+    @Test
+    fun `isMethodNode should not match regular class name`() {
+        val node = KnowledgeGraphNode(name = "LlmService", community = "test")
+        assertFalse(renderer.isMethodNode(node))
+    }
+
+    @Test
+    fun `isMethodNode should not match plain node name`() {
+        val node = KnowledgeGraphNode(name = "ConfigLoader", community = "test")
+        assertFalse(renderer.isMethodNode(node))
+    }
+
+    @Test
+    fun `nodeTypes filter should include only matching types`() {
+        val graph = KnowledgeGraph(
+            nodes = listOf(
+                KnowledgeGraphNode(name = "MyClass", type = "class", community = "test"),
+                KnowledgeGraphNode(name = "myFunc.ts", type = "code", community = "test")
+            ),
+            communities = listOf(
+                KnowledgeGraphCommunity(name = "test", nodes = listOf("MyClass", "myFunc.ts"))
+            )
+        )
+        val result = renderer.render(graph, nodeTypes = setOf("class"))
+        assertTrue(result.contains("MyClass"))
+        assertFalse(result.contains("myFunc.ts"))
+    }
+
+    @Test
+    fun `nodeTypes filter should exclude nodes not in set`() {
+        val graph = KnowledgeGraph(
+            nodes = listOf(
+                KnowledgeGraphNode(name = "MyClass", type = "class", community = "test"),
+                KnowledgeGraphNode(name = "myFunc.ts", type = "code", community = "test")
+            ),
+            communities = listOf(
+                KnowledgeGraphCommunity(name = "test", nodes = listOf("MyClass", "myFunc.ts"))
+            )
+        )
+        val result = renderer.render(graph, nodeTypes = setOf("code"))
+        assertFalse(result.contains("MyClass"))
+        assertTrue(result.contains("myFunc.ts"))
+    }
+
+    @Test
+    fun `nodeTypes null should include all types`() {
+        val graph = KnowledgeGraph(
+            nodes = listOf(
+                KnowledgeGraphNode(name = "MyClass", type = "class", community = "test"),
+                KnowledgeGraphNode(name = "myFunc.ts", type = "code", community = "test")
+            ),
+            communities = listOf(
+                KnowledgeGraphCommunity(name = "test", nodes = listOf("MyClass", "myFunc.ts"))
+            )
+        )
+        val result = renderer.render(graph, nodeTypes = null)
+        assertTrue(result.contains("MyClass"))
+        assertTrue(result.contains("myFunc.ts"))
+    }
+
+    @Test
+    fun `rendered output should not contain toString artifact`() {
+        val graph = KnowledgeGraph(
+            nodes = listOf(
+                KnowledgeGraphNode(name = "LlmService", community = "core"),
+                KnowledgeGraphNode(name = "ConfigLoader", community = "core")
+            ),
+            edges = listOf(
+                KnowledgeGraphEdge(source = "LlmService", target = "ConfigLoader", type = EdgeType.EXTRACTED)
+            ),
+            communities = listOf(
+                KnowledgeGraphCommunity(name = "core", nodes = listOf("LlmService", "ConfigLoader"))
+            )
+        )
+        val result = renderer.render(graph)
+        assertFalse(result.contains("KnowledgeGraphNode"))
+        assertFalse(result.contains("KnowledgeGraphEdge"))
+        assertFalse(result.contains("KnowledgeGraphCommunity"))
+    }
 }
