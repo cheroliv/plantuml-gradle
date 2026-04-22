@@ -2,6 +2,36 @@
 
 == Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+=== Session 122 — 2026-04-22 : Migration Gouvernance ✅
+
+==== ✅ Contexte
+* _Session 121_ : Migration AsciiDoc complète — 9.0/10
+* _Objectif_ : Corriger l'architecture de gouvernance — tout doit vivre dans `plantuml-plugin/`, pas `plantuml-gradle/`
+
+==== ✅ Tâches réalisées
+* ✅ Création de `plantuml-plugin/AGENT.adoc` — directives complètes, chemins relatifs à plantuml-plugin/
+* ✅ Création de `plantuml-plugin/opencode.json` — bootstrap opencode pointant vers AGENT.adoc
+* ✅ Ajout bloc WARNING dans `AGENT_MODUS_OPERANDI.adoc` — "racine de travail = plantuml-plugin/"
+* ✅ Suppression de `plantuml-gradle/AGENTS.md` (redondant)
+* ✅ Suppression de `plantuml-gradle/AGENT.adoc` (redondant)
+* ✅ Suppression de `plantuml-gradle/session-summary.adoc` (orphelin)
+* ✅ Suppression de `plantuml-gradle/opencode.json` (déplacé vers plantuml-plugin/)
+* ✅ Suppression de `plantuml-plugin/AGENTS.md` (redondant avec AGENT.adoc)
+
+==== ✅ Résultats
+* ✅ Zéro fichier de gouvernance agent dans `plantuml-gradle/`
+* ✅ `opencode.json` → `AGENT.adoc` comme unique bootstrap
+* ✅ Tous les chemins dans les fichiers EAGER sont relatifs à `plantuml-plugin/`
+
+==== 📝 Leçons apprises
+* `plantuml-gradle/` = repo git uniquement, pas de gouvernance
+* Un seul fichier de bootstrap suffit (`AGENT.adoc`), pas besoin de `AGENTS.md` en doublon
+* La session 121 avait créé des fichiers à la racine git par erreur de vision architecturale
+
+==== 📝 Prochaine session (123)
+* Corriger les 9 tests en échec préexistants (Gemini/Claude)
+* Suite des priorités BACKLOG
+
 === Session 121 — 2026-04-22 : Migration AsciiDoc ✅
 
 ==== ✅ Contexte

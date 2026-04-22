@@ -15,6 +15,13 @@ sur des projets complexes (EPIC multi-sessions, 10+ fichiers, 100+ décisions).
 **Inspiré de** : `plantuml-api/AGENT_MODUS_OPERANDI.adoc` — Adapté au projet `plantuml-plugin`
 --
 
+[WARNING]
+====
+**RACINE DE TRAVAIL** : Ce fichier est dans `plantuml-plugin/`, qui est la **racine de travail** du projet.
+La racine du dépôt git est `plantuml-gradle/`, mais l'agent travaille depuis `plantuml-plugin/`.
+TOUS les chemins dans ce document sont relatifs à `plantuml-plugin/`.
+====
+
 ---
 
 == 🎯 PARTIE 1 — VUE D'ENSEMBLE

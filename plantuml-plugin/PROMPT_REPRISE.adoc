@@ -1,45 +1,33 @@
-= 🔄 Prompt de reprise — Session 122
+= 🔄 Prompt de reprise — Session 123
 
 ____
 **EPIC** : Stabilisation + Correction tests
-**Statut** : Session 121 ✅ — Migration AsciiDoc complète
+**Statut** : Session 122 ✅ — Migration gouvernance vers plantuml-plugin/
 **Mission** : Corriger les 9 tests en échec préexistants (Issue #3 BACKLOG)
 ____
 
 '''
 
-== Session 121 — Résumé
+== Session 122 — Résumé
 
 **Date** : 22 avril 2026
-**Résultat** : ✅ Migration AsciiDoc complète — 100+ fichiers .md → .adoc
+**Résultat** : ✅ Migration gouvernance agent vers plantuml-plugin/
 
 **Connaissances clés** :
 
-* Opencode ne lit que `AGENTS.md` par convention — pas de support natif `.adoc`
-* Solution hybride : `AGENTS.md` (accroche) + `opencode.json` avec `"instructions": ["AGENT.adoc"]`
-* Nomage : `AGENTS.md` (avec S) vs `AGENT.adoc` (sans S) — choix utilisateur
-* 128 fichiers `.adoc` au total, 1 seul `.md` reste (`AGENTS.md`)
-* 90 fichiers `.adoc` ont eu leurs références croisées mises à jour
-* L'extraction vers bakery-gradle a été refusée (incohérence architecturale)
+* `plantuml-gradle/` = repo git UNIQUEMENT, ZERO fichiers de gouvernance agent
+* `plantuml-plugin/` = racine de travail, TOUT y vit
+* Bootstrap opencode = `opencode.json` → `AGENT.adoc` (un seul fichier, pas de AGENTS.md redondant)
+* Fichiers supprimés de `plantuml-gradle/` : `AGENTS.md`, `AGENT.adoc`, `session-summary.adoc`, `opencode.json`
+* Fichiers créés dans `plantuml-plugin/` : `AGENT.adoc`, `opencode.json`
 
-**Fichiers créés** :
-
-* `AGENTS.md` (accroche minimale pour opencode)
-* `AGENT.adoc` (directives complètes en AsciiDoc)
-* `opencode.json` (configuration instructions pointant vers AGENT.adoc)
-* `~100 fichiers .adoc` (conversion depuis .md)
-
-**Fichiers supprimés** :
-
-* `~100 fichiers .md` (remplacés par leurs équivalents .adoc)
-
-**Archive** : `.agents/sessions/121-migration-asciidoc.adoc`
+**Archive** : `.agents/sessions/122-migration-gouvernance-racine.adoc`
 
 '''
 
-== Session 122 — Priorités
+== Session 123 — Priorités
 
-**Mission** : Corriger les 9 tests en échec + mettre à jour TODO.adoc
+**Mission** : Corriger les 9 tests en échec + stabilisation
 
 === 1. Corriger les 9 tests en échec préexistants
 
@@ -56,53 +44,17 @@ LlmServiceTest > should create chat model for all supported providers() > [3] GE
 LlmServiceTest > should create chat model for all supported providers() > [5] CLAUDE FAILED
 ----
 
-=== 2. Mettre à jour TODO.adoc
-
-Marquer la migration AsciiDoc comme terminée.
-
-=== 3. Vérifier ./gradlew check passe
-
-* 164+ tests unitaires
-* 2 tests fonctionnels
-* 57 scénarios Cucumber
+=== 2. Vérifier ./gradlew check passe
 
 === Critères d'Acceptation
 
 * [ ] Les 9 tests en échec sont corrigés
-* [ ] TODO.adoc mis à jour
 * [ ] `./gradlew check` tous les tests passent
-
-'''
-
-== Roadmap EPIC
-
-|===
-| Session | Objectif | Progression
-
-| 108-110 | Architecture + Models | ✅ 100%
-| **111** | **Tests fonctionnels TDD** | ✅ **100%**
-| **112** | **LlmService + ConfigLoader** | ✅ **100%**
-| **113** | **Quota tracker + Reset** | ✅ **100%**
-| **114** | **Documentation Architecture** | ✅ **100%**
-| **115** | **Reconstruction + Dataset Plan** | ✅ **100%**
-| **117** | **Fichiers contexte (emails/clés)** | ✅ **100%**
-| **118** | **Ollama Cloud CI Auth** | ✅ **100%**
-| **119** | **Documentation Graphify + Dogfooding** | ✅ **100%**
-| **120** | **Implémentation Phase 1 dogfooding** | ✅ **100%**
-| **121** | **Migration AsciiDoc** | ✅ **100%**
-| 122 | Correction tests + stabilisation | 🟡 0%
-|===
 
 '''
 
 == Règles
 
 * ❌ Jamais de commit sans permission
-* ✅ Fichiers de contexte = `.gitignore` (credentials sensibles)
-* ✅ Valider YAML avant test
+* ✅ Racine de travail = `plantuml-plugin/` (pas `plantuml-gradle/`)
 * ✅ Archive + PROMPT_REPRISE mis à jour en fin de session
-* ✅ `./gradlew check` pour valider que les tests passent
-
-'''
-
-**Session 121** ✅ — **Session 122** 🚀

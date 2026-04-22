@@ -4,6 +4,17 @@
 :icons: font
 :sectnums:
 
+== Avertissement — Racine de Travail
+
+**Ce fichier est dans `plantuml-plugin/`**, la racine de travail du projet.
+
+La racine du depot git (`plantuml-gradle/`) ne contient QUE le repo git et les fichiers
+de bootstrap opencode (`AGENTS.md`, `AGENT.adoc` racine). TOUT le reste vit ici.
+
+* Les chemins dans ce fichier sont relatifs a **`plantuml-plugin/`**
+* L'agent travaille depuis **`plantuml-plugin/`**
+* Les commandes Gradle s'executent depuis **`plantuml-plugin/`** ou avec `-p plantuml-plugin`
+
 == Projet
 
 **Nom** : plantuml-gradle (plugin Gradle pour generer des diagrammes PlantUML via LLM)
@@ -34,24 +45,40 @@ L'agent NE DOIT JAMAIS lancer de tests (`./gradlew test`, etc.) lors de la proce
 
 * **1 fichier a la fois** : Modifier un seul fichier avant de passer au suivant
 * **Validation immediate** : Compiler apres chaque modification
-* **Contexteleger** : Maximum 50k tokens EAGER (~3000 lignes)
+* **Contexte leger** : Maximum 50k tokens EAGER (~3000 lignes)
 
 == Architecture
 
-=== Structure du Projet
+=== Structure du Projet (depuis la racine de travail = ce repertoire)
 
 [source,bash]
 ----
-plantuml-gradle/
-├── plantuml-plugin/          # Plugin Gradle principal
-│   ├── src/main/kotlin/     # Code source Kotlin
-│   ├── src/test/            # Tests unitaires + fonctionnels + Cucumber
-│   ├── .agents/             # Documentation agent (sessions, archives, references)
-│   └── build.gradle.kts     # Build du plugin
-├── settings.gradle.kts       # Settings multi-projets
-├── AGENTS.md                 # Accroche pour opencode (ce fichier)
-├── AGENT.adoc                # Directives completes (AsciiDoc)
-└── opencode.json             # Configuration opencode
+plantuml-plugin/                    # ⭐ RACINE DE TRAVAIL (ce repertoire)
+├── src/main/kotlin/               # Code source Kotlin
+├── src/test/                      # Tests unitaires + fonctionnels + Cucumber
+├── .agents/                       # Documentation agent (sessions, archives, references)
+│   ├── INDEX.adoc                 # Regles absolues + sessions recentes (EAGER)
+│   ├── sessions/                  # Archives par session
+│   └── archives/                  # Archives mensuelles
+├── PROMPT_REPRISE.adoc            # Mission session en cours (EAGER)
+├── BACKLOG.adoc                   # Suivi prioritaire des taches
+├── TODO.adoc                      # Pense-bete informel
+├── AGENT.adoc                     # Directives completes (ce fichier)
+├── AGENT_MODUS_OPERANDI.adoc      # Methodologie LAZY/EAGER
+└── build.gradle.kts               # Build du plugin
+----
+
+=== Contexte Git (pour reference)
+
+[source,bash]
+----
+plantuml-gradle/                   # RACINE GIT (ne contient que le repo + bootstrap)
+├── plantuml-plugin/               # ⭐ RACINE DE TRAVAIL
+├── settings.gradle.kts            # Settings multi-projets
+├── AGENTS.md                      # Bootstrap opencode → pointe ici
+├── AGENT.adoc                     # Avertissement → pointe ici
+├── README_truth*.adoc             # Doc consommateur de plugin (pas notre gouvernance)
+└── opencode.json                  # Configuration opencode
 ----
 
 === Composants Cles
@@ -69,30 +96,33 @@ plantuml-gradle/
 
 [source,bash]
 ----
-# Compiler
+# Depuis la racine de travail (plantuml-plugin/)
+./gradlew compileKotlin
+
+# Depuis la racine git (plantuml-gradle/)
 ./gradlew -p plantuml-plugin compileKotlin
 
 # Tests unitaires
-./gradlew -p plantuml-plugin test
+./gradlew test
 
 # Tests fonctionnels
-./gradlew -p plantuml-plugin functionalTest
+./gradlew functionalTest
 
 # Tests Cucumber
-./gradlew -p plantuml-plugin cucumberTest
+./gradlew cucumberTest
 
 # Tous les checks
-./gradlew -p plantuml-plugin check
+./gradlew check
 
 # Generer la documentation diagrammes
-./gradlew -p plantuml-plugin generateDiagramDocs
+./gradlew generateDiagramDocs
 ----
 
 == Gestion du Contexte — CRITIQUE
 
-* **Que faire ensuite ?** → **BACKLOG.adoc** (suivi autoritaire et prioritaire des taches/bugs)
-* **TODO.adoc** → pense-bete informel d'idees, PAS un plan, PAS une liste de priorites
-* **PROMPT_REPRISE.adoc** → mission de la session en cours et priorites de la prochaine session
+* **Que faire ensuite ?** → **`BACKLOG.adoc`** (suivi autoritaire et prioritaire des taches/bugs)
+* **`TODO.adoc`** → pense-bete informel d'idees, PAS un plan, PAS une liste de priorites
+* **`PROMPT_REPRISE.adoc`** → mission de la session en cours et priorites de la prochaine session
 
 == Session Procedure
 
@@ -109,11 +139,11 @@ plantuml-gradle/
 **Procedure obligatoire en 6 etapes** :
 
 1. **Creer l'archive LAZY** : `.agents/sessions/{N}-{type}-{sujet}.adoc`
-2. **Mettre a jour PROMPT_REPRISE.adoc** : Mission N+1 (max 70 lignes)
-3. **Mettre a jour SESSIONS_HISTORY.adoc** : Ajouter la session terminee
-4. **Mettre a jour INDEX.adoc** : Date, session en cours N+1
+2. **Mettre a jour PROMPT_REPRISE.adoc** — Mission N+1 (max 70 lignes)
+3. **Mettre a jour SESSIONS_HISTORY.adoc** : `.agents/SESSIONS_HISTORY.adoc` — Ajouter la session terminee
+4. **Mettre a jour INDEX.adoc** : `.agents/INDEX.adoc` — Date, session en cours N+1
 5. **Mettre a jour TEST_COVERAGE_ANALYSIS.adoc** (si tests modifies)
-6. **Mettre a jour COMPLETED_TASKS_ARCHIVE.adoc**
+6. **Mettre a jour COMPLETED_TASKS_ARCHIVE.adoc** : `.agents/archives/COMPLETED_TASKS_ARCHIVE_{mois}.adoc`
 
 **Aucune etape ne peut etre marquee OK si le fichier n'a pas ete effectivement modifie et verifie.**
 
@@ -122,10 +152,9 @@ plantuml-gradle/
 * Kotlin idiomatic, pas de commentaires sauf demande
 * Tests : JUnit5 + Cucumber (BDD)
 * Configuration : YAML + properties + env vars
-* Documentation : AsciiDoc (.adoc) uniquement (plus de .adoc)
-* Les fichiers `.adoc` sont reserves a `AGENTS.md` (convention opencode)
+* Documentation : AsciiDoc (.adoc) uniquement
 
-== Fichiers EAGER (charges automatiquement)
+== Fichiers EAGER (charges automatiquement) — chemins relatifs a plantuml-plugin/
 
 |===
 | Fichier | Role
@@ -133,10 +162,10 @@ plantuml-gradle/
 | `PROMPT_REPRISE.adoc` | Mission session en cours (max 70 lignes)
 | `.agents/INDEX.adoc` | Regles absolues + sessions recentes
 | `*_ESSENTIALS.adoc` | Contexte metier critique (si EPIC active)
-| `AGENT.adoc` | Ce fichier - Directives completes
+| `AGENT.adoc` | Ce fichier — Directives completes
 |===
 
-== Fichiers LAZY (sur demande)
+== Fichiers LAZY (sur demande) — chemins relatifs a plantuml-plugin/
 
 |===
 | Fichier | Role

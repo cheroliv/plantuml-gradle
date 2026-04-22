@@ -1,8 +1,8 @@
 = 📊 Index des Sessions — PlantUML Gradle Plugin
 
 _Dernière mise à jour_ : 2026-04-22  
-_Session en cours_ : 122 — Correction tests + stabilisation  
-_Session terminée_ : 121 (Migration AsciiDoc — 9.0/10)
+_Session en cours_ : 123 — Correction tests + stabilisation  
+_Session terminée_ : 122 (Migration gouvernance — 9.0/10)
 
 '''
 
@@ -71,6 +71,7 @@ _Aucune étape ne peut être marquée [✅] si le fichier n'a pas été effectiv
 
 |===
 | # | Date | Type | Sujet | Fichier | Score
+| 122 | 2026-04-22 | docs | Migration gouvernance vers plantuml-plugin/ | `122-migration-gouvernance-racine.adoc` | 9.0/10
 | 121 | 2026-04-22 | docs | Migration AsciiDoc complète | `121-migration-asciidoc.adoc` | 9.0/10
 | 120 | 2026-04-22 | feat | Implémentation Phase 1 Dogfooding | `120-dogfooding-implementation-phase1.adoc` | 9.0/10
 | 119 | 2026-04-22 | docs | Intégration Graphify + Auto-documentation Plugin | `119-docs-graphify-integration.adoc` | 9.0/10

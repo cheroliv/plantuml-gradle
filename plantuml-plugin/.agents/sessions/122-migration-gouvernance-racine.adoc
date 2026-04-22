@@ -1,0 +1,45 @@
+= Session 122 — Migration Gouvernance vers plantuml-plugin/
+
+**Date** : 22 avril 2026 | **Statut** : ✅ | **Type** : docs/archi
+
+== Contexte
+
+_Session 121_ : Migration AsciiDoc complète
+_Objectif_ : Corriger la gouvernance de l'agent opencode — tout ce qui dirige l'agent doit vivre dans `plantuml-plugin/`, pas dans `plantuml-gradle/`
+
+La migration AsciiDoc (session 121) avait été faite avec la vision que `plantuml-gradle/` était le dossier chef. En réalité, `plantuml-plugin/` est la racine de travail et de gouvernance. `plantuml-gradle/` n'est que le repo git.
+
+== Actions
+
+| Fichier | Action |
+|---------|--------|
+| `plantuml-plugin/AGENTS.md` | Créé puis supprimé (redondant avec AGENT.adoc) |
+| `plantuml-plugin/AGENT.adoc` | **Créé** — directives complètes, chemins relatifs à plantuml-plugin/ |
+| `plantuml-plugin/opencode.json` | **Créé** — pointe vers AGENT.adoc |
+| `plantuml-plugin/AGENT_MODUS_OPERANDI.adoc` | **Modifié** — ajout bloc WARNING "racine de travail = plantuml-plugin/" |
+| `plantuml-gradle/AGENTS.md` | Supprimé |
+| `plantuml-gradle/AGENT.adoc` | Supprimé |
+| `plantuml-gradle/session-summary.adoc` | Supprimé |
+| `plantuml-gradle/opencode.json` | Supprimé |
+| `plantuml-gradle/AGENTS.md` (2e version) | Supprimé — écrit puis remplacé par AGENT.adoc seul |
+
+== Résultats
+
+| Critère | Statut |
+|---------|--------|
+| Gouvernance entièrement dans plantuml-plugin/ | ✅ |
+| opencode.json bootstrap correct | ✅ |
+| Chemins relatifs cohérents (plus de préfixe plantuml-plugin/) | ✅ |
+| Aucun test modifié | ✅ (N/A) |
+
+== Leçons Apprises
+
+* `plantuml-gradle/` = repo git uniquement, ZERO fichiers de gouvernance agent
+* L'unique bootstrap opencode = `opencode.json` → `AGENT.adoc`
+* `AGENTS.md` était redondant avec `AGENT.adoc` — un seul fichier suffit
+* La session 121 avait créé des fichiers à la racine git par erreur d'architecture
+
+== Prochaine Session (123)
+
+* Corriger les 9 tests en échec préexistants (Gemini/Claude)
+* Suite des priorités BACKLOG

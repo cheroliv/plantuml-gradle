@@ -1,6 +1,7 @@
 = Historique des Sessions
 
-_Session 121_ (2026-04-22) : Migration AsciiDoc complète — 100+ fichiers .md → .adoc + AGENTS.md/AGENT.adoc/opencode.json ✅
+_Session 122_ (2026-04-22) : Migration gouvernance vers plantuml-plugin/ — AGENT.adoc + opencode.json créés, racine git nettoyée ✅
+_Session 121_ (2026-04-22) : Migration AsciiDoc complète — 100+ fichiers .md → .adoc ✅
 _Session 120_ (2026-04-22) : Implémentation Phase 1 Dogfooding — GraphifyPromptAdapter + GenerateDiagramDocsTask ✅
 _Session 119_ (2026-04-22) : Documentation Graphify + Auto-documentation Plugin — 9.0/10 ✅  
 _Session 118_ (2026-04-21) : Authentification Ollama Cloud CI — 9.0/10 ✅  
