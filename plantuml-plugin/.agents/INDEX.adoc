@@ -1,8 +1,8 @@
 = 📊 Index des Sessions — PlantUML Gradle Plugin
 
 _Dernière mise à jour_ : 2026-04-22  
-_Session en cours_ : 126 — EPIC 9 Knowledge Graph Diagram (validation end-to-end)  
-_Session terminee_ : 125 (EPIC 9 Knowledge Graph Diagram — implémentation 80%)
+_Session en cours_ : 127 — EPIC 10 Intégration Graphify (tester, documenter, écrire)  
+_Session terminee_ : 126 (Article blog fg + réflexion distillation IA)
 
 '''
 
@@ -71,6 +71,7 @@ _Aucune étape ne peut être marquée [✅] si le fichier n'a pas été effectiv
 
 |===
 | # | Date | Type | Sujet | Fichier | Score
+| 126 | 2026-04-22 | docs | Article blog fg (0104) + réflexion distillation IA | `126-blog-fg-command.adoc` | 9.0/10
 | 125 | 2026-04-22 | feat | EPIC 9 Knowledge Graph Diagram (Parser+Renderer+Task) | `125-epic9-knowledge-graph-diagram.adoc` | 9.0/10
 | 124 | 2026-04-22 | fix | Correction timeout ReindexPlantumlRagIntegrationTest | `124-fix-timeout-integration-test.adoc` | 9.0/10
 | 123 | 2026-04-22 | fix | Correction 9 tests en echec (resolveProvider) | `123-fix-tests-echec.adoc` | 9.0/10
@@ -104,7 +105,7 @@ _Aucune étape ne peut être marquée [✅] si le fichier n'a pas été effectiv
 
 |===
 | Période | Sessions | Types dominants | Score moyen
-| Avril 2026 (semaine 4) | 1 | docs (100%) | 9.0/10
+| Avril 2026 (semaine 4) | 2 | docs (50%), feat (50%) | 9.0/10
 | Avril 2026 (semaine 3) | 10 | test (80%), fix (20%) | 9.0/10
 | Avril 2026 (semaine 1) | 5 | debug (60%), docs (40%) | 9.0/10
 | Mars 2026 | _à compléter_ | _à compléter_ | _à compléter_
@@ -124,7 +125,8 @@ _Aucune étape ne peut être marquée [✅] si le fichier n'a pas été effectiv
 | EPIC 6 : API Key Pool | ✅ 100% | 9/10 | ✅ TERMINÉ
 | EPIC 7 : Dogfooding Plugin | ✅ 100% | 9/10 | ✅ Phase 1 ✅, Phase 2 abandonnée (incohérence archi)
 | EPIC 8 : Migration AsciiDoc | ✅ 100% | 9/10 | ✅ TERMINÉ
-| EPIC 9 : Knowledge Graph Diagram | 🟡 80% | 9/10 | 🟡 Session 125 en cours
+| EPIC 9 : Knowledge Graph Diagram | 🟡 80% | 9/10 | 🟡 Session 126 en cours (validation end-to-end)
+| EPIC 10 : Intégration Graphify (dev cycle) | 🔵 0% | — | 🟡 Session 127 à démarrer
 |===
 
 '''

@@ -2,7 +2,7 @@
 
 ____
 **Objectif** : Suivi des issues et bugs en cours
-**Dernière mise à jour** : Session 124 (22 avril 2026)
+**Dernière mise à jour** : Session 126 (22 avril 2026)
 ____
 
 '''
@@ -64,6 +64,45 @@ Ajouter une nouvelle tâche Gradle `GenerateKnowledgeGraphDiagramTask` qui :
 5. **Intégration dans le pipeline** : la tâche dépend de l'existence de `graphify-out/graph.json`, et le `.puml` généré peut être rendu en PNG par `plantumlService.generateImage()`
 
 **Avantage** : on obtient en une commande Gradle une représentation PlantUML du Knowledge Graph — intégrable dans la documentation AsciiDoc, versionnable dans Git, et consultable hors ligne.
+
+'''
+
+== 🟡 EPIC Prioritaire Suivante
+
+=== EPIC 10 : Intégration Graphify dans le cycle de dev — Tester, documenter, écrire
+
+**Statut** : 🟡 **À DEMARRER** — **Session 127**
+**Priorité** : 🔴 **HAUTE**
+
+ ==== Contexte
+
+EPIC 9 (Knowledge Graph Diagram) est implémenté à 80%. Il reste à valider end-to-end avec un vrai `graph.json` généré par graphify, à documenter l'intégration dans les Readmes, et à écrire des articles blog sur l'intégration dans le cycle de dev.
+
+==== Taches
+
+. **Tester graphify end-to-end**
+  * [ ] Installer/configurer graphify sur le projet
+  * [ ] Lancer `graphify . --no-viz` pour générer `graphify-out/graph.json`
+  * [ ] Valider que le JSON est bien structuré pour KnowledgeGraphParser
+  * [ ] Tester `./gradlew generateKnowledgeGraphDiagram` avec vrai graph.json
+
+. **Documenter dans les Readmes**
+  * [ ] Mettre à jour README.adoc avec la procédure graphify
+  * [ ] Documenter la commande `generateKnowledgeGraphDiagram`
+  * [ ] Ajouter des exemples de filtres CLI
+
+. **Écrire des articles blog**
+  * [ ] Article cheroliv.com : comment graphify s'intègre dans un workflow Gradle
+  * [ ] Diagrammes PlantUML du pipeline graphify → plugin → documentation
+  * [ ] Article sur le Knowledge Graph comme outil de compréhension de codebase
+
+==== Criteres d'Acceptation
+
+* [ ] graphify installé et fonctionnel
+* [ ] `graphify-out/graph.json` généré et valide
+* [ ] `./gradlew generateKnowledgeGraphDiagram` fonctionnel avec vrai graph.json
+* [ ] Readmes mis à jour avec procédure graphify
+* [ ] Au moins un article blog publié sur l'intégration
 
 '''
 

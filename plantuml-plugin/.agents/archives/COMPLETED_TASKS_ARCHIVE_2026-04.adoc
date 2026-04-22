@@ -2,6 +2,33 @@
 
 == Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+=== Session 126 — 2026-04-22 : Article Blog fg + Distillation IA ✅
+
+==== ✅ Contexte
+* _Session 125_ : EPIC 9 Knowledge Graph Diagram — implémentation 80%
+* _Objectif_ : Écrire article blog cheroliv.com sur le tips fg + réflexion distillation IA
+
+==== ✅ Taches realisees
+* ✅ Article blog `0104_fg_command_super_tips_post.adoc` : 877 lignes, 12 diagrammes PlantUML
+* ✅ 4 scénarios concrets : build Gradle, vim suspendu, opencode, multi-jobs
+* ✅ Comparaison signaux POSIX (SIGTSTP/SIGCONT/SIGINT)
+* ✅ Tips avancés (fg %-, kill %n, disown, nohup, reset)
+* ✅ Réflexion distillation IA : contenu cheroliv.com valuable pour fine-tuning
+
+==== ✅ Resultats
+* ✅ Article publié dans `/home/cheroliv/workspace/__repositories__/cheroliv/site/jbake/content/blog/2026/`
+* ✅ Numérotation conforme : 0104 après 0103
+
+==== Notes lecons apprises
+* Le format problème→solution→leçons est valuable pour fine-tuning IA
+* Les diagrammes PlantUML forcent une modélisation explicite — good pour distillation
+* Le style narratif avec sentiments est un atout pour les lecteurs humains, pas du bruit
+
+==== Prochaine session (127)
+* Tester graphify end-to-end avec vrai graph.json
+* Documenter l'intégration dans les Readmes
+* Écrire des articles sur l'intégration graphify dans le cycle de dev
+
 === Session 125 — 2026-04-22 : EPIC 9 Knowledge Graph Diagram ✅
 
 ==== ✅ Contexte
