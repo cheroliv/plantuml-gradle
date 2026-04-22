@@ -2,8 +2,54 @@
 
 ____
 **Objectif** : Suivi des issues et bugs en cours
-**Dernière mise à jour** : Session 121 (22 avril 2026)
+**Dernière mise à jour** : Session 124 (22 avril 2026)
 ____
+
+'''
+
+== 🔴 EPIC Prioritaire
+
+=== EPIC 9 : Knowledge Graph Diagram — Représentation graphique du Knowledge Graph via PlantUML
+
+**Statut** : 🔴 **À DÉMARRER** — **PRIORITÉ MAXIMALE**
+**Session** : 125 (à implémenter)
+
+==== Contexte
+
+Le pipeline actuel lit `graphify-out/graph.json` via `GraphifyPromptAdapter` et produit des **diagrammes de classes UML** par communauté. Ce n'est *pas* une représentation du Knowledge Graph lui-même — on perd la topologie globale, les arêtes croisées entre communautés, les types d'arête (EXTRACTED/INFERRED/AMBIGUOUS), les scores de confiance, les hyperedges, et les liens sémantiques.
+
+==== Ce que j'attends
+
+Une **représentation graphique du Knowledge Graph complet** générée par le plugin Gradle :
+
+- Tous les noeuds du graphe (classes, concepts, fonctions, papiers, images…) comme sommets
+- Les arêtes avec leur **type visible** (EXTRACTED, INFERRED, AMBIGUOUS) et leur **score de confiance**
+- Les communautés comme clusters visuels (packages ou rectangles colorés)
+- Les liens sémantiques croisés entre communautés (les `semantically_similar_to` marqués INFERRED)
+- Les hyperedges (relations groupant 3+ noeuds)
+- La capacité de filtrer par communauté, par type d'arête, ou par intervalle de confiance
+
+==== Approche préconisée
+
+Ajouter une nouvelle tâche Gradle `GenerateKnowledgeGraphDiagramTask` qui :
+
+1. **Parse `graphify-out/graph.json` directement** (pas de prompt LLM — les données sont déjà là)
+2. **Génère du PlantUML natif** en utilisant les primitives de graphe :
+   - `package` ou `rectangle` pour les communautés (clusters visuels)
+   - `node` pour chaque sommet du graphe
+   - `-->` pour les arêtes EXTRACTED (trait plein, noir)
+   - `..>` pour les arêtes INFERRED (trait pointillé, avec label du score de confiance)
+   - `--x` pour les arêtes AMBIGUOUS (trait rouge pointillé)
+   - Couleurs par communauté (palette automatique)
+3. **Propriété de filtre** via CLI :
+   - `-Pplantuml.kg.community="service layer"` — une communauté spécifique
+   - `-Pplantuml.kg.edgeTypes="EXTRACTED,INFERRED"` — filtrer par type d'arête
+   - `-Pplantuml.kg.minConfidence=0.7` — seuil de confiance minimum pour les INFERRED
+   - `-Pplantuml.kg.maxNodes=50` — limiter le nombre de noeuds (pour la lisibilité)
+4. **Pas de LLM** — transformation déterministe JSON > PlantUML, rapide et reproductible
+5. **Intégration dans le pipeline** : la tâche dépend de l'existence de `graphify-out/graph.json`, et le `.puml` généré peut être rendu en PNG par `plantumlService.generateImage()`
+
+**Avantage** : on obtient en une commande Gradle une représentation PlantUML du Knowledge Graph — intégrable dans la documentation AsciiDoc, versionnable dans Git, et consultable hors ligne.
 
 '''
 
@@ -11,10 +57,8 @@ ____
 
 === Issue #3 : 9 tests unitaires en échec (Gemini/Claude/Provider enum)
 
-**Statut** : 🔴 **À CORRIGER** — **PRIORITÉ MAXIMALE**
-**Priorité** : 🔴 **CRITIQUE**
-**Session** : 121 (constaté), 122 (à corriger)
-**Impact** : `./gradlew test` échoue — régression qualité
+**Statut** : 🟢 **RÉSOLU** (Session 123 — resolveProvider() GEMINI/CLAUDE mapping)
+**Priorité** : ✅ **CORRIGÉ**
 
 ==== Tests en échec
 

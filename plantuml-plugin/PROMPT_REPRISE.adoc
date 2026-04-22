@@ -1,9 +1,9 @@
 = Prompt de reprise — Session 125
 
 ____
-**EPIC** : Stabilisation
-**Statut** : Session 124 OK — Timeout ReindexPlantumlRagIntegrationTest corrige
-**Mission** : A determiner selon BACKLOG.adoc
+**EPIC** : EPIC 9 — Knowledge Graph Diagram via PlantUML
+**Statut** : Session 124 OK — Timeout ReindexPlantumlRagIntegrationTest corrigé
+**Mission** : Implémenter GenerateKnowledgeGraphDiagramTask — JSON > PlantUML déterministe
 ____
 
 '''
@@ -15,10 +15,9 @@ ____
 
 **Connaissances cles** :
 
-* Cause racine : Testcontainers (20s) + AllMiniLmL6V2EmbeddingModel ONNX (5s/embedding) = timeout certain sous 30s/60s
-* Correction : StubEmbeddingModel (instantane) + mode SIMULATION + injection par system property
-* `ProjectBuilder` = meme JVM = reflexion `Class.forName()` fonctionne pour charger le stub
-* Regle d'or : `ProjectBuilder` (test unitaire) doit mocker le monde reel, `GradleRunner` (test fonctionnel) peut lancer l'infrastructure reelle
+* StubEmbeddingModel + mode SIMULATION remplace Testcontainers + AllMiniLmL6V2EmbeddingModel ONNX
+* Injection par System.getProperty en mode test
+* `./gradlew test` passe en 42s
 
 **Archive** : `.agents/sessions/124-fix-timeout-integration-test.adoc`
 
@@ -26,17 +25,34 @@ ____
 
 == Session 125 — Priorites
 
-**Mission** : A determiner selon BACKLOG.adoc
+**Mission** : EPIC 9 — Knowledge Graph Diagram via PlantUML
 
-=== 1. Consulter BACKLOG.adoc
+=== 1. Creer GenerateKnowledgeGraphDiagramTask
 
-* Identifier la prochaine priorite
-* Evaluer le contexte necessaire
+* Parser `graphify-out/graph.json` directement (pas de LLM)
+* Generer du PlantUML natif : packages/rectangles pour communautes, nodes pour sommets
+* Arretes : `-->` EXTRACTED, `..>` INFERRED, `--x` AMBIGUOUS
+* Couleurs par communaute (palette automatique)
+
+=== 2. Ajouter proprietes de filtre CLI
+
+* `-Pplantuml.kg.community` — communaute specifique
+* `-Pplantuml.kg.edgeTypes` — filtrer par type d'arrete
+* `-Pplantuml.kg.minConfidence` — seuil de confiance
+* `-Pplantuml.kg.maxNodes` — limiter le nombre de noeuds
+
+=== 3. Integrer dans le pipeline Gradle
+
+* Tache `generateKnowledgeGraphDiagram` depend de `graphify-out/graph.json`
+* Rendu PNG via `plantumlService.generateImage()`
+* Lifecycle task `docs` mis a jour
 
 === Criteres d'Acceptation
 
-* [ ] BACKLOG.adoc consulte
-* [ ] Mission session 125 definie
+* [ ] `GenerateKnowledgeGraphDiagramTask` implementee
+* [ ] Tests unitaires passes
+* [ ] `./gradlew generateKnowledgeGraphDiagram -Pplantuml.kg.community="service layer"` fonctionnel
+* [ ] EPIC 9 ajoute au BACKLOG comme top priorite
 
 '''
 

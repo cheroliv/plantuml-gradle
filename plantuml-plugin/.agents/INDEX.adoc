@@ -1,7 +1,7 @@
 = 📊 Index des Sessions — PlantUML Gradle Plugin
 
 _Dernière mise à jour_ : 2026-04-22  
-_Session en cours_ : 125 — A determiner selon BACKLOG.adoc  
+_Session en cours_ : 125 — EPIC 9 Knowledge Graph Diagram via PlantUML  
 _Session terminee_ : 124 (Correction timeout ReindexPlantumlRagIntegrationTest)
 
 '''
@@ -123,6 +123,7 @@ _Aucune étape ne peut être marquée [✅] si le fichier n'a pas été effectiv
 | EPIC 6 : API Key Pool | ✅ 100% | 9/10 | ✅ TERMINÉ
 | EPIC 7 : Dogfooding Plugin | ✅ 100% | 9/10 | ✅ Phase 1 ✅, Phase 2 abandonnée (incohérence archi)
 | EPIC 8 : Migration AsciiDoc | ✅ 100% | 9/10 | ✅ TERMINÉ
+| EPIC 9 : Knowledge Graph Diagram | 🔴 0% | - | 🔴 À DÉMARRER
 |===
 
 '''
