@@ -1,8 +1,8 @@
 = 📊 Index des Sessions — PlantUML Gradle Plugin
 
 _Dernière mise à jour_ : 2026-04-22  
-_Session en cours_ : 127 — EPIC 10 Intégration Graphify (tester, documenter, écrire)  
-_Session terminee_ : 126 (Article blog fg + réflexion distillation IA)
+_Session en cours_ : 128 — EPIC 10 Intégration Graphify (tests fonctionnels, docs, articles)  
+_Session terminee_ : 127 (Tests intégration graphify, 380/380 PASS, 3 bugs fix)
 
 '''
 
@@ -71,6 +71,7 @@ _Aucune étape ne peut être marquée [✅] si le fichier n'a pas été effectiv
 
 |===
 | # | Date | Type | Sujet | Fichier | Score
+| 127 | 2026-04-22 | test+fix | EPIC 10 Tests Intégration Graphify (380/380 PASS, 3 bugs) | `127-epic10-graphify-tests.adoc` | 9.0/10
 | 126 | 2026-04-22 | docs | Article blog fg (0104) + réflexion distillation IA | `126-blog-fg-command.adoc` | 9.0/10
 | 125 | 2026-04-22 | feat | EPIC 9 Knowledge Graph Diagram (Parser+Renderer+Task) | `125-epic9-knowledge-graph-diagram.adoc` | 9.0/10
 | 124 | 2026-04-22 | fix | Correction timeout ReindexPlantumlRagIntegrationTest | `124-fix-timeout-integration-test.adoc` | 9.0/10
@@ -125,8 +126,8 @@ _Aucune étape ne peut être marquée [✅] si le fichier n'a pas été effectiv
 | EPIC 6 : API Key Pool | ✅ 100% | 9/10 | ✅ TERMINÉ
 | EPIC 7 : Dogfooding Plugin | ✅ 100% | 9/10 | ✅ Phase 1 ✅, Phase 2 abandonnée (incohérence archi)
 | EPIC 8 : Migration AsciiDoc | ✅ 100% | 9/10 | ✅ TERMINÉ
-| EPIC 9 : Knowledge Graph Diagram | 🟡 80% | 9/10 | 🟡 Session 126 en cours (validation end-to-end)
-| EPIC 10 : Intégration Graphify (dev cycle) | 🔵 0% | — | 🟡 Session 127 à démarrer
+| EPIC 9 : Knowledge Graph Diagram | 🟡 95% | 9/10 | 🟡 Parser adapté format graphify natif, 380/380 tests
+| EPIC 10 : Intégration Graphify (dev cycle) | 🔵 30% | — | 🟡 Session 127 : tests OK, reste docs + articles
 |===
 
 '''

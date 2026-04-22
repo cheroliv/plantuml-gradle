@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import plantuml.EdgeType
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.assertFailsWith
@@ -245,5 +246,297 @@ class KnowledgeGraphParserTest {
         assertEquals("service", graph.communities[0].name)
         assertEquals("config", graph.communities[1].name)
         assertEquals("task", graph.communities[2].name)
+    }
+
+    @Test
+    fun `should parse graphify native format with links and community integers`() {
+        val json = mapper.writeValueAsString(mapOf(
+            "directed" to true,
+            "multigraph" to false,
+            "nodes" to listOf(
+                mapOf("label" to "LlmService", "file_type" to "code", "id" to "llm_service", "community" to 0, "source_file" to "LlmService.kt"),
+                mapOf("label" to "ApiKeyPool", "file_type" to "code", "id" to "api_key_pool", "community" to 0, "source_file" to "ApiKeyPool.kt"),
+                mapOf("label" to "ConfigLoader", "file_type" to "code", "id" to "config_loader", "community" to 1, "source_file" to "ConfigLoader.kt")
+            ),
+            "links" to listOf(
+                mapOf("source" to "llm_service", "target" to "api_key_pool", "relation" to "contains", "confidence" to "EXTRACTED", "confidence_score" to 1.0, "weight" to 1.0),
+                mapOf("source" to "llm_service", "target" to "config_loader", "relation" to "method", "confidence" to "INFERRED", "confidence_score" to 0.7, "weight" to 0.7)
+            )
+        ))
+        graphFile.writeText(json)
+
+        val graph = parser.parse()
+
+        assertEquals(3, graph.nodes.size)
+        assertEquals(2, graph.edges.size)
+        assertEquals(2, graph.communities.size)
+
+        val llmNode = graph.nodes.find { it.name == "LlmService" }!!
+        assertEquals("community_0", llmNode.community)
+
+        val configNode = graph.nodes.find { it.name == "ConfigLoader" }!!
+        assertEquals("community_1", configNode.community)
+
+        val containsEdge = graph.edges.find { it.label == "contains" }!!
+        assertEquals("LlmService", containsEdge.source)
+        assertEquals("ApiKeyPool", containsEdge.target)
+        assertEquals(EdgeType.EXTRACTED, containsEdge.type)
+
+        val methodEdge = graph.edges.find { it.label == "method" }!!
+        assertEquals(EdgeType.INFERRED, methodEdge.type)
+        assertEquals(0.7, methodEdge.confidence)
+
+        assertEquals("community_0", graph.communities[0].name)
+        assertEquals("community_1", graph.communities[1].name)
+    }
+
+    @Test
+    fun `should throw on malformed JSON`() {
+        graphFile.writeText("{invalid json!!!")
+
+        assertFailsWith<com.fasterxml.jackson.core.JsonParseException> {
+            parser.parse()
+        }
+    }
+
+    @Test
+    fun `should default unknown edge type to EXTRACTED`() {
+        val json = mapper.writeValueAsString(mapOf(
+            "communities" to listOf(
+                mapOf(
+                    "name" to "test",
+                    "nodes" to listOf("X"),
+                    "edges" to listOf(
+                        mapOf("source" to "X", "target" to "Y", "type" to "UNKNOWN_TYPE", "confidence" to 0.9)
+                    )
+                )
+            )
+        ))
+        graphFile.writeText(json)
+
+        val graph = parser.parse()
+
+        assertEquals(EdgeType.EXTRACTED, graph.edges[0].type)
+    }
+
+    @Test
+    fun `should parse graphify format with edges key instead of links`() {
+        val json = mapper.writeValueAsString(mapOf(
+            "directed" to true,
+            "nodes" to listOf(
+                mapOf("label" to "A", "file_type" to "code", "id" to "a", "community" to 0),
+                mapOf("label" to "B", "file_type" to "code", "id" to "b", "community" to 0)
+            ),
+            "edges" to listOf(
+                mapOf("source" to "a", "target" to "b", "relation" to "calls", "confidence" to "EXTRACTED", "confidence_score" to 1.0)
+            )
+        ))
+        graphFile.writeText(json)
+
+        val graph = parser.parse()
+
+        assertEquals(2, graph.nodes.size)
+        assertEquals(1, graph.edges.size)
+        assertEquals("calls", graph.edges[0].label)
+    }
+
+    @Test
+    fun `should parse graphify nodes without community field`() {
+        val json = mapper.writeValueAsString(mapOf(
+            "nodes" to listOf(
+                mapOf("label" to "Standalone", "file_type" to "code", "id" to "standalone"),
+                mapOf("label" to "Grouped", "file_type" to "code", "id" to "grouped", "community" to 5)
+            ),
+            "links" to listOf(
+                mapOf("source" to "standalone", "target" to "grouped", "relation" to "uses", "confidence" to "EXTRACTED", "confidence_score" to 1.0)
+            )
+        ))
+        graphFile.writeText(json)
+
+        val graph = parser.parse()
+
+        assertEquals(2, graph.nodes.size)
+        val standalone = graph.nodes.find { it.name == "Standalone" }!!
+        assertEquals("", standalone.community)
+        val grouped = graph.nodes.find { it.name == "Grouped" }!!
+        assertEquals("community_5", grouped.community)
+        assertEquals(1, graph.communities.size)
+    }
+
+    @Test
+    fun `should parse graphify nodes without file_type`() {
+        val json = mapper.writeValueAsString(mapOf(
+            "nodes" to listOf(
+                mapOf("label" to "NoFileType", "id" to "no_ft", "community" to 0)
+            ),
+            "links" to emptyList<Any>()
+        ))
+        graphFile.writeText(json)
+
+        val graph = parser.parse()
+
+        val node = graph.nodes[0]
+        assertEquals("NoFileType", node.name)
+        assertEquals("class", node.type)
+    }
+
+    @Test
+    fun `should parse graphify links with weight as confidence fallback`() {
+        val json = mapper.writeValueAsString(mapOf(
+            "nodes" to listOf(
+                mapOf("label" to "A", "file_type" to "code", "id" to "a", "community" to 0),
+                mapOf("label" to "B", "file_type" to "code", "id" to "b", "community" to 0)
+            ),
+            "links" to listOf(
+                mapOf("source" to "a", "target" to "b", "relation" to "calls", "confidence" to "EXTRACTED", "weight" to 0.85)
+            )
+        ))
+        graphFile.writeText(json)
+
+        val graph = parser.parse()
+
+        assertEquals(0.85, graph.edges[0].confidence)
+    }
+
+    @Test
+    fun `should parse graphify link with label field as fallback`() {
+        val json = mapper.writeValueAsString(mapOf(
+            "nodes" to listOf(
+                mapOf("label" to "A", "file_type" to "code", "id" to "a", "community" to 0),
+                mapOf("label" to "B", "file_type" to "code", "id" to "b", "community" to 0)
+            ),
+            "links" to listOf(
+                mapOf("source" to "a", "target" to "b", "label" to "depends on", "type" to "EXTRACTED", "confidence" to 1.0)
+            )
+        ))
+        graphFile.writeText(json)
+
+        val graph = parser.parse()
+
+        assertEquals("depends on", graph.edges[0].label)
+    }
+
+    @Test
+    fun `should parse edge string with dashed arrow INFERRED`() {
+        val json = mapper.writeValueAsString(mapOf(
+            "communities" to listOf(
+                mapOf("name" to "core", "nodes" to listOf("X", "Y"), "edges" to listOf("X ..> Y : might use"))
+            )
+        ))
+        graphFile.writeText(json)
+
+        val graph = parser.parse()
+
+        assertEquals(EdgeType.INFERRED, graph.edges[0].type)
+        assertEquals("X", graph.edges[0].source)
+        assertEquals("Y", graph.edges[0].target)
+        assertEquals("might use", graph.edges[0].label)
+    }
+
+    @Test
+    fun `should parse edge string with crossed arrow AMBIGUOUS`() {
+        val json = mapper.writeValueAsString(mapOf(
+            "communities" to listOf(
+                mapOf("name" to "core", "nodes" to listOf("X", "Y"), "edges" to listOf("X --x Y"))
+            )
+        ))
+        graphFile.writeText(json)
+
+        val graph = parser.parse()
+
+        assertEquals(EdgeType.AMBIGUOUS, graph.edges[0].type)
+    }
+
+    @Test
+    fun `should parse edge string with simple arrow`() {
+        val json = mapper.writeValueAsString(mapOf(
+            "communities" to listOf(
+                mapOf("name" to "core", "nodes" to listOf("A", "B"), "edges" to listOf("A -> B : depends"))
+            )
+        ))
+        graphFile.writeText(json)
+
+        val graph = parser.parse()
+
+        assertEquals(EdgeType.EXTRACTED, graph.edges[0].type)
+        assertEquals("depends", graph.edges[0].label)
+    }
+
+    @Test
+    fun `should return empty graph for JSON with no nodes edges or communities`() {
+        val json = mapper.writeValueAsString(mapOf("directed" to true))
+        graphFile.writeText(json)
+
+        val graph = parser.parse()
+
+        assertEquals(0, graph.nodes.size)
+        assertEquals(0, graph.edges.size)
+        assertEquals(0, graph.communities.size)
+    }
+
+    @Test
+    fun `should parse empty communities array as legacy format`() {
+        val json = mapper.writeValueAsString(mapOf(
+            "communities" to emptyList<Any>(),
+            "nodes" to listOf("A"),
+            "edges" to emptyList<Any>()
+        ))
+        graphFile.writeText(json)
+
+        val graph = parser.parse()
+
+        assertEquals(1, graph.nodes.size)
+        assertEquals(0, graph.communities.size)
+    }
+
+    @Test
+    fun `should parse graphify format with node name fallback`() {
+        val json = mapper.writeValueAsString(mapOf(
+            "nodes" to listOf(
+                mapOf("name" to "FallbackNode", "community" to 0, "id" to "fb")
+            ),
+            "links" to emptyList<Any>()
+        ))
+        graphFile.writeText(json)
+
+        val graph = parser.parse()
+
+        assertEquals("FallbackNode", graph.nodes[0].name)
+    }
+
+    @Test
+    fun `should deduplicate edges in graphify format`() {
+        val json = mapper.writeValueAsString(mapOf(
+            "nodes" to listOf(
+                mapOf("label" to "A", "file_type" to "code", "id" to "a", "community" to 0),
+                mapOf("label" to "B", "file_type" to "code", "id" to "b", "community" to 0)
+            ),
+            "links" to listOf(
+                mapOf("source" to "a", "target" to "b", "relation" to "calls", "confidence" to "EXTRACTED", "confidence_score" to 1.0),
+                mapOf("source" to "a", "target" to "b", "relation" to "calls", "confidence" to "EXTRACTED", "confidence_score" to 1.0)
+            )
+        ))
+        graphFile.writeText(json)
+
+        val graph = parser.parse()
+
+        assertEquals(1, graph.edges.size)
+    }
+
+    @Test
+    fun `should skip null edge nodes gracefully`() {
+        val json = mapper.writeValueAsString(mapOf(
+            "nodes" to listOf("A", "B"),
+            "edges" to listOf(
+                mapOf("source" to "A", "target" to "B", "type" to "EXTRACTED", "confidence" to 1.0),
+                42,
+                "garbage"
+            )
+        ))
+        graphFile.writeText(json)
+
+        val graph = parser.parse()
+
+        assertEquals(1, graph.edges.size)
     }
 }

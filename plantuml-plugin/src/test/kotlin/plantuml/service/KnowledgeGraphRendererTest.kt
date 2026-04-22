@@ -273,4 +273,188 @@ class KnowledgeGraphRendererTest {
     private fun assertFalse(condition: Boolean) {
         org.junit.jupiter.api.Assertions.assertFalse(condition)
     }
+
+    @Test
+    fun `should apply combined filters community edgeType and minConfidence`() {
+        val graph = KnowledgeGraph(
+            nodes = listOf(
+                KnowledgeGraphNode(name = "S1", community = "service"),
+                KnowledgeGraphNode(name = "S2", community = "service"),
+                KnowledgeGraphNode(name = "C1", community = "config"),
+                KnowledgeGraphNode(name = "C2", community = "config")
+            ),
+            edges = listOf(
+                KnowledgeGraphEdge(source = "S1", target = "S2", type = EdgeType.EXTRACTED, confidence = 1.0, label = "calls"),
+                KnowledgeGraphEdge(source = "S1", target = "C1", type = EdgeType.INFERRED, confidence = 0.5, label = "maybe"),
+                KnowledgeGraphEdge(source = "C1", target = "C2", type = EdgeType.INFERRED, confidence = 0.9, label = "loads")
+            ),
+            communities = listOf(
+                KnowledgeGraphCommunity(name = "service", nodes = listOf("S1", "S2")),
+                KnowledgeGraphCommunity(name = "config", nodes = listOf("C1", "C2"))
+            )
+        )
+        val result = renderer.render(
+            graph,
+            communityFilter = "config",
+            edgeTypes = setOf(EdgeType.INFERRED),
+            minConfidence = 0.7
+        )
+        assertTrue(result.contains("config"))
+        assertFalse(result.contains("service"))
+        assertTrue(result.contains("C1"))
+        assertTrue(result.contains("C2"))
+        assertTrue(result.contains("loads"))
+        assertFalse(result.contains("maybe"))
+        assertFalse(result.contains("calls"))
+    }
+
+    @Test
+    fun `should render unassigned nodes section`() {
+        val graph = KnowledgeGraph(
+            nodes = listOf(
+                KnowledgeGraphNode(name = "Assigned", community = "core"),
+                KnowledgeGraphNode(name = "Loner", community = "")
+            ),
+            communities = listOf(
+                KnowledgeGraphCommunity(name = "core", nodes = listOf("Assigned"))
+            )
+        )
+        val result = renderer.render(graph)
+        assertTrue(result.contains("Unassigned nodes"))
+        assertTrue(result.contains("Loner"))
+    }
+
+    @Test
+    fun `should render custom community color`() {
+        val graph = KnowledgeGraph(
+            nodes = listOf(KnowledgeGraphNode(name = "A", community = "colored")),
+            communities = listOf(
+                KnowledgeGraphCommunity(name = "colored", color = "#FF0000", nodes = listOf("A"))
+            )
+        )
+        val result = renderer.render(graph)
+        assertTrue(result.contains("#FF0000"))
+    }
+
+    @Test
+    fun `should limit attributes to 5 per node`() {
+        val graph = KnowledgeGraph(
+            nodes = listOf(
+                KnowledgeGraphNode(
+                    name = "BigClass",
+                    community = "test",
+                    attributes = (1..8).map { "+attr$it(): String" }
+                )
+            ),
+            communities = listOf(
+                KnowledgeGraphCommunity(name = "test", nodes = listOf("BigClass"))
+            )
+        )
+        val result = renderer.render(graph)
+        assertTrue(result.contains("attr1"))
+        assertTrue(result.contains("attr5"))
+        assertFalse(result.contains("attr6"))
+        assertFalse(result.contains("attr7"))
+        assertFalse(result.contains("attr8"))
+    }
+
+    @Test
+    fun `should render legend with filter name`() {
+        val graph = KnowledgeGraph(
+            nodes = listOf(KnowledgeGraphNode(name = "A", community = "service")),
+            communities = listOf(KnowledgeGraphCommunity(name = "service", nodes = listOf("A")))
+        )
+        val result = renderer.render(graph, communityFilter = "service")
+        assertTrue(result.contains("Filter"))
+        assertTrue(result.contains("service"))
+    }
+
+    @Test
+    fun `should render edge label with colon prefix`() {
+        val graph = KnowledgeGraph(
+            nodes = listOf(
+                KnowledgeGraphNode(name = "A", community = "test"),
+                KnowledgeGraphNode(name = "B", community = "test")
+            ),
+            edges = listOf(
+                KnowledgeGraphEdge(source = "A", target = "B", label = "depends on", type = EdgeType.EXTRACTED)
+            ),
+            communities = listOf(
+                KnowledgeGraphCommunity(name = "test", nodes = listOf("A", "B"))
+            )
+        )
+        val result = renderer.render(graph)
+        assertTrue(result.contains("A --> B : depends on"))
+    }
+
+    @Test
+    fun `should omit confidence label for INFERRED edge with confidence 1_0`() {
+        val graph = KnowledgeGraph(
+            nodes = listOf(
+                KnowledgeGraphNode(name = "A", community = "test"),
+                KnowledgeGraphNode(name = "B", community = "test")
+            ),
+            edges = listOf(
+                KnowledgeGraphEdge(source = "A", target = "B", type = EdgeType.INFERRED, confidence = 1.0)
+            ),
+            communities = listOf(
+                KnowledgeGraphCommunity(name = "test", nodes = listOf("A", "B"))
+            )
+        )
+        val result = renderer.render(graph)
+        assertTrue(result.contains("A ..> B"))
+        assertFalse(result.contains("100%"))
+    }
+
+    @Test
+    fun `should render graphify community names from parsed graph`() {
+        val graph = KnowledgeGraph(
+            nodes = listOf(
+                KnowledgeGraphNode(name = "NodeA", community = "community_0"),
+                KnowledgeGraphNode(name = "NodeB", community = "community_1")
+            ),
+            edges = listOf(
+                KnowledgeGraphEdge(source = "NodeA", target = "NodeB", type = EdgeType.EXTRACTED, label = "calls")
+            ),
+            communities = listOf(
+                KnowledgeGraphCommunity(name = "community_0", nodes = listOf("NodeA")),
+                KnowledgeGraphCommunity(name = "community_1", nodes = listOf("NodeB"))
+            )
+        )
+        val result = renderer.render(graph)
+        assertTrue(result.contains("community_0"))
+        assertTrue(result.contains("community_1"))
+        assertTrue(result.contains("Cross-community edges"))
+        assertTrue(result.contains("calls"))
+    }
+
+    @Test
+    fun `should render community with no nodes via nodesByCommunity`() {
+        val graph = KnowledgeGraph(
+            nodes = listOf(
+                KnowledgeGraphNode(name = "A", community = "alpha")
+            ),
+            edges = listOf(
+                KnowledgeGraphEdge(source = "A", target = "A", type = EdgeType.EXTRACTED)
+            ),
+            communities = listOf(
+                KnowledgeGraphCommunity(name = "alpha", nodes = emptyList()),
+                KnowledgeGraphCommunity(name = "empty_community", nodes = emptyList())
+            )
+        )
+        val result = renderer.render(graph)
+        assertTrue(result.contains("alpha"))
+        assertTrue(result.contains("@enduml"))
+    }
+
+    @Test
+    fun `should sanitize IDs with slashes and backslashes`() {
+        assertEquals("src_main_Service", renderer.sanitizeId("src/main/Service"))
+        assertEquals("src_main_Service", renderer.sanitizeId("src\\main\\Service"))
+    }
+
+    @Test
+    fun `should sanitize IDs with quotes`() {
+        assertEquals("MyNode", renderer.sanitizeId("My'\"Node"))
+    }
 }

@@ -195,13 +195,13 @@ class KnowledgeGraphRenderer {
     private fun renderNode(sb: StringBuilder, node: KnowledgeGraphNode) {
         val id = sanitizeId(node.name)
         if (node.attributes.isNotEmpty()) {
-            sb.appendLine("    node \"$node.name\" as $id {")
+            sb.appendLine("    node \"${node.name}\" as $id {")
             for (attr in node.attributes.take(5)) {
                 sb.appendLine("        $attr")
             }
             sb.appendLine("    }")
         } else {
-            sb.appendLine("    node \"$node.name\" as $id")
+            sb.appendLine("    node \"${node.name}\" as $id")
         }
     }
 

@@ -1,0 +1,113 @@
+= Archive Session 127 — EPIC 10 Tests Intégration Graphify
+
+_Date_ : 22 avril 2026
+_Type_ : test + fix
+_Score_ : 9.0/10
+
+== Contexte
+
+_Session 126_ : Article blog fg publié
+_Objectif_ : Tester graphify end-to-end, adapter le parser au format natif, couverture de tests complète
+
+== Taches realisees
+
+=== 1. Installer et configurer graphify
+
+* `uv tool install graphifyy` (v0.4.29)
+* `graphify update .` — 1572 nodes, 1466 edges, 146 communities générés
+* `graphify-out/graph.json` créé avec format natif (nodes/links/community int)
+
+=== 2. Découvrir et corriger l'incompatibilité de format
+
+Le format natif de graphify 0.4.29 diffère du format attendu :
+
+| Aspect | Parser attendait | Format réel graphify |
+|--------|------------------|---------------------|
+| Edges | `edges` | `links` |
+| Communautés | `communities` array | entier dans chaque node (`"community": 141`) |
+| Node name | `name` | `label` |
+| Edge label | `label` | `relation` |
+| Edge type | `type` | `confidence` (string) |
+| Confidence | `confidence` (double) | `confidence_score` (double) + `weight` |
+
+=== 3. Adapter KnowledgeGraphParser
+
+* 3 modes de parsing : `parseLegacyFormat` (communities array), `parseGraphifyFormat` (nodes/links/community int), `parseFlatFormat` (nodes/edges simples sans communities)
+* Résolution ID→label : map `idToLabel` pour convertir les IDs des edges en labels de nodes
+* Fix `confidence` string vs double : `isNumber` check avant `asDouble()`
+
+=== 4. Bug fixes découverts
+
+. **Renderer** : `$node.name` → `${node.name}` — string interpolation Kotlin affichait `toString()` au lieu du nom
+. **Parser** : résolution ID→label — les edges référençaient les IDs, pas les labels
+. **Parser** : `confidence` asDouble sur string retournait 0.0 au lieu de null (Jackson default)
+
+=== 5. Tests end-to-end
+
+* `./gradlew generateKnowledgeGraphDiagram` — 1572 nodes, 1466 edges, 146 communities → PNG généré
+* Filtre communauté : `-Pplantuml.kg.community=community_0 -Pplantuml.kg.maxNodes=20` — OK
+
+== Nouveaux Tests (40+)
+
+=== KnowledgeGraphParserTest (+15 tests, total 26)
+
+* Malformed JSON, unknown edge type fallback
+* Graphify format avec `edges` vs `links`
+* Nodes sans community, sans file_type
+* Weight comme confidence fallback
+* Label field fallback pour links
+* Edge string variants (`--x`, `..>`, `->`)
+* Empty graph, empty communities array
+* Dedup edges en graphify format
+* Skip null/garbage edge nodes
+* Node name fallback (label vs name)
+
+=== KnowledgeGraphRendererTest (+12 tests, total 25)
+
+* Filtres combinés (community + edgeType + minConfidence)
+* Nodes sans community (unassigned)
+* Custom community colors
+* Attribute limit 5
+* Legend avec filter
+* Edge label rendering avec `: label`
+* INFERRED confidence 1.0 omis
+* Graphify community names (community_0, community_1)
+* Communauté sans nodes
+* Sanitize IDs avec slashes, backslashes, quotes
+
+=== GenerateKnowledgeGraphDiagramTaskTest (+9 tests, total 15)
+
+* Propriétés edgeTypes, minConfidence, maxNodes, outputDir
+* Filename convention (full/community suffix)
+* Graphify native format via task
+* Unknown edge type property default
+
+=== GraphifyIntegrationTest (9 tests, pipeline complet)
+
+* Full pipeline graphify JSON → parser → renderer → PNG
+* Filtres (community, edgeType, minConfidence, maxNodes)
+* Nodes sans community, single node
+* Large graph (50 nodes)
+* Parser produit un graph cohérent pour le renderer
+
+== Resultats
+
+* 380/380 tests PASSED (0 échec)
+* graphify installé et fonctionnel (v0.4.29)
+* `graphify-out/graph.json` généré et valide (1572 nodes)
+* `./gradlew generateKnowledgeGraphDiagram` fonctionne avec vrai graph.json
+* 3 bugs corrigés dans le code de production
+* EPIC 9 passe de 80% à 95% (reste doc + articles)
+
+== Lecons apprises
+
+* Le format natif de graphify (v0.4.29) est très différent du format supposé en session 125
+* Jackson `asDouble()` sur un text node retourne 0.0 (pas null) — utiliser `isNumber` check
+* STRING interpolation Kotlin : `$node.name` → `node.toString() + ".name"`, pas `node.name`
+* Les IDs (slugs) et les labels sont deux concepts distincts dans graphify — résolution nécessaire
+
+== Prochaine session (128)
+
+* Ajouter tests fonctionnels GradleRunner pour generateKnowledgeGraphDiagram
+* Documenter l'intégration graphify dans les Readmes
+* Écrire des articles blog sur l'intégration graphify dans le cycle de dev

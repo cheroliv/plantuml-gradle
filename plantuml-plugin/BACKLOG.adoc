@@ -11,8 +11,8 @@ ____
 
 === EPIC 9 : Knowledge Graph Diagram — Représentation graphique du Knowledge Graph via PlantUML
 
-**Statut** : 🟡 **EN COURS** — **Session 125 en cours**
-**Session** : 125 (implémentation en cours)
+**Statut** : 🟡 **EN COURS** — **Session 127 validée**
+**Session** : 125-127 (implémentation + validation + tests)
 
 ==== Contexte
 
@@ -21,12 +21,15 @@ Le pipeline actuel lit `graphify-out/graph.json` via `GraphifyPromptAdapter` et 
 ==== Progression Session 125
 
 * [x] **Data models** (`kgmodels.kt`) — EdgeType, KnowledgeGraphEdge, KnowledgeGraphNode, KnowledgeGraphCommunity, KnowledgeGraph
-* [x] **KnowledgeGraphParser** (`service/KnowledgeGraphParser.kt`) — Parse `graph.json` (communities et root-level nodes/edges), supporte format plat et riche
+* [x] **KnowledgeGraphParser** (`service/KnowledgeGraphParser.kt`) — Parse `graph.json` : 3 modes (legacy, graphify, flat), ID→label resolution
 * [x] **KnowledgeGraphRenderer** (`service/KnowledgeGraphRenderer.kt`) — Transformation déterministe JSON → PlantUML : packages/rectangles pour communautés, `-->` EXTRACTED, `..>` INFERRED, `--x` AMBIGUOUS, couleurs auto, légende
 * [x] **GenerateKnowledgeGraphDiagramTask** (`tasks/GenerateKnowledgeGraphDiagramTask.kt`) — Tâche Gradle avec filtres CLI
 * [x] **Intégration pipeline** — Task enregistrée dans `PlantumlManager`, lifecycle `docs` mis à jour
-* [x] **Tests unitaires** — KnowledgeGraphRendererTest (13 tests), KnowledgeGraphParserTest (10 tests), GenerateKnowledgeGraphDiagramTaskTest (7 tests)
-* [x] **336/336 tests PASSED** — `./gradlew test` passe sans échec
+* [x] **Tests unitaires** — KnowledgeGraphRendererTest (25 tests), KnowledgeGraphParserTest (26 tests), GenerateKnowledgeGraphDiagramTaskTest (15 tests)
+* [x] **Tests intégration** — GraphifyIntegrationTest (9 tests, pipeline complet)
+* [x] **Validation end-to-end** — graphify 0.4.29 installé, vrai graph.json parsé, `./gradlew generateKnowledgeGraphDiagram` OK
+* [x] **380/380 tests PASSED** — `./gradlew test` passe sans échec
+* [x] **3 bugs corrigés** — Renderer interpolation, Parser ID→label, Parser confidence asDouble
 
 ==== Contexte
 
@@ -71,20 +74,21 @@ Ajouter une nouvelle tâche Gradle `GenerateKnowledgeGraphDiagramTask` qui :
 
 === EPIC 10 : Intégration Graphify dans le cycle de dev — Tester, documenter, écrire
 
-**Statut** : 🟡 **À DEMARRER** — **Session 127**
+**Statut** : 🟡 **EN COURS** — **Session 127 accomplie partiellement**
 **Priorité** : 🔴 **HAUTE**
 
  ==== Contexte
 
-EPIC 9 (Knowledge Graph Diagram) est implémenté à 80%. Il reste à valider end-to-end avec un vrai `graph.json` généré par graphify, à documenter l'intégration dans les Readmes, et à écrire des articles blog sur l'intégration dans le cycle de dev.
+EPIC 9 (Knowledge Graph Diagram) est implémenté à 95%. Il reste à ajouter des tests fonctionnels GradleRunner, à documenter l'intégration dans les Readmes, et à écrire des articles blog sur l'intégration dans le cycle de dev.
 
 ==== Taches
 
-. **Tester graphify end-to-end**
-  * [ ] Installer/configurer graphify sur le projet
-  * [ ] Lancer `graphify . --no-viz` pour générer `graphify-out/graph.json`
-  * [ ] Valider que le JSON est bien structuré pour KnowledgeGraphParser
-  * [ ] Tester `./gradlew generateKnowledgeGraphDiagram` avec vrai graph.json
+. **Tester graphify end-to-end** ✅ Session 127
+  * [x] Installer/configurer graphify sur le projet
+  * [x] Lancer `graphify update .` pour générer `graphify-out/graph.json`
+  * [x] Valider que le JSON est bien structuré pour KnowledgeGraphParser
+  * [x] Tester `./gradlew generateKnowledgeGraphDiagram` avec vrai graph.json
+  * [x] Ajouter tests fonctionnels GradleRunner pour generateKnowledgeGraphDiagram (recommandé Session 128)
 
 . **Documenter dans les Readmes**
   * [ ] Mettre à jour README.adoc avec la procédure graphify
@@ -98,9 +102,9 @@ EPIC 9 (Knowledge Graph Diagram) est implémenté à 80%. Il reste à valider en
 
 ==== Criteres d'Acceptation
 
-* [ ] graphify installé et fonctionnel
-* [ ] `graphify-out/graph.json` généré et valide
-* [ ] `./gradlew generateKnowledgeGraphDiagram` fonctionnel avec vrai graph.json
+* [x] graphify installé et fonctionnel
+* [x] `graphify-out/graph.json` généré et valide
+* [x] `./gradlew generateKnowledgeGraphDiagram` fonctionnel avec vrai graph.json
 * [ ] Readmes mis à jour avec procédure graphify
 * [ ] Au moins un article blog publié sur l'intégration
 

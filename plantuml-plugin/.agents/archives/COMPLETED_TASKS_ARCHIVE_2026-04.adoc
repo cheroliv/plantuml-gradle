@@ -2,6 +2,37 @@
 
 == Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+=== Session 127 — 2026-04-22 : Tests Intégration Graphify + 3 Bug Fixes ✅
+
+==== ✅ Contexte
+* _Session 126_ : Article blog fg + réflexion distillation IA
+* _Objectif_ : Tester graphify end-to-end, adapter le parser au format natif, couverture de tests
+
+==== ✅ Taches realisees
+* ✅ graphify installé : `uv tool install graphifyy` (v0.4.29)
+* ✅ `graphify update .` — 1572 nodes, 1466 edges, 146 communities
+* ✅ Incompatibilité de format découverte et corrigée (links/nodes/community int vs edges/communities)
+* ✅ KnowledgeGraphParser adapté : 3 modes (legacy, graphify, flat) + ID→label resolution
+* ✅ 3 bugs corrigés : renderer interpolation, parser ID→label, parser confidence asDouble
+* ✅ 40+ tests ajoutés : Parser 26, Renderer 25, Task 15, Integration 9
+* ✅ 380/380 tests PASSED
+
+==== ✅ Resultats
+* ✅ `./gradlew generateKnowledgeGraphDiagram` fonctionne avec vrai graph.json
+* ✅ EPIC 9 passe de 80% à 95%
+* ✅ EPIC 10 passe de 0% à 30%
+
+==== Notes lecons apprises
+* Format graphify 0.4.29 très différent du format supposé en session 125
+* Jackson `asDouble()` sur text node retourne 0.0 pas null — utiliser `isNumber` check
+* Kotlin `$node.name` = `node.toString() + ".name"`, il faut `${node.name}`
+* Recommandation : tests fonctionnels GradleRunner (2-3), Cucumber skip
+
+==== Prochaine session (128)
+* Tests fonctionnels GradleRunner pour generateKnowledgeGraphDiagram
+* Documenter l'intégration graphify dans les Readmes
+* Écrire des articles blog
+
 === Session 126 — 2026-04-22 : Article Blog fg + Distillation IA ✅
 
 ==== ✅ Contexte
