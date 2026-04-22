@@ -1,0 +1,60 @@
+@startuml
+
+left to right direction
+
+skinparam backgroundColor #FEFEFE
+skinparam packageBorderColor #333333
+skinparam packageFontSize 14
+skinparam nodeFontSize 12
+skinparam arrowThickness 1.5
+skinparam nodesep 40
+skinparam ranksep 60
+
+legend right
+  | Type | Arrow |
+  |------|-------|
+  | Extracted | --> |
+  | Inferred  | ..> |
+  | Ambiguous | --x |
+  | Filter | community_0 |
+endlegend
+
+package "community_0" {
+    skinparam packageBackgroundColor #E8F4FD
+    skinparam packageBorderColor #3B82F6
+    folder "Files" {
+        node "PlantumlFunctionalSuite.kt" as PlantumlFunctionalSuite_kt
+        node "PlantumlFunctionalSuite" as PlantumlFunctionalSuite
+        node "setupSuite()" as setupSuite
+        node "tearDownSuite()" as tearDownSuite
+        node "cleanupTempFiles()" as cleanupTempFiles
+        node "startWireMock()" as startWireMock
+        node "setupSharedProject()" as setupSharedProject
+        node "trackTempFile()" as trackTempFile
+        node "writeConfigYaml()" as writeConfigYaml
+        node "runner()" as runner
+        node "PluginLifecycle" as PluginLifecycle
+        node "restoreBaseConfig()" as restoreBaseConfig
+        node "should apply plugin successfully()" as should_apply_plugin_successfully
+        node "should register all three tasks()" as should_register_all_three_tasks
+        node "should configure extension with yaml file()" as should_configure_extension_with_yaml_file
+    }
+}
+
+' Intra-community edges
+PlantumlFunctionalSuite_kt --> PlantumlFunctionalSuite : contains
+PlantumlFunctionalSuite_kt --> setupSuite : contains
+PlantumlFunctionalSuite_kt --> tearDownSuite : contains
+PlantumlFunctionalSuite_kt --> cleanupTempFiles : contains
+PlantumlFunctionalSuite_kt --> startWireMock : contains
+PlantumlFunctionalSuite_kt --> setupSharedProject : contains
+PlantumlFunctionalSuite_kt --> trackTempFile : contains
+PlantumlFunctionalSuite_kt --> writeConfigYaml : contains
+PlantumlFunctionalSuite_kt --> runner : contains
+PlantumlFunctionalSuite_kt --> PluginLifecycle : contains
+PluginLifecycle --> restoreBaseConfig : method
+PluginLifecycle --> should_apply_plugin_successfully : method
+PluginLifecycle --> should_register_all_three_tasks : method
+PluginLifecycle --> should_configure_extension_with_yaml_file : method
+
+@enduml

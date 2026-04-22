@@ -1,0 +1,1 @@
+{"nodes": [{"id": "n0", "label": "MyService", "file_type": "class", "community": 0}, {"id": "n1", "label": "MyConfig", "file_type": "class", "community": 1}], "links": [{"source": "n0", "target": "n1", "relation": "uses", "weight": 0.9}]}
