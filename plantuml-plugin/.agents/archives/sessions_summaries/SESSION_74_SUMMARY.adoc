@@ -1,0 +1,145 @@
+= 📊 Session 74 — Résumé
+
+_Date_ : 16 avril 2026  
+_Statut_ : ✅ TERMINÉE  
+_Mission_ : Debug couverture de tests — Correction échecs tests unitaires
+
+'''
+
+== 🎯 Objectif
+
+Corriger les 6 tests en échec identifiés lors de l'exécution de `./gradlew -i test functionalTest --rerun-tasks`
+
+'''
+
+== 🐛 Problèmes Identifiés
+
+=== 1. DiagramProcessorPrivateMethodsTest (1 échec)
+_Test_ : `archiveAttemptHistory should handle exception gracefully()`  
+_Erreur_ : `IllegalArgumentException: wrong number of arguments: 1 expected: 2`  
+_Cause_ : La méthode privée `archiveAttemptHistory` prend 2 paramètres (`history` et `logger`), mais le test n'en passait qu'un seul via réflexion.
+
+=== 2. PromptOrchestratorTest (5 échecs)
+_Tests_ : Tous les tests `WithMockDiagramProcessor`  
+_Erreur_ : `InvalidUseOfMatchersException` et `NullPointerException`  
+_Cause_ : Problème d'interopérabilité Kotlin/Java avec les matchers Mockito :
+* `any(Logger::class.java)` retourne `null` en Kotlin
+* Mélange incorrect de matchers avec des valeurs concrètes
+* Conflit entre `org.mockito.Mockito._` et `org.mockito.kotlin._`
+
+'''
+
+== ✅ Solutions Appliquées
+
+=== Correction 1 : DiagramProcessorPrivateMethodsTest.kt
+
+_Fichier_ : `src/test/kotlin/plantuml/DiagramProcessorPrivateMethodsTest.kt`
+
+_Changements_ :
+. ✅ Ajout d'un vrai logger SLF4J au lieu d'un mock
+. ✅ Correction de l'appel à `callPrivateMethod` avec 2 paramètres
+
+[source,kotlin]
+----
+// AVANT
+private lateinit var logger: Logger
+logger = mock(Logger::class.java)
+callPrivateMethod(processorWithConfig, "archiveAttemptHistory", listOf(history))
+
+// APRÈS
+private val logger: Logger = LoggerFactory.getLogger(DiagramProcessorPrivateMethodsTest::class.java)
+callPrivateMethod(processorWithConfig, "archiveAttemptHistory", listOf(history, logger))
+----
+
+=== Correction 2 : PromptOrchestratorTest.kt
+
+_Fichier_ : `src/test/kotlin/plantuml/PromptOrchestratorTest.kt`
+
+_Changements_ :
+. ✅ Migration vers `mockito-kotlin` pour une meilleure interopérabilité Kotlin
+. ✅ Utilisation de `mock<T>()` au lieu de `mock(Class::class.java)`
+. ✅ Utilisation de `whenever()` au lieu de `when()` pour éviter les conflits
+. ✅ Logger SLF4J réel dans la nested class
+
+[source,kotlin]
+----
+// AVANT
+import org.mockito.Mockito.*
+mockProcessor = mock(DiagramProcessor::class.java)
+`when`(mockProcessor.processPrompt(anyString(), anyInt(), logger))
+
+// APRÈS
+import org.mockito.kotlin.*
+mockProcessor = mock<DiagramProcessor>()
+whenever(mockProcessor.processPrompt(any(), any(), any())).thenReturn(fakeDiagram())
+----
+
+'''
+
+== 📈 Résultats
+
+=== Tests unitaires
+* ✅ _203/203 tests PASS_ (100%)
+* ✅ _0 échec_
+* ✅ _0 compilation error_
+
+=== Tests fonctionnels
+* ✅ _38 PASS, 7 SKIP_ (tests cloud désactivés par défaut)
+* ✅ _0 crash_
+* ✅ _0 fuite de ressources_
+
+=== Couverture de code
+* Rapport Kover généré avec succès
+* Tous les tests passent sans erreur
+
+'''
+
+== 🔧 Fichiers Modifiés
+
+|===
+| Fichier | Lignes modifiées | Type
+| ---------|------------------|------
+| `src/test/kotlin/plantuml/DiagramProcessorPrivateMethodsTest.kt` | ~10 | Correction
+| `src/test/kotlin/plantuml/PromptOrchestratorTest.kt` | ~50 | Refactoring
+|===
+
+---
+
+== 📚 Leçons Apprises
+
+=== Mockito en Kotlin — Bonnes Pratiques
+
+. _Utiliser `mockito-kotlin`_ : La bibliothèque `mockito-kotlin` fournit des extensions Kotlin qui gèrent mieux l'interopérabilité que `org.mockito.Mockito.*`
+
+. _Éviter `any(Class::class.java)`_ : En Kotlin, préférez `any<T>()` ou `any()` avec inférence de type
+
+. _Logger réel vs mock_ : Pour les tests de haut niveau, un vrai logger SLF4J est plus simple qu'un mock
+
+. _`whenever()` vs `when()`_ : `whenever()` évite le conflit avec le mot-clé Kotlin `when`
+
+'''
+
+== 🎯 Session 75 — Mission
+
+_Objectif_ : À définir (potentiellement consolider la couverture de tests ou poursuivre EPIC 4)
+
+_Pistes_ :
+* Story 4.3 — Documentation API avec KDoc
+* Story 4.4 — Améliorations qualité (Detekt, ktlint)
+* Consolidation tests RAG avec testcontainers
+
+'''
+
+== ✅ Procédure de Fin de Session
+
+* [x] ✅ Tous les tests passent (203/203 unitaires, 38/38 fonctionnels)
+* [ ] ⏳ Mettre à jour `.agents/SESSIONS_HISTORY.adoc` (à faire en fin de session)
+* [ ] ⏳ Mettre à jour `.agents/ROADMAP.adoc` (si story terminée)
+* [x] ✅ Créer `SESSION_74_SUMMARY.adoc` → `.sessions/`
+* [ ] ⏳ Créer `PROMPT_REPRISE_SESSION_74.adoc` → `.prompts/`
+* [ ] ⏳ Mettre à jour `PROMPT_REPRISE.adoc` pour Session 75
+* [ ] ⏳ Commit git (si demandé)
+
+'''
+
+_Session 74 TERMINÉE_ ✅ — Prochaine session : Session 75

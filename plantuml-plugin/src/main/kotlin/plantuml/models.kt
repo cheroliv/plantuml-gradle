@@ -20,7 +20,8 @@ data class PlantumlConfig(
     val output: OutputConfig = OutputConfig(),
     val langchain4j: LangchainConfig = LangchainConfig(),
     val git: GitConfig = GitConfig(),
-    val rag: RagConfig = RagConfig()
+    val rag: RagConfig = RagConfig(),
+    val diagramDocs: DiagramDocsConfig = DiagramDocsConfig()
 ) {
     companion object {
         /**
@@ -236,4 +237,13 @@ data class ValidationFeedback(
     val score: Int,
     val feedback: String,
     val recommendations: List<String>
+)
+
+data class DiagramDocsConfig(
+    val enabled: Boolean = true,
+    val outputDir: String = "diagrams/auto",
+    val subgraphs: List<String> = listOf(
+        "service layer", "config layer", "task layer", "model layer", "RAG"
+    ),
+    val model: String = "qwen3.5-cloud"
 )

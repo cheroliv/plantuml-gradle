@@ -18,11 +18,17 @@ class PlantumlPlugin : Plugin<Project> {
     /** Applies the plugin by registering tasks and configuring extensions. */
     override fun apply(project: Project) {
         with(project) {
-            // Register the DSL extension
             extensions.create("plantuml", PlantumlExtension::class.java)
 
-            // Register tasks
             PlantumlManager.Tasks.registerTasks(this)
+
+            project.tasks.register("docs") {
+                it.group = "plantuml"
+                it.description = "Full documentation pipeline: generate prompts + process + validate"
+                it.dependsOn("generateDiagramDocs")
+                it.dependsOn("processPlantumlPrompts")
+                it.finalizedBy("validatePlantumlSyntax")
+            }
         }
     }
 

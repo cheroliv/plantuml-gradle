@@ -1,0 +1,308 @@
+= 🔄 Modèle "Bring Your Own Infrastructure" (BYOI)
+
+_Classification_ : 🟡 _LAZY_ — Ne charger que si le sujet émerge  
+_Dernière mise à jour_ : Session 118 (21 avril 2026)  
+_Statut_ : Document conceptuel (ne pas committer dans les repos publics)
+
+'''
+
+== ⚠️ Confidentialité
+
+|===
+| Sujet | Visibilité
+| _Modèle BYOI_ | 🔒 Interne (ce document)
+| _Plugins Gradle_ | ✅ Public (Apache 2)
+| _SaaS_ | 🔒 Privé (fonctionnalités uniquement)
+|===
+
+'''
+
+== 🎯 Concept BYOI
+
+=== Définition
+
+_Bring Your Own Infrastructure (BYOI)_ : Modèle décentralisé où les utilisateurs apportent leur propre infrastructure (CI, comptes, quotas, clés API) pour exécuter le processing généré par la plateforme.
+
+=== Analogie
+
+[source]
+----
+Traditionnel (SaaS cloud) :
+┌──────────────┐
+│   SaaS       │ → Cloud centralisé (coût élevé)
+│   + Cloud    │ → Utilisateurs = consommateurs
+└──────────────┘
+
+BYOI (Écosystème Gradle) :
+┌──────────────┐
+│   SaaS       │ → Plugins Gradle (blueprints)
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│ Users + CI   │ → Infrastructure décentralisée
+│ Users + Comptes │ → Quotas utilisateurs
+└──────────────┘
+----
+
+'''
+
+== 🏗️ Architecture BYOI
+
+=== Flux de Processing
+
+[source]
+----
+1. Plateforme SaaS
+   ↓ Génère blueprint
+2. Plugin Gradle (GitHub repo user)
+   ↓ Push code
+3. GitHub Actions (CI user)
+   ↓ Docker PostgreSQL éphémère
+4. YAML → DB (hydratation)
+   ↓ R2DBC + Kotlin
+5. API Key Pool (rotation auto)
+   ↓ LLM providers (Gmail users)
+6. Résultats commités
+   ↓ Clean (Docker détruit)
+----
+
+=== Acteurs & Apports
+
+|===
+| Acteur | Apport | Coût | Bénéfice
+| _SaaS_ | Plugins + orchestration | ~0 (marginal) | Revenue (abonnement/usage)
+| _User_ | CI + comptes + quotas | Quotas (gratuits/payants) | Pas d'infra à gérer
+|===
+
+'''
+
+== ⚠️ Risques & Mitigations
+
+|===
+| Risque | Niveau | Mitigation
+| _GitHub change les règles_ | 🟡 Moyen | _Migration GitLab CI prête_ (architecture CI-agnostic)
+| _Users perdent leurs clés_ | 🟢 Faible | Docs + recovery procedures
+| _Complexité onboarding_ | 🟡 Moyen | Scripts d'init, templates prêts à l'emploi
+| _Providers limitent les quotas_ | 🟡 Moyen | Rotation + multi-comptes déjà prévu
+| _Fork commercial_ | 🟢 Faible | Apache 2 = attribution requise + communauté
+| _Adoption communauté_ | 🟠 Élevé | Marketing, docs, examples concrets
+|===
+
+'''
+
+== 🔄 Portabilité CI (Stratégie de Migration)
+
+=== Architecture CI-Agnostic
+
+[source]
+----
+YAML Config (portable)
+    ├── GitHub Actions (.github/workflows/)
+    └── GitLab CI (.gitlab-ci.yml)
+            ↓
+    Docker PostgreSQL (éphémère)
+            ↓
+    Gradle + Kotlin (identique)
+            ↓
+    R2DBC + API Key Pool (identique)
+----
+
+=== Comparatif GitHub vs GitLab
+
+|===
+| Critère | GitHub Actions | GitLab CI | Migration
+| _Syntaxe_ | YAML (workflows) | YAML (.gitlab-ci.yml) | ✅ Traduction auto
+| _Secrets_ | GitHub Secrets | GitLab CI Variables | ✅ 1:1 mapping
+| _Docker_ | ✅ Supporté | ✅ Supporté | ✅ Identique
+| _PostgreSQL_ | ✅ Services | ✅ Services | ✅ Identique
+| _Minutes gratuites_ | 2000/mois (free) | 400/mois (free) | ⚠️ Moins généreux
+| _Self-hosted_ | ✅ Runners | ✅ Runners | ✅ Identique
+|===
+
+=== Plan de Migration (si nécessaire)
+
+[source]
+----
+1. Fork repos vers GitLab
+2. .github/workflows/*.yml → .gitlab-ci.yml (script de conversion)
+3. GitHub Secrets → GitLab CI Variables (export/import)
+4. Users migrent leurs Device Keys (Ollama, etc.)
+5. Tests de validation
+6. Bascule progressive
+----
+
+_Temps estimé_ : 1-2 semaines pour migration complète  
+_Risque utilisateur_ : Faible (docs de migration fournies)
+
+=== Pourquoi GitLab en Backup ?
+
+|===
+| Raison | Pourquoi
+| _Open source_ | GitLab = plus aligné avec valeurs OSS
+| _Self-hosted_ | Option de hoster soi-même (contrôle total)
+| _CI mature_ | GitLab CI = pionnier, très stable
+| _Indépendance_ | Moins de risque de changement brutal vs Microsoft
+|===
+
+'''
+
+== ✅ Avantages du Modèle BYOI
+
+=== Pour le SaaS
+
+|===
+| Aspect | Bénéfice
+| _Coût_ | Cloud déporté chez les users (~0)
+| _Scalabilité_ | N users = N infrastructures
+| _Résilience_ | Pas de single point of failure
+| _Confidentialité_ | Clés chez les users (pas de risque centralisé)
+| _Maintenance_ | Users gèrent leurs comptes
+|===
+
+=== Pour les Users
+
+|===
+| Aspect | Bénéfice
+| _Simplicité_ | Pas d'infra à déployer
+| _Contrôle_ | Clés API chez eux (pas de partage)
+| _Coût_ | Utilisent leurs quotas existants
+| _Flexibilité_ | Peuvent changer de providers
+|===
+
+'''
+
+== 🔐 Sécurité & Confidentialité
+
+=== Clés API
+
+|===
+| Approche | Risque | Solution BYOI
+| _Centralisé_ | 🔴 Élevé (single point of failure) | ❌ Non utilisé
+| _BYOI_ | 🟢 Faible (clés chez les users) | ✅ Utilisé
+|===
+
+=== Données
+
+|===
+| Type | Stockage | Visibilité
+| _Clés API_ | GitHub Secrets (user) | 🔒 User uniquement
+| _Processing_ | CI user (éphémère) | 🔒 User uniquement
+| _Résultats_ | Repo user | 🔒 User (ou public si choisi)
+|===
+
+'''
+
+== 📊 Comparaison : SaaS Traditionnel vs BYOI
+
+|===
+| Critère | SaaS Traditionnel | BYOI (Écosystème Gradle)
+| _Infrastructure_ | Cloud centralisé (SaaS) | Décentralisée (users)
+| _Coût cloud_ | Élevé (SaaS paie) | ~0 (users paient)
+| _Scalabilité_ | Limitée (budget SaaS) | Illimitée (N users)
+| _Clés API_ | Centralisées (risque) | Décentralisées (sécurisé)
+| _Maintenance_ | SaaS gère tout | Users gèrent leurs comptes
+| _Résilience_ | Single point of failure | Distribué (résilient)
+| _Confidentialité_ | SaaS voit tout | User garde le contrôle
+|===
+
+'''
+
+== 🎯 Cas d'Usage
+
+=== Idéal pour BYOI
+
+|===
+| Scénario | Pourquoi
+| _Processing LLM_ | Quotas freemium multi-comptes
+| _CI/CD parallèle_ | N workers = N pools indépendants
+| _Génération de contenu_ | Users apportent leurs comptes
+| _Communauté open source_ | Plugins Apache 2, contribs
+|===
+
+=== Moins adapté
+
+|===
+| Scénario | Pourquoi
+| _Temps réel strict_ | CI = asynchrone (minutes)
+| _Données sensibles_ | GitHub Actions = externe
+| _Users non-tech_ | Nécessite GitHub + CLI
+|===
+
+'''
+
+== 🛠️ Implémentation Technique
+
+=== Composants Communs
+
+[source]
+----
+Plugins Gradle (Kotlin)
+    ├── Langchain4j (abstraction LLM)
+    ├── API Key Pool (rotation, quota)
+    ├── R2DBC (PostgreSQL éphémère)
+    └── GitHub Actions (CI)
+----
+
+=== YAML → DB (Pattern Commun)
+
+[source,yaml]
+----
+# YAML (versionné, Git)
+langchain4j:
+  apiKeyPool:
+    google:
+      - email: "user@gmail.com"
+        apiKey: "AIzaSy-XXX"
+----
+
+[source,kotlin]
+----
+// CI (hydratation)
+@TaskAction
+fun process() {
+    val config = yamlLoader.load("plantuml-context.yml")
+    val db = postgresContainer.start()
+    r2dbcRepository.saveAll(config.providers)
+    // Processing avec R2DBC
+}
+----
+
+'''
+
+== 📈 Métriques de Succès
+
+|===
+| Métrique | Cible | Mesure
+| _Users actifs_ | N users/mois | GitHub Insights
+| _Processing déporté_ | 100% en CI | GitHub Actions logs
+| _Coût cloud SaaS_ | ~0 | Facture cloud
+| _Contributions_ | N PRs/mois | GitHub PRs
+| _Plugins installés_ | N installations | GitHub Downloads
+|===
+
+'''
+
+== 🔗 Références Internes
+
+* _`ECOSYSTEM_OVERVIEW.adoc`_ — Vue d'ensemble écosystème
+* _`API_KEY_POOL_CONTEXT.adoc`_ — Pool de clés API rotatives
+* _`.agents/sessions/118-ollama-cloud-ci-auth.adoc`_ — Auth Ollama Cloud CI
+
+'''
+
+== ⚠️ Notes de Confidentialité
+
+_Ce document_ :
+* 🟡 _LAZY_ : Ne charger que si le sujet émerge
+* 🔒 _Interne_ : Ne pas committer dans les repos publics
+* 📝 _Conceptuel_ : Pas de détails d'implémentation SaaS
+
+_Plugins Gradle_ :
+* ✅ _Public_ : Documentation complète autorisée
+* ✅ _Apache 2_ : Fork, modification, distribution autorisés
+
+'''
+
+_Dernière mise à jour_ : Session 118 (21 avril 2026)  
+_Prochaine révision_ : Session 120+ (si modèle évolue)

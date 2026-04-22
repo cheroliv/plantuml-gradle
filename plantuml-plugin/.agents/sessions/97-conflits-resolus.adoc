@@ -1,0 +1,162 @@
+= Session 97 — Résolution Conflits Step Definitions
+
+*Date* : 18 avril 2026
+*Statut* : ✅ TERMINÉE — Conflits résolus, compilation validée
+*EPIC* : `EPIC_CONSOLIDATION_TESTS_FONCTIONNELS.adoc` — Tests BDD Cucumber
+
+'''
+
+== Contexte
+
+La session 96 avait créé les fichiers de steps pour les Features 10 et 11, mais avec des **conflits de step definitions** (duplications d'annotations Cucumber).
+
+*Problème* : Cucumber détecte des `DuplicateStepDefinitionException` quand plusieurs méthodes ont la même annotation `@Given`, `@When`, ou `@Then`.
+
+'''
+
+== Conflits Identifiés
+
+=== 1. `@When("I run processPlantumlPrompts task")` — 5 duplications
+
+|===
+| Fichier | Ligne | Action
+
+| `FileEdgeCasesSteps.kt` | 186 | ❌ SUPPRIMÉ
+| `DiagramTypesSteps.kt` | 272 | ❌ SUPPRIMÉ
+| `IncrementalProcessingSteps.kt` | 161 | ❌ SUPPRIMÉ
+| `ErrorHandlingSteps.kt` | 273 | ❌ SUPPRIMÉ
+| `ConfigurationSteps.kt` | 212 | ✅ CONSERVÉ
+|===
+
+*Rationale* : `ConfigurationSteps.kt` est le fichier central pour les steps d'exécution génériques.
+
+'''
+
+=== 2. `@Given("the prompt file has not been modified")` — 2 duplications
+
+|===
+| Fichier | Ligne | Action
+
+| `RagPipelineSteps.kt` | 217 | ❌ SUPPRIMÉ
+| `IncrementalProcessingSteps.kt` | 40 | ✅ CONSERVÉ
+|===
+
+*Rationale* : `IncrementalProcessingSteps.kt` est le fichier sémantique pour ce step (gestion incrémentale).
+
+'''
+
+=== 3. `runProcessPlantumlPromptsTaskForChecksum()` — Méthode orpheline
+
+|===
+| Fichier | Ligne | Action
+
+| `IncrementalProcessingSteps.kt` | 214 | ❌ SUPPRIMÉ
+|===
+
+*Rationale* : Utilisait la même annotation `@When("I run processPlantumlPrompts task")` que `runProcessPlantumlPromptsTask()` ligne 161.
+
+'''
+
+== Fichiers Modifiés
+
+----
+src/test/scenarios/plantuml/scenarios/
+├── FileEdgeCasesSteps.kt       (-20 lignes)
+├── DiagramTypesSteps.kt        (-20 lignes)
+├── IncrementalProcessingSteps.kt (-45 lignes)
+├── ErrorHandlingSteps.kt       (-20 lignes)
+└── RagPipelineSteps.kt         (-10 lignes)
+----
+
+**Total** : ~135 lignes supprimées (code dupliqué)
+
+'''
+
+== Commandes Exécutées
+
+[source,bash]
+----
+# 1. Lister tous les steps pour identifier conflits
+rg -n '@(Given|When|Then)\("' src/test/scenarios/plantuml/scenarios/
+
+# 2. Compiler tests Kotlin
+./gradlew compileTestKotlin
+# Résultat : BUILD SUCCESSFUL
+
+# 3. Exécuter Features 10 et 11 (timeout - non terminé)
+./gradlew cucumberTest --tests "*FileEdgeCases*" --tests "*DiagramTypes*"
+----
+
+'''
+
+== Résultats
+
+|===
+| Critère | Statut
+
+| Compilation | ✅ `compileTestKotlin` OK
+| Conflits `@When` | ✅ 0 doublon
+| Conflits `@Given` | ✅ 0 doublon
+| Features 10 & 11 | ⏳ Tests non exécutés (timeout)
+|===
+
+'''
+
+== Leçons Apprises
+
+=== Pattern à Éviter
+
+❌ **Jamais** dupliquer les steps génériques dans chaque fichier de steps :
+
+[source,kotlin]
+----
+// MAUVAIS : Dans chaque fichier Steps.kt
+@When("I run processPlantumlPrompts task")
+fun runProcessPlantumlPromptsTask() { ... }
+----
+
+=== Pattern à Suivre
+
+✅ **Centraliser** les steps génériques dans un fichier dédié :
+
+[source,kotlin]
+----
+// BON : ConfigurationSteps.kt ou CommonSteps.kt
+@When("I run processPlantumlPrompts task")
+fun runProcessPlantumlPromptsTask() { ... }
+----
+
+✅ **Spécialiser** les steps spécifiques au domaine du fichier :
+
+[source,kotlin]
+----
+// BON : IncrementalProcessingSteps.kt
+@When("I run processPlantumlPrompts task again")
+fun runProcessPlantumlPromptsTaskAgain() { ... }
+
+// BON : FileEdgeCasesSteps.kt
+@Given("a prompt file {string} with UTF-8 content:")
+fun createUtf8PromptFile(fileName: String, content: String) { ... }
+----
+
+'''
+
+== Prochaines Étapes (Session 98)
+
+. **Exécuter tests** : `./gradlew cucumberTest --tests "*FileEdgeCases*" --tests "*DiagramTypes*"`
+. **Valider** : 6/6 scénarios Feature 10 + 7/7 scénarios Feature 11
+. **Retirer tags @wip** : `10_file_edge_cases.feature`, `11_diagram_types.feature`
+. **Mettre à jour couverture** : Passer de 84% à ~93%
+
+'''
+
+== Références
+
+* **PROMPT_REPRISE.adoc** : Session 98 — Prête à démarrer
+* **INDEX.adoc** : Architecture Cucumber, commandes
+* **.agents/INDEX.adoc** : Règles absolues, roadmap
+
+'''
+
+*Session 97 — TERMINÉE* ✅
+*Session 98 — Validation Features 10 & 11* 🚀

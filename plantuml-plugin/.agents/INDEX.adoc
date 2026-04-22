@@ -1,0 +1,152 @@
+= 📊 Index des Sessions — PlantUML Gradle Plugin
+
+_Dernière mise à jour_ : 2026-04-22  
+_Session en cours_ : 122 — Correction tests + stabilisation  
+_Session terminée_ : 121 (Migration AsciiDoc — 9.0/10)
+
+'''
+
+== ⚠️ RÈGLES ABSOLUES
+
+=== 1. COMMITS/GIT
+
+_L'agent NE DOIT JAMAIS_ exécuter de commit, push, merge, ou toute commande git modifiant l'historique _SANS permission explicite de l'utilisateur_.
+
+* ✅ _Autorisé_ : `git status`, `git diff`, `git log`, `git show` (lecture seule)
+* ❌ _Interdit_ : `git add`, `git commit`, `git push`, `git merge`, `git rebase` (sauf ordre explicite)
+
+_Procédure obligatoire avant tout commit_ :
+. Montrer les modifications (`git diff --stat`)
+. Demander : "Veux-tu que je commit ces changements ?"
+. _Attendre confirmation explicite_ ("oui", "commit", "vas-y")
+. _Seulement après_ : exécuter le commit
+
+=== 2. TESTS EN FIN DE SESSION — INTERDICTION FORMELLE
+
+_L'agent NE DOIT JAMAIS_ lancer de tests (`./gradlew test`, `./gradlew cucumberTest`, etc.) lors de la procédure de fin de session _SANS permission explicite de l'utilisateur_.
+
+* ✅ _Autorisé_ : Résumer les résultats des tests déjà exécutés pendant la session
+* ❌ _Interdit_ : Lancer `./gradlew cucumberTest` ou tout autre test en procédure de fin de session
+
+_Raison_ : Les tests prennent 1-3 minutes et ralentissent inutilement la clôture de session.
+
+=== 3. PROCÉDURE DE FIN DE SESSION — EXÉCUTION COMPLÈTE OBLIGATOIRE
+
+_RÈGLE ABSOLUE_ : Quand l'utilisateur déclenche la fin de session ("fin de session", "session terminée", "je quitte", "à plus tard", "on arrête là"), l'agent DOIT exécuter _TOUTES les étapes_ de la procédure _SANS EXCEPTION et SANS OMISSION_.
+
+_L'agent NE DOIT JAMAIS_ :
+* ❌ S'arrêter avant d'avoir complété les 5 étapes
+* ❌ Omettre une étape ("je ferai ça plus tard")
+* ❌ Demander "est-ce que je dois faire l'étape X ?" — la réponse est TOUJOURS oui
+* ❌ Considérer la procédure comme facultative
+
+_Les 6 étapes OBLIGATOIRES_ (dans l'ordre) :
+
+. ✅ _Créer l'archive_ `.agents/sessions/{N}-{titre}.adoc`
+. ✅ _Mettre à jour PROMPT_REPRISE.adoc_ pour la session N+1
+. ✅ _Mettre à jour SESSIONS_HISTORY.adoc_ avec la session N
+. ✅ _Mettre à jour INDEX.adoc_ (session en cours, roadmap, fichiers)
+. ✅ _Mettre à jour TEST_COVERAGE_ANALYSIS.adoc_ si des tests ont été ajoutés/modifiés
+. ✅ _Mettre à jour COMPLETED_TASKS_ARCHIVE.adoc_ `.agents/archives/COMPLETED_TASKS_ARCHIVE_{mois}.adoc` avec les tâches réalisées
+
+_Confirmation finale OBLIGATOIRE_ : Après avoir exécuté les 6 étapes, l'agent DOIT afficher :
+
+[source]
+----
+✅ Procédure de fin de session exécutée
+📋 Checklist :
+[✅] 1. Archive session N créée
+[✅] 2. PROMPT_REPRISE.adoc mis à jour pour session N+1
+[✅] 3. SESSIONS_HISTORY.adoc mis à jour
+[✅] 4. INDEX.adoc mis à jour
+[✅] 5. TEST_COVERAGE_ANALYSIS.adoc mis à jour (si applicable)
+[✅] 6. COMPLETED_TASKS_ARCHIVE.adoc mis à jour
+----
+
+_Aucune étape ne peut être marquée [✅] si le fichier n'a pas été effectivement modifié et vérifié._
+
+'''
+
+== 🎯 Sessions Récentes (15 dernières)
+
+|===
+| # | Date | Type | Sujet | Fichier | Score
+| 121 | 2026-04-22 | docs | Migration AsciiDoc complète | `121-migration-asciidoc.adoc` | 9.0/10
+| 120 | 2026-04-22 | feat | Implémentation Phase 1 Dogfooding | `120-dogfooding-implementation-phase1.adoc` | 9.0/10
+| 119 | 2026-04-22 | docs | Intégration Graphify + Auto-documentation Plugin | `119-docs-graphify-integration.adoc` | 9.0/10
+| 118 | 2026-04-21 | docs | Authentification Ollama Cloud CI | `118-ollama-cloud-ci-auth.adoc` | 9.0/10
+| 117 | 2026-04-21 | docs | Reconstruction Historique & Dataset Plan | `115-reconstruction-dataset.adoc` | 9.0/10
+| 114 | 2026-04-21 | docs | Documentation Architecture & Organisation | `114-documentation-architecture.adoc` | 9.0/10
+| 113 | 2026-04-20 | feat | Quota Tracker + Reset + Audit | `113-quota-tracker-reset.adoc` | 9.0/10
+| 112 | 2026-04-20 | feat | LlmService + ConfigLoader + ApiKeyPool | `112-llmservice-configloader-apikeypool.adoc` | 9.0/10
+| 111 | 2026-04-20 | test | Tests fonctionnels TDD ApiKeyPool | `111-tests-fonctionnels-api-key-pool.adoc` | 9.0/10
+| 110 | 2026-04-20 | test | Data models unit tests — ApiKeyEntry, QuotaConfig | `110-data-models-unit-tests.adoc` | 9.0/10
+| 109 | 2026-04-20 | docs | Formalisation LAZY/EAGER loading | `109-formalisation-lazy-eager.adoc` | 9.0/10
+| 108 | 2026-04-20 | design | API Key Pool Architecture | `108-api-key-pool-design.adoc` | 9.0/10
+| 107 | 2026-04-19 | docs | Nettoyage documentation | `107-nettoyage-clarification.adoc` | 9.0/10
+| 106 | 2026-04-19 | fix | Correction 6 tests (5 unit + 1 func) | `106-correction-tests-unitaires-fonctionnels.adoc` | 9.0/10
+| 105 | 2026-04-19 | test | Performance tests mockés (57/57) | `105-performance-tests-mockes.adoc` | 9.0/10
+| 104 | 2026-04-19 | test | Feature 7 (55/57 PASS) | `104-feature-7-tests.adoc` | 9.0/10
+| 103 | 2026-04-19 | test | Error Handling (56/57 PASS) | `103-error-handling-tests.adoc` | 9.0/10
+| 102 | 2026-04-18 | test | Consolidation tests (46/57) | `102-consolidation-tests.adoc` | 9.0/10
+| 101 | 2026-04-18 | test | Consolidation tests suite | `101-consolidation-tests-suite.adoc` | 9.0/10
+| 100 | 2026-04-18 | test | Feature 5 RAG Pipeline (4/4 PASS) | `100-validation-features-5-12-13.adoc` | 9.0/10
+| 99 | 2026-04-18 | test | Validation Features 10-11 (13/13 PASS) | `99-validation-complete-features-10-11.adoc` | 9.0/10
+|===
+
+'''
+
+== 📈 Statistiques
+
+|===
+| Période | Sessions | Types dominants | Score moyen
+| Avril 2026 (semaine 4) | 1 | docs (100%) | 9.0/10
+| Avril 2026 (semaine 3) | 10 | test (80%), fix (20%) | 9.0/10
+| Avril 2026 (semaine 1) | 5 | debug (60%), docs (40%) | 9.0/10
+| Mars 2026 | _à compléter_ | _à compléter_ | _à compléter_
+|===
+
+'''
+
+== 🎯 Roadmap — État Actuel
+
+|===
+| EPIC | Progression | Score | Priorité
+| EPIC 1 : Tests unitaires | ✅ 100% | 10/10 | ✅ TERMINÉ
+| EPIC 2 : Tests fonctionnels | ✅ 100% | 10/10 | ✅ TERMINÉ
+| EPIC 3 : Architecture | ✅ 100% | 9/10 | ✅ TERMINÉ
+| EPIC 4 : Documentation | ✅ 100% | 9/10 | ✅ TERMINÉ
+| EPIC 5 : RAG System | ✅ 100% | 9/10 | ✅ TERMINÉ
+| EPIC 6 : API Key Pool | ✅ 100% | 9/10 | ✅ TERMINÉ
+| EPIC 7 : Dogfooding Plugin | ✅ 100% | 9/10 | ✅ Phase 1 ✅, Phase 2 abandonnée (incohérence archi)
+| EPIC 8 : Migration AsciiDoc | ✅ 100% | 9/10 | ✅ TERMINÉ
+|===
+
+'''
+
+== 📁 Archives
+
+* _Sessions 1-69_ : `.agents/archives/2026-03.adoc` (à créer)
+* _Sessions 70+_ : Ce fichier
+
+'''
+
+== 🔗 Fichiers Associés
+
+|===
+| Fichier | Rôle | Confidentialité
+| `PROMPT_REPRISE.adoc` | Contexte session actuelle | ✅ Public
+| `AGENT_SESSION_MANAGER.adoc` | Procédure d'archivage | ✅ Public
+| `.agents/sessions/` | Archives détaillées par session | ✅ Public
+| `ECOSYSTEM_OVERVIEW.adoc` | Vue d'écosystème Gradle-SaaS | 🟢 Public
+| `BYOI_MODEL.adoc` | Modèle "Bring Your Own Infrastructure" | 🔒 Interne
+| `API_KEY_POOL_CONTEXT.adoc` | Pool de clés API rotatives | ✅ Public
+| `GRAPHIFY_INTEGRATION.adoc` | Stratégie Graphify + EAGER/LAZY | ✅ Public
+| `PLUGIN_SELF_DOCUMENTATION.adoc` | Dogfooding + généralisation écosystème | ✅ Public
+| `DOGFOODING_ARCHITECTURE.adoc` | Architecture Phase 1 dogfooding | ✅ Public
+| `COMPLETED_TASKS_ARCHIVE_2026-04.adoc` | Archive tâches terminées | ✅ Public
+|===
+
+'''
+
+_Note_ : Cet index est maintenu automatiquement par l'agent en fin de session.

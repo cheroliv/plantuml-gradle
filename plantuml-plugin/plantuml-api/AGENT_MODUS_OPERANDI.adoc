@@ -63,7 +63,7 @@ Fournir un **cadre de travail structuré** pour collaborer efficacement avec Ope
 
 |**EAGER** (toujours chargé)
 |• Critique pour démarrer + < 100 lignes + Lu automatiquement
-|`PROMPT_REPRISE.md`, `INDEX.md` (section règles)
+|`PROMPT_REPRISE.adoc`, `INDEX.adoc` (section règles)
 
 |**LAZY** (sur demande)
 |• Détails complets + Illimité + Lu sur demande explicite
@@ -131,7 +131,7 @@ Agent: [exécute git add -A && git commit -m "feat: create PlantUML convert endp
 
 **Procédure de fin de session** :
 1. Résumer les réalisations (fichiers créés/modifiés, scénarios passants)
-2. Mettre à jour `PROMPT_REPRISE.md` pour la session suivante
+2. Mettre à jour `PROMPT_REPRISE.adoc` pour la session suivante
 3. Archiver le contexte dans `.agents/sessions/`
 4. **NE PAS lancer de tests** sauf demande explicite
 
@@ -211,19 +211,19 @@ app:
 ----
 plantuml-api/
 ├── .agents/                          # Documentation agent (NOUVEAU)
-│   ├── INDEX.md                      # Vue d'ensemble + règles absolues
-│   ├── ARCHITECTURE.md               # Architecture Spring Boot + pièges
-│   ├── SESSION_CHECKLIST.md          # Checklist transition de session
-│   ├── PROCEDURES.md                 # Procédure de fin de session
-│   ├── AGENT_SESSION_MANAGER.md      # Gestionnaire de sessions
-│   ├── AGENT_METHODOLOGIES.md        # Mécanisme de détection
-│   ├── PROMPT_REPRISE.md             # Contexte session actuelle (EAGER)
+│   ├── INDEX.adoc                      # Vue d'ensemble + règles absolues
+│   ├── ARCHITECTURE.adoc               # Architecture Spring Boot + pièges
+│   ├── SESSION_CHECKLIST.adoc          # Checklist transition de session
+│   ├── PROCEDURES.adoc                 # Procédure de fin de session
+│   ├── AGENT_SESSION_MANAGER.adoc      # Gestionnaire de sessions
+│   ├── AGENT_METHODOLOGIES.adoc        # Mécanisme de détection
+│   ├── PROMPT_REPRISE.adoc             # Contexte session actuelle (EAGER)
 │   ├── sessions/                     # Archives par session
-│   │   ├── 001-initial-setup.md
-│   │   ├── 002-websocket-config.md
+│   │   ├── 001-initial-setup.adoc
+│   │   ├── 002-websocket-config.adoc
 │   │   └── ...
 │   └── archives/                     # Archives mensuelles (> 50 sessions)
-│       └── 2026-04.md
+│       └── 2026-04.adoc
 │
 ├── src/
 │   ├── main/kotlin/app/
@@ -248,10 +248,10 @@ plantuml-api/
 |===
 |Fichier |Type |Taille Max |Quand Charger
 
-|`.agents/PROMPT_REPRISE.md` |**EAGER** |100 lignes |**Début session** (automatique)
-|`.agents/INDEX.md` (section règles) |**EAGER** |150 lignes |**Début session** (automatique)
-|`.agents/ARCHITECTURE.md` |LAZY |Illimité |Sur besoin (architecture)
-|`.agents/sessions/{N}*.md` |LAZY |Illimité |Sur demande (détails session N)
+|`.agents/PROMPT_REPRISE.adoc` |**EAGER** |100 lignes |**Début session** (automatique)
+|`.agents/INDEX.adoc` (section règles) |**EAGER** |150 lignes |**Début session** (automatique)
+|`.agents/ARCHITECTURE.adoc` |LAZY |Illimité |Sur besoin (architecture)
+|`.agents/sessions/{N}*.adoc` |LAZY |Illimité |Sur demande (détails session N)
 |`AGENT_MODUS_OPERANDI.adoc` |LAZY |Illimité |Sur besoin (méthodologie)
 |`build.gradle.kts` |LAZY |Illimité |Sur besoin (dépendances)
 |===
@@ -261,12 +261,12 @@ plantuml-api/
 ==== Début de Session
 
 **Chargement automatique (EAGER)** :
-1. `PROMPT_REPRISE.md` → Mission, priorités, contexte
-2. `INDEX.md` (section règles) → Règles absolues, roadmap
+1. `PROMPT_REPRISE.adoc` → Mission, priorités, contexte
+2. `INDEX.adoc` (section règles) → Règles absolues, roadmap
 
 **Si besoin de détails** :
 * Commandes ? → Section 8 de ce fichier
-* Détails session N ? → `.agents/sessions/{N}-{titre}.md` (référencé dans PROMPT_REPRISE.md)
+* Détails session N ? → `.agents/sessions/{N}-{titre}.adoc` (référencé dans PROMPT_REPRISE.adoc)
 * Architecture ? → Section 7 de ce fichier
 * Procédure fin de session ? → Section 4.3 de ce fichier
 
@@ -292,8 +292,8 @@ plantuml-api/
 [source]
 ----
 Nouvelle session. Contexte chargé :
-1. .agents/PROMPT_REPRISE.md (mission en cours)
-2. .agents/INDEX.md (règles absolues + roadmap)
+1. .agents/PROMPT_REPRISE.adoc (mission en cours)
+2. .agents/INDEX.adoc (règles absolues + roadmap)
 
 Mission : [Décrire la tâche UNIQUE de cette session]
 
@@ -329,7 +329,7 @@ Contrainte : 1 fichier à la fois, validation après chaque changement.
 * ✅ **1 fichier à la fois** : Modifier un seul fichier avant de passer au suivant
 * ✅ **Validation immédiate** : Compiler après chaque modification (`./gradlew compileKotlin`)
 * ✅ **Contexte léger** : Maximum 50k tokens (~3000 lignes de code)
-* ✅ **Progression visible** : Mettre à jour `.agents/PROMPT_REPRISE.md` en temps réel
+* ✅ **Progression visible** : Mettre à jour `.agents/PROMPT_REPRISE.adoc` en temps réel
 
 ==== Flow de Travail
 
@@ -386,7 +386,7 @@ Contrainte : 1 fichier à la fois, validation après chaque changement.
 
 ==== ÉTAPE 2 : Créer l'Archive LAZY de la Session
 
-**Fichier** : `.agents/sessions/{N}-{type}-{sujet}.md`
+**Fichier** : `.agents/sessions/{N}-{type}-{sujet}.adoc`
 
 **Structure obligatoire** :
 
@@ -478,8 +478,8 @@ jwt:
 
 ## Références
 
-- **Archive** : `.agents/sessions/{N}-{type}-{sujet}.md` (ce fichier)
-- **Reprise** : `.agents/PROMPT_REPRISE.md` (session {N+1})
+- **Archive** : `.agents/sessions/{N}-{type}-{sujet}.adoc` (ce fichier)
+- **Reprise** : `.agents/PROMPT_REPRISE.adoc` (session {N+1})
 
 ---
 
@@ -488,7 +488,7 @@ jwt:
 
 ==== ÉTAPE 3 : Mettre à jour le Résumé EAGER
 
-**Fichier** : `.agents/PROMPT_REPRISE.md`
+**Fichier** : `.agents/PROMPT_REPRISE.adoc`
 
 **Structure obligatoire** :
 
@@ -512,7 +512,7 @@ jwt:
 | `PlantUmlController.kt` | +45 lignes |
 | `PlantUmlService.kt` | +30 lignes |
 
-**Archive** : `.agents/sessions/{N}-{type}-{sujet}.md`
+**Archive** : `.agents/sessions/{N}-{type}-{sujet}.adoc`
 
 ---
 
@@ -562,15 +562,15 @@ jwt:
 * **Commandes exécutables** pour session N+1
 * **Critères d'acceptation** clairs
 
-==== ÉTAPE 4 : Nettoyer INDEX.md (si besoin)
+==== ÉTAPE 4 : Nettoyer INDEX.adoc (si besoin)
 
-**Vérifier** : `.agents/INDEX.md` dépasse-t-il 150 lignes ?
+**Vérifier** : `.agents/INDEX.adoc` dépasse-t-il 150 lignes ?
 
 **Si OUI** :
 
 1. Identifier sections détaillées (commandes, méthodologie, pièges)
 2. Transférer vers `.agents/archives/` ou fichier dédié
-3. Remplacer par renvoi court : `**Voir** : `AGENT_REFERENCE.md``
+3. Remplacer par renvoi court : `**Voir** : `AGENT_REFERENCE.adoc``
 
 **Si NON** : ✅ Ne rien toucher
 
@@ -578,10 +578,10 @@ jwt:
 
 **Checklist** :
 
-- [ ] Archive LAZY créée : `.agents/sessions/{N}-{type}-{sujet}.md`
-- [ ] Résumé EAGER mis à jour : `.agents/PROMPT_REPRISE.md`
+- [ ] Archive LAZY créée : `.agents/sessions/{N}-{type}-{sujet}.adoc`
+- [ ] Résumé EAGER mis à jour : `.agents/PROMPT_REPRISE.adoc`
 - [ ] Référence croisée présente (EAGER → LAZY)
-- [ ] `.agents/PROMPT_REPRISE.md` < 100 lignes
+- [ ] `.agents/PROMPT_REPRISE.adoc` < 100 lignes
 - [ ] Commandes session N+1 testables
 - [ ] Critères d'acceptation clairs
 
@@ -640,7 +640,7 @@ jwt:
 🎯 Méthodologie détectée : [Type de session]
 
 Je peux appliquer :
-- [NOM_DU_FICHIER].md
+- [NOM_DU_FICHIER].adoc
 - Checklist : [Point 1], [Point 2], [Point 3]
 
 Veux-tu que je charge ce fichier et applique cette méthodologie ?
@@ -835,7 +835,7 @@ J'ai fini pour cette session
 * ✅ **PROCÉDURE AUTOMATIQUE** (5 étapes de la Section 4.3) :
 1. Créer archive LAZY
 2. Mettre à jour résumé EAGER
-3. Nettoyer INDEX.md (si besoin)
+3. Nettoyer INDEX.adoc (si besoin)
 4. Vérifier cohérence
 5. Réponse : `"✅ Procédure exécutée"` + résumé 3 lignes
 
@@ -884,13 +884,13 @@ J'ai fini pour cette session
 |===
 |Fichier |Seuil |Action
 
-|`PROMPT_REPRISE.md`
+|`PROMPT_REPRISE.adoc`
 |> 100 lignes
 |⚠️ Proposer nettoyage
 
-|`INDEX.md`
+|`INDEX.adoc`
 |> 50 sessions
-|⚠️ Archiver anciennes sessions dans `.agents/archives/YYYY-MM.md`
+|⚠️ Archiver anciennes sessions dans `.agents/archives/YYYY-MM.adoc`
 
 |`.agents/sessions/`
 |> 20 fichiers
@@ -901,10 +901,10 @@ J'ai fini pour cette session
 
 [source,bash]
 ----
-# Si INDEX.md > 50 lignes
-1. Créer `.agents/archives/2026-04.md`
+# Si INDEX.adoc > 50 lignes
+1. Créer `.agents/archives/2026-04.adoc`
 2. Déplacer sessions 1-20 dans archive
-3. Garder sessions 21+ dans INDEX.md
+3. Garder sessions 21+ dans INDEX.adoc
 4. Mettre à jour tableau avec lien vers archive
 ----
 
@@ -1205,7 +1205,7 @@ plantuml-api/src/main/kotlin/app/
 ./gradlew cleanBuildCache
 
 # Nettoyer le contexte agent (si saturation)
-rm -rf .agents/sessions/*.md  # Garde uniquement les 10 dernières sessions
+rm -rf .agents/sessions/*.adoc  # Garde uniquement les 10 dernières sessions
 ----
 
 === 8.5 Git (Utilisateur Uniquement)
@@ -1233,12 +1233,12 @@ git push
 |Déclencheur |Action
 
 |**Fin de session**
-|Créer `.agents/sessions/{N}-{type}-{sujet}.md`
+|Créer `.agents/sessions/{N}-{type}-{sujet}.adoc`
 
 |**> 20 fichiers dans `.agents/sessions/`**
-|Compresser sessions > 30 jours dans `.agents/archives/YYYY-MM.md`
+|Compresser sessions > 30 jours dans `.agents/archives/YYYY-MM.adoc`
 
-|**> 150 lignes dans INDEX.md**
+|**> 150 lignes dans INDEX.adoc**
 |Déplacer anciennes sessions dans archive mensuelle
 
 |**Session critique (bug majeur, perf)**
@@ -1256,7 +1256,7 @@ ls -la .agents/sessions/
 ls -la .agents/archives/
 
 # Lire une session spécifique
-cat .agents/sessions/001-initial-setup.md
+cat .agents/sessions/001-initial-setup.adoc
 
 # Chercher dans toutes les sessions
 grep -r "WebSocket" .agents/sessions/
@@ -1264,7 +1264,7 @@ grep -r "WebSocket" .agents/sessions/
 
 === 9.3 Nommage des Sessions
 
-**Format** : `{N:03d}-{type}-{sujet}.md`
+**Format** : `{N:03d}-{type}-{sujet}.adoc`
 
 **Types** :
 
@@ -1280,12 +1280,12 @@ grep -r "WebSocket" .agents/sessions/
 [source]
 ----
 .agents/sessions/
-├── 001-initial-setup.md
-├── 002-feature-plantuml-convert-endpoint.md
-├── 003-config-websocket.md
-├── 004-debug-jwt-null-pointer.md
-├── 005-test-plantuml-controller.md
-└── 006-refactor-security-configuration.md
+├── 001-initial-setup.adoc
+├── 002-feature-plantuml-convert-endpoint.adoc
+├── 003-config-websocket.adoc
+├── 004-debug-jwt-null-pointer.adoc
+├── 005-test-plantuml-controller.adoc
+└── 006-refactor-security-configuration.adoc
 ----
 
 === 9.4 Template Rapide — Archive LAZY
@@ -1324,7 +1324,7 @@ grep -r "WebSocket" .agents/sessions/
 1. {action}
 2. {action}
 
-**Archive** : `.agents/sessions/{N}-{type}-{sujet}.md`
+**Archive** : `.agents/sessions/{N}-{type}-{sujet}.adoc`
 ----
 
 === 9.5 Template Rapide — Résumé EAGER
@@ -1338,7 +1338,7 @@ grep -r "WebSocket" .agents/sessions/
 
 ## Session {N} — Résumé
 **Résultat** : ✅ {accomplissement}  
-**Archive** : `.agents/sessions/{N}-{type}-{sujet}.md`
+**Archive** : `.agents/sessions/{N}-{type}-{sujet}.adoc`
 
 ## Session {N+1} — Priorités
 [source,bash]
@@ -1407,15 +1407,15 @@ grep -r "WebSocket" .agents/sessions/
 Pour appliquer ce modus operandi à un **nouveau projet** :
 
 - [ ] Créer le dossier `.agents/`
-- [ ] Créer `.agents/INDEX.md` (règles absolues + roadmap)
-- [ ] Créer `.agents/PROMPT_REPRISE.md` (session 001)
-- [ ] Créer `.agents/ARCHITECTURE.md` (architecture + pièges)
-- [ ] Créer `.agents/SESSION_CHECKLIST.md` (checklist transition)
-- [ ] Créer `.agents/PROCEDURES.md` (procédure fin de session)
+- [ ] Créer `.agents/INDEX.adoc` (règles absolues + roadmap)
+- [ ] Créer `.agents/PROMPT_REPRISE.adoc` (session 001)
+- [ ] Créer `.agents/ARCHITECTURE.adoc` (architecture + pièges)
+- [ ] Créer `.agents/SESSION_CHECKLIST.adoc` (checklist transition)
+- [ ] Créer `.agents/PROCEDURES.adoc` (procédure fin de session)
 - [ ] Créer `.agents/sessions/` (dossier vide)
 - [ ] Créer `.agents/archives/` (dossier vide)
 - [ ] Copier ce fichier `AGENT_MODUS_OPERANDI.adoc` à la racine
-- [ ] Mettre à jour `.gitignore` avec `.agents/sessions/*.md` (optionnel)
+- [ ] Mettre à jour `.gitignore` avec `.agents/sessions/*.adoc` (optionnel)
 
 ---
 
@@ -1427,22 +1427,22 @@ Pour appliquer ce modus operandi à un **nouveau projet** :
 |===
 |Fichier |Rôle
 
-|`.agents/PROMPT_REPRISE.md`
+|`.agents/PROMPT_REPRISE.adoc`
 |Contexte session actuelle (EAGER, ≤ 100 lignes)
 
-|`.agents/INDEX.md`
+|`.agents/INDEX.adoc`
 |Vue d'ensemble + règles absolues (EAGER, ≤ 150 lignes)
 
-|`.agents/ARCHITECTURE.md`
+|`.agents/ARCHITECTURE.adoc`
 |Architecture Spring Boot + pièges (LAZY)
 
-|`.agents/SESSION_CHECKLIST.md`
+|`.agents/SESSION_CHECKLIST.adoc`
 |Checklist transition de session (LAZY)
 
-|`.agents/PROCEDURES.md`
+|`.agents/PROCEDURES.adoc`
 |Procédure de fin de session détaillée (LAZY)
 
-|`.agents/sessions/{N}*.md`
+|`.agents/sessions/{N}*.adoc`
 |Archives détaillées par session (LAZY)
 
 |`AGENT_MODUS_OPERANDI.adoc`

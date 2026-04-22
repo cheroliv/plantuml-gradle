@@ -1,0 +1,291 @@
+= Session 114 — Documentation Architecture & Organisation Fichiers
+
+*Date* : 21 avril 2026
+*Statut* : ✅ **TERMINÉE**
+*Type* : docs/architecture
+*Durée* : ~30 minutes
+
+'''
+
+== 🎯 Mission
+
+Session dédiée à la documentation et l'organisation de l'architecture du projet :
+. Décider l'emplacement optimal de `plantuml-test-context.yml`
+. Créer l'historique complet des sessions 1-113
+. Documenter les décisions architecturales
+. Nettoyer et mettre à jour les fichiers de contexte LAZY/EAGER
+
+'''
+
+== ✅ Résultats
+
+=== Fichiers Créés
+
+|===
+| Fichier | Lignes | Type | Rôle
+
+| `.agents/DECISIONS_ARCHITECTURE.adoc` | ~400 | LAZY | 5 décisions architecturales documentées
+| `.agents/HISTORIQUE_COMPLET_1-113.adoc` | ~800 | LAZY | Historique consolidé sessions 1-113
+| `.agents/archives/SESSIONS_96-113.adoc` | ~800 | Archive | Archive détaillée sessions 96-113
+|===
+
+=== Fichiers Déplacés
+
+|===
+| Fichier | Ancien emplacement | Nouvel emplacement | Raison
+
+| `plantuml-test-context.yml` | Racine (consommateur) | `plantuml-plugin/` | Appartient au plugin, pas au consommateur
+|===
+
+=== Fichiers Modifiés
+
+|===
+| Fichier | Modification | Raison
+
+| `plantuml-plugin/.gitignore` | + `plantuml-test-context.yml` | Protéger les credentials
+| `.agents/INDEX.adoc` | Sessions 108-113 ajoutées | Maintenir à jour
+| `SESSIONS_HISTORY.adoc` | Sessions 108-113 ajoutées | Historique récent
+|===
+
+'''
+
+== 📋 Décision 001 — Emplacement `plantuml-test-context.yml`
+
+=== Alternatives Analysées
+
+|===
+| Option | Emplacement | Verdict
+
+| 1 | `src/test/resources/` | ❌ Rejeté — Modif Gradle requise
+| 2 | `src/functionalTest/resources/` | ❌ Rejeté — Pas accessible aux unit tests
+| 3 | `plantuml-plugin/` (racine) | ✅ **CHOISI** — Meilleur compromis
+|===
+
+=== Rationale
+
+*Avantages de l'option choisie* :
+* ✅ Accessible via `project.rootDir.resolve("plantuml-test-context.yml")`
+* ✅ Protégé par `.gitignore` du plugin
+* ✅ GitHub Secrets peut l'injecter en CI
+* ✅ **Aucune modification Gradle requise**
+* ✅ Clairement séparé du consommateur
+
+=== Implémentation
+
+[source,bash]
+----
+# Déplacement
+mv plantuml-test-context.yml plantuml-plugin/
+
+# .gitignore mis à jour
+echo "plantuml-test-context.yml" >> plantuml-plugin/.gitignore
+----
+
+=== Injection CI (GitHub Secrets)
+
+[source,yaml]
+----
+- name: Inject test credentials
+  run: |
+    cat > plantuml-plugin/plantuml-test-context.yml << 'EOF'
+    ${{ secrets.PLANTUML_TEST_CONTEXT }}
+    EOF
+  working-directory: ${{ github.workspace }}
+----
+
+'''
+
+== 📋 Décision 002 — Historique Complet 1-113
+
+*Fichier créé* : `.agents/HISTORIQUE_COMPLET_1-113.adoc`
+
+*Contenu* :
+* Vue d'ensemble sessions 1-113
+* Statistiques globales (types, métriques, évolution)
+* EPICs progression (6 EPICs)
+* Liens vers toutes les archives
+* Lacunes identifiées (sessions 1-60, 75-82 manquantes)
+
+*Pour dataset fine-tuning* :
+* 28 sessions structurées (73-113 partiel)
+* 13 résumés (61-76)
+* 8 prompts de reprise (65-76)
+* 77k lignes d'archive brute (`COMPLETED_TASKS_ARCHIVE_2026-04.adoc`)
+
+'''
+
+== 📋 Décision 003 — Documentation des Décisions Architecturales
+
+*Fichier créé* : `.agents/DECISIONS_ARCHITECTURE.adoc`
+
+*5 décisions documentées* :
+. Emplacement `plantuml-test-context.yml`
+. Structure des archives de sessions
+. Stratégie LAZY/EAGER (référence à `AGENT_MODUS_OPERANDI.adoc`)
+. Fichier INDEX.adoc maître unique
+. Historique complet 1-113
+
+*Type* : LAZY (consultation sur besoin, pas chargé automatiquement)
+
+'''
+
+== 📊 Structure des Archives (Mise à Jour)
+
+|===
+| Archive | Sessions | Fichier
+
+| Sessions 1-72 | 1-72 | `.agents/archives/SESSIONS_1-72_ARCHIVE.adoc`
+| Sessions 73-95 | 73-95 | `.agents/archives/SESSIONS_HISTORY_83-95.adoc`
+| Sessions 96-113 | 96-113 | `.agents/archives/SESSIONS_96-113.adoc` (nouveau)
+| Historique complet | 1-113 | `.agents/HISTORIQUE_COMPLET_1-113.adoc` (nouveau)
+| Sessions individuelles | 73-113 (partiel) | `.agents/sessions/` (28 fichiers)
+|===
+
+'''
+
+== 📁 Arborescence Finale
+
+----
+plantuml-gradle/
+├── plantuml-context.yml              # Production (consommateur)
+├── plantuml-context.example.yml      # Exemple (versionné)
+├── plantuml-plugin/
+│   ├── plantuml-test-context.yml     # Test (protégé .gitignore) ✅ NOUVEAU
+│   ├── .gitignore                    # Contient plantuml-test-context.yml
+│   └── .agents/
+│       ├── INDEX.adoc                  # EAGER — Sessions récentes + règles
+│       ├── API_KEY_POOL_ESSENTIALS.adoc # EAGER — Contexte métier (50 lignes)
+│       ├── PROMPT_REPRISE.adoc         # EAGER — Mission session en cours
+│       ├── DECISIONS_ARCHITECTURE.adoc # LAZY — Décisions documentées ✅ NOUVEAU
+│       ├── HISTORIQUE_COMPLET_1-113.adoc # LAZY — Historique consolidé ✅ NOUVEAU
+│       ├── SESSIONS_HISTORY.adoc       # LAZY — Historique récent
+│       ├── ARCHITECTURE.adoc           # LAZY — Architecture du code
+│       ├── REFERENCE.adoc              # LAZY — Référence rapide
+│       ├── PROCEDURES.adoc             # LAZY — Procédures de session
+│       ├── AGENT_MODUS_OPERANDI.adoc # LAZY — Stratégie LAZY/EAGER (900+ lignes)
+│       ├── ROADMAP.adoc                # LAZY — Roadmap EPICs
+│       ├── TROUBLESHOOTING.adoc        # LAZY — Guide dépannage
+│       ├── TROUBLESHOOTING_fr.adoc     # LAZY — Guide dépannage (FR)
+│       ├── CODE_OF_CONDUCT.adoc        # LAZY — Code de conduite
+│       ├── CONTRIBUTING.adoc           # LAZY — Guide contribution
+│       ├── AGENT_METHODOLOGIES.adoc    # LAZY — Méthodologies agent
+│       ├── AGENT_SESSION_MANAGER.adoc  # LAZY — Gestion de session
+│       ├── SESSION_CHECKLIST.adoc      # LAZY — Checklist session
+│       ├── README_SESSION_MANAGEMENT.adoc # LAZY — Gestion sessions
+│       └── archives/
+│           ├── SESSIONS_1-72_ARCHIVE.adoc    # Archive 1-72
+│           ├── SESSIONS_HISTORY_83-95.adoc   # Archive 83-95
+│           ├── SESSIONS_96-113.adoc          # Archive 96-113 ✅ NOUVEAU
+│           ├── HISTORIQUE_COMPLET_1-113.adoc # Historique complet ✅ NOUVEAU
+│           ├── COMPLETED_TASKS_ARCHIVE_2026-04.adoc # Tâches (77k lignes)
+│           ├── CODE_REVIEW_2026-04.adoc      # Revues code (47k lignes)
+│           ├── METHODOLOGIE_OPTIMISATION_TESTS.adoc # Méthodologie
+│           ├── memory-leak-analysis_session90.adoc # Analyse memory leak
+│           ├── sessions_summaries/     # 13 résumés (61-76)
+│           ├── prompts_archive/        # 8 prompts de reprise
+│           └── tests_analysis/         # Analyses de tests
+----
+
+'''
+
+== 🔗 Liens vers Documentation
+
+=== Fichiers EAGER (toujours chargés)
+
+|===
+| Fichier | Rôle | Taille
+
+| `.agents/INDEX.adoc` | Règles absolues + sessions récentes | ~100 lignes
+| `API_KEY_POOL_ESSENTIALS.adoc` | Contexte métier critique | 50 lignes
+| `PROMPT_REPRISE.adoc` | Mission session en cours | ~80 lignes
+|===
+
+**Total EAGER** : ~230 lignes (~10k tokens) ✅ **Optimal**
+
+=== Fichiers LAZY (sur demande)
+
+|===
+| Fichier | Rôle | Taille
+
+| `DECISIONS_ARCHITECTURE.adoc` | Décisions documentées | ~400 lignes
+| `HISTORIQUE_COMPLET_1-113.adoc` | Historique consolidé | ~800 lignes
+| `AGENT_MODUS_OPERANDI.adoc` | Stratégie LAZY/EAGER | 900+ lignes
+| `ARCHITECTURE.adoc` | Architecture du code | ~150 lignes
+| `REFERENCE.adoc` | Référence rapide | ~400 lignes
+| `PROCEDURES.adoc` | Procédures de session | ~250 lignes
+|===
+
+**Total LAZY** : ~3000+ lignes (consultation sur besoin uniquement)
+
+'''
+
+== 📈 Métriques Session 114
+
+|===
+| Métrique | Valeur
+
+| Fichiers créés | 3
+| Fichiers déplacés | 1
+| Fichiers modifiés | 3
+| Lignes ajoutées | ~1200
+| Lignes supprimées | 0
+| Décisions documentées | 5
+| Sessions archivées | 18 (96-113)
+|===
+
+'''
+
+== 🎯 Session 115 — Prochaines Étapes
+
+*EPIC* : API Key Pool — Phase 5 (Audit Logger)
+
+*Priorités* :
+. Implémenter Audit Logger dans `LlmService.kt`
+. Créer tests unitaires (`LlmServiceAuditTest.kt`)
+. Créer tests fonctionnels avec WireMock
+. Valider 100% des tests
+
+*Commandes* :
+[source,bash]
+----
+# Tests unitaires
+./gradlew test --tests "*LlmServiceAudit*"
+
+# Tests fonctionnels
+./gradlew functionalTest --tests "*AuditLogger*"
+----
+
+*Critères d'Acceptation* :
+* ☐ Audit Logger intégré dans LlmService
+* ☐ Logger chaque appel LLM (succès/échec)
+* ☐ Logger les rotations de clés
+* ☐ 100% tests unitaires PASS
+* ☐ Tests fonctionnels avec WireMock PASS
+
+'''
+
+== 📝 Leçons Apprises
+
+. **Ne pas modifier un build.gradle.kts fonctionnel** — Risque de régressions
+. **Séparer plugin vs consommateur** — Le plugin a ses propres fichiers de test
+. **`.gitignore` au bon niveau** — Plugin `.gitignore` protège ses credentials
+. **Chemin absolu > classpath** — Plus simple pour TestKit et CI
+. **Documentation LAZY/EAGER** — Garder EAGER ≤ 100 lignes, LAZY illimité
+. **Archives structurées** — Essentiel pour futur fine-tuning dataset
+
+'''
+
+== ✅ Checklist Fin de Session
+
+* ☒ Archive créée dans `.agents/sessions/`
+* ☒ `PROMPT_REPRISE.adoc` mis à jour pour Session 115
+* ☒ `SESSIONS_HISTORY.adoc` mis à jour
+* ☒ `.agents/INDEX.adoc` mis à jour
+* ☒ Fichiers LAZY créés (DECISIONS_ARCHITECTURE.adoc, HISTORIQUE_COMPLET_1-113.adoc)
+* ☐ **Tests** — Non lancés (règle absolue — sur demande explicite uniquement)
+* ☐ **Commit** — Non effectué (règle absolue — permission explicite requise)
+
+'''
+
+*Archive* : `.agents/sessions/114-documentation-architecture.adoc`
+*Session 114* ✅ — *Session 115* 🚀

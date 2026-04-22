@@ -1,0 +1,70 @@
+= 🗝️ Essentials — Pool de Clés API Rotatives
+
+____
+_Chargement_ : EAGER (automatique à chaque session)
+_Taille_ : ≤ 50 lignes
+_Contenu_ : Uniquement ce qui est critique pour la session en cours
+____
+
+'''
+
+== Concept (1 ligne)
+
+Rotation automatique de clés API par provider pour maximiser les quotas freemium multi-comptes.
+
+'''
+
+== Décisions Clés (Session 108)
+
+|===
+| # | Décision | Impact Session 109
+| 1 | _Stockage_ : GitHub Secrets (JSON consolidé) | `keyRef` dans les modèles
+| 2 | _Rotation_ : Avant appel + seuil 80% + échec 429 | Pas d'impact (Session 110)
+| 3 | _Poids_ : SUPPRIMÉ | _NE PAS ajouter `weight`_
+| 4 | _1 clé = tous modèles_ | Pas de `modelName` dans ApiKeyEntry
+|===
+
+'''
+
+== Session 109 — Mission
+
+_Objectif_ : Créer `models.kt` + `Provider.kt`
+
+_Fichiers_ :
+[source]
+----
+src/main/kotlin/fr/plantuml/apikey/
+├── models.kt          # ApiKeyEntry, QuotaConfig, ApiKeyPoolConfig
+└── Provider.kt        # Provider, ServiceType, RotationStrategy, etc.
+----
+
+_Data classes_ :
+[source,kotlin]
+----
+ApiKeyEntry(id, email, name, keyRef, provider, services, expirationDate, quota, metadata)
+QuotaConfig(limitType, limitValue, consumedValue, thresholdPercent, periodStart, periodEnd, resetPolicy, lastManualSync)
+ApiKeyPoolConfig(version, poolName, rotationStrategy, fallbackEnabled, auditEnabled, providers)
+----
+
+_Enums_ : Provider (9), ServiceType (10), RotationStrategy (4), QuotaType (8), ResetPolicy (5)
+
+'''
+
+== Providers (noms seulement)
+
+GOOGLE, HUGGINGFACE, GROQ, OLLAMA, MISTRAL, GROK, OPENAI, ANTHROPIC, GITHUB
+
+_Détails complets_ : `.agents/API_KEY_POOL_REFERENCE.adoc` (LAZY)
+
+'''
+
+== Règles Session 109
+
+* ✅ 1 fichier à la fois (models.kt → Provider.kt)
+* ✅ Compiler après chaque fichier (`./gradlew compileKotlin`)
+* ❌ PAS de tests (Session 116)
+* ❌ PAS de commit sans permission
+
+'''
+
+_Session 109_ 🚀 — _Archive_ : `.agents/sessions/108-api-key-pool-design.adoc`

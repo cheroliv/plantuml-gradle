@@ -1,0 +1,195 @@
+= 📦 Gestionnaire de Sessions
+
+_Version_ : 1.0  
+_Dernière mise à jour_ : 2026-04-16
+
+'''
+
+== 🎯 Objectif
+
+Éviter la saturation du contexte en maintenant les fichiers de session légers et archivés.
+
+'''
+
+== 📋 Règles de Gestion
+
+=== 1. Fichiers Actifs (toujours chargés)
+
+|===
+| Fichier | Rôle | Taille max
+| `PROMPT_REPRISE.adoc` | Contexte session actuelle | 200 lignes
+| `INDEX.adoc` | Vue d'ensemble projet | 300 lignes
+|===
+
+=== 2. Archivage en Fin de Session
+
+_Déclencheur_ : Utilisateur dit "session terminée", "à plus tard", ou similaire
+
+_Procédure_ (5 étapes) :
+
+[source]
+----
+1. ✅ Vérifier critères de fin (tests pass, tâches complètes)
+2. 📝 Générer résumé session (voir template)
+3. 📦 Archiver dans `.agents/sessions/{num}-{type}-{sujet}.adoc`
+4. 📊 Mettre à jour `INDEX.adoc` (ligne dans tableau)
+5. 🧹 Nettoyer `PROMPT_REPRISE.adoc` (garder squelette)
+----
+
+=== 3. Classification par Type
+
+|===
+| Type | Mots-clés détectés | Exemple de nom
+| `debug` | "corriger", "bug", "crash", "échec", "fix" | `74-debug-couverture-tests.adoc`
+| `feature` | "ajouter", "nouvelle", "feature", "implémenter" | `75-feature-kdoc-generator.adoc`
+| `refactor` | "refactor", "nettoyer", "optimiser", "améliorer" | `73-refactor-thread-safety.adoc`
+| `test` | "test unitaire", "test fonctionnel", "couverture" | `72-test-migration-mockito.adoc`
+| `docs` | "documentation", "README", "guide", "traduction" | `71-docs-traduction-fr.adoc`
+|===
+
+'''
+
+== 📝 Template de Session (à générer)
+
+[source,markdown]
+----
+# Session {NUM} — {DATE} : {TITRE}
+
+### 🎯 Objectif
+{Description courte de l'objectif}
+
+### ✅ Résultats
+- {Résultat 1}
+- {Résultat 2}
+- {Résultat 3}
+
+### 📊 Modifications
+| Fichier | Action | Impact |
+|---------|--------|--------|
+| `{fichier}` | ✅ {action} | {impact} |
+
+### 🔧 Correctifs appliqués
+1. ✅ {correctif 1}
+2. ✅ {correctif 2}
+
+### 📋 Leçons apprises
+- {leçon 1}
+- {leçon 2}
+
+### 🎯 Prochaine Session ({NUM+1})
+- **Objectif** : {objectif suivant}
+- **Score Roadmap** : {score}/10
+----
+
+'''
+
+== 📊 Tableau INDEX (à maintenir)
+
+Ajouter une ligne à chaque fin de session :
+
+[source,markdown]
+----
+| # | Date | Type | Sujet | Fichier | Score |
+|---|------|------|-------|---------|-------|
+| 74 | 2026-04-16 | debug | Couverture tests | `74-debug-couverture-tests.adoc` | 9.0/10 |
+| 73 | 2026-04-15 | refactor | Thread safety | `73-refactor-thread-safety.adoc` | 9.0/10 |
+----
+
+'''
+
+== 🤖 Instructions pour l'Agent
+
+=== ⚠️ RÈGLES ABSOLUES
+
+=== 1. COMMITS/GIT
+
+_JAMAIS_ de commit, push, merge, ou toute commande git modifiant l'historique _SANS permission explicite de l'utilisateur_.
+
+* ✅ _Autorisé_ : `git status`, `git diff`, `git log`, `git show` (lecture seule)
+* ❌ _Interdit_ : `git add`, `git commit`, `git push`, `git merge`, `git rebase` (sauf ordre explicite)
+
+_Procédure avant tout commit_ :
+. Montrer les modifications (`git diff --stat`)
+. Demander : "Veux-tu que je commit ces changements ?"
+. Attendre confirmation explicite ("oui", "commit", "vas-y")
+. _Seulement après_ : exécuter le commit
+
+=== 2. TESTS EN FIN DE SESSION — INTERDICTION FORMELLE
+
+_JAMAIS_ lancer de tests (`./gradlew test`, `./gradlew cucumberTest`, etc.) lors de la procédure de fin de session _SANS permission explicite de l'utilisateur_.
+
+* ✅ _Autorisé_ : Résumer les résultats des tests déjà exécutés pendant la session
+* ❌ _Interdit_ : Lancer `./gradlew cucumberTest` ou tout autre test en procédure de fin de session
+
+_Raison_ : Les tests prennent 1-3 minutes et ralentissent inutilement la clôture de session.
+
+_Procédure de fin de session_ :
+. Résumer les réalisations (fichiers créés/modifiés, scénarios passants)
+. Mettre à jour PROMPT_REPRISE.adoc pour la session suivante
+. Archiver le contexte dans `.agents/sessions/`
+. _NE PAS lancer de tests_ sauf demande explicite
+
+'''
+
+=== En début de session
+. Lire `PROMPT_REPRISE.adoc` pour le contexte
+. Consulter `INDEX.adoc` pour historique récent (5 dernières sessions)
+. Charger fichiers archive si pertinent (via `@archive/...`)
+
+=== Pendant la session
+. Noter modifications importantes au fur et à mesure
+. Mettre à jour `PROMPT_REPRISE.adoc` en temps réel (max 200 lignes)
+
+=== En fin de session
+. _Détecter le type_ via mots-clés de la session
+. _Générer le fichier archive_ avec le template
+. _Mettre à jour INDEX.adoc_ (ajouter ligne)
+. _Nettoyer PROMPT_REPRISE.adoc_ (garder uniquement : objectif, résultat, prochaine session)
+. _Proposer à l'utilisateur_ de valider l'archivage
+
+'''
+
+== 🚨 Seuils d'Alerte
+
+|===
+| Fichier | Seuil | Action
+| `PROMPT_REPRISE.adoc` | > 200 lignes | ⚠️ Proposer nettoyage
+| `INDEX.adoc` | > 50 sessions | ⚠️ Archiver anciennes sessions dans `.agents/archives/YYYY-MM.adoc`
+| `.agents/sessions/` | > 20 fichiers | ⚠️ Compresser sessions > 30 jours
+|===
+
+'''
+
+== 📁 Structure des Dossiers
+
+[source]
+----
+.agents/
+├── AGENT_SESSION_MANAGER.adoc    # Ce fichier
+├── INDEX.adoc                    # Tableau récapitulatif
+├── PROMPT_REPRISE.adoc           # Session actuelle
+├── sessions/                   # Archives par session
+│   ├── 74-debug-couverture-tests.adoc
+│   ├── 73-refactor-thread-safety.adoc
+│   └── ...
+└── archives/                   # Archives mensuelles (si > 50 sessions)
+    ├── 2026-04.adoc
+    └── ...
+----
+
+'''
+
+== 🧹 Procédure de Nettoyage (si seuil dépassé)
+
+[source,bash]
+----
+# Si INDEX.adoc > 50 lignes
+1. Créer `.agents/archives/2026-04.adoc`
+2. Déplacer sessions 1-20 dans archive
+3. Garder sessions 21+ dans INDEX.adoc
+4. Mettre à jour tableau avec lien vers archive
+----
+
+'''
+
+_Note_ : Cette procédure est manuelle et déclenchée uniquement par l'agent quand un seuil est atteint.

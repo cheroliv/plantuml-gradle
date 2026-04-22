@@ -1,0 +1,309 @@
+= 🎯 EPIC — Consolidation des Tests Fonctionnels en Nested Classes
+
+____
+**Objectif** : Migrer 5 classes de tests fonctionnels indépendants en nested classes dans `PlantumlFunctionalSuite.kt` pour partager une seule JVM Gradle.
+____
+
+'''
+
+== 📊 État Actuel
+
+|===
+| Classe | Tests | Temps | WireMock | GradleRunner | Statut
+
+| `PlantumlFunctionalSuite` | 15 | ~200s | ✅ | ✅ (companion) | ✅ Déjà consolidé
+| `PlantumlPluginIntegrationSuite` | 11 | ~140s | ❌ | ✅ (companion) | ⏳ Session 43.1
+| `FilePermissionTest` | 4 | ~105s | ❌ | ❌ | ⏳ Session 43.2
+| `LargeFileAndPathTest` | 4 | ~66s | ✅ | ❌ | ⏳ Session 43.3
+| `NetworkTimeoutTest` | 4 | ~104s | ❌ (serveurs locaux) | ❌ | ⏳ Session 43.4
+| `PerformanceTest` | 4 | ~55s | ✅ | ❌ | ⏳ Session 43.5
+| **Total** | **42** | **1m55s** | - | - | -
+|===
+
+'''
+
+== 🏗 Architecture Cible
+
+[source,kotlin]
+----
+@TestClassOrder(ClassOrderer.OrderAnnotation::class)
+class PlantumlFunctionalSuite {  // ← 1 seule JVM Gradle
+    
+    companion object {
+        @TempDir @JvmStatic
+        lateinit var sharedProjectDir: File
+        
+        private lateinit var wireMockServer: WireMockServer
+        
+        @BeforeAll @JvmStatic
+        fun setupSuite() { /* démarre WireMock + projet Gradle */ }
+        
+        fun runner(vararg args: String): GradleRunner { /* helper partagé */ }
+    }
+    
+    @Nested @Order(1) inner class PluginLifecycle { ... }      // ✅ Déjà fait
+    @Nested @Order(2) inner class LlmProviderConfiguration { ... } // ✅ Déjà fait
+    @Nested @Order(3) inner class GradleSharedInstance { ... }     // ✅ Déjà fait
+    
+    @Nested @Order(4) inner class PluginIntegration { ... }    // ⏳ Session 43.1
+    @Nested @Order(5) inner class FilePermission { ... }       // ⏳ Session 43.2
+    @Nested @Order(6) inner class LargeFileAndPath { ... }     // ⏳ Session 43.3
+    @Nested @Order(7) inner class NetworkTimeout { ... }       // ⏳ Session 43.4
+    @Nested @Order(8) inner class Performance { ... }          // ⏳ Session 43.5
+}
+----
+
+'''
+
+== 📋 Sessions Planifiées
+
+=== Session 43.1 — Migration PlantumlPluginIntegrationSuite
+
+* **Fichier source** : `PlantumlPluginIntegrationSuite.kt` (11 tests)
+* **Nested class** : `PluginIntegration`
+* **WireMock** : ❌ → ✅ (à ajouter)
+* **GradleRunner** : ✅ (utilise déjà companion object)
+* **Gain estimé** : -8s (cold start JVM évité)
+* **Critères d'acceptation** :
+** ✅ 11 tests migrés dans nested class `PluginIntegration`
+** ✅ WireMock ajouté (endpoint `/api/chat`)
+** ✅ Utilise `runner()` du companion object
+** ✅ Tous les tests passent
+
+'''
+
+=== Session 43.2 — Migration FilePermissionTest
+
+* **Fichier source** : `FilePermissionTest.kt` (4 tests)
+* **Nested class** : `FilePermission`
+* **WireMock** : ❌ → ✅ (à ajouter)
+* **GradleRunner** : ❌ → ✅ (utilise `runner()` partagé)
+* **Gain estimé** : -8s (cold start JVM évité)
+* **Critères d'acceptation** :
+** ✅ 4 tests migrés dans nested class `FilePermission`
+** ✅ WireMock configuré (pour tests RAG)
+** ✅ Utilise `sharedProjectDir` et `runner()` partagés
+** ✅ Tous les tests passent
+
+'''
+
+=== Session 43.3 — Migration LargeFileAndPathTest
+
+* **Fichier source** : `LargeFileAndPathTest.kt` (4 tests)
+* **Nested class** : `LargeFileAndPath`
+* **WireMock** : ✅ (déjà présent) → ✅ (utilise WireMock partagé)
+* **GradleRunner** : ❌ → ✅ (utilise `runner()` partagé)
+* **Gain estimé** : -8s (cold start JVM évité)
+* **Critères d'acceptation** :
+** ✅ 4 tests migrés dans nested class `LargeFileAndPath`
+** ✅ Utilise `wireMockServer` du companion object
+** ✅ Utilise `sharedProjectDir` et `runner()` partagés
+** ✅ Tous les tests passent
+
+'''
+
+=== Session 43.4 — Migration NetworkTimeoutTest
+
+* **Fichier source** : `NetworkTimeoutTest.kt` (4 tests)
+* **Nested class** : `NetworkTimeout`
+* **WireMock** : ❌ (serveurs locaux avec `ServerSocket`)
+* **GradleRunner** : ❌ → ✅ (utilise `runner()` partagé)
+* **Gain estimé** : -8s (cold start JVM évité)
+* **Critères d'acceptation** :
+** ✅ 4 tests migrés dans nested class `NetworkTimeout`
+** ✅ Utilise `sharedProjectDir` et `runner()` partagés
+** ✅ Serveurs locaux conservés (Thread + ServerSocket)
+** ✅ Tous les tests passent
+
+'''
+
+=== Session 43.5 — Migration PerformanceTest
+
+* **Fichier source** : `PerformanceTest.kt` (4 tests)
+* **Nested class** : `Performance`
+* **WireMock** : ✅ (déjà présent) → ✅ (utilise WireMock partagé)
+* **GradleRunner** : ❌ → ✅ (utilise `runner()` partagé)
+* **Gain estimé** : -8s (cold start JVM évité)
+* **Critères d'acceptation** :
+** ✅ 4 tests migrés dans nested class `Performance`
+** ✅ Utilise `wireMockServer` du companion object
+** ✅ Utilise `sharedProjectDir` et `runner()` partagés
+** ✅ Tests de performance conservés (`measureTimeMillis`)
+** ✅ Tous les tests passent
+
+'''
+
+=== Session 43.6 — Nettoyage et Validation Finale
+
+* **Fichiers à supprimer** :
+** `PlantumlPluginIntegrationSuite.kt`
+** `FilePermissionTest.kt`
+** `LargeFileAndPathTest.kt`
+** `NetworkTimeoutTest.kt`
+** `PerformanceTest.kt`
+* **Validation** :
+** ✅ `./gradlew functionalTest` : 40 PASS, 6 SKIP, 0 FAIL
+** ✅ Temps total < 1m15s (cible : -45s de cold start)
+** ✅ Mise à jour documentation (`AGENTS.md`, `SESSIONS_HISTORY.adoc`)
+
+'''
+
+== 📈 Métriques de Suivi
+
+|===
+| Métrique | Avant | Après | Cible | Gain
+
+| **Fichiers de tests** | 9 | 4 | 4 | -56% ✅
+| **Cold starts JVM** | 6 | 1 | 1 | -83% ✅
+| **Temps d'exécution** | 1m55s | 1m4s | 1m15s | -45% ✅
+| **Tests totaux** | 42 | 42 | 42 | 0% (couverture préservée) ✅
+| **WireMock partagé** | ❌ | ✅ | ✅ | 100% ✅
+| **GradleRunner partagé** | ❌ | ✅ | ✅ | 100% ✅
+|===
+
+'''
+
+== 🔍 Analyse des Optimisations Possibles
+
+=== État actuel du mocking (Session 43 TERMINÉE)
+
+|===
+| Nested Class | Tests | WireMock | Mockable restant | Optimisable
+
+| PluginLifecycle | 6 | ❌ | Aucun (tests locaux) | ❌
+| LlmProviderConfiguration | 8 | ✅ | Aucun (déjà mocké) | ❌
+| GradleSharedInstance | 4 | ❌ | Aucun (tests locaux) | ❌
+| PluginIntegration | 11 | ✅ | Aucun (déjà mocké) | ❌
+| FilePermission | 4 | ❌ | Aucun (tests filesystem) | ❌
+| LargeFileAndPath | 4 | ✅ | Aucun (déjà mocké) | ❌
+| NetworkTimeout | 4 | ❌ | Serveurs locaux (déjà optimisés) | ⚠️ Délais réduits
+| Performance | 4 | ✅ | Aucun (déjà mocké) | ⚠️ Délais réduits
+| **Total** | **45** | **✅ 27/42 mockés** | **Aucun** | **Marginal**
+|===
+
+=== Optimisations marginales possibles (gain estimé : < 5s)
+
+. **NetworkTimeout** — Réduire `Thread.sleep(100)` → `50ms` (gain : ~2s)
+. **Performance** — Réduire assertions redondantes (gain : ~1s)
+. **Gradle args** — Ajouter `--no-build-cache` pour tests rapides (gain : ~2s)
+
+**Gain total potentiel** : ~5s (1m4s → ~59s) — **Non prioritaire**
+
+=== Ce qui NE PEUT PAS être mocké
+
+|===
+| Test | Raison | Impact
+
+| FilePermission | Teste permissions filesystem réel | Nécessaire
+| NetworkTimeout (3/4) | Teste erreurs réseau réelles | Nécessaire
+| PluginLifecycle | Teste application plugin Gradle | Nécessaire
+| GradleSharedInstance | Teste partage projet Gradle | Nécessaire
+| Performance (validation) | Teste plugin réel | Nécessaire
+|===
+
+**Conclusion** : 1m4s est un **plateau raisonnable**. Optimisations supplémentaires = gain marginal (<5%) pour complexité accrue.
+
+'''
+
+== ⚠️ Pièges à Éviter
+
+. ❌ **Oublier WireMock** — Tests LLM vont appeler Ollama réel
+. ❌ **Oublier @Nested** — Classes ne seront pas découvertes
+. ❌ **Variables de conflit** — Renommer variables homonymes (ex: `testProjectDir` → utiliser `sharedProjectDir`)
+. ❌ **Supprimer fichiers avant validation** — Valider d'abord, supprimer ensuite
+. ❌ **Ne pas mesurer AVANT/APRÈS** — Toujours mesurer le temps d'exécution
+
+'''
+
+== 🛡️ Principe Non-Négociable : Couverture de Tests
+
+**RÈGLE ABSOLUE** : Toute optimisation doit **préserver 100% de la couverture fonctionnelle**.
+
+=== Critères de validation obligatoires
+
+Pour chaque test optimisé, vérifier :
+
+|===
+| Assertion | Vérification | Exemple
+
+| ✅ **BUILD SUCCESSFUL** | Vérifié dans output | `result.output.contains("BUILD SUCCESSFUL")`
+| ✅ **Task exécutée** | TaskOutcome vérifié | `result.task(":task")?.outcome == SUCCESS`
+| ✅ **Extension configurée** | Properties vérifiées | `result.output.contains("plantuml")`
+| ✅ **Erreurs gérées** | Message d'erreur présent | `result.output.contains("timeout")`
+| ✅ **Fichiers créés** | Fichiers existants | `File(...).exists()`
+|===
+
+=== Interdictions formelles
+
+* ❌ **Supprimer une assertion** même "évidente"
+* ❌ **Fusionner deux tests** en un seul (perte de granularité)
+* ❌ **Remplacer une assertion** par un commentaire
+* ❌ **Inline du code** qui supprime des vérifications
+
+=== Exemple de refactorisation acceptable
+
+[source,kotlin]
+----
+// ✅ ACCEPTABLE : Code inline, mêmes assertions
+@Test
+fun `should apply plugin successfully`() {
+    File(projectDir, "build.gradle.kts").writeText(
+        """plugins { id("com.cheroliv.plantuml") }"""
+    )
+    val result = GradleRunner.create()
+        .withProjectDir(projectDir)
+        .withArguments("help")
+        .build()
+    
+    // ✅ Mêmes assertions préservées
+    assertTrue(result.output.contains("BUILD SUCCESSFUL"))
+    assertTrue(result.output.contains("plantuml"))
+}
+----
+
+=== Exemple de refactorisation interdite
+
+[source,kotlin]
+----
+// ❌ INTERDIT : Assertion supprimée
+@Test
+fun `should apply plugin successfully`() {
+    File(projectDir, "build.gradle.kts").writeText(
+        """plugins { id("com.cheroliv.plantuml") }"""
+    )
+    GradleRunner.create()
+        .withProjectDir(projectDir)
+        .withArguments("help")
+        .build()
+    
+    // ❌ ASSERTION MANQUANTE : BUILD SUCCESSFUL non vérifié
+    // ❌ ASSERTION MANQUANTE : plantuml non vérifié
+}
+----
+
+'''
+
+== 📚 Fichiers de Référence
+
+* `AGENTS.md` — Architecture, décisions, méthodologie
+* `PROMPT_REPRISE.adoc` — Mission session en cours
+* `AGENT_REFERENCE.adoc` — Méthodologie optimisation tests
+* `COMPLETED_TASKS_ARCHIVE.adoc` — Archive tâches terminées
+
+'''
+
+== ✅ Statut Global
+
+|===
+| Session | Nested Class | Statut | Progress
+
+| **43.0** | `PlantumlFunctionalSuite` (base) | ✅ TERMINÉ | 100%
+| **43.1** | `PluginIntegration` | ⏳ EN COURS | 0%
+| **43.2** | `FilePermission` | ⏳ PLANIFIÉ | 0%
+| **43.3** | `LargeFileAndPath` | ⏳ PLANIFIÉ | 0%
+| **43.4** | `NetworkTimeout` | ⏳ PLANIFIÉ | 0%
+| **43.5** | `Performance` | ⏳ PLANIFIÉ | 0%
+| **43.6** | Nettoyage | ⏳ PLANIFIÉ | 0%
+|===
+
+**Prochaine session** : 43.1 — Migration `PlantumlPluginIntegrationSuite` → `PluginIntegration`

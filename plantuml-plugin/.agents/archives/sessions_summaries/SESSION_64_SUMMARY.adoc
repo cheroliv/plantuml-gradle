@@ -1,0 +1,211 @@
+= Session 64 — Story 2.2 : Supprimer Fallback Simulation Silencieux (EN COURS)
+
+_Date_ : 2026-04-15  
+_Objectif_ : Supprimer les fallbacks silencieux vers le mode simulation (EPIC 2 — Story 2.2)  
+_Statut_ : 🔄 PARTIELLEMENT TERMINÉ — Code modifié, tests à corriger
+
+'''
+
+== ✅ Contexte
+
+* _Session 63_ : Story 2.1 (RAG avec testcontainers) — ✅ TERMINÉE
+* _Objectif_ : Story 2.2 — Supprimer les fallbacks silencieux dans `ReindexPlantumlRagTask.kt`
+* _Problème_ : Les modes DATABASE et TESTCONTAINERS fallbackent silencieusement vers SIMULATION en cas d'erreur
+* _Critère_ : 0 fallback silencieux en production → erreurs explicites
+
+'''
+
+== ✅ Résultats
+
+* ✅ _Code modifié_ : Fallbacks silencieux supprimés
+* ✅ _RagConfig_ : Paramètre `port` ajouté (5432 par défaut)
+* ❌ _Tests unitaires_ : 192/198 PASS (6 échecs)
+* ✅ _Tests fonctionnels_ : 42 PASS, 6 SKIP (100%)
+* ⚠️ _Story 2.2_ : 🔄 EN COURS (code OK, tests à fixer)
+
+'''
+
+== 📊 Modifications
+
+=== 1. `ReindexPlantumlRagTask.kt`
+
+_Suppression fallback DATABASE_ (lignes 185-210) :
+[source,kotlin]
+----
+// AVANT : try-catch avec fallback
+try {
+    val embeddingStore = PgVectorEmbeddingStore.builder()...
+    indexDiagrams(...)
+} catch (e: Exception) {
+    logger.lifecycle("  ✗ Error connecting to database: ${e.message}")
+    logger.lifecycle("  → Falling back to simulation mode")
+    simulateIndexing(...)  // ❌ Fallback silencieux
+}
+
+// APRÈS : Pas de try-catch, erreur explicite
+val embeddingStore = PgVectorEmbeddingStore.builder()...
+indexDiagrams(...)  // ✅ Lève une exception en cas d'erreur
+----
+
+_Suppression fallback TESTCONTAINERS_ (lignes 212-243) :
+[source,kotlin]
+----
+// AVANT : try-catch avec fallback
+try {
+    val container = PostgreSQLContainer(...).apply { start() }
+    val embeddingStore = PgVectorEmbeddingStore.builder()...
+    indexDiagrams(...)
+    container.stop()
+} catch (e: Exception) {
+    logger.lifecycle("  ✗ Error with testcontainers: ${e.message}")
+    logger.lifecycle("  → Falling back to simulation mode")
+    simulateIndexing(...)  // ❌ Fallback silencieux
+}
+
+// APRÈS : Pas de try-catch, erreur explicite
+val container = PostgreSQLContainer(...).apply { start() }
+val embeddingStore = PgVectorEmbeddingStore.builder()...
+indexDiagrams(...)  // ✅ Lève une exception en cas d'erreur
+container.stop()
+----
+
+=== 2. `models.kt`
+
+_Ajout paramètre `port` dans `RagConfig`_ :
+[source,kotlin]
+----
+data class RagConfig(
+    val databaseUrl: String = "",
+    val port: Int = 5432,  // ✅ NOUVEAU
+    val username: String = "",
+    val password: String = "",
+    val tableName: String = "embeddings"
+)
+----
+
+=== 3. `ReindexPlantumlRagTask.kt` (mise à jour)
+
+_Utilisation du port configuré_ :
+[source,kotlin]
+----
+val embeddingStore = PgVectorEmbeddingStore.builder()
+    .host(config.rag.databaseUrl)
+    .port(config.rag.port)  // ✅ Utilise le port de la config
+    .database("plantuml_rag")
+    ...
+----
+
+=== 4. Tests fonctionnels (`PlantumlFunctionalSuite.kt`)
+
+_Tests RAG mis à jour_ :
+* ✅ `should use simulation mode by default` : PASS
+* ⚠️ `should use testcontainers mode when specified` : @Disabled (nécessite Docker)
+* ⚠️ `should fail explicitly when database mode without pgvector` : @Disabled (nécessite PostgreSQL)
+* ⚠️ `should fail with explicit error when database connection fails` : @Disabled (nécessite Docker)
+
+=== 5. Tests unitaires (`ReindexPlantumlRagTaskBranchTest.kt`)
+
+_Tests mis à jour pour erreurs explicites_ :
+* ✅ `should fail explicitly when database connection fails` : ÉCHEC (à déboguer)
+* ✅ `should fail explicitly when database mode with invalid host` : ÉCHEC (à déboguer)
+
+=== 6. Tests d'intégration (`ReindexPlantumlRagIntegrationTest.kt`)
+
+_Tests avec testcontainers_ :
+* ❌ `should index PlantUML diagrams in DATABASE mode with testcontainers` : ÉCHEC
+* ❌ `should handle empty RAG directory in DATABASE mode` : ÉCHEC
+* ❌ `should handle unicode content in DATABASE mode` : ÉCHEC
+* ❌ `should index large PlantUML diagram in DATABASE mode` : ÉCHEC
+* ❌ `should handle multiple history files in DATABASE mode` : ÉCHEC
+
+_Problème_ : Les tests utilisent `@Container` statique mais la connexion PostgreSQL échoue (port mal configuré)
+
+'''
+
+== 🔴 Problèmes Détectés
+
+=== 1. Tests d'intégration RAG — Échec de connexion PostgreSQL
+
+_Erreur_ :
+[source]
+----
+java.lang.RuntimeException: Failed to execute 'init'
+  Caused by: org.postgresql.util.PSQLException: Connection to localhost:5432 refused
+  Caused by: java.net.ConnectException: Connexion refusée
+----
+
+_Cause_ :
+* Le container testcontainers démarre sur un port aléatoire (ex: 32779)
+* La configuration YAML utilise `${postgresContainer.host}` mais pas le port
+* Le code se connecte sur le port 5432 (défaut) au lieu du port mappé
+
+_Solution appliquée_ :
+* Ajout du paramètre `port` dans `RagConfig`
+* Mise à jour des tests pour utiliser `${postgresContainer.firstMappedPort}`
+
+_Statut_ : ❌ NON RÉSOLU — Les tests échouent toujours
+
+=== 2. Tests BranchTest — Assertions incorrectes
+
+_Test_ : `should fail explicitly when database connection fails`
+
+_Problème_ :
+[source,kotlin]
+----
+assertTrue(exception.message!!.contains("Connection") || exception.message!!.contains("connect"))
+----
+
+_Cause_ :
+* L'exception levée est `RuntimeException: Failed to execute 'init'`
+* Le message ne contient pas "Connection" ou "connect" directement
+* La cause racine (`PSQLException`) est encapsulée
+
+_Statut_ : ❌ NON RÉSOLU
+
+'''
+
+== 📈 Métriques de progression
+
+|===
+| Session | Couverture | Tests Unitaires | Tests Fonctionnels | Score EPIC 1 | Score EPIC 2
+| ---------|-----------|----------------|-------------------|--------------|--------------
+| **63** | 77,10% | 198/198 ✅ | 42 PASS, 6 SKIP | 8.0/10 | 6.5/10
+| **64** | 77,10% | 192/198 ❌ | 42 PASS, 6 SKIP | 8.0/10 | 6.5/10
+|===
+
+---
+
+== 🎯 Prochaine Session (65)
+
+_Objectif_ : Déboguer et fixer les tests RAG avec testcontainers
+
+_Fichiers cibles_ :
+. `ReindexPlantumlRagIntegrationTest.kt` — Fixer connexion PostgreSQL
+. `ReindexPlantumlRagTaskBranchTest.kt` — Corriger assertions d'erreurs
+. `ReindexPlantumlRagTask.kt` — Vérifier gestion du port
+
+_Tâches_ :
+. ✅ Vérifier que `postgresContainer.firstMappedPort` est correctement injecté
+. ✅ Vérifier que `config.rag.port` est utilisé dans `executeDatabaseMode()`
+. ✅ Mettre à jour les assertions pour catcher la bonne exception
+. ✅ Lancer les tests en mode debug pour inspecter la configuration
+
+_Critère d'acceptation_ :
+* ✅ 198/198 tests unitaires PASS (100%)
+* ✅ 42 tests fonctionnels PASS (100%)
+* ✅ Story 2.2 marquée ✅ TERMINÉ dans ROADMAP.adoc
+
+'''
+
+== 📝 Leçons apprises
+
+* ✅ _Suppression fallback_ : Code plus simple, erreurs explicites
+* ✅ _Port configurable_ : Nécessaire pour testcontainers (ports aléatoires)
+* ⚠️ _Testcontainers_ : Nécessite Docker fonctionnel (disponible en CI/CD)
+* ⚠️ _Exceptions encapsulées_ : Vérifier `cause` pour assertions précises
+
+'''
+
+_Session 64_ : 🔄 _PARTIELLEMENT TERMINÉE_  
+_Story 2.2_ : 🔄 _CODE OK, TESTS À FIXER_  
+_Prochaine session_ : Session 65 — Debug tests RAG

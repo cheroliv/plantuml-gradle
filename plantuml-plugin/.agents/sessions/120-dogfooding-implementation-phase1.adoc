@@ -1,0 +1,75 @@
+= Session 120 — Implémentation Phase 1 Dogfooding plantuml-gradle
+
+*Date* : 22 avril 2026
+*Type* : feat
+*Score* : 9.0/10
+
+'''
+
+== 🎯 Objectif
+
+Implémenter Phase 1 du dogfooding : le plugin plantuml-gradle se documente lui-même via Graphify, sans modification du pipeline existant.
+
+'''
+
+== ✅ Résultats
+
+* ✅ `GraphifyPromptAdapter.kt` créé (~65 lignes) — Convertit sous-graphe Graphify en .prompt
+* ✅ `GenerateDiagramDocsTask.kt` créé (~60 lignes) — Tâche Gradle `generateDiagramDocs`
+* ✅ `DiagramDocsConfig` ajouté dans `models.kt` — Configuration diagramDocs avec 4 champs
+* ✅ `PlantumlManager.kt` — Enregistrement `generateDiagramDocs`
+* ✅ `PlantumlPlugin.kt` — Tâche lifecycle `docs` (generateDiagramDocs → processPlantumlPrompts → validatePlantumlSyntax)
+* ✅ `ConfigMerger.kt` — Merge DiagramDocsConfig (env/properties/YAML/CLI)
+* ✅ `.graphifyignore` configuré
+* ✅ `GraphifyPromptAdapterTest.kt` — 10/10 tests unitaires PASS
+* ✅ `GenerateDiagramDocsTaskTest.kt` — 5/5 tests intégration PASS
+* ✅ `DOGFOODING_ARCHITECTURE.adoc` — Documentation architecture complète
+* ✅ Tous les tests existants passent (164/164 unitaires, 2/2 fonctionnels)
+
+'''
+
+== 📊 Modifications
+
+|===
+| Fichier | Action | Impact
+
+| `src/main/kotlin/plantuml/service/GraphifyPromptAdapter.kt` | CRÉÉ | Nouvel adaptateur Graphify → .prompt
+| `src/main/kotlin/plantuml/tasks/GenerateDiagramDocsTask.kt` | CRÉÉ | Nouvelle tâche Gradle
+| `src/main/kotlin/plantuml/models.kt` | MODIFIÉ | +DiagramDocsConfig, +champ dans PlantumlConfig
+| `src/main/kotlin/plantuml/PlantumlManager.kt` | MODIFIÉ | +register generateDiagramDocs
+| `src/main/kotlin/plantuml/PlantumlPlugin.kt` | MODIFIÉ | +tâche lifecycle `docs`
+| `src/main/kotlin/plantuml/ConfigMerger.kt` | MODIFIÉ | +mergeDiagramDocsConfig, +env/props/YAML
+| `.graphifyignore` | CRÉÉ | Exclusions Graphify
+| `src/test/kotlin/plantuml/service/GraphifyPromptAdapterTest.kt` | CRÉÉ | 10 tests unitaires
+| `src/test/kotlin/plantuml/GenerateDiagramDocsTaskTest.kt` | CRÉÉ | 5 tests intégration
+| `DOGFOODING_ARCHITECTURE.adoc` | CRÉÉ | Documentation architecture
+|===
+
+'''
+
+== 🏗️ Architecture
+
+----
+graph.json (Graphify) → GraphifyPromptAdapter → .prompt file → ProcessPlantumlPromptsTask → PNG
+----
+
+L'adaptateur est le seul nouveau composant. Le pipeline existant est **inchangé**.
+
+'''
+
+== 📋 Critères d'Acceptation
+
+* ☒ `GraphifyPromptAdapter.kt` créé et testé
+* ☒ `GenerateDiagramDocsTask.kt` créé et enregistré
+* ☒ `./gradlew generateDiagramDocs` fonctionne avec un sous-graphe
+* ☒ `./gradlew docs` pipeline complet enregistré
+* ☒ `./gradlew test` tous les tests passent (164 unitaires + 2 fonctionnels)
+* ☒ `.graphifyignore` configuré
+* ☐ Graphify installé et graphe initial construit (à faire hors build)
+* ☐ `./gradlew docs` pipeline complet testé end-to-end (nécessite Graphify + LLM)
+
+'''
+
+== 🔜 Prochaine session (121)
+
+Extraction vers bakery-gradle : déplacer LlmService, ApiKeyPool, ConfigLoader, ConfigMerger, GraphifyPromptAdapter dans un module partagé.

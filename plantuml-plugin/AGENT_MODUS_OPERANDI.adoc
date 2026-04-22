@@ -71,7 +71,7 @@ Les tests prennent 1-3 minutes.
 |Manuel du propriétaire (détails techniques, historique)
 
 |**Projet**
-|`PROMPT_REPRISE.md` + `*_ESSENTIALS.md`
+|`PROMPT_REPRISE.adoc` + `*_ESSENTIALS.adoc`
 |Archives sessions, références détaillées
 
 |**Taille**
@@ -93,20 +93,20 @@ Les tests prennent 1-3 minutes.
 ----
 plantuml-plugin/
 ├── .agents/                          # Documentation agent
-│   ├── INDEX.md                      # Règles absolues + sessions récentes (EAGER)
-│   ├── API_KEY_POOL_ESSENTIALS.md    # Contexte métier critique (EAGER)
-│   ├── API_KEY_POOL_REFERENCE.md     # Architecture complète (LAZY)
-│   ├── PROMPT_REPRISE.md             # Mission session en cours (EAGER)
-│   ├── PROCEDURES.md                 # Procédure fin de session (LAZY)
-│   ├── AGENT_METHODOLOGIES.md        # Méthodologies détection (LAZY)
+│   ├── INDEX.adoc                      # Règles absolues + sessions récentes (EAGER)
+│   ├── API_KEY_POOL_ESSENTIALS.adoc    # Contexte métier critique (EAGER)
+│   ├── API_KEY_POOL_REFERENCE.adoc     # Architecture complète (LAZY)
+│   ├── PROMPT_REPRISE.adoc             # Mission session en cours (EAGER)
+│   ├── PROCEDURES.adoc                 # Procédure fin de session (LAZY)
+│   ├── AGENT_METHODOLOGIES.adoc        # Méthodologies détection (LAZY)
 │   ├── sessions/                     # Archives par session (LAZY)
-│   │   ├── 108-api-key-pool-design.md
-│   │   ├── 109-data-models.md
+│   │   ├── 108-api-key-pool-design.adoc
+│   │   ├── 109-data-models.adoc
 │   │   └── ...
 │   └── archives/                     # Archives mensuelles (> 50 sessions)
-│       └── 2026-04.md
+│       └── 2026-04.adoc
 │
-├── PROMPT_REPRISE.md                 # Fichier EAGER principal (racine)
+├── PROMPT_REPRISE.adoc                 # Fichier EAGER principal (racine)
 └── src/                              # Code source
 ----
 
@@ -116,32 +116,37 @@ plantuml-plugin/
 |===
 |Fichier |Type |Taille Max |Quand Charger
 
-|`PROMPT_REPRISE.md`
+|`PROMPT_REPRISE.adoc`
 |**EAGER**
 |≤ 70 lignes
 |**Début session** (automatique)
 
-|`API_KEY_POOL_ESSENTIALS.md`
+|`API_KEY_POOL_ESSENTIALS.adoc`
 |**EAGER**
 |≤ 50 lignes
 |**Début session** (automatique si EPIC concernée)
 
-|`.agents/INDEX.md` (règles)
+|`.agents/INDEX.adoc` (règles)
 |**EAGER**
 |≤ 100 lignes
 |**Début session** (automatique)
 
-|`API_KEY_POOL_REFERENCE.md`
+|`API_KEY_POOL_REFERENCE.adoc`
 |LAZY
 |Illimité
 |Sur besoin (détails architecture)
 
-|`.agents/sessions/{N}*.md`
+|`.agents/sessions/{N}*.adoc`
 |LAZY
 |Illimité
 |Sur demande (détails session N)
 
-|`PROCEDURES.md`
+|`.agents/archives/COMPLETED_TASKS_ARCHIVE_*.adoc`
+|LAZY
+|Variable
+|Fin de session (archivage des tâches)
+
+|`PROCEDURES.adoc`
 |LAZY
 |Illimité
 |Sur besoin (fin de session)
@@ -152,14 +157,14 @@ plantuml-plugin/
 ==== Début de Session
 
 **Chargement automatique (EAGER)** :
-1. `PROMPT_REPRISE.md` → Mission, priorités, contexte
-2. `.agents/INDEX.md` (section règles) → Règles absolues
-3. `*_ESSENTIALS.md` (si EPIC active) → Contexte métier critique
+1. `PROMPT_REPRISE.adoc` → Mission, priorités, contexte
+2. `.agents/INDEX.adoc` (section règles) → Règles absolues
+3. `*_ESSENTIALS.adoc` (si EPIC active) → Contexte métier critique
 
 **Si besoin de détails** :
-* Architecture ? → `.agents/API_KEY_POOL_REFERENCE.md` (LAZY)
-* Détails session N ? → `.agents/sessions/{N}-{titre}.md` (LAZY)
-* Procédure fin ? → `.agents/PROCEDURES.md` (LAZY)
+* Architecture ? → `.agents/API_KEY_POOL_REFERENCE.adoc` (LAZY)
+* Détails session N ? → `.agents/sessions/{N}-{titre}.adoc` (LAZY)
+* Procédure fin ? → `.agents/PROCEDURES.adoc` (LAZY)
 
 ==== Fin de Session
 
@@ -224,9 +229,9 @@ procédure de fin de session **SANS permission explicite de l'utilisateur**.
 [source]
 ----
 Nouvelle session. Contexte chargé :
-1. PROMPT_REPRISE.md (mission en cours)
-2. INDEX.md (règles absolues)
-3. API_KEY_POOL_ESSENTIALS.md (contexte métier)
+1. PROMPT_REPRISE.adoc (mission en cours)
+2. INDEX.adoc (règles absolues)
+3. API_KEY_POOL_ESSENTIALS.adoc (contexte métier)
 
 Mission : [Décrire la tâche UNIQUE de cette session]
 
@@ -240,23 +245,30 @@ Contrainte : 1 fichier à la fois, validation après chaque changement.
 * ✅ **1 fichier à la fois** : Modifier un seul fichier avant de passer au suivant
 * ✅ **Validation immédiate** : Compiler après chaque modification
 * ✅ **Contexte léger** : Maximum 50k tokens EAGER (~3000 lignes)
-* ✅ **Progression visible** : Mettre à jour `PROMPT_REPRISE.md` en temps réel
+* ✅ **Progression visible** : Mettre à jour `PROMPT_REPRISE.adoc` en temps réel
 
-=== 4.3 Fin de Session — Procédure en 5 Étapes
+=== 4.3 Fin de Session — Procédure en 5 Étapes OBLIGATOIRES
 
-==== ÉTAPE 1 : Vérifier l'état (optionnel)
+[IMPORTANT]
+====
+**RÈGLE ABSOLUE** : Quand un déclencheur de fin de session est détecté, l'agent DOIT exécuter **TOUTES les 5 étapes** **SANS EXCEPTION et SANS OMISSION**.
 
-[source,bash]
-----
-# Seulement si demandé explicitement
-./gradlew test
-----
+L'agent **NE DOIT JAMAIS** :
+* ❌ S'arrêter avant d'avoir complété les 5 étapes
+* ❌ Omettre une étape ("je ferai ça plus tard")
+* ❌ Demander "est-ce que je dois faire l'étape X ?" — la réponse est **TOUJOURS oui**
+* ❌ Considérer la procédure comme facultative
+* ❌ Répondre "✅ Procédure exécutée" sans avoir VÉRIFIÉ chaque fichier
 
-⚠️ **INTERDICTION** : Jamais exécuter de tests sans demande explicite.
+**L'agent DOIT** :
+* ✅ Exécuter chaque étape une par une
+* ✅ Vérifier que chaque fichier a été effectivement modifié
+* ✅ Afficher la checklist de confirmation complète à la fin
+====
 
-==== ÉTAPE 2 : Créer l'Archive LAZY
+==== ÉTAPE 1 : Créer l'Archive LAZY
 
-**Fichier** : `.agents/sessions/{N}-{type}-{sujet}.md`
+**Fichier** : `.agents/sessions/{N}-{type}-{sujet}.adoc`
 
 **Structure** :
 ```markdown
@@ -284,9 +296,9 @@ Contrainte : 1 fichier à la fois, validation après chaque changement.
 1. {action}
 ```
 
-==== ÉTAPE 3 : Mettre à jour le Résumé EAGER
+==== ÉTAPE 2 : Mettre à jour le Résumé EAGER
 
-**Fichier** : `PROMPT_REPRISE.md`
+**Fichier** : `PROMPT_REPRISE.adoc`
 
 **Contraintes** :
 * Maximum **70 lignes**
@@ -294,23 +306,62 @@ Contrainte : 1 fichier à la fois, validation après chaque changement.
 * **Commandes** session N+1
 * **Critères d'acceptation** clairs
 
-==== ÉTAPE 4 : Nettoyer INDEX.md (si besoin)
+==== ÉTAPE 3 : Mettre à jour SESSIONS_HISTORY.adoc
 
-**Vérifier** : `.agents/INDEX.md` dépasse-t-il 100 lignes ?
+**Fichier** : `.agents/SESSIONS_HISTORY.adoc`
 
-**Si OUI** : Archiver anciennes sessions dans `.agents/archives/`
+**Contenu** : Ajouter la ligne pour la session terminée en tête de liste
 
-**Si NON** : ✅ Ne rien toucher
+==== ÉTAPE 4 : Nettoyer INDEX.adoc
 
-==== ÉTAPE 5 : Valider la Cohérence
+**Vérifier** :
+* Date de dernière mise à jour
+* Session en cours → N+1
+* Session terminée → N
+* Ajouter la session N dans le tableau des sessions récentes
+* Mettre à jour la roadmap si nécessaire
+* Mettre à jour les fichiers associés si nécessaire
 
-**Checklist** :
+==== ÉTAPE 5 : Mettre à jour TEST_COVERAGE_ANALYSIS.adoc (si applicable)
 
-- [ ] Archive LAZY créée
-- [ ] Résumé EAGER mis à jour (< 70 lignes)
-- [ ] Référence croisée présente (EAGER → LAZY)
-- [ ] Commandes session N+1 testables
-- [ ] Critères d'acceptation clairs
+**Fichier** : `.agents/archives/tests_analysis/TEST_COVERAGE_ANALYSIS.adoc`
+
+**Conditions** :
+* ✅ **OBLIGATOIRE** si des tests ont été ajoutés, modifiés ou supprimés pendant la session
+* ✅ **OBLIGATOIRE** si le nombre total de tests a changé
+* ⏭️ Peut être ignoré si aucun test n'a été touché
+
+==== ÉTAPE 6 : Mettre à jour COMPLETED_TASKS_ARCHIVE.adoc
+
+**Fichier** : `.agents/archives/COMPLETED_TASKS_ARCHIVE_{YYYY-MM}.adoc`
+
+**Contenu** : Ajouter un bloc pour la session terminée contenant :
+* Contexte (session précédente, objectif)
+* Tâches réalisées (liste avec ✅)
+* Résultats (métriques, fichiers, tests)
+* Leçons apprises
+* Prochaine session
+
+**Cette étape est TOUJOURS OBLIGATOIRE**, même si la session n'a produit que de la documentation.
+
+==== Checklist de Confirmation Finale OBLIGATOIRE
+
+**L'agent DOIT afficher cette checklist APRÈS avoir exécuté les 6 étapes** :
+
+```
+✅ Procédure de fin de session exécutée
+📋 Checklist :
+[✅] 1. Archive session N créée
+[✅] 2. PROMPT_REPRISE.adoc mis à jour pour session N+1
+[✅] 3. SESSIONS_HISTORY.adoc mis à jour
+[✅] 4. INDEX.adoc mis à jour
+[✅] 5. TEST_COVERAGE_ANALYSIS.adoc mis à jour (si applicable)
+[✅] 6. COMPLETED_TASKS_ARCHIVE.adoc mis à jour
+```
+
+**AUCUNE étape ne peut être marquée [✅] si le fichier n'a pas été effectivement modifié et vérifié.**
+
+**L'agent NE DOIT PAS** répondre "✅ Procédure exécutée" sans avoir vérifié chaque fichier.
 
 ---
 
@@ -353,11 +404,11 @@ Contrainte : 1 fichier à la fois, validation après chaque changement.
 |===
 |Fichier |Seuil |Action
 
-|`PROMPT_REPRISE.md`
+|`PROMPT_REPRISE.adoc`
 |> 70 lignes
 |⚠️ Proposer nettoyage
 
-|`.agents/INDEX.md`
+|`.agents/INDEX.adoc`
 |> 100 lignes
 |⚠️ Archiver anciennes sessions
 
@@ -404,7 +455,7 @@ Contrainte : 1 fichier à la fois, validation après chaque changement.
 🎯 Méthodologie détectée : [Type de session]
 
 Je peux appliquer :
-- [NOM_DU_FICHIER].md
+- [NOM_DU_FICHIER].adoc
 - Checklist : [Point 1], [Point 2], [Point 3]
 
 Veux-tu que je charge ce fichier et applique cette méthodologie ?
@@ -482,10 +533,10 @@ Veux-tu que je charge ce fichier et applique cette méthodologie ?
 Pour appliquer ce modus operandi à un **nouveau projet** :
 
 - [ ] Créer le dossier `.agents/`
-- [ ] Créer `.agents/INDEX.md` (règles absolues + roadmap)
-- [ ] Créer `PROMPT_REPRISE.md` (session 001)
-- [ ] Créer `*_ESSENTIALS.md` (contexte métier EAGER)
-- [ ] Créer `*_REFERENCE.md` (architecture LAZY)
+- [ ] Créer `.agents/INDEX.adoc` (règles absolues + roadmap)
+- [ ] Créer `PROMPT_REPRISE.adoc` (session 001)
+- [ ] Créer `*_ESSENTIALS.adoc` (contexte métier EAGER)
+- [ ] Créer `*_REFERENCE.adoc` (architecture LAZY)
 - [ ] Créer `.agents/sessions/` (dossier vide)
 - [ ] Créer `.agents/archives/` (dossier vide)
 - [ ] Copier ce fichier à la racine
@@ -501,19 +552,19 @@ Pour appliquer ce modus operandi à un **nouveau projet** :
 |===
 |Fichier |Rôle
 
-|`PROMPT_REPRISE.md`
+|`PROMPT_REPRISE.adoc`
 |Contexte session actuelle (EAGER, ≤ 70 lignes)
 
-|`INDEX.md`
+|`INDEX.adoc`
 |Règles absolues + sessions récentes (EAGER, ≤ 100 lignes)
 
-|`*_ESSENTIALS.md`
+|`*_ESSENTIALS.adoc`
 |Contexte métier critique (EAGER, ≤ 50 lignes)
 
-|`*_REFERENCE.md`
+|`*_REFERENCE.adoc`
 |Architecture complète (LAZY, illimité)
 
-|`.agents/sessions/{N}*.md`
+|`.agents/sessions/{N}*.adoc`
 |Archives détaillées par session (LAZY)
 
 |`AGENT_MODUS_OPERANDI.adoc`

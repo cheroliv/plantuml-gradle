@@ -1,0 +1,307 @@
+= 📋 Plan d'attaque - Epic Tests BDD Cucumber
+
+== 🎯 Objectif
+
+Rendre fonctionnelle la suite complète des tests Cucumber pour couvrir toutes les fonctionnalités du plugin PlantUML.
+
+'''
+
+== 📊 État actuel
+
+|===
+| Fichier Feature | Statut | Steps associés | Priorité
+
+| `1_minimal.feature` | ✅ Fonctionnel | `MinimalSteps.kt` | Maintenance
+| `2_plantuml_processing.feature` | ❌ Commenté | `PlantumlSteps.kt` (commenté) | **P0**
+| `3_syntax_validation.feature` | ❌ Commenté | `PlantumlSteps.kt` (commenté) | **P1**
+| `4_attempt_history.feature` | ❌ Commenté | `AttemptHistorySteps.kt` (obsolète) | **P2**
+|===
+
+'''
+
+== 🗓️ Phases du plan
+
+=== **Phase 1 : Fondation & Infrastructure** (1-2 sessions)
+
+**Objectif** : Préparer l'infrastructure de test pour supporter tous les scénarios
+
+|===
+| Tâche | Description | Critère d'acceptation
+
+| 1.1 | Analyser `PlantumlWorld` pour identifier les helpers manquants | Liste des méthodes à ajouter
+| 1.2 | Ajouter helper `createPromptFile()` dans `PlantumlWorld` | Méthode testée unitairement
+| 1.3 | Ajouter helper `createPlantUmlFile()` dans `PlantumlWorld` | Méthode testée unitairement
+| 1.4 | Ajouter helper `verifyFileExists()` / `verifyFileNotExists()` | Assertions réutilisables
+| 1.5 | Nettoyer le template de projet (supprimer `test-prompts` par défaut) | Template minimaliste
+|===
+
+**Livrable** : `PlantumlWorld` enrichi avec tous les helpers nécessaires
+
+'''
+
+=== **Phase 2 : Tests de traitement PlantUML** (2-3 sessions)
+
+**Objectif** : Activer `2_plantuml_processing.feature`
+
+____
+**⚠️ MÉTHODOLOGIE : Approche TDD incrémentale**
+**IMPORTANT** : Chaque scénario doit être décommenté **step par step**, en vérifiant la compilation et l'exécution après chaque step.
+
+**Procédure pour chaque scénario** :
+. Décommenter le premier step `Given` dans le `.feature`
+. Vérifier que le step est trouvé (compilation)
+. Exécuter le test (échec attendu si steps suivants manquants)
+. Décommenter le step suivant
+. Répéter jusqu'au dernier step
+. Exécuter le scénario complet ✅
+. Passer au scénario suivant
+____
+
+**📊 Session 79 — État d'avancement** :
+
+* ✅ Steps 1-3 validés (Given prompt, And mock LLM, When task)
+* ❌ Step 4 (Then diagram generated) — ÉCHEC : directory `generated/rag` n'existe pas
+* 🔍 **Problème identifié** : La tâche `processPlantumlPrompts` ne génère pas les fichiers attendus
+* 🔍 **Cause probable** : Mock LLM non atteint ou configuration incorrecte
+
+|===
+| Tâche | Description | Critère d'acceptation
+
+| 2.1 | Décommenter `PlantumlSteps.kt` | Code compilé sans erreur
+| 2.2 | Corriger le format de réponse mock LLM (format Ollama natif) | Mock compatible avec `LlmService`
+| 2.3 | Implémenter step `"a prompt file {string} with content {string}"` | Fichier créé dans `prompts/`
+| 2.4 | Implémenter step `"a mock LLM that returns..."` | Utilise `PlantumlWorld.startMockLlm()`
+| 2.5 | Implémenter step `"I run processPlantumlPrompts task"` | Exécute le task avec mock
+| 2.6 | Implémenter steps de vérification (diagram, PNG, suppression) | Assertions fonctionnelles
+| 2.7 | **Scénario 1** : Décommenter step-by-step et valider | Test passant ✅
+| 2.8 | **Scénario 2** : Décommenter step-by-step et valider | Test passant ✅
+| 2.9 | **Scénario 3** : Décommenter step-by-step et valider | Test passant ✅
+|===
+
+**Livrable** : 3 scénarios fonctionnels dans `2_plantuml_processing.feature`
+
+'''
+
+=== **Session 80 — Correction timeouts Cucumber** ✅
+
+**Problème** : Tests Cucumber timeout (>2 min) ou échouent avec erreurs de classpath
+
+**Solutions appliquées** :
+
+* ✅ `PlantumlWorld.kt:111-112` : Timeouts Ollama 1s → 5s
+* ✅ `PlantumlWorld.kt:168-214` : Suppression `withPluginClasspath()` (provoque erreur `build/classes/java/main`)
+* ✅ `PlantumlWorld.kt` : Ajout `withTestKitDir()` pour cache Gradle partagé
+* ✅ `PlantumlWorld.kt` : `withGradleVersion("9.4.1")` pour correspondre à la version système
+* ✅ `PlantumlWorld.kt:48-70` : Template projet avec `mavenLocal()` en premier + version `"0.0.0"`
+* ✅ `build.gradle.kts:288` : Timeout 5 min pour tâche `cucumberTest`
+
+**Résultat** : 7/7 scénarios Cucumber passants en 31s ✅
+
+'''
+
+=== **Phase 3 : Tests de validation syntaxe** (1 session)
+
+**Objectif** : Activer `3_syntax_validation.feature`
+
+**⚠️ MÉTHODOLOGIE : Approche TDD incrémentale** (same as Phase 2)
+
+|===
+| Tâche | Description | Critère d'acceptation
+
+| 3.1 | Ajouter step `"a valid PlantUML file {string} with content {string}"` | Crée fichier `.puml`
+| 3.2 | Ajouter step `"an invalid PlantUML file {string} with content {string}"` | Crée fichier invalide
+| 3.3 | Ajouter step `"I run validatePlantumlSyntax task with file {string}"` | Exécute task validation
+| 3.4 | Ajouter steps de vérification (valid/invalid/error details) | Assertions sur output
+| 3.5 | **Scénario 1** : Décommenter step-by-step et valider | Test passant ✅
+| 3.6 | **Scénario 2** : Décommenter step-by-step et valider | Test passant ✅
+| 3.7 | **Scénario 3** : Décommenter step-by-step et valider | Test passant ✅
+|===
+
+**Livrable** : 3 scénarios fonctionnels dans `3_syntax_validation.feature`
+
+'''
+
+=== **Phase 4 : Tests d'historique des tentatives** — ✅ TERMINÉE Session 83
+
+**Objectif** : Refondre et activer `4_attempt_history.feature` — **100% COMPLÉTÉ** ✅
+
+**Résultats Session 83** :
+
+* ✅ 3/3 scénarios passants
+* ✅ 13/13 scénarios Cucumber passants (100% EPIC BDD)
+
+**Solutions clés** :
+
+. ✅ `ProcessPlantumlPromptsTask` : Ajout `System.setProperty("plugin.project.dir", ...)`
+. ✅ `ProcessPlantumlPromptsTask` : Propagation `plantuml.test.mode` comme propriété système
+. ✅ `LlmService.createChatModel()` : Retourne `null` seulement si mode test SANS mock
+. ✅ `LlmService.createChatModel()` : Utilise vrai `ChatModel` si mock LLM configuré (localhost)
+. ✅ Tests : Correction assertions pour vérifier `totalAttempts` dans JSON (1 fichier avec N entrées)
+. ✅ Tests : Utilisation fichier JSON le plus récent pour éviter conflits parallèles
+. ✅ Feature : Correction `5 iterations` → `6 entrées` (itération 0 + 5 corrections)
+
+'''
+
+=== **Phase 5 : Consolidation & Qualité** (1 session)
+
+**Objectif** : Assurer la qualité et la maintenabilité
+
+|===
+| Tâche | Description | Critère d'acceptation
+
+| 5.1 | Exécuter tous les tests Cucumber (`./gradlew cucumberTest`) | 100% des scénarios passent
+| 5.2 | Vérifier le rapport HTML (`build/reports/cucumber.html`) | Rapport propre et lisible
+| 5.3 | Ajouter tags @wip pour tests en développement | Filtrage fonctionnel
+| 5.4 | Documenter les steps dans un README | `src/test/scenarios/README.adoc`
+| 5.5 | Nettoyer les fichiers temporaires après chaque test | Pas de fuite de fichiers
+| 5.6 | Ajouter test de performance (timeout < 30s par scénario) | Tests rapides
+|===
+
+**Livrable** : Suite de tests complète et documentée
+
+'''
+
+== 📈 Métriques de succès
+
+|===
+| Métrique | Cible
+
+| Nombre de scénarios fonctionnels | 10 (1 actuel + 9 nouveaux)
+| Couverture des fonctionnalités | 100% (processing, validation, history)
+| Temps d'exécution total | < 5 minutes
+| Taux de réussite | 100% (hors @wip)
+|===
+
+'''
+
+== 🔗 Dépendances entre phases
+
+[source]
+----
+Phase 1 (Fondation)
+    ↓
+Phase 2 (Processing) ────┐
+    ↓                    │
+Phase 3 (Validation)     │
+    ↓                    │
+Phase 4 (History) ◄──────┘ (utilise helpers Phase 2)
+    ↓
+Phase 5 (Consolidation)
+----
+
+'''
+
+== 🚩 Points de vigilance
+
+. **Mock LLM** : Bien comprendre le format de réponse Ollama attendu par `LlmService`
+. **Isolation des tests** : Chaque scénario doit avoir son propre dossier projet temporaire
+. **Nettoyage** : S'assurer que `cleanup()` est appelé après chaque scénario
+. **Tags** : Utiliser `@wip` pour les tests en développement, `@integration` pour ceux nécessitant un vrai LLM
+. **Timeout** : Les tests GradleRunner peuvent être lents → ajuster les timeouts si nécessaire
+
+'''
+
+== 📅 Estimation
+
+|===
+| Phase | Sessions estimées | Complexité
+
+| Phase 1 | 1-2 | Moyenne
+| Phase 2 | 2-3 | Élevée
+| Phase 3 | 1 | Faible
+| Phase 4 | 2-3 | Élevée
+| Phase 5 | 1 | Faible
+| **Total** | **7-10 sessions** | -
+|===
+
+'''
+
+== 📝 Historique des sessions
+
+=== Session 79 — 17 Avril 2026 — Phase 2 (PlantUML Processing) ✅ **TERMINÉE**
+
+**Objectif** : Validation step-by-step des 3 scénarios de `2_plantuml_processing.feature`
+
+**Réalisé** :
+
+* ✅ **Correction bug** : Ajout `plantuml.langchain4j.ollama.baseUrl` dans `ProcessPlantumlPromptsTask.loadConfiguration()` (ligne 116-144)
+* ✅ **Phase 2.7** : Scénario 1 validé (6 steps : prompt, mock LLM, task, diagram, PNG, suppression)
+* ✅ **Phase 2.8** : Scénario 2 validé (6 steps : syntax error correction avec max iterations)
+* ✅ **Phase 2.9** : Scénario 3 validé (6 steps : multiple prompt files)
+* ✅ **Tests Cucumber** : 7 scénarios passants (1 canaire + 3 processing + 3 validation)
+
+**Fichiers modifiés** :
+
+* `src/main/kotlin/plantuml/tasks/ProcessPlantumlPromptsTask.kt` — Correction configuration baseUrl
+* `src/test/features/2_plantuml_processing.feature` — 3 scénarios décommentés
+
+**Prochaine session** : Session 80 — Phase 3 (Tests de validation syntaxe) ou Phase 4 (Historique des tentatives)
+
+'''
+
+=== Session 77 — 17 Avril 2026 — Initialisation Plan BDD Cucumber ✅
+
+**Objectif** : Initialisation du plan d'attaque pour les tests Cucumber
+
+**Réalisé** :
+
+* ✅ Analyse de cohérence des fichiers `.feature` commentés
+* ✅ Identification des incohérences (mock LLM, chemins de sortie, AttemptHistorySteps obsolète)
+* ✅ Création du plan d'attaque en 5 phases dans `AGENT_PLAN.adoc`
+* ✅ Restauration des fichiers méthodologiques supprimés (SESSIONS_HISTORY.adoc, EPIC_CONSOLIDATION_TESTS_FONCTIONNELS.adoc, etc.)
+* ✅ Mise à jour de `PROMPT_REPRISE.adoc` pour Session 77
+* ✅ Tests Cucumber passants (1/1 scénario)
+
+**Phases complétées** : Aucune (session d'initialisation uniquement)
+
+**Prochaine session** : Session 78 — Démarrage Phase 1 (Fondation & Infrastructure)
+
+'''
+
+== 🔄 Procédure de fin de session (Rappel)
+
+****
+
+**⚠️ IMPORTANT** : Suivre la procédure dans `SESSION_PROCEDURE.adoc` avant chaque fin de session :
+
+. ✅ Mettre à jour cette section avec le résumé de la session
+. ✅ Mettre à jour `SESSIONS_HISTORY.adoc` avec l'entrée de la session
+. ✅ Mettre à jour `COMPLETED_TASKS_ARCHIVE.adoc` avec les tâches terminées
+. ✅ Mettre à jour `PROMPT_REPRISE.adoc` avec la prochaine mission
+
+**⚠️ Git** : L'utilisateur gère Git manuellement (commit, push)
+
+****
+
+'''
+
+== 📚 Fichiers de référence — Quand les utiliser
+
+|===
+| Fichier | Rôle | Chargement
+
+| `AGENT_PLAN.adoc` | Plan d'attaque Epic BDD | **Toujours**
+| `SESSIONS_HISTORY.adoc` | Historique complet des sessions | **Fin de session**
+| `SESSION_PROCEDURE.adoc` | Procédure de fin de session | **Fin de session**
+| `SESSION_CHECKLIST.adoc` | Checklist transition session | **Fin de session**
+| `COMPLETED_TASKS_ARCHIVE.adoc` | Archive tâches terminées | **Fin de session**
+| `PROMPT_REPRISE.adoc` | Mission session en cours | **Début session**
+|===
+
+'''
+
+== 🗂️ Fichiers de référence
+
+|===
+| Fichier | Description
+
+| `src/test/features/1_minimal.feature` | Test canaire fonctionnel
+| `src/test/features/2_plantuml_processing.feature` | Tests de traitement (à activer)
+| `src/test/features/3_syntax_validation.feature` | Tests de validation (à activer)
+| `src/test/features/4_attempt_history.feature` | Tests d'historique (à refondre)
+| `src/test/scenarios/plantuml/scenarios/MinimalSteps.kt` | Steps fonctionnels
+| `src/test/scenarios/plantuml/scenarios/PlantumlSteps.kt` | Steps à décommenter/corriger
+| `src/test/scenarios/plantuml/scenarios/AttemptHistorySteps.kt` | Steps à refondre
+| `src/test/scenarios/plantuml/scenarios/PlantumlWorld.kt` | World à enrichir
+| `src/test/scenarios/plantuml/scenarios/CucumberTestRunner.kt` | Runner de tests
+|===

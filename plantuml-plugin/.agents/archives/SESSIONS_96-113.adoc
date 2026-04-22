@@ -1,0 +1,513 @@
+= Historique des Sessions — PlantUML Gradle Plugin
+
+== Sessions 96-113 — Consolidation & API Key Pool
+
+_Période_ : 18-20 avril 2026  
+_Total sessions_ : 18 sessions  
+_EPICs couvert_ : EPIC 4 (Documentation), EPIC 6 (API Key Pool)
+
+'''
+
+== 📊 Vue d'ensemble
+
+|===
+| Session | Date | Type | Sujet | Résultat
+| ---------|------|------|-------|----------
+| 113 | 2026-04-20 | feat | Quota Tracker + Reset + Audit | ✅ 63/63 tests
+| 112 | 2026-04-20 | feat | LlmService + ConfigLoader + ApiKeyPool | ✅ 17/17 tests
+| 111 | 2026-04-20 | test | Tests fonctionnels TDD ApiKeyPool | ✅ 16/16 tests
+| 110 | 2026-04-20 | test | Data models unit tests | ✅ 27/27 tests
+| 109 | 2026-04-20 | docs | Formalisation LAZY/EAGER | ✅ Documentation
+| 108 | 2026-04-20 | design | API Key Pool Architecture | ✅ Architecture validée
+| 107 | 2026-04-19 | docs | Nettoyage documentation | ✅ 153 lignes supprimées
+| 106 | 2026-04-19 | fix | Correction 6 tests | ✅ 240/240 PASS
+| 105 | 2026-04-19 | test | Performance tests mockés | ✅ 57/57 maintenu
+| 104 | 2026-04-19 | test | Correction Archive history | ✅ Feature 4 complétée
+| 103 | 2026-04-19 | test | Error Handling | ✅ Feature 7 complétée
+| 102 | 2026-04-19 | test | Performance tests optimisés | ✅ 55/57 PASS
+| 101 | 2026-04-18 | test | Consolidation tests fonctionnels | ✅ 46/57 PASS
+| 100 | 2026-04-18 | test | Feature 5 RAG Pipeline | ✅ 4/4 PASS
+| 99 | 2026-04-18 | test | Validation Features 10-11 | ✅ 13/13 PASS
+| 98 | 2026-04-18 | test | Features 10-11 partiel | 🟡 Steps ajoutés
+| 97 | 2026-04-18 | fix | Résolution conflits steps | ✅ Compilation OK
+| 96 | 2026-04-18 | test+opt | Feature 10-11 + Contexte | 🟡 Conflits à résoudre
+|===
+
+---
+
+== 🔍 Détails par Session
+
+=== Session 113 — Quota Tracker + Reset automatique (20 avril 2026)
+
+_Statut_ : ✅ _TERMINÉE_  
+_Mission_ : Quota Tracker + Reset automatique + Audit Logger
+
+_Architecture implémentée_ :
+[source]
+----
+QuotaTracker → Track l'usage par clé
+     ↓
+QuotaResetManager → Reset automatique (DAILY, WEEKLY, MONTHLY, MANUAL, NEVER)
+     ↓
+QuotaAuditLogger → Audit logger pour tracer chaque utilisation
+     ↓
+ApiKeyPool (mis à jour) → Intègre les 3 composants
+----
+
+_Fichiers créés_ :
+* `src/main/kotlin/plantuml/apikey/QuotaTracker.kt` (68 lignes)
+* `src/main/kotlin/plantuml/apikey/QuotaResetManager.kt` (140 lignes)
+* `src/main/kotlin/plantuml/apikey/QuotaAuditLogger.kt` (156 lignes)
+* `src/test/kotlin/plantuml/apikey/QuotaTrackerTest.kt` (147 lignes, 11 tests)
+* `src/test/kotlin/plantuml/apikey/QuotaResetManagerTest.kt` (142 lignes, 11 tests)
+* `src/test/kotlin/plantuml/apikey/QuotaAuditLoggerTest.kt` (147 lignes, 11 tests)
+* `src/functionalTest/kotlin/plantuml/QuotaResetFunctionalTest.kt` (130 lignes, 3 tests)
+
+_Fichiers modifiés_ :
+* `src/main/kotlin/plantuml/apikey/ApiKeyPool.kt` (+80 lignes)
+* `src/main/kotlin/plantuml/apikey/Provider.kt` (ajout UNKNOWN enum)
+* `src/test/kotlin/plantuml/apikey/ApiKeyPoolTest.kt` (+3 tests)
+
+_Archive_ : `.agents/sessions/113-quota-tracker-reset.adoc`
+
+'''
+
+=== Session 112 — LlmService + ConfigLoader avec ApiKeyPool (20 avril 2026)
+
+_Statut_ : ✅ _100%_ — 17/17 tests PASS
+
+_Modifications_ :
+* _LlmService.kt_ (+80 lignes) : Gestion des pools API par provider, `getNextKey()`
+* _ApiKeyPool.kt_ : Migration vers `ApiKeyEntry` (nouveau modèle)
+* _ConfigLoader_ : Parsing structure `pool` dans YAML
+
+_Archive_ : `.agents/sessions/112-llmservice-configloader-apikeypool.adoc`
+
+'''
+
+=== Session 111 — Tests Fonctionnels API Key Pool (20 avril 2026)
+
+_Statut_ : ✅ _TERMINÉE_ — TDD pur (tests avant implémentation)
+
+_Tests créés_ (6 tests) :
+. `should parse YAML configuration with API key pool`
+. `should handle round robin rotation with WireMock`
+. `should fallback to next key when first key fails with 401`
+. `should log which API key is being used`
+. `should handle multiple providers with separate pools`
+. `should respect quota threshold before rotation`
+
+_Fichiers modifiés_ :
+* `PlantumlFunctionalSuite.kt` (+426 lignes, nested class `ApiKeyPoolRotation`)
+* `models.kt` (+90 lignes : `ApiKeyPoolEntry`, `PoolQuotaConfig`)
+
+_Archive_ : `.agents/sessions/111-tests-fonctionnels-api-key-pool.adoc`
+
+'''
+
+=== Session 110 — Data Models + Tests Unitaires (20 avril 2026)
+
+_Statut_ : ✅ _TERMINÉE_ — 27/27 tests PASS
+
+_Fichiers créés_ :
+* `src/main/kotlin/plantuml/apikey/models.kt` (~90 lignes)
+  * `ApiKeyEntry`, `QuotaConfig`, `ApiKeyPoolConfig`
+  * Enums : `QuotaType`, `ResetPolicy`
+* `src/main/kotlin/plantuml/apikey/Provider.kt` (~45 lignes)
+  * Enums : `Provider`, `ServiceType`, `RotationStrategy`
+* `src/test/kotlin/plantuml/apikey/ApiKeyModelsTest.kt` (~165 lignes)
+* `src/test/kotlin/plantuml/apikey/ProviderEnumsTest.kt` (~120 lignes)
+
+_Métriques_ :
+* 3 data classes, 5 enums, 36 valeurs enum
+* 27 tests, 100% couverture
+
+_Archive_ : `.agents/sessions/110-data-models-unit-tests.adoc`
+
+'''
+
+=== Session 109 — Formalisation Stratégie LAZY/EAGER (20 avril 2026)
+
+_Statut_ : ✅ _TERMINÉE_ — Documentation stratégique
+
+_Fichiers créés_ :
+* `.agents/API_KEY_POOL_ESSENTIALS.adoc` (50 lignes) — Contexte EAGER
+* `AGENT_MODUS_OPERANDI.adoc` (900+ lignes) — Stratégie complète
+
+_Décisions_ :
+* Séparation EAGER (50 lignes critiques) vs LAZY (détails dans AGENT_MODUS_OPERANDI)
+* SUPPRIMÉ : `API_KEY_POOL_CONTEXT.adoc` (200+ lignes → trop lourd)
+
+_Archive_ : `.agents/sessions/109-formalisation-lazy-eager.adoc`
+
+'''
+
+=== Session 108 — API Key Pool Design & Architecture (20 avril 2026)
+
+_Statut_ : ✅ _TERMINÉE_ — Architecture validée
+
+_Décisions clés_ :
+|===
+| # | Décision | Rationale
+| ---|----------|-----------
+| 1 | Stockage : GitHub Secrets (JSON consolidé) | Plus simple, Jackson pour parsing
+| 2 | Sync quota : Manuel (si API provider le permet) | Pas de scraping
+| 3 | Rotation : Avant appel + seuil 80% + échec 429 | Proactif + réactif
+| 4 | **Poids : SUPPRIMÉ** | 1 compte = 1 quota
+| 5 | Fallback : Oui, avec retry automatique | Continuité service
+| 6 | Audit log : Oui, fichier séparé | Traçabilité
+| 7 | MCP : Non (version ultérieure) | Hors scope Phase 1
+| 8 | Format : JSON consolidé | 1 secret GitHub = pool complet
+| 9 | HF Spaces : SpringBoot REST API possible | CPU gratuit, 16GB RAM
+| 10 | 1 clé = accès tous modèles | Simplification
+|===
+
+_Archive_ : `.agents/sessions/108-api-key-pool-design.adoc`
+
+'''
+
+=== Session 107 — Nettoyage & Clarification (19 avril 2026)
+
+_Statut_ : ✅ _TERMINÉE_
+
+_Actions_ :
+* SUPPRIMÉ : `.agents/CONTEXT_2_NIVEAUX.adoc` (153 lignes inutiles)
+* Mis à jour : `ROADMAP.adoc`, `PROMPT_REPRISE.adoc`
+
+_Archive_ : `.agents/sessions/107-nettoyage-clarification.adoc`
+
+'''
+
+=== Session 106 — Correction tests unitaires et fonctionnels (19 avril 2026)
+
+_Statut_ : ✅ _TERMINÉE_ — 240/240 PASS (100%)
+
+_Corrections_ :
+* _5 tests unitaires_ : Paramètre `maxIterations` ajouté, typo `@endulm` → `@enduml`
+* _1 test fonctionnel_ : Permission directory (`/etc/shadow/invalid`)
+
+_Fichiers modifiés_ :
+* `DiagramProcessorPrivateMethodsTest.kt` (lignes 63, 74)
+* `ConfigMerger.kt` (lignes 20, 269)
+* `DiagramProcessor.kt` (ligne 363)
+* `PlantumlFunctionalSuite.kt` (lignes 988-1015, 899-913)
+
+_Archive_ : `.agents/sessions/106-correction-tests-unitaires-fonctionnels.adoc`
+
+'''
+
+=== Session 105 — Performance tests mockés (19 avril 2026)
+
+_Statut_ : ✅ _TERMINÉE_ — 57/57 maintenu
+
+_Objectif_ : Mocking des appels LLM pour tests performance (< 5s)
+
+_Archive_ : `.agents/sessions/105-performance-tests-mockes.adoc`
+
+'''
+
+=== Session 104 — Correction Archive History Test (19 avril 2026)
+
+_Statut_ : ✅ _TERMINÉE_ — 57/57 PASS (100%)
+
+_Problème résolu_ : Test "Archive history after max iterations" échouait
+
+_Causes racines_ :
+. Propriété Gradle ≠ Propriété système (`-P` ≠ `-D`)
+. Exception non capturée dans step Cucumber
+. Mock LLM trop valide (retournait PlantUML valide)
+
+_Corrections_ :
+* `PlantUmlProcessingSteps.kt` : Try/catch + systemProperties
+* `CommonSteps.kt` : Mock avec `@endulm` (faute de frappe)
+* 5 fichiers *Steps.kt : Nettoyage
+
+_Archive_ : `.agents/sessions/104-correction-archive-history.adoc`
+
+'''
+
+=== Session 103 — Correction Feature 4 (19 avril 2026)
+
+_Statut_ : ⚠️ _ÉCHEC_ — Test "Archive history" toujours FAIL
+
+_Problème identifié_ : Archive non créée ou non trouvée
+
+_Corrections appliquées_ :
+* `CommonSteps.kt` : Mock LLM avec syntaxe invalide (`actor User` sans balises)
+* `DiagramProcessor.kt` : Boucle 6 itérations + logging
+
+_À reprendre Session 104_ : Vérifier `archiveAttemptHistory()` appelé avant exception
+
+_Archive_ : `.agents/sessions/103-correction-feature-4.adoc`
+
+'''
+
+=== Session 102 — Correction Feature 7 (19 avril 2026)
+
+_Statut_ : ✅ _TERMINÉE_ — 55/57 PASS (96%)
+
+_Corrections_ :
+* `DiagramProcessor.kt:337-373` : Détection JSON malformé
+* `ProcessPlantumlPromptsTask.kt` : Exception descriptive après max iterations
+* `PlantumlWorld.kt` : Échappement JSON avec Jackson
+* `DiagramTypesSteps.kt` : Correction codes PlantUML
+
+_Archive_ : `.agents/sessions/102-correction-feature-7.adoc`
+
+'''
+
+=== Session 101 — Consolidation Tests (18 avril 2026)
+
+_Statut_ : ✅ _PARTIELLE_ — 46/57 PASS (81%), 1 échec restant
+
+_Évolution_ :
+* Début : 44/57 PASS (77%), 4 FAIL
+* Fin : 46/57 PASS (81%), 1 FAIL
+
+_Corrections_ :
+* SUPPRIMÉ : `taskShouldCompleteSuccessfully()` dupliqué dans `ConfigurationSteps.kt`
+* MODIFIÉ : `openAiShouldBeUsedInsteadOfOllama()` (ligne 160-166)
+
+_Échec restant_ : "Archive history after max iterations" → Session 102
+
+_Archive_ : `.agents/sessions/101-consolidation-tests.adoc`
+
+'''
+
+=== Session 100 — Validation Features 5, 12 & 13 (18 avril 2026)
+
+_Statut_ : ✅ _PARTIELLE_ — Feature 5 validée, Features 12-13 skipped (@wip)
+
+_Résultats_ :
+|===
+| Feature | Scénarios | Statut
+| ---------|-----------|--------
+| 5_rag_pipeline | 4/4 | ✅ PASS
+| 12_performance | 0/5 | ⚪ SKIPPED (@wip)
+| 13_integration_e2e | 0/4 | ⚪ SKIPPED (@wip)
+|===
+
+_Total_ : 72/81 (89%)
+
+_Feature 5 — RAG Pipeline_ :
+* ✅ Reindex RAG creates embeddings in pgvector
+* ✅ RAG context is injected in LLM prompts
+* ✅ Incremental reindex skips unchanged prompts
+* ✅ RAG cleanup removes deleted prompt embeddings
+
+_Archive_ : `.agents/sessions/100-validation-features-5-12-13.adoc`
+
+'''
+
+=== Session 99 — Validation Features 10 & 11 (18 avril 2026)
+
+_Statut_ : ✅ _TERMINÉE_ — 13/13 scénarios PASS
+
+_Résultats_ :
+|===
+| Feature | Scénarios | Statut
+| ---------|-----------|--------
+| 10_file_edge_cases | 6 | ✅ PASS
+| 11_diagram_types | 7 | ✅ PASS
+|===
+
+_Couverture totale_ : 81/81 (100%) — _OBJECTIF ATTEINT_ 🎉
+
+_Modifications_ :
+* `FileEdgeCasesSteps.kt` : Mock LLM pour tous les steps (UTF-8, large files, empty, etc.)
+* `DiagramTypesSteps.kt` : Mock LLM dynamique selon type de diagramme
+
+_Archive_ : `.agents/sessions/99-validation-complete-features-10-11.adoc`
+
+'''
+
+=== Session 98 — Validation Features 10 & 11 (18 avril 2026)
+
+_Statut_ : ⚠️ _PARTIELLE_ — Tags @wip retirés, steps ajoutés
+
+_Actions_ :
+* SUPPRIMÉ : Duplication `@Given("one prompt file is deleted")` dans `RagPipelineSteps.kt`
+* AJOUTÉ : `@Then("the task should complete successfully")` dans `FileEdgeCasesSteps.kt`
+* RETIRÉ : Tags `@wip` dans Features 10 et 11
+
+_Archive_ : `.agents/sessions/98-validation-features-10-11.adoc`
+
+'''
+
+=== Session 97 — Résolution Conflits Step Definitions (18 avril 2026)
+
+_Statut_ : ✅ _TERMINÉE_ — Conflits résolus, compilation validée
+
+_Conflits résolus_ :
+. `@When("I run processPlantumlPrompts task")` — 5 duplications → 1 conservé (`ConfigurationSteps.kt`)
+. `@Given("the prompt file has not been modified")` — 2 duplications → 1 conservé (`IncrementalProcessingSteps.kt`)
+. `runProcessPlantumlPromptsTaskForChecksum()` — Méthode orpheline supprimée
+
+_Archive_ : `.agents/sessions/97-conflits-resolus.adoc`
+
+'''
+
+=== Session 96 — Feature 10 + 11 + Context Optimization (18 avril 2026)
+
+_Statut_ : ⚠️ _INCOMPLÈTE_ — Conflits de step definitions
+
+_Objectifs_ :
+|===
+| Objectif | Statut
+| ----------|--------
+| Feature 10 File Edge Cases (6 scénarios) | 🟡 Steps créés, conflits
+| Feature 11 Diagram Types (7 scénarios) | 🟡 Steps créés, conflits
+| Résolution conflits | ❌ À Session 97
+|===
+
+_Fichiers créés_ :
+* `FileEdgeCasesSteps.kt` (~180 lignes)
+* `DiagramTypesSteps.kt` (~250 lignes)
+
+_Conflits identifiés_ :
+* `@Given("a prompt file {string} with content {string}")` — 3 duplications
+* `@When("I run processPlantumlPrompts task")` — 4 duplications
+
+_Archive_ : `.agents/sessions/96-feature10-11-partiel.adoc`
+
+'''
+
+=== Session 96 (bis) — Context Optimization (18 avril 2026)
+
+_Statut_ : ✅ _TERMINÉE_ — Optimisation du contexte
+
+_Réalisé_ :
+* Analyse : 63 fichiers (~12 100 lignes)
+* Archivé : ~13 000 lignes (32 fichiers) dans `.agents/archives/`
+* Résumé `PROMPT_REPRISE.adoc` : 505 → 200 lignes (-60%)
+* Créé : `.contextrc` pour bootstrap contexte
+
+_Fichiers archivés_ :
+* `CODE_REVIEW_2026-04.adoc` (1 595 lignes)
+* `SESSIONS_HISTORY_83-95.adoc` (2 183 lignes)
+* `COMPLETED_TASKS_ARCHIVE_2026-04.adoc` (1 688 lignes)
+* `prompts_archive/` (8 fichiers, 1 822 lignes)
+* `sessions_summaries/` (13 fichiers, 2 342 lignes)
+* `tests_analysis/` (6 fichiers, 2 407 lignes)
+
+_Archive_ : `.agents/sessions/96-context-optimization.adoc`
+
+'''
+
+=== Session 95 — Feature 8 (fin) + Feature 9 Incremental (18 avril 2026)
+
+_Statut_ : ✅ _TERMINÉE_
+
+_Objectifs atteints_ :
+|===
+| Objectif | Statut
+| ----------|--------
+| Fix Feature 8 @wip scenarios (2) | ✅ Custom directories + env vars
+| Feature 9 Incremental Processing (5 scénarios) | ✅ 5/5 implémentés
+| Retirer tags @wip | ✅ Feature 8 + 9
+| Compilation | ✅ OK
+|===
+
+_Modifications clés_ :
+* `ConfigMerger.kt` : Ajout `loadFromEnvironment()` + support env vars
+* `IncrementalProcessingSteps.kt` (_CRÉÉ_, 280 lignes) : 5 scénarios Feature 9
+* `PlantumlWorld.kt` : Ajout `environmentVariables` map
+
+_Scénarios Feature 9_ :
+. Skip unchanged prompts on re-run (Checksum + UP-TO-DATE)
+. Reprocess modified prompts
+. Cleanup outputs when prompts are deleted
+. Use checksum-based change detection
+. Force reprocessing with clean flag
+
+_Archive_ : `.agents/sessions/95-feature8-fin-feature9-incremental.adoc`
+
+'''
+
+== 📈 Statistiques Sessions 96-113
+
+|===
+| Métrique | Valeur
+| ----------|--------
+| Total sessions | 18
+| Sessions terminées ✅ | 16 (89%)
+| Sessions partielles 🟡 | 2 (11%)
+| Tests créés | ~150+
+| Fichiers créés | ~25+
+| Fichiers modifiés | ~40+
+| Lignes de code ajoutées | ~3 500+
+|===
+
+=== Types de sessions
+
+|===
+| Type | Count | Pourcentage
+| ------|-------|-------------
+| test | 8 | 44%
+| feat | 4 | 22%
+| docs | 3 | 17%
+| fix | 2 | 11%
+| design | 1 | 6%
+|===
+
+=== Évolution couverture tests
+
+|===
+| Session | Tests PASS | Total | Pourcentage
+| ---------|------------|-------|-------------
+| 95 | 72/81 | 81 | 89%
+| 100 | 72/81 | 81 | 89%
+| 102 | 55/57 | 57 | 96%
+| 104 | 57/57 | 57 | 100%
+| 106 | 240/240 | 240 | 100%
+| 110 | 27/27 | 27 | 100%
+| 111 | 16/16 | 16 | 100%
+| 112 | 17/17 | 17 | 100%
+| 113 | 63/63 | 63 | 100%
+|===
+
+---
+
+== 🎯 EPIC 6 : API Key Pool (Sessions 108-113)
+
+_Progression_ : 🟡 75% (3/4 phases complétées)
+
+|===
+| Phase | Sessions | Statut
+| -------|----------|--------
+| 1. Architecture & Design | 108 | ✅ 100%
+| 2. Data Models + Tests | 109-110 | ✅ 100%
+| 3. Intégration + Tests fonctionnels | 111-112 | ✅ 100%
+| 4. Quota Tracking + Audit | 113 | ✅ 100%
+| 5. Audit Logger dans LlmService | 114+ | ⏳ Pending
+|===
+
+_Composants implémentés_ :
+* ✅ `ApiKeyEntry`, `QuotaConfig`, `ApiKeyPoolConfig`
+* ✅ `ApiKeyPool` (round-robin rotation)
+* ✅ `QuotaTracker` (track usage)
+* ✅ `QuotaResetManager` (reset automatique)
+* ✅ `QuotaAuditLogger` (audit logging)
+* ✅ `LlmService` (intégration pool)
+* ✅ `ConfigLoader` (parsing YAML pool)
+* ⏳ Audit Logger dans `LlmService` (Session 114)
+
+'''
+
+== 📁 Fichiers d'archive associés
+
+|===
+| Fichier | Sessions couvertes
+| ---------|-------------------
+| `.agents/archives/SESSIONS_1-72_ARCHIVE.adoc` | 1-72
+| `.agents/archives/SESSIONS_HISTORY_83-95.adoc` | 83-95
+| `.agents/archives/SESSIONS_96-113.adoc` (ce fichier) | 96-113
+|===
+
+_Sessions détaillées_ : `.agents/sessions/` (28 fichiers .adoc)
+
+'''
+
+_Document créé_ : 20 avril 2026  
+_Dernière mise à jour_ : 20 avril 2026  
+_Prochaine archive_ : Sessions 114+ (à créer)

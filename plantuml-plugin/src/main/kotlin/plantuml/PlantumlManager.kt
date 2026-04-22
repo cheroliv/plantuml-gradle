@@ -8,6 +8,7 @@ import plantuml.PlantumlPlugin.PlantumlExtension
 import plantuml.tasks.ProcessPlantumlPromptsTask
 import plantuml.tasks.ReindexPlantumlRagTask
 import plantuml.tasks.ValidatePlantumlSyntaxTask
+import plantuml.tasks.GenerateDiagramDocsTask
 import java.io.File
 
 /**
@@ -78,10 +79,10 @@ object PlantumlManager {
      */
     object Tasks {
         fun registerTasks(project: Project) {
-            // Register processing tasks
             project.tasks.register("processPlantumlPrompts", ProcessPlantumlPromptsTask::class.java)
             project.tasks.register("validatePlantumlSyntax", ValidatePlantumlSyntaxTask::class.java)
             project.tasks.register("reindexPlantumlRag", ReindexPlantumlRagTask::class.java)
+            project.tasks.register("generateDiagramDocs", GenerateDiagramDocsTask::class.java)
         }
     }
 

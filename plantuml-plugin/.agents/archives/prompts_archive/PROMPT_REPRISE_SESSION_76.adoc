@@ -1,0 +1,233 @@
+= 🔄 Prompt de reprise — Session 77
+
+____
+**EPIC** : EPIC 4 — Documentation & Qualité  
+**Statut** : Session 76 TERMINÉE — Correction diagrammes PlantUML README ✅  
+**Session 77** : À définir (Score Roadmap : 9.0/10 ✅ OPTIMAL)
+____
+
+'''
+
+== 📊 Session 76 — Résumé (TERMINÉE)
+
+=== Correction diagrammes PlantUML dans les README
+
+_Problème_ : Diagrammes PlantUML à corriger dans la documentation
+
+_Solution_ : Correction syntaxe PlantUML dans les blocs `[plantuml]`
+
+_Résultats_ :
+* ✅ _README_truth.adoc_ : 802 lignes, diagrammes valides
+* ✅ _README_truth_fr.adoc_ : 802 lignes, diagrammes valides
+* ✅ _Structure identique_ : EN et FR parfaitement synchronisés
+* ✅ _Commit_ : `d96bccf fix plantuml diagrams in readmes`
+
+_Fichiers modifiés_ :
+* `README_truth.adoc` — Correction diagrammes PlantUML
+* `README_truth_fr.adoc` — Correction diagrammes PlantUML
+
+_Voir_ : `.sessions/SESSION_76_SUMMARY.adoc` pour détails complets
+
+'''
+
+== 🎯 Session 77 — Mission (À DÉFINIR)
+
+=== Score Roadmap : 9.0/10 ✅ OPTIMAL ATTEINT
+
+_EPIC 1 : Performance & Stabilité_ ✅ _TERMINÉ_ (9.0/10)  
+_EPIC 2 : RAG Production-Ready_ ✅ _TERMINÉ_ (9.0/10)  
+_EPIC 3 : Consolidation Tests Fonctionnels_ ✅ _TERMINÉ_ (9.0/10)  
+_EPIC 4 : Documentation & Qualité_ 🟡 _EN PROGRÈS_ (7.5/10)
+
+_Pistes potentielles_ :
+
+==== 1. Story 4.3 — Documentation API avec KDoc
+* _Objectif_ : Ajouter KDoc aux classes publiques du plugin
+* _Fichiers cibles_ : `src/main/kotlin/*_/_.kt`
+* _Critère_ : 100% des classes/méthodes publiques documentées
+
+==== 2. Story 4.4 — Améliorations qualité marginales
+* _Objectif_ : Detekt, ktlint, ou autres outils de qualité
+* _Fichiers cibles_ : `build.gradle.kts`
+* _Critère_ : 0 warning, 0 error
+
+==== 3. Consolidation tests RAG (si nécessaire)
+* _Objectif_ : Vérifier stabilité tests RAG avec testcontainers
+* _Fichiers cibles_ : `ReindexPlantumlRagIntegrationTest.kt`
+* _Critère_ : 10/10 tests PASS
+
+==== 4. Autre (à définir par l'utilisateur)
+
+'''
+
+== 📚 Fichiers de Référence
+
+|===
+| Fichier | Rôle
+| ---------|------
+| `INDEX.adoc` | **Index léger** — Vue d'ensemble (chargé par défaut)
+| `PROMPT_REPRISE.adoc` | Prompt de reprise **courant** (Session 75)
+| `COMPLETED_TASKS_ARCHIVE.adoc` | Archive tâches terminées
+| `.agents/` | **Documentation détaillée** (chargée sur besoin)
+| `.sessions/` | Résumés de sessions archivés (61-74)
+| `.prompts/` | Prompts de reprise archivés (65-74)
+|===
+
+_Voir_ : `INDEX.adoc` pour la liste complète des fichiers `.agents/`
+
+'''
+
+== 🔧 Commandes de Référence
+
+=== Tests fonctionnels
+[source,bash]
+----
+# Dév quotidien — tests rapides
+./gradlew functionalTest --tests "*quick*"     # ~23s
+
+# Validation complète — tous les tests
+./gradlew functionalTest                       # ~35s
+
+# Tests lents uniquement (RAG, permissions, network)
+./gradlew functionalTest --tests "*slow*"      # ~15s
+
+# Avec configuration cache (encore plus rapide)
+./gradlew functionalTest --configuration-cache
+----
+
+=== Tests unitaires
+[source,bash]
+----
+./gradlew test
+----
+
+=== Tous les tests
+[source,bash]
+----
+./gradlew check
+----
+
+=== Générer rapport Kover
+[source,bash]
+----
+./gradlew koverHtmlReport
+----
+
+'''
+
+== 📊 État des Tests
+
+=== Tests fonctionnels (45 tests)
+
+_Tags_ :
+* `@Tag("quick")` : 18 tests (< 5s) — dév quotidien
+* `@Tag("slow")` : 18 tests (> 10s) — validation complète
+* `@Disabled` : 7 tests cloud (requièrent credentials)
+
+|===
+| Nested Class | Tests | Statut
+| --------------|-------|--------
+| PluginLifecycle | 6 | ✅ PASS
+| LlmProviderConfiguration | 8 | 2 PASS, 6 SKIP
+| GradleSharedInstance | 4 | ✅ PASS
+| PluginIntegration | 11 | ✅ PASS
+| FilePermission | 4 | ✅ PASS
+| LargeFileAndPath | 4 | ✅ PASS
+| NetworkTimeout | 4 | ✅ PASS
+| Performance | 4 | ✅ PASS
+| RAG task | 4 | 1 PASS, 3 SKIP
+| **Total** | **45** | **38 PASS, 7 SKIP**
+|===
+
+=== Tests unitaires (203 tests)
+
+* ✅ _203/203 PASS_ (100%)
+
+'''
+
+== 🏗 Architecture — Organisation des Fichiers (Session 71)
+
+Depuis la Session 71, les fichiers sont organisés ainsi :
+
+[source]
+----
+plantuml-plugin/
+├── INDEX.adoc                       # Index léger (chargé par défaut)
+├── PROMPT_REPRISE.adoc              # Prompt de reprise COURANT (Session N)
+├── COMPLETED_TASKS_ARCHIVE.adoc     # Archive tâches terminées
+├── .prompts/                      # Archives prompts de reprise
+│   ├── PROMPT_REPRISE_SESSION_65.adoc
+│   ├── PROMPT_REPRISE_SESSION_66.adoc
+│   ├── PROMPT_REPRISE_SESSION_67.adoc
+│   ├── PROMPT_REPRISE_SESSION_69.adoc
+│   ├── PROMPT_REPRISE_SESSION_72.adoc
+│   └── PROMPT_REPRISE_SESSION_74.adoc
+├── .sessions/                     # Archives résumés de sessions
+│   ├── SESSION_61_SUMMARY.adoc
+│   ├── SESSION_62_SUMMARY.adoc
+│   ├── SESSION_63_SUMMARY.adoc
+│   ├── SESSION_64_SUMMARY.adoc
+│   ├── SESSION_65_SUMMARY.adoc
+│   ├── SESSION_66_SUMMARY.adoc
+│   ├── SESSION_67_SUMMARY.adoc
+│   ├── SESSION_68_SUMMARY.adoc
+│   ├── SESSION_69_SUMMARY.adoc
+│   ├── SESSION_73_SUMMARY.adoc
+│   └── SESSION_74_SUMMARY.adoc
+└── .agents/                       # Documentation détaillée (sur besoin)
+    ├── ARCHITECTURE.adoc            # ex-AGENTS.md
+    ├── REFERENCE.adoc               # ex-AGENT_REFERENCE.adoc
+    ├── PROCEDURES.adoc              # ex-SESSION_PROCEDURE.adoc
+    ├── SESSIONS_HISTORY.adoc        # Historique complet
+    ├── TROUBLESHOOTING.adoc         # Guide EN
+    ├── TROUBLESHOOTING_fr.adoc      # Guide FR
+    ├── CODE_OF_CONDUCT.adoc         # Code conduite EN
+    ├── CODE_OF_CONDUCT_fr.adoc      # Code conduite FR
+    ├── CONTRIBUTING.adoc            # Contribution EN
+    ├── CONTRIBUTING_fr.adoc         # Contribution FR
+    ├── AGENT_METHODOLOGIES.adoc     # Méthodologies
+    ├── SESSION_CHECKLIST.adoc       # Checklist
+    └── tests/                     # Analyses tests
+        ├── OVERLAP_ANALYSIS.adoc
+        ├── TEST_COVERAGE_AFTER_CLEANUP.adoc
+        ├── TEST_COVERAGE_ANALYSIS.adoc
+        ├── METHODOLOGIE_OPTIMISATION_TESTS.adoc
+        ├── EPIC_FUNCTIONAL_TEST_CONSOLIDATION.adoc
+        └── EPIC_CONSOLIDATION_TESTS_FONCTIONNELS.adoc
+----
+
+_Règle_ :
+* _Fichiers courants_ : Racine (`INDEX.adoc`, `PROMPT_REPRISE.adoc`, `COMPLETED_TASKS_ARCHIVE.adoc`)
+* _Documentation détaillée_ : `.agents/` (chargé sur besoin)
+* _Archives sessions_ : `.prompts/` et `.sessions/`
+
+'''
+
+== ⚠️ Pièges à Éviter (Rappel)
+
+. ❌ _Oublier de mettre à jour `.agents/SESSIONS_HISTORY.adoc`_ — Toujours documenter en fin de session
+. ❌ _Mélanger archives et fichiers courants_ — Respecter `.prompts/`, `.sessions/`, `.agents/`
+. ❌ _Créer des fichiers dans la racine_ — Utiliser `INDEX.adoc` (racine) ou `.agents/` (détails)
+. ❌ _Oublier la traduction FR_ — Toujours créer EN + FR pour la documentation
+. ❌ _Charger tous les fichiers `.agents/`_ — Uniquement sur besoin contextuel
+. ❌ _Traduire fichiers `.adoc` ou `.adoc`_ — Uniquement le code (`.kt`)
+
+'''
+
+== 📝 Procédure de Fin de Session (Rappel)
+
+_Voir_ : `.agents/PROCEDURES.adoc`
+
+_Étapes_ :
+. ✅ Vérifier que tous les tests passent
+. ✅ Mettre à jour `.agents/SESSIONS_HISTORY.adoc`
+. ✅ Mettre à jour `.agents/ROADMAP.adoc` (si story terminée)
+. ✅ Créer `SESSION_N_SUMMARY.adoc` → `.sessions/`
+. ✅ Créer `PROMPT_REPRISE_SESSION_N.adoc` → `.prompts/` (si nécessaire)
+. ✅ Mettre à jour `PROMPT_REPRISE.adoc` pour Session N+1
+. ✅ Mettre à jour `INDEX.adoc` (si changement majeur)
+. ✅ Commit git (si demandé)
+
+'''
+
+_Session 75 PRÊTE_ — Objectif : À définir par l'utilisateur

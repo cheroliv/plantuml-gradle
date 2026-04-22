@@ -1,0 +1,589 @@
+= 🧭 Mécanisme de Proposition de Méthodologie
+
+_Date de création_ : 2026-04-10  
+_Version_ : 1.0  
+_Objectif_ : Documentation du système de détection et proposition de méthodologies par l'agent
+
+'''
+
+== 📋 Vue d'ensemble
+
+Ce document décrit le _mécanisme de détection automatique_ qui permet à l'agent de proposer la méthodologie appropriée selon le type de session.
+
+_Principe_ : L'agent détecte le type de session via des mots-clés et propose la méthodologie adaptée _uniquement si nécessaire_ (approche just-in-time).
+
+'''
+
+== 🎯 Menu des Méthodologies
+
+=== Tableau de détection (dans AGENTS.md)
+
+|===
+| # | Type de session | Indices détectés | Méthodologie proposée | Fichier à charger
+| 1 | _Optimisation test fonctionnel_ | "optimiser", "réduire temps", "accélérer", `*FunctionalTest.kt` | "Veux-tu que j'applique la méthodologie d'optimisation ?" | `METHODOLOGIE_OPTIMISATION_TESTS.adoc`
+| 2 | _Création test unitaire_ | "créer test", "ajouter test", "couverture", `src/test/*Test.kt` | "Veux-tu que je consulte l'analyse de couverture ?" | `TEST_COVERAGE_ANALYSIS.adoc`
+| 3 | _Debug test fonctionnel_ | "debug", "exécuter test", "faire passer test", `*FunctionalTest.kt` | "Veux-tu que j'applique la méthodologie de debug ?" | `METHODOLOGIE_OPTIMISATION_TESTS.adoc`
+| 4 | _Correction bug_ | "corriger", "bug", "fix", "réparer" | Aucune — agir directement | —
+| 5 | _Nouvelle feature_ | "ajouter", "nouvelle", "feature", "implémenter" | Aucune — agir directement | —
+| 6 | _Fin de session_ | "nouvelle session", "je quitte", "session terminée", "à plus tard" | _PROCÉDURE AUTOMATIQUE_ (5 étapes) | `COMPLETED_TASKS_ARCHIVE.adoc`
+|===
+
+'''
+
+== 🤖 Comportement de l'Agent
+
+=== Règles de détection
+
+==== 1. Analyse du prompt utilisateur
+
+L'agent analyse le prompt pour détecter :
+* ✅ _Mots-clés_ (verbes d'action)
+* ✅ _Noms de fichiers_ (pattern `*Test.kt`)
+* ✅ _Chemins_ (`src/test/`, `src/functionalTest/`)
+* ✅ _Contexte_ (session précédente, backlog)
+
+==== 2. Décision de proposition
+
+_Flow de décision_ :
+[source]
+----
+Prompt utilisateur
+    ↓
+Détection mots-clés + patterns
+    ↓
+Match avec tableau méthodologies ?
+    ↓
+OUI → Proposer méthodologie (format standardisé)
+NON → Agir directement (aucune proposition)
+----
+
+==== 3. Format de proposition
+
+_Template obligatoire_ :
+[source]
+----
+🎯 Méthodologie détectée : [Type de session]
+
+Je peux appliquer :
+- [NOM_DU_FICHIER].adoc
+- Checklist : [Point 1], [Point 2], [Point 3]
+
+Veux-tu que je charge ce fichier et applique cette méthodologie ?
+----
+
+_Exemples_ :
+
+_Optimisation_ :
+[source]
+----
+🎯 Méthodologie détectée : Optimisation test fonctionnel
+
+Je peux appliquer :
+- METHODOLOGIE_OPTIMISATION_TESTS.adoc
+- Checklist : Code inline, maxIterations=1, suppression flags inutiles
+
+Veux-tu que je charge ce fichier et applique cette méthodologie ?
+----
+
+_Création test_ :
+[source]
+----
+🎯 Méthodologie détectée : Création test unitaire
+
+Je peux appliquer :
+- TEST_COVERAGE_ANALYSIS.adoc
+- Checklist : Classes non-testées, méthodes privées, data classes
+
+Veux-tu que je charge ce fichier et applique cette méthodologie ?
+----
+
+_Debug_ :
+[source]
+----
+🎯 Méthodologie détectée : Debug test fonctionnel
+
+Je peux appliquer :
+- METHODOLOGIE_OPTIMISATION_TESTS.adoc (Section "🔄 Processus itératif")
+- Étapes : Run → Debug → Optimise
+
+Veux-tu que je charge ce fichier et applique cette méthodologie ?
+----
+
+'''
+
+== ✅ Règles de Proposition
+
+=== Obligations (✅ À FAIRE)
+
+. ✅ _Toujours proposer_ si la session matche un type connu (tableau ci-dessus)
+. ✅ _Attendre confirmation_ avant de charger le fichier (sauf fin de session)
+. ✅ _Citer 3 points clés_ de la méthodologie (checklist résumé)
+. ✅ _Utiliser le format standardisé_ (emoji + 3 lignes + question)
+. ✅ _Respecter les exceptions_ (liste ci-dessous)
+
+=== Interdictions (❌ À NE PAS FAIRE)
+
+. ❌ _Jamais charger sans confirmation_ (sauf procédure fin de session)
+. ❌ _Jamais proposer si session claire_ (ex: "corriger bug" → agir directement)
+. ❌ _Jamais proposer plusieurs méthodologies_ (une seule à la fois)
+. ❌ _Jamais charger tous les fichiers_ (approche just-in-time)
+
+'''
+
+== 🚫 Exceptions — Ne PAS proposer
+
+|===
+| Cas | Raison | Comportement
+| Session déjà en cours | Méthodologie déjà chargée | Continuer sans re-proposer
+| Utilisateur a spécifié la méthodologie | Déjà dans le prompt | Charger directement (pas de question)
+| Session urgente | "corriger bug critique", "réparer build cassé" | Agir immédiatement
+| Session exploratoire | "comment marche X ?", "où est Y ?" | Répondre sans méthodologie
+| Fin de session | "je quitte", "à plus tard" | _PROCÉDURE AUTOMATIQUE_ (pas de question)
+|===
+
+'''
+
+== 📊 Exemples de Sessions
+
+=== Session 1 — Optimisation (PROPOSITION REQUISE)
+
+_Prompt utilisateur_ :
+[source]
+----
+On attaque MegaOptimizedFunctionalTest.kt
+----
+
+_Agent détecte_ :
+* Pattern : `*FunctionalTest.kt`
+* Contexte : Session précédente = optimisation (LlmHandshakeTest)
+* Type : Optimisation test fonctionnel
+
+_Agent propose_ :
+[source]
+----
+🎯 Méthodologie détectée : Optimisation test fonctionnel
+
+Je peux appliquer :
+- METHODOLOGIE_OPTIMISATION_TESTS.adoc
+- Checklist : Code inline, maxIterations=1, suppression flags inutiles
+
+Veux-tu que je charge ce fichier et applique cette méthodologie ?
+----
+
+_Utilisateur confirme_ :
+[source]
+----
+Oui
+----
+
+_Agent charge_ : `METHODOLOGIE_OPTIMISATION_TESTS.adoc` et applique
+
+'''
+
+=== Session 2 — Création test (PROPOSITION REQUISE)
+
+_Prompt utilisateur_ :
+[source]
+----
+Il manque des tests pour ProcessPlantumlPromptsTask
+----
+
+_Agent détecte_ :
+* Mots-clés : "manque des tests"
+* Nom de classe : `ProcessPlantumlPromptsTask` (tâche Gradle)
+* Type : Création test unitaire
+
+_Agent consulte_ : `TEST_COVERAGE_ANALYSIS.adoc` pour vérifier statut
+
+_Agent propose_ :
+[source]
+----
+🎯 Méthodologie détectée : Création test unitaire
+
+Je peux appliquer :
+- TEST_COVERAGE_ANALYSIS.adoc
+- Checklist : 3 tâches Gradle sans tests, méthodes privées, data classes
+
+Veux-tu que je charge ce fichier et applique cette méthodologie ?
+----
+
+'''
+
+=== Session 3 — Correction bug (AUCUNE PROPOSITION)
+
+_Prompt utilisateur_ :
+[source]
+----
+Le test ValidatePlantumlSyntaxTaskTest échoue avec NullPointerException
+----
+
+_Agent détecte_ :
+* Mots-clés : "échoue", "NullPointerException"
+* Type : Correction bug (urgent)
+
+_Agent agit_ :
+* ❌ Aucune proposition de méthodologie
+* ✅ Analyse directe du problème
+* ✅ Correction immédiate
+
+'''
+
+=== Session 4 — Fin de session (PROCÉDURE AUTOMATIQUE)
+
+_Prompt utilisateur_ :
+[source]
+----
+J'ai fini pour cette session
+----
+
+_Agent détecte_ :
+* Mots-clés : "fini", "session"
+* Type : Fin de session
+
+_Agent exécute_ :
+* ❌ Aucune question posée
+* ✅ _PROCÉDURE AUTOMATIQUE_ (5 étapes) :
+  . Vérifier tests (`./gradlew test`)
+  . Mettre à jour `AGENTS.md`
+  . Mettre à jour `COMPLETED_TASKS_ARCHIVE.adoc`
+  . Mettre à jour `PROMPT_REPRISE.adoc`
+  . Mettre à jour `TEST_COVERAGE_ANALYSIS.adoc` (si besoin)
+* ✅ Réponse : "✅ Procédure exécutée" + résumé 3 lignes
+
+'''
+
+== 🔄 Workflow Complet
+
+[source]
+----
+┌─────────────────────────────────────────┐
+│  Prompt utilisateur                     │
+└──────────────┬──────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────┐
+│  Analyse : mots-clés + patterns         │
+│  - "optimiser", "créer", "debug", etc.  │
+│  - Noms de fichiers (*Test.kt)          │
+│  - Chemins (src/test/, src/functional/) │
+└──────────────┬──────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────┐
+│  Match avec tableau méthodologies ?     │
+└──────────────┬──────────────────────────┘
+               │
+       ┌───────┴───────┐
+       │               │
+      OUI             NON
+       │               │
+       ▼               ▼
+┌─────────────┐  ┌─────────────────┐
+│ Exceptions ?│  │ Agir directement│
+│ - Urgent ?  │  │ (aucune propo)  │
+│ - Déjà en   │  └─────────────────┘
+│   cours ?   │
+│ - Spécifié  │
+│   par user ?│
+└──────┬──────┘
+       │
+   ┌───┴───┐
+   │       │
+  OUI     NON
+   │       │
+   ▼       ▼
+┌─────────┐ ┌─────────────────────────────┐
+│ Agir    │ │ Proposer méthodologie       │
+│ direct  │ │ (format standardisé)        │
+└─────────┘ └──────────────┬──────────────┘
+                           │
+                           ▼
+                  ┌────────────────────────┐
+                  │ Utilisateur confirme ? │
+                  └────────┬───────────────┘
+                           │
+                    ┌──────┴──────┐
+                    │             │
+                   OUI           NON
+                    │             │
+                    ▼             ▼
+           ┌─────────────┐ ┌──────────────┐
+           │ Charger     │ │ Continuer    │
+           │ fichier +   │ │ sans         │
+           │ Appliquer   │ │ méthodologie │
+           └─────────────┘ └──────────────┘
+----
+
+'''
+
+== 📚 Fichiers de Méthodologie
+
+=== 1. METHODOLOGIE_OPTIMISATION_TESTS.adoc
+
+_Objectif_ : Optimisation des tests fonctionnels
+
+_Contenu_ :
+* Principes fondamentaux (5 règles)
+* Techniques d'optimisation (4 techniques)
+* Checklist d'optimisation (20 points)
+* Exemples Avant/Après
+* Statistiques d'optimisation
+* Leçons apprises
+
+_Quand charger_ :
+* ✅ Session d'optimisation (`*FunctionalTest.kt`)
+* ✅ Session de debug de test fonctionnel
+* ❌ Jamais pour les tests unitaires
+
+_Points clés à citer_ :
+. Code inline (suppression @BeforeEach)
+. maxIterations=1 (LLM)
+. Suppression flags inutiles (--stacktrace, --info)
+
+'''
+
+=== 2. TEST_COVERAGE_ANALYSIS.adoc
+
+_Objectif_ : Suivi couverture tests unitaires
+
+_Contenu_ :
+* Statistiques de couverture
+* Classes testées/non-testées
+* Méthodes privées à tester
+* Data classes à tester
+* Recommandations par session
+
+_Quand charger_ :
+* ✅ Création nouveaux tests unitaires
+* ✅ Analyse de couverture
+* ❌ Jamais pour les tests fonctionnels
+
+_Points clés à citer_ :
+. Classes sans tests directs
+. Méthodes privées non-testées
+. Data classes à tester
+
+'''
+
+=== 3. COMPLETED_TASKS_ARCHIVE.adoc
+
+_Objectif_ : Archive des sessions terminées
+
+_Contenu_ :
+* Historique des sessions (23+ sessions)
+* Détails des optimisations (avant/après)
+* Statistiques (tests, temps, code)
+* Leçons apprises
+
+_Quand charger_ :
+* ✅ Fin de session (procédure automatique)
+* ❌ Jamais pendant la session
+
+_Utilisation_ :
+* Ajouter nouvelle section avec nom de session
+* Détails des tests créés/optimisés
+* Statistiques avant/après
+
+'''
+
+=== 4. PROMPT_REPRISE.adoc
+
+_Objectif_ : Reprise de session (contexte + mission)
+
+_Contenu_ :
+* Session précédente (résumé)
+* Mission en cours
+* Suggestions pour session suivante
+* Fichiers de référence
+
+_Quand charger_ :
+* ✅ Début de chaque session
+* ✅ Fin de session (mise à jour)
+
+_Utilisation_ :
+* Début : Lire mission en cours
+* Fin : Mettre à jour avec nouvelle mission
+
+'''
+
+== 🎯 Critères de Détection Détaillés
+
+=== Type 1 : Optimisation test fonctionnel
+
+_Indices forts_ :
+* ✅ Fichier : `*FunctionalTest.kt`, `_Optimized_.kt`
+* ✅ Verbes : "optimiser", "accélérer", "réduire temps"
+* ✅ Contexte : Session précédente = optimisation
+
+_Indices faibles_ :
+* ⚠️ "améliorer" (ambigu : optimisation ou refactoring ?)
+* ⚠️ "nettoyer" (ambigu : code ou tests ?)
+
+_Décision_ :
+* 1+ indice fort → _PROPOSER_
+* Seulement indices faibles → _DEMANDER CLARIFICATION_
+
+'''
+
+=== Type 2 : Création test unitaire
+
+_Indices forts_ :
+* ✅ Fichier : `src/test/*Test.kt`
+* ✅ Verbes : "créer test", "ajouter test", "couverture"
+* ✅ Noms : "Test.kt", "UnitTest.kt"
+
+_Indices faibles_ :
+* ⚠️ "tester" (ambigu : test unitaire ou fonctionnel ?)
+* ⚠️ "vérifier" (ambigu : test ou debug ?)
+
+_Décision_ :
+* 1+ indice fort → _PROPOSER_
+* Seulement indices faibles → _DEMANDER CLARIFICATION_
+
+'''
+
+=== Type 3 : Debug test fonctionnel
+
+_Indices forts_ :
+* ✅ Fichier : `*FunctionalTest.kt`
+* ✅ Verbes : "debug", "exécuter test", "faire passer"
+* ✅ Erreurs : "échec", "FAILED", "AssertionFailedError"
+
+_Indices faibles_ :
+* ⚠️ "problème" (trop vague)
+* ⚠️ "ne marche pas" (trop vague)
+
+_Décision_ :
+* 1+ indice fort → _PROPOSER_
+* Seulement indices faibles → _DEMANDER CLARIFICATION_
+
+'''
+
+=== Type 4 : Correction bug
+
+_Indices forts_ :
+* ✅ Verbes : "corriger", "fix", "réparer"
+* ✅ Noms : "bug", "erreur", "exception", "crash"
+* ✅ Urgence : "critique", "urgent", "bloquant"
+
+_Décision_ :
+* _AUCUNE PROPOSITION_ → Agir directement
+
+'''
+
+=== Type 5 : Nouvelle feature
+
+_Indices forts_ :
+* ✅ Verbes : "ajouter", "implémenter", "nouvelle"
+* ✅ Noms : "feature", "fonctionnalité"
+
+_Décision_ :
+* _AUCUNE PROPOSITION_ → Agir directement
+
+'''
+
+=== Type 6 : Fin de session
+
+_Indices forts_ :
+* ✅ Expressions : "je quitte", "session terminée", "à plus tard"
+* ✅ Verbes : "fini", "termine"
+
+_Décision_ :
+* _PROCÉDURE AUTOMATIQUE_ (5 étapes, sans question)
+
+'''
+
+== 📈 Métriques de Suivi
+
+=== Taux de détection
+
+|===
+| Métrique | Cible | Mesure
+| Détections correctes | >90% | Sessions où méthodologie proposée était pertinente
+| Faux positifs | <5% | Sessions où méthodologie proposée était incorrecte
+| Faux négatifs | <10% | Sessions où méthodologie aurait dû être proposée
+| Confirmations utilisateur | >80% | Utilisateurs acceptant la proposition
+|===
+
+=== Améliorations continues
+
+_Après chaque session_ :
+. ✅ La détection était-elle correcte ?
+. ✅ La méthodologie proposée était-elle utile ?
+. ✅ Le format de proposition était-il clair ?
+. ✅ Faut-il ajouter/modifier des indices de détection ?
+
+_Mise à jour_ :
+* Ajouter nouveaux indices détectés
+* Ajuster les règles de décision
+* Améliorer le format de proposition
+
+'''
+
+== 🛠 Guide d'Utilisation pour l'Agent
+
+=== Avant de proposer
+
+. _Analyser le prompt_ :
+   * Mots-clés présents ?
+   * Noms de fichiers correspondants ?
+   * Contexte de session précédente ?
+
+. _Vérifier exceptions_ :
+   * Session déjà en cours ?
+   * Utilisateur a déjà spécifié méthodologie ?
+   * Session urgente ?
+
+. _Consulter AGENTS.md_ :
+   * Ligne 291-366 (Menu des méthodologies)
+   * Match avec tableau
+
+=== Pendant la proposition
+
+. _Utiliser format standardisé_ :
+[source]
+----
+   🎯 Méthodologie détectée : [Type]
+   
+   Je peux appliquer :
+   - [FICHIER].adoc
+   - Checklist : [3 points]
+   
+   Veux-tu que je charge ce fichier et applique cette méthodologie ?
+----
+
+. _Attendre confirmation_ :
+   * ✅ "Oui", "Oui charge-le", "Vas-y" → Charger
+   * ❌ "Non", "Pas nécessaire" → Continuer sans
+
+=== Après confirmation
+
+. _Charger le fichier_ :
+[source]
+----
+   [Lecture du fichier méthodologie]
+----
+
+. _Appliquer méthodologie_ :
+   * Suivre checklist
+   * Citer sections pertinentes
+   * Mesurer progrès
+
+'''
+
+== 📝 Historique des Versions
+
+|===
+| Version | Date | Changements
+| 1.0 | 2026-04-10 | Création du document
+|===
+
+'''
+
+== 🔗 Références
+
+* _AGENTS.md_ : Lignes 291-366 (Menu des méthodologies)
+* _METHODOLOGIE_OPTIMISATION_TESTS.adoc_ : Techniques d'optimisation
+* _TEST_COVERAGE_ANALYSIS.adoc_ : Couverture des tests unitaires
+* _COMPLETED_TASKS_ARCHIVE.adoc_ : Historique des sessions
+* _PROMPT_REPRISE.adoc_ : Contexte de session

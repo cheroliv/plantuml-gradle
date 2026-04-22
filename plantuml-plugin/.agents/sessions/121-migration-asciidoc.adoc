@@ -1,0 +1,55 @@
+= Session 121 — Migration AsciiDoc
+
+**Date** : 22 avril 2026 | **Statut** : ✅ | **Type** : docs
+
+== Contexte
+
+Le PROMPT_REPRISE.md de la session 121 proposait une extraction vers bakery-gradle (Phase 2). L'utilisateur a refuse cette approche car elle etait architecturalement incoherente (un script consommateur ne doit pas etre une dependance d'un plugin). La session a ete reoriente vers la migration des fichiers Markdown vers AsciiDoc, decrite dans TODO.adoc.
+
+== Actions
+
+|===
+| Fichier | Modification
+
+| ~100 fichiers `.md` | Convertis en `.adoc` et supprimes
+| `AGENTS.md` (nouveau) | Accroche minimale pour opencode (convention de nommage)
+| `AGENT.adoc` (nouveau) | Directives completes en AsciiDoc (sans S)
+| `opencode.json` (nouveau) | Configuration opencode pointant vers AGENT.adoc
+| 90 fichiers `.adoc` | References croisees mises a jour (.md → .adoc)
+|===
+
+== Connaissances cles
+
+* Opencode ne lit que `AGENTS.md` par convention — pas de support natif `.adoc`
+* Solution : `AGENTS.md` minimal + `opencode.json` avec `"instructions": ["AGENT.adoc"]` pour double couverture
+* Nomage : `AGENTS.md` (avec S, convention opencode) vs `AGENT.adoc` (sans S, choix utilisateur)
+* 128 fichiers `.adoc` au total dans le repo apres migration
+* 1 seul `.md` reste : `AGENTS.md`
+
+== Resultats
+
+|===
+| Critere | Statut
+
+| Tous les .md convertis en .adoc | ✅ (sauf AGENTS.md)
+| References croisees mises a jour | ✅ (90 fichiers)
+| AGENTS.md + AGENT.adoc + opencode.json crees | ✅
+| ./gradlew test (304 tests, 9 echecs preexistants) | ✅ Pas de regression
+|===
+
+== Lecons apprises
+
+* L'extraction vers bakery-gradle etait une mauvaise idee : un script consommateur ne doit pas etre dependance d'un plugin
+* Toujours valider la coherence architecturale avant de lancer un EPIC
+* La convention de nommage opencode (`AGENTS.md`) est un constrainte reelle qui ne peut pas etre contournee nativement
+* `opencode.json` + `instructions` est le mecanisme pour charger des fichiers `.adoc`
+
+== Actions complementaires (fin de session)
+
+* BACKLOG.adoc mis a jour : Issue #3 (9 tests en echec) ajoutee en priorite CRITIQUE
+* TODO.adoc mis a jour : migration AsciiDoc marquee FAIT
+* AGENTS.md et AGENT.adoc : ajout de la section "Gestion du Contexte — CRITIQUE" clarifiant que BACKLOG.adoc est la source de verite pour les priorites, et TODO.adoc n'est qu'un pense-bete
+
+== Prochaines etapes
+
+* Corriger les 9 tests en echec (Issue #3 dans BACKLOG.adoc)

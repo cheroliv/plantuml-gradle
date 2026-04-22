@@ -1,0 +1,440 @@
+= Agent Reference — PlantUML Gradle Plugin
+
+____
+_Objectif_ : Référence rapide pour l'agent — _NE PAS charger automatiquement_
+____
+> 
+____
+_Usage_ : Consulter uniquement sur demande explicite ou besoin contextuel
+____
+
+'''
+
+== 📁 Architecture des Fichiers de Mémoire
+
+|===
+| Niveau | Fichier | Chargement | Rôle
+| _N1_ | `AGENTS.md` | _Toujours_ | Architecture, décisions, méthodologie
+| _N2_ | `AGENT_REFERENCE.adoc` | _Sur besoin_ | Référence rapide (ce fichier)
+| _N3_ | `PROMPT_REPRISE.adoc` | _Début session_ | Mission session en cours
+| _N4_ | `SESSIONS_HISTORY.adoc` | _Sur besoin_ | Historique complet sessions
+| _N5_ | `COMPLETED_TASKS_ARCHIVE.adoc` | _Fin session_ | Archive tâches terminées
+|===
+
+'''
+
+== 🏗 Architecture du Code (Rappel)
+
+[source]
+----
+plantuml-plugin/src/main/kotlin/plantuml/
+├── 📄 PlantumlPlugin.kt
+│   ├── 🏛️ PlantumlPlugin : Plugin<Project>
+│   └── 📦 PlantumlExtension (nested class)
+│
+├── 📄 models.kt (11 data classes)
+│   ├── PlantumlConfig, InputConfig, OutputConfig, LangchainConfig
+│   ├── GitConfig, OllamaConfig, ApiKeyConfig, RagConfig
+│   └── PlantumlDiagram, PlantumlCode, ValidationFeedback
+│
+├── 📄 PlantumlManager.kt (objet Kotlin / singleton)
+│   ├── Configuration (nested object) — charge config YAML
+│   ├── Tasks (nested object) — registre les 3 tâches
+│   └── Extensions (nested object)
+│
+├── 📁 service/
+│   ├── 📄 PlantumlService.kt
+│   │   └── SyntaxValidationResult (sealed class: Valid | Invalid)
+│   ├── 📄 DiagramProcessor.kt
+│   │   └── AttemptEntry (data class top-level)
+│   └── 📄 LlmService.kt
+│
+└── 📁 tasks/ (héritent de DefaultTask)
+    ├── ProcessPlantumlPromptsTask.kt
+    ├── ValidatePlantumlSyntaxTask.kt
+    └── ReindexPlantumlRagTask.kt
+----
+
+=== ⚠️ Points d'attention (Pièges à éviter)
+
+* _PlantumlExtension_ est une _nested class_ de `PlantumlPlugin.kt` (PAS un fichier séparé)
+* _PlantumlConfig_ + 10 data classes sont dans _`models.kt`_ (pas de fichiers individuels)
+* _PlantumlManager_ est un _objet Kotlin_ (singleton), pas une classe
+* _SyntaxValidationResult_ est une _sealed class nested_ dans `PlantumlService`
+* _AttemptEntry_ est une _data class top-level_ dans `DiagramProcessor.kt`
+
+'''
+
+== 🧭 Commandes de Référence
+
+[source,bash]
+----
+# Build & tests
+./gradlew build -x test   # build rapide
+./gradlew test            # tous les tests
+./gradlew cucumberTest    # tests Cucumber
+./gradlew functionalTest  # tests fonctionnels
+
+# Tâches plugin
+./gradlew processPlantumlPrompts
+./gradlew validatePlantumlSyntax -Pplantuml.diagram=file.puml
+./gradlew reindexPlantumlRag
+
+# Debug tests fonctionnels
+time ./gradlew functionalTest --tests "plantuml.NomDuTest"
+----
+
+'''
+
+== 📊 État des Tests (Session 40)
+
+|===
+| Type | Dossier | Outil | Statut
+| _Tests unitaires_ | `src/test/kotlin/plantuml/` | ProjectBuilder | ✅ 129/129 (100%)
+| _Tests fonctionnels_ | `src/functionalTest/kotlin/plantuml/` | GradleRunner | ✅ 42/42 (100%)
+| _Tests Cucumber_ | `src/test/features/`, `src/test/scenarios/` | GradleRunner | ✅ Tous PASS
+|===
+
+_Détail tests fonctionnels_ :
+* `PlantumlFunctionalSuite` : 15 tests (9 PASS, 6 SKIP)
+* `PlantumlPluginIntegrationSuite` : 11 tests (11 PASS)
+* `FilePermissionTest` : 4 tests (4 PASS)
+* `LargeFileAndPathTest` : 4 tests (4 PASS)
+* `NetworkTimeoutTest` : 4 tests (4 PASS)
+* `PerformanceTest` : 4 tests (4 PASS)
+
+'''
+
+== 🧪 Types de Tests — Règles par Type
+
+=== 1. Tests unitaires (`src/test/kotlin/plantuml/`)
+
+[source,kotlin]
+----
+// ✅ OUI : ProjectBuilder + Mocks
+val project = ProjectBuilder.builder().build()
+val mockService = mock(PlantumlService::class.java)
+
+// ❌ NON : GradleRunner (trop lent)
+----
+
+_Règles :_
+* ✅ Mocks complets pour éviter appels réseau
+* ✅ ProjectBuilder (pas GradleRunner) → 60% plus rapide
+* ✅ WireMock pour tests HTTP (endpoint `/api/chat`)
+* ✅ 1 itération max pour tests LLM
+* ✅ Objectif : <10ms par test
+
+=== 2. Tests fonctionnels (`src/functionalTest/kotlin/plantuml/`)
+
+[source,kotlin]
+----
+// ✅ OUI : GradleRunner avec vrais plugins
+val result = GradleRunner.create()
+    .withProjectDir(testDir)
+    .withArguments("processPlantumlPrompts")
+    .build()
+
+// ✅ OUI : smollm:135m pour tests LLM
+// ✅ OUI : 1 itération max
+----
+
+_Règles :_
+* ✅ GradleRunner obligatoire (teste le vrai build)
+* ✅ smollm:135m pour tests LLM (pas de gros modèles)
+* ✅ 1 itération max dans config YAML
+* ✅ WireMock si possible
+* ✅ Objectif : <30s par test
+
+=== 3. Tests BDD / Cucumber (`src/test/features/`, `src/test/scenarios/`)
+
+[source,kotlin]
+----
+// ✅ OUI : Template de projet partagé
+@BeforeAll
+fun setup() {
+    templateDir.copyRecursively(testDir)
+}
+
+// ❌ NON : Flags incompatibles avec GradleTestKit
+// Jamais : --no-daemon, --configuration-cache
+----
+
+_Règles :_
+* ✅ Template partagé (`PlantumlWorld.kt`) → 61% de gain
+* ✅ Jamais `--no-daemon` avec GradleRunner
+* ✅ Jamais `--configuration-cache` avec GradleRunner
+* ✅ Objectif : <30s par scénario
+
+'''
+
+== ⚠️ Pièges Connus
+
+|===
+| Erreur | Conséquence | Solution
+| `GradleRunner` dans tests unitaires | Tests lents (minutes) | Utiliser `ProjectBuilder`
+| `--no-daemon` avec TestKit | Crash `InternalUnsupportedBuildArgumentException` | Supprimer le flag
+| Appels HTTP réels | Tests non-déterministes, lents | WireMock avec `/api/chat`
+| Gros modèles LLM (llama2) | Tests >10min | Utiliser `smollm:135m`
+| 5 itérations dans les tests | Tests très lents | Réduire à 1 itération
+|===
+
+'''
+
+== 📐 Méthodologie d'Optimisation
+
+=== Règle d'or
+
+L'optimisation se mesure en _secondes gagnées_, pas en lignes supprimées.
+
+=== Checklist d'optimisation
+
+. _Mesurer le temps AVANT_
+[source,bash]
+----
+   time ./gradlew functionalTest --tests "plantuml.NomDuTest"
+----
+
+. _Identifier les goulots_ :
+   * ❌ Appels Gradle multiples (2+)
+   * ❌ Modèles LLM lourds
+   * ❌ Itérations excessives (maxIterations: 5)
+   * ❌ Flags inutiles (--no-daemon)
+   * ❌ Setup redondant
+
+. _Appliquer optimisations_ :
+   * ✅ 1 appel Gradle par test
+   * ✅ smollm:135m
+   * ✅ maxIterations: 1
+   * ✅ WireMock
+   * ✅ Template partagé
+
+. _Mesurer le temps APRÈS_
+
+. _Vérifier couverture_ :
+   * ✅ Même nombre de tests passants
+   * ✅ Mêmes assertions vérifiées
+   * ✅ Commentaires préservés
+
+=== Exemples de gains
+
+|===
+| Test | Avant | Après | Gain | Technique
+| `FilePermissionTest` | 1m59s | 17s | _-85%_ | Code simplifié
+| `MegaOptimizedFunctionalTest` | 28s | 14s | _-50%_ | 2 appels → 1
+| `NetworkTimeoutTest` | ~40s | 29s | _-28%_ | Code réduit -36%
+| `LlmHandshakeTest` | ~20s | 12s | _-40%_ | Code réduit -40%
+|===
+
+'''
+
+== 🧩 Providers LLM Supportés
+
+|===
+| Provider | Config YAML | CLI Parameter | Status
+| _Ollama_ | `langchain4j.ollama` | `-Pplantuml.langchain4j.model=ollama` | ✅ Local, gratuit
+| _Gemini_ | `langchain4j.gemini` | `-Pplantuml.langchain4j.model=gemini` | ⚠️ API key requis
+| _Mistral_ | `langchain4j.mistral` | `-Pplantuml.langchain4j.model=mistral` | ⚠️ API key requis
+| _OpenAI_ | `langchain4j.openai` | `-Pplantuml.langchain4j.model=openai` | ⚠️ API key requis
+| _Claude_ | `langchain4j.anthropic` | `-Pplantuml.langchain4j.model=claude` | ⚠️ API key requis
+| _HuggingFace_ | `langchain4j.huggingface` | `-Pplantuml.langchain4j.model=huggingface` | ⚠️ API key requis
+| _Groq_ | `langchain4j.groq` | `-Pplantuml.langchain4j.model=groq` | ⚠️ API key requis
+|===
+
+_Config exemple_ :
+[source,yaml]
+----
+langchain4j:
+  model: "ollama"
+  ollama:
+    baseUrl: "http://localhost:11434"
+    modelName: "smollm:135m"
+  validation: false
+  maxIterations: 1
+----
+
+'''
+
+== 📁 Sorties de Test
+
+* _Tests unitaires_ : `test-output/` (à côté de `generated/`)
+* _Tests fonctionnels_ : `test-output/` (même répertoire)
+* _RAG_ : `generated/rag/` (pour l'historique d'entraînement)
+
+_Pourquoi_ : Ne pas fausser l'historique RAG avec des fichiers de test.
+
+'''
+
+== 🔧 Configuration YAML
+
+=== Hiérarchie des sources
+
+. _gradle.properties_ (priorité basse)
+. _plantuml-context.yml_ (priorité moyenne)
+. _CLI parameters_ (priorité haute)
+
+=== Variables d'environnement
+
+Syntaxe `${VAR_NAME}` résolue depuis `System.getenv()` :
+
+[source,yaml]
+----
+langchain4j:
+  openai:
+    apiKey: "${OPENAI_API_KEY}"
+----
+
+_Fallback_ : Si la variable n'existe pas, la syntaxe `${VAR_NAME}` est préservée.
+
+=== Fichiers de config
+
+|===
+| Fichier | Usage | Git
+| `plantuml-context.yml` | Config personnelle | 🚫 .gitignore
+| `plantuml-test-context.yml` | Config test CI/CD | 🚫 .gitignore
+| `sample-plantuml-context.yml` | Exemple repo | ✅ Commit
+|===
+
+'''
+
+== 🚦 Fin de Session — Procédure Automatique
+
+_🚨 DÉCLENCHEUR_ : "nouvelle session", "je quitte", "session terminée", "à plus tard"
+
+_⚠️ OBLIGATION_ : Exécuter CETTE procédure AVANT de répondre
+
+_🚫 RÈGLE D'OR_ :
+* ❌ JAMAIS demander "Veux-tu que je...?"
+* ❌ JAMAIS expliquer avant de faire
+* ❌ JAMAIS répondre avant les 5 étapes terminées
+* ✅ FAIRE DIRECTEMENT les 5 étapes SILENCIEUSEMENT
+* ✅ Répondre UNIQUEMENT par "✅ Procédure exécutée" + 3 lignes max
+
+=== 5 Étapes
+
+. _Vérifier les tests_ : `./gradlew test`
+. _Mettre à jour `AGENTS.md`_ (section "État actuel")
+. _Mettre à jour `COMPLETED_TASKS_ARCHIVE.adoc`_
+. _Mettre à jour `PROMPT_REPRISE.adoc`_
+. _Mettre à jour `TEST_COVERAGE_ANALYSIS.adoc`_ (si besoin)
+
+_⚠️ Git — INTERDICTION ABSOLUE_ :
+* ❌ Pas de `git add`, `git commit`, `git push`, `git restore`, `git checkout`
+* ✅ C'est l'utilisateur qui gère Git manuellement
+
+_⚠️ Périmètre d'action — Tests unitaires uniquement_ :
+* ✅ `src/test/kotlin/plantuml/` (tests unitaires)
+* ❌ `src/test/scenarios/` (Cucumber/BDD)
+* ❌ `src/test/resources/` (WireMock, features)
+* ❌ `src/test/features/` (scénarios BDD)
+
+'''
+
+== 📚 Fichiers de Référence
+
+|===
+| Fichier | Quand charger
+| `AGENTS.md` | _Toujours_ (architecture, méthodologie)
+| `AGENT_REFERENCE.adoc` | _Sur besoin_ (référence rapide)
+| `PROMPT_REPRISE.adoc` | _Début session_ (mission en cours)
+| `METHODOLOGIE_OPTIMISATION_TESTS.adoc` | _Session optimisation_
+| `TEST_COVERAGE_ANALYSIS.adoc` | _Création tests unitaires_
+| `SESSIONS_HISTORY.adoc` | _Sur besoin_ (historique sessions)
+| `COMPLETED_TASKS_ARCHIVE.adoc` | _Fin de session_ (archive)
+|===
+
+'''
+
+== 🧠 Leçons Critiques (Sessions Antérieures)
+
+=== Session 29 — Optimisation sans mesure
+* ❌ _Erreur_ : Optimiser sans mesurer AVANT/APRÈS
+* ✅ _Leçon_ : Toujours mesurer le temps avant de refactoriser
+* ✅ _Règle_ : Secondes gagnées ≠ lignes supprimées
+
+=== Session 30 — Gains illusoires
+* ❌ _Erreur_ : 17s gagnées sur tests @Disabled (jamais exécutés)
+* ✅ _Leçon_ : Optimiser un test @Disabled = 0 gain réel
+* ✅ _Règle_ : Mesurer sur tests exécutés uniquement
+
+=== Session 33 — Test déjà optimal
+* ❌ _Erreur_ : Analyser un test déjà @Disabled
+* ✅ _Leçon_ : Vérifier statut avant d'optimiser
+* ✅ _Règle_ : @Disabled = conception intentionnelle
+
+=== Session 96 — Conflits de Step Definitions Cucumber
+* ❌ _Erreur_ : Créer des steps sans vérifier les existants
+* ✅ _Leçon 1_ : Lister TOUS les steps avec `rg` AVANT de coder
+* ✅ _Leçon 2_ : Un step = une seule définition (Cucumber ne supporte pas les doublons)
+* ✅ _Leçon 3_ : Centraliser les steps génériques dans `CommonSteps.kt`
+* ✅ _Règle_ : `rg -n '@(Given|When|Then)\("' src/test/scenarios/plantuml/scenarios/`
+
+'''
+
+== 📝 Méthodologie de Travail
+
+=== Principe : Sessions atomiques
+
+_Règle d'or_ : _1 session = 1 tâche unique et validée_
+
+|===
+| Métrique | Cible
+| _Durée_ | 15-30 minutes
+| _Fichiers modifiés_ | 1-3 maximum
+| _Tests créés_ | 1 fichier
+| _Échanges LLM_ | 5-10 messages
+|===
+
+=== Processus itératif
+
+[source]
+----
+1. Créer le fichier de test
+2. ./gradlew test
+3. ✅ Si passe → Session terminée
+4. ❌ Si échec → Corriger AVANT de continuer
+----
+
+_Pourquoi_ :
+* ✅ 1 erreur à la fois
+* ✅ Base de code toujours stable
+* ✅ Feedback immédiat
+* ✅ Progression mesurable
+
+'''
+
+== 🎯 Menu des Méthodologies
+
+|===
+| Type de session | Indices | Méthodologie | Fichier
+| _Optimisation test fonctionnel_ | "optimiser", "réduire temps", `*FunctionalTest.kt` | Mesurer AVANT/APRÈS | `METHODOLOGIE_OPTIMISATION_TESTS.adoc`
+| _Création test unitaire_ | "créer test", "couverture", `*Test.kt` | Analyser couverture | `TEST_COVERAGE_ANALYSIS.adoc`
+| _Debug test fonctionnel_ | "debug", "exécuter test", `*FunctionalTest.kt` | Run → Debug → Optimise | `METHODOLOGIE_OPTIMISATION_TESTS.adoc`
+| _Correction bug_ | "corriger", "bug", "fix" | Aucune — agir directement | —
+| _Nouvelle feature_ | "ajouter", "nouvelle", "feature" | Aucune — agir directement | —
+| _Fin de session_ | "nouvelle session", "je quitte" | Procédure automatique (5 étapes) | `COMPLETED_TASKS_ARCHIVE.adoc`
+|===
+
+=== Règles de proposition
+
+. ✅ _Toujours proposer_ si session matche un type connu
+. ✅ _Attendre confirmation_ avant de charger fichier
+. ✅ _Citer 3 points clés_ de la méthodologie
+. ❌ _Jamais charger sans confirmation_ (sauf fin de session)
+. ❌ _Jamais proposer si session claire_
+
+'''
+
+== 🔄 Reprise de Session
+
+_Prompt d'ouverture_ :
+[source]
+----
+Nouvelle session. Contexte chargé :
+1. AGENTS.md (architecture, décisions, méthodologie)
+2. PROMPT_REPRISE.adoc (mission en cours)
+
+Mission : [Décrire la tâche unique de cette session]
+
+Contrainte : 1 fichier à la fois, validation après chaque changement.
+----

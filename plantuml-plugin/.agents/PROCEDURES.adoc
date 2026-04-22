@@ -1,0 +1,378 @@
+= 📝 Procédure de Fin de Session — PlantUML Gradle Plugin
+
+____
+_Objectif_ : Mécanisme LAZY/EAGER pour persister l'information sans polluer le contexte
+_Principe_ : EAGER = essentiel (toujours chargé), LAZY = détails (chargé sur demande)
+____
+
+'''
+
+== 🎯 Philosophie LAZY/EAGER
+
+=== Pourquoi ce mécanisme ?
+
+_Problème_ : Les LLM ont un contexte limité. Charger trop d'informations dilue l'attention et coûte des tokens.
+
+_Solution_ : Séparer l'information en 2 catégories :
+
+|===
+| Type | Caractéristiques | Exemples
+| _EAGER_ | • Critique pour démarrer<br>• < 100 lignes<br>• Lu automatiquement | `PROMPT_REPRISE.adoc`, `AGENTS.md`
+| _LAZY_ | • Détails complets<br>• Illimité<br>• Lu sur demande explicite | `.agents/sessions/{N}*.adoc`, `AGENT_REFERENCE.adoc`
+|===
+
+=== Analogie
+
+* _EAGER_ = Tableau de bord de voiture (vitesse, carburant, alertes)
+* _LAZY_ = Manuel du propriétaire (détails techniques, historique entretien)
+
+'''
+
+== 📋 Procédure de Fin de Session — 5 Étapes Obligatoires
+
+=== ÉTAPE 1 : Vérifier l'état des tests (optionnel)
+
+[source,bash]
+----
+# Seulement si demandé explicitement
+./gradlew test
+./gradlew cucumberTest
+----
+
+⚠️ _Jamais_ exécuter de tests en procédure de fin de session sans demande explicite.
+
+'''
+
+=== ÉTAPE 2 : Créer l'archive LAZY de la session
+
+_Fichier_ : `.agents/sessions/{N}-{titre}.adoc`
+
+_Structure obligatoire_ :
+
+[source,markdown]
+----
+# Session {N} — {Titre descriptif}
+
+**Date** : {date}  
+**Statut** : ✅ TERMINÉE / ⚠️ INCOMPLÈTE / ❌ ÉCHEC  
+**EPIC** : {lien vers EPIC si applicable}
+
+---
+
+## Contexte
+
+{Pourquoi cette session existe ? Quel problème résout-elle ?}
+
+---
+
+## Actions Entreprises
+
+### 1. {Action principale}
+
+**Fichiers modifiés** :
+| Fichier | Lignes | Modification |
+|---------|--------|--------------|
+| `path/to/file.kt` | 12-45 | Suppression duplication |
+
+**Commandes exécutées** :
+----
+{commande 1}
+{commande 2}
+[source]
+----
+
+**Résultats** :
+- ✅ Succès : {détail}
+- ❌ Échec : {détail}
+
+---
+
+## Conflits/Problèmes Résolus
+
+| Problème | Cause | Solution | Fichier |
+|----------|-------|----------|---------|
+| {description} | {root cause} | {action} | {file:line} |
+
+---
+
+## Patterns et Leçons Apprises
+
+### ❌ Pattern à Éviter
+
+----
+// MAUVAIS : exemple de code problématique
+[source]
+----
+
+### ✅ Pattern à Suivre
+
+----
+// BON : exemple de solution
+[source]
+----
+
+---
+
+## Résultats
+
+| Critère | Statut | Détails |
+|---------|--------|---------|
+| Compilation | ✅/❌ | {détail} |
+| Tests | ✅/❌ | {X/Y} scénarios PASS |
+| Conflits | ✅/❌ | {nombre} résolus |
+
+---
+
+## Prochaines Étapes (Session {N+1})
+
+1. **Action 1** : `{commande ou tâche}`
+2. **Action 2** : `{commande ou tâche}`
+3. **Validation** : `{critère de succès}`
+
+---
+
+## Références
+
+- **Archive** : `.agents/sessions/{N}-{titre}.adoc` (ce fichier)
+- **Reprise** : `PROMPT_REPRISE.adoc` (session {N+1})
+- **EPIC** : `{lien}`
+
+---
+
+**Session {N}** — {statut emoji}  
+**Session {N+1}** — {prêt/à faire}
+----
+
+'''
+
+=== ÉTAPE 3 : Mettre à jour le résumé EAGER
+
+_Fichier_ : `PROMPT_REPRISE.adoc`
+
+_Structure obligatoire_ :
+
+[source,markdown]
+----
+# 🔄 Prompt de reprise — Session {N+1}
+
+> **EPIC** : {nom}  
+> **Statut** : Session {N} ✅ — {résumé 1 ligne}  
+> **Mission** : {objectif session N+1}
+
+---
+
+## Session {N} — Résumé
+
+**Date** : {date}  
+**Résultat** : ✅ {accomplissement principal}
+
+| Fichier | Modification |
+|---------|--------------|
+| `file1.kt` | -20 lignes |
+| `file2.kt` | +15 lignes |
+
+**Archive** : `.agents/sessions/{N}-{titre}.adoc`
+
+---
+
+## Session {N+1} — Priorités
+
+----
+= Commande principale
+{commande}
+[source]
+----
+
+### Critères d'Acceptation
+
+- [ ] {critère 1}
+- [ ] {critère 2}
+- [ ] {critère 3}
+
+---
+
+## Couverture Tests
+
+| Feature | Scénarios | Statut |
+|---------|-----------|--------|
+| {feature} | {N} | ✅/🟡/❌ |
+
+**Total** : {X}/{Y} ({Z}%)
+
+---
+
+## Règles
+
+- ❌ {règle 1}
+- ❌ {règle 2}
+- ✅ {règle 3}
+
+---
+
+**Session {N}** ✅ — **Session {N+1}** 🚀
+----
+
+_Contraintes_ :
+* Maximum _100 lignes_
+* _1 référence_ à l'archive LAZY
+* _Commandes exécutables_ pour session N+1
+* _Critères d'acceptation_ clairs
+
+'''
+
+=== ÉTAPE 4 : Nettoyer AGENTS.md (si besoin)
+
+_Vérifier_ : `AGENTS.md` dépasse-t-il 100 lignes ?
+
+_Si OUI_ :
+
+. Identifier sections détaillées (commandes, méthodologie, pièges)
+. Transférer vers `AGENT_REFERENCE.adoc` ou fichier dédié
+. Remplacer par renvoi court : `_Voir_ : `AGENT_REFERENCE.adoc``
+
+_Si NON_ : ✅ Ne rien toucher
+
+'''
+
+=== ÉTAPE 5 : Valider la cohérence
+
+_Checklist_ :
+
+* [ ] Archive LAZY créée : `.agents/sessions/{N}-{titre}.adoc`
+* [ ] Résumé EAGER mis à jour : `PROMPT_REPRISE.adoc`
+* [ ] Référence croisée présente (EAGER → LAZY)
+* [ ] `PROMPT_REPRISE.adoc` < 100 lignes
+* [ ] Commandes session N+1 testables
+* [ ] Critères d'acceptation clairs
+
+'''
+
+== 📊 Tableau des Fichiers — Politique de Chargement
+
+|===
+| Fichier | Type | Taille Max | Quand Charger
+| `PROMPT_REPRISE.adoc` | _EAGER_ | 100 lignes | _Début session_ (auto)
+| `AGENTS.md` | _EAGER_ | 100 lignes | _Toujours_ (auto)
+| `AGENT_REFERENCE.adoc` | LAZY | Illimité | Sur besoin (commandes, pièges)
+| `.agents/sessions/{N}*.adoc` | LAZY | Illimité | Sur demande (détails session)
+| `.agents/ARCHITECTURE.adoc` | LAZY | Illimité | Sur besoin (architecture)
+| `.agents/INDEX.adoc` | LAZY | Illimité | Sur besoin (navigation)
+| `SESSIONS_HISTORY.adoc` | LAZY | Illimité | Sur besoin (historique)
+| `COMPLETED_TASKS_ARCHIVE.adoc` | LAZY | Illimité | Fin session (archive)
+|===
+
+'''
+
+== 🔍 Comment l'agent sait où chercher ?
+
+=== Début de Session
+
+_Chargement automatique (EAGER)_ :
+. `PROMPT_REPRISE.adoc` → Mission, priorités, contexte
+. `AGENTS.md` → Architecture, règles, points d'attention
+
+_Si besoin de détails_ :
+* Commandes ? → `AGENT_REFERENCE.adoc`
+* Détails session N ? → `.agents/sessions/{N}-{titre}.adoc` (référencé dans PROMPT_REPRISE.adoc)
+* Architecture ? → `.agents/ARCHITECTURE.adoc`
+
+=== Fin de Session
+
+_Mots-clés déclencheurs_ :
+* "nouvelle session"
+* "je quitte"
+* "session terminée"
+* "à plus tard"
+* "on arrête là"
+
+_Action_ : Exécuter les 5 étapes SILENCIEUSEMENT
+
+'''
+
+== 📝 Template Rapide — Archive LAZY
+
+[source,markdown]
+----
+# Session {N} — {Titre}
+
+**Date** : {date} | **Statut** : {✅/⚠️/❌}
+
+## Contexte
+{1-2 paragraphes}
+
+## Actions
+| Fichier | Modification |
+|---------|--------------|
+| `file.kt` | -X lignes |
+
+## Commandes
+----
+{cmd}
+[source]
+----
+
+## Résultats
+| Critère | Statut |
+|---------|--------|
+| Compilation | ✅ |
+| Tests | X/Y PASS |
+
+## Prochaines Étapes
+1. {action}
+2. {action}
+
+**Archive** : `.agents/sessions/{N}-{titre}.adoc`
+----
+
+'''
+
+== 📝 Template Rapide — Résumé EAGER
+
+[source,markdown]
+----
+# 🔄 Prompt de reprise — Session {N+1}
+
+> **Statut** : Session {N} ✅ — {1 ligne}  
+> **Mission** : {objectif}
+
+## Session {N} — Résumé
+**Résultat** : ✅ {accomplissement}  
+**Archive** : `.agents/sessions/{N}-{titre}.adoc`
+
+## Session {N+1} — Priorités
+----
+{commande}
+[source]
+----
+
+### Critères
+- [ ] {critère}
+
+---
+**Session {N}** ✅ — **Session {N+1}** 🚀
+----
+
+'''
+
+== ⚠️ Git — INTERDICTION ABSOLUE
+
+* ❌ Pas de `git add`, `git commit`, `git push`, `git restore`, `git checkout`
+* ✅ C'est l'utilisateur qui gère Git manuellement
+
+'''
+
+== 🚨 Règle d'Or
+
+* ❌ JAMAIS demander "Veux-tu que je...?"
+* ❌ JAMAIS expliquer avant de faire
+* ❌ JAMAIS répondre avant les 5 étapes terminées
+* ✅ FAIRE DIRECTEMENT les 5 étapes SILENCIEUSEMENT
+* ✅ Répondre UNIQUEMENT par "✅ Procédure exécutée" + 3 lignes max
+
+'''
+
+== 📚 Références Internes
+
+* _LAZY/EAGER_ : Voir section "Philosophie LAZY/EAGER" ci-dessus
+* _Templates_ : Voir section "Template Rapide" ci-dessus
+* _Tableau fichiers_ : Voir section "Tableau des Fichiers" ci-dessus

@@ -1,0 +1,163 @@
+= Session 108 — API Key Pool Design & Architecture
+
+*Date* : 20 avril 2026
+*Statut* : ✅ TERMINÉE — Architecture validée
+*Type* : design/architecture
+
+'''
+
+== Contexte
+
+Brainstorming et conception du système de pool de clés API rotatives pour maximiser l'utilisation des quotas freemium multi-comptes.
+
+*Objectifs* :
+* Rotation automatique de clés API par provider (Google, HuggingFace, Groq, etc.)
+* Maximisation des quotas freemium via multi-comptes
+* Gestion des seuils quota (80%) et échecs 429
+* Audit logging séparé
+* Stockage : GitHub Secrets (JSON consolidé)
+
+'''
+
+== Décisions Architecturales
+
+|===
+| # | Décision | Rationale
+
+| 1 | **Stockage** : GitHub Secrets (JSON consolidé) | Plus simple à maintenir, Jackson pour parsing
+| 2 | **Sync quota** : Manuel (si API provider le permet) | Pas de scraping, uniquement API officielles
+| 3 | **Rotation** : Avant appel + seuil 80% + échec 429 | Proactif + réactif
+| 4 | **Poids** : **SUPPRIMÉ** | Abstraction inutile (1 compte = 1 quota)
+| 5 | **Fallback** : Oui, avec retry automatique | Continuité de service
+| 6 | **Audit log** : Oui, fichier séparé | Traçabilité
+| 7 | **MCP** : Non (version ultérieure) | Hors scope Phase 1
+| 8 | **Format** : JSON consolidé | 1 secret GitHub = pool complet
+| 9 | **HF Spaces** : SpringBoot REST API possible | CPU gratuit, 16GB RAM
+| 10 | **1 clé = accès tous modèles** | Simplification (vs par modèle)
+|===
+
+'''
+
+== Modèle de Données
+
+[source,kotlin]
+----
+data class ApiKeyEntry(
+    val id: String,
+    val email: String,                    // Compte propriétaire
+    val name: String,                     // Nom descriptif
+    val keyRef: String,                   // Référence GitHub Secret
+    val provider: Provider,
+    val services: Set<ServiceType>,
+    val expirationDate: Instant?,
+    val quota: QuotaConfig,
+    val metadata: ProviderMetadata
+)
+
+data class QuotaConfig(
+    val limitType: QuotaType,
+    val limitValue: Long,
+    val consumedValue: Long,
+    val thresholdPercent: Int = 80,
+    val periodStart: Instant,
+    val periodEnd: Instant,
+    val resetPolicy: ResetPolicy,
+    val lastManualSync: Instant?
+)
+
+data class ApiKeyPoolConfig(
+    val version: String = "1.0.0",
+    val poolName: String,
+    val rotationStrategy: RotationStrategy,
+    val fallbackEnabled: Boolean,
+    val auditEnabled: Boolean,
+    val providers: List<ProviderConfig>
+)
+----
+
+'''
+
+== Providers Supportés (Phase 1)
+
+|===
+| Provider | Quota Freemium | Stratégie Multi-Comptes
+
+| *Google* | 60 req/min | 3 comptes = 180 req/min
+| *HuggingFace* | 30k tokens/mois | 5 comptes = 150k tokens/mois
+| *Groq* | 30 req/min | 3 comptes = 90 req/min
+| *Ollama Local* | Illimité | Prioritaire (pas d'auth)
+| *OpenAI* | $5 credits (3 mois) | Multiples comptes
+| *Anthropic* | Limité (essai) | Multiples comptes
+|===
+
+'''
+
+== Architecture des Fichiers
+
+----
+src/main/kotlin/fr/plantuml/apikey/
+├── models.kt                  # Data classes
+├── ApiKeyPoolManager.kt       # Manager principal
+├── rotation/
+│   ├── RotationEngine.kt      # Logique de rotation
+│   └── FallbackStrategy.kt    # Fallback + retry
+├── quota/
+│   ├── QuotaTracker.kt        # Suivi conso
+│   └── QuotaSyncService.kt    # Sync manuelle
+├── audit/
+│   └── AuditLogger.kt         # Logs séparés
+└── providers/
+    ├── Provider.kt            # Enum + metadata
+    ├── GoogleClient.kt        # Client Google
+    └── HuggingFaceClient.kt   # Client HF
+----
+
+'''
+
+== Workflow de Rotation
+
+. **Demande de clé** → `ApiKeyPoolManager.selectKey(context)`
+. **Vérification quota** → Si ≥ 80% → clé suivante
+. **Appel API** → `client.call(selectedKey)`
+. **Échec 429** → `markKeyExhausted()` + retry fallback
+. **Audit log** → `auditLogger.log(...)`
+. **MAJ quota** → `quotaTracker.update(keyId, delta)`
+
+'''
+
+== Résultats
+
+|===
+| Critère | Statut
+
+| Architecture validée | ✅
+| Modèle de données validé | ✅
+| Providers identifiés | ✅
+| Roadmap sessions définie | ✅
+|===
+
+'''
+
+== Prochaines Étapes (Session 109)
+
+. **Créer `models.kt`** : Data classes (ApiKeyEntry, QuotaConfig, etc.)
+. **Créer `Provider.kt`** : Enum providers + metadata
+. **Tests unitaires** : Validation modèles
+
+[source,bash]
+----
+# Session 109
+./gradlew compileKotlin
+./gradlew test --tests "*ApiKeyPool*"
+----
+
+'''
+
+== Références
+
+* **Archive** : `.agents/sessions/108-api-key-pool-design.adoc` (ce fichier)
+* **Reprise** : `PROMPT_REPRISE.adoc` (session 109)
+
+'''
+
+*Session 108* ✅ — *Session 109* 🚀

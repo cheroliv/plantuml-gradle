@@ -1,0 +1,1759 @@
+= Intégration Graphify + Stratégie de Gestion d'Agent
+:author: cheroliv
+:date: 2026-04-22
+:version: 1.0
+:lang: fr
+
+**Objectif** : Documenter le mariage entre la stratégie de gestion de contexte existante (EAGER/LAZY, sessions, archives) et le plugin Graphify, pour obtenir un système hybride où chaque composant joue son rôle.
+
+***
+
+== Vue d'ensemble
+
+Notre projet dispose déjà d'un système sophistiqué de gestion de contexte pour l'agent IA :
+
+[cols="1,1", options="header"]
+|===
+| Composant | Rôle
+| `PROMPT_REPRISE.adoc` | Contexte EAGER de la session courante (max 200 lignes)
+| `.agents/INDEX.adoc` | Vue d'ensemble projet + règles absolues
+| `.agents/sessions/*.adoc` | Archives détaillées par session
+| `AGENT_METHODOLOGIES.adoc` | Détection just-in-time des méthodologies
+| `AGENT_SESSION_MANAGER.adoc` | Procédure d'archivage et seuils
+| `*_ESSENTIALS.adoc` | Résumés condensés (max 50-100 lignes)
+| `DECISIONS_ARCHITECTURE.adoc` | Décisions techniques documentées
+|===
+
+Graphify ajoute une couche **structurelle** que notre système n'a pas :
+
+[cols="1,1", options="header"]
+|===
+| Capacité Graphify | Ce qu'elle remplace/complète
+| Graphe de connaissances du code | Navigation manuelle dans les fichiers source
+| Détection automatique de communautés | Connaissance empirique des regroupements
+| Requêtes sémantiques ciblées | Chargement_lazy de fichiers entiers
+| God nodes (noeuds centraux) | Identification manuelle des classes clés
+| Rapport condensé (1 page) | `ECOSYSTEM_OVERVIEW.adoc` + `ARCHITECTURE.adoc` ensemble
+|===
+
+.Le combo gagnant en une phrase
+[quote]
+__La stratégie de session gère le **QUAND** et le **COMMENT** (gouvernance, workflow, seuils), Graphify gère le **QUOI** et le **OÙ** (structure du code, relations, requêtes ciblées).__
+
+***
+
+== Installation
+
+=== Prérequis
+
+[cols="1,1", options="header"]
+|===
+| Prérequis | Version
+| Python | 3.10+
+| OpenCode | v1.14+
+| pip ou uv | Dernière version
+|===
+
+=== Étape 1 — Installer Graphify
+
+[source,bash]
+----
+# Méthode recommandée (Mac/Linux)
+uv tool install graphifyy && graphify install --platform opencode
+
+# Alternative avec pipx
+pipx install graphifyy && graphify install --platform opencode
+
+# Alternative avec pip
+pip install graphifyy && graphify install --platform opencode
+----
+
+=== Étape 2 — Activer le always-on hook pour OpenCode
+
+[source,bash]
+----
+graphify opencode install
+----
+
+Cette commande fait trois choses :
+
+1. Écrit une section dans `AGENTS.md` demandant à l'agent de lire `graphify-out/GRAPH_REPORT.adoc` avant de répondre aux questions d'architecture
+2. Installe un plugin `.opencode/plugins/graphify.js` qui injecte un rappel avant chaque appel d'outil bash : _"graphify: Knowledge graph exists. Read GRAPH_REPORT.adoc for god nodes and community structure before searching raw files."_
+3. Enregistre le plugin dans `opencode.json`
+
+=== Étape 3 — Configurer les exclusions
+
+Créer un fichier `.graphifyignore` à la racine du projet :
+
+[source,gitignore]
+----
+# Credentials et secrets — JAMAIS dans le graphe
+*-context.yml
+*-context.example.yml
+*secret*
+*.env
+.env
+
+# Archives de sessions — pas du code, déjà structurées
+.agents/
+
+# Fichiers générés
+build/
+.gradle/
+out/
+
+# Fichiers de contexte agent — déjà gérés par EAGER/LAZY
+PROMPT_REPRISE.adoc
+AGENT_METHODOLOGIES.adoc
+AGENT_SESSION_MANAGER.adoc
+AGENT_PLAN.adoc
+SESSION_CHECKLIST.adoc
+SESSION_PROCEDURE.adoc
+BACKLOG.adoc
+
+# Tests Cucumber — le graphe se concentrerait trop sur les steps definitions
+src/functionalTest/
+
+# Fichiers IDE
+.idea/
+.vscode/
+*.iml
+----
+
+=== Étape 4 — Construire le graphe initial
+
+[source,bash]
+----
+cd /home/cheroliv/workspace/__repositories__/plantuml-gradle/plantuml-plugin
+/graphify . --no-viz
+----
+
+Options utiles :
+
+[cols="1,3", options="header"]
+|===
+| Flag | Usage
+| `--no-viz` | Skip la génération HTML (plus rapide, on veut juste le JSON et le rapport)
+| `--update` | Re-extrait uniquement les fichiers modifiés (incrémental)
+| `--mode deep` | Extraction plus agressive des edges INFERRED (plus de tokens, plus de relations)
+| `--directed` | Préserve la direction des relations (Aappelle_B ≠ B_appelle_A)
+| `--watch` | Auto-sync : le graphe se met à jour quand les fichiers changent
+|===
+
+=== Étape 5 — Commettre les sorties utiles
+
+[source,bash]
+----
+# Ajouter au .gitignore
+cat >> .gitignore << 'EOF'
+# Graphify — cache Only (outputs are committed)
+graphify-out/cache/
+EOF
+
+# Commettre le rapport et le graphe (pas le cache)
+git add graphify-out/GRAPH_REPORT.adoc graphify-out/graph.json
+git commit -m "chore: add graphify knowledge graph"
+----
+
+.Le cache `graphify-out/cache/` est dans `.gitignore` car il contient les SHA256 des fichiers — il régénère les fichiers modifiés uniquement.
+Les outputs `GRAPH_REPORT.adoc` et `graph.json` sont commités pour que chaque teammate commence avec un graphe à jour.
+
+***
+
+== Architecture du système hybride
+
+=== Avant — Stratégie seule
+
+[plantuml]
+....
+@startuml
+skinparam backgroundColor #FEFEFE
+skinparam componentStyle rectangle
+
+package "EAGER (toujours chargé)" as eager {
+    [PROMPT_REPRISE.adoc\n(200 lignes)] as pr
+    [INDEX.adoc\n(300 lignes)] as idx
+    [*_ESSENTIALS.adoc\n(50-100 lignes)] as ess
+}
+
+package "LAZY (sur demande)" as lazy {
+    [ARCHITECTURE.adoc\n(130 lignes)] as arch
+    [ECOSYSTEM_OVERVIEW.adoc\n(225 lignes)] as eco
+    [AGENT_METHODOLOGIES.adoc\n(784 lignes)] as meth
+    [sessions/*.adoc\n(50-200 lignes each)] as sessions
+    [DECISIONS_ARCHITECTURE.adoc\n(336 lignes)] as decid
+}
+
+Agent --> eager : Lit en début de session
+Agent ..> lazy : Charge sur détection\n(mots-clés, besoins)
+....
+
+@enduml
+....
+
+=== Après — Système hybride
+
+[plantuml]
+....
+@startuml
+skinparam backgroundColor #FEFEFE
+skinparam componentStyle rectangle
+
+package "EAGER (toujours chargé)" as eager {
+    [PROMPT_REPRISE.adoc\n(200 lignes)] as pr
+    [INDEX.adoc\n(300 lignes)] as idx
+    [*_ESSENTIALS.adoc\n(50-100 lignes)] as ess
+    [GRAPH_REPORT.adoc\n(~50 lignes)] as graph_rapport
+}
+
+package "LAZY — Stratégie (sur demande)" as lazy_strat {
+    [AGENT_METHODOLOGIES.adoc\n(784 lignes)] as meth
+    [AGENT_SESSION_MANAGER.adoc\n(187 lignes)] as session_mgr
+    [sessions/*.adoc\n(archives)] as sessions
+    [DECISIONS_ARCHITECTURE.adoc\n(336 lignes)] as decid
+}
+
+package "LAZY — Graphify (requêtes ciblées)" as lazy_graph {
+    [graph.json\n(graphe complet)] as graph_json
+    [Requêtes sémantiques] as queries
+}
+
+package "Always-on Hook" as hook {
+    [graphify.js\n(injection auto)] as plugin
+}
+
+Agent --> eager : Lit en début de session
+Agent ..> lazy_strat : Charge si type de session\n détecté
+Agent ..> lazy_graph : Query si besoin\n structurel
+plugin --> Agent : Rappel avant chaque tool:\n"Lire GRAPH_REPORT.adoc d'abord"
+
+note right of graph_rapport
+  Remplace ECOSYSTEM_OVERVIEW.adoc
+  + ARCHITECTURE.adoc en EAGER
+  Condensé en ~50 lignes
+end note
+
+note right of queries
+  graphify query "chemin entre
+  DiagramProcessor et config YAML"
+  ~50 tokens vs ~2000 tokens
+end note
+....
+
+@enduml
+....
+
+=== Répartition des rôles
+
+[cols="2,3,3", options="header"]
+|===
+| Aspect | Stratégie de session | Graphify
+| **Gouvernance** | Règles absolues (pas de commit, pas de tests en fin) | Aucune — ce n'est pas son rôle
+| **Workflow** | Procédure de session (5 étapes, archivage, seuils) | Aucun workflow de session
+| **Continuité** | `PROMPT_REPRISE.adoc` pour reprise inter-sessions | `graph.json` persiste et est queryable sans relecture
+| **Détection de contexte** | Mots-clés → méthodologies just-in-time | God nodes → communautés structurelles
+| **Navigation code** | `@fichier` manuel ou grep | Requêtes sémantiques sur le graphe
+| **Token savings** | Limitation EAGER à 200 lignes, LAZY sur demande | 71.5x moins de tokens par requête vs fichiers bruts
+|**Archives** | `.agents/sessions/*.adoc` structurés | Aucun archivage de session
+|===
+
+[IMPORTANT]
+====
+**Ni l'un ni l'autre ne se remplace.** La stratégie gère le _quand_ et le _comment_ (gouvernance). Graphify gère le _quoi_ et le _où_ (structure). Le mariage des deux donne un agent qui sait:
+
+1. **Quand** intervenir (stratégie)
+2. **Comment** procéder (stratégie)
+3. **Où** chercher (graphify)
+4. **Quoi** lire précisément (graphify)
+====
+
+***
+
+== Utilisation au quotidien
+
+=== Début de session
+
+L'agent lit dans cet ordre :
+
+[arabic]
+. `PROMPT_REPRISE.adoc` — contexte EAGER de la session (objectif, état, règles)
+. `INDEX.adoc` — vue d'ensemble projet (15 dernières sessions, roadmap, règles absolues)
+. `GRAPH_REPORT.adoc` — god nodes et communautés auto-détectées
+
+`GRAPH_REPORT.adoc` remplace le chargement de `ECOSYSTEM_OVERVIEW.adoc` et `ARCHITECTURE.adoc` en phase EAGER. En ~50 lignes, l'agent connaît :
+
+* Les concepts centraux (god nodes) : PlantumlService, ApiKeyPool, LlmService, etc.
+* Les communautés détectées : service layer, task layer, config layer, etc.
+* Les connexions surprenantes entre modules
+
+=== Pendant une session — Types de requêtes
+
+==== Requête structurelle (remplace le grep/read manuel)
+
+[source,bash]
+----
+# Au lieu de lireARCHITECTURE.adoc (130 lignes) + grep dans les fichiers
+graphify query "quelles classes dépendent de ApiKeyPool ?" --graph graphify-out/graph.json
+
+# Au lieu de lire DECISIONS_ARCHITECTURE.adoc (336 lignes)
+graphify query "pourquoi plantuml-test-context.yml est à la racine ?" --graph graphify-out/graph.json
+----
+
+==== Requête de chemin (comprendre les flux)
+
+[source,bash]
+----
+# Au lieu de lire LlmService + DiagramProcessor + ConfigLoader séparément
+graphify path "PlantumlService" "ApiKeyPool" --graph graphify-out/graph.json
+
+# Comprendre le flux de configuration
+graphify path "plantuml-context.yml" "ProcessPlantumlPromptsTask" --graph graphify-out/graph.json
+----
+
+==== Requête d'explication (comprendre un concept)
+
+[source,bash]
+----
+# Au lieu de charger ECOSYSTEM_OVERVIEW.adoc complet
+graphify explain "ApiKeyEntry" --graph graphify-out/graph.json
+
+# Comprendre le pattern BYOI
+graphify explain "Bring Your Own Infrastructure" --graph graphify-out/graph.json
+----
+
+=== Fin de session
+
+La procédure reste **identique** à celle définie dans `AGENT_SESSION_MANAGER.adoc`. Graphify n'intervient pas dans la procédure de fin de session.
+
+Cependant, ajouter **une étape optionnelle** :
+
+[arabic]
+. ✅ Vérifier critères de fin
+. 📝 Générer résumé session (template existant)
+. 📦 Archiver dans `.agents/sessions/{num}-{type}-{sujet}.adoc`
+. 📊 Mettre à jour `INDEX.adoc`
+. 🧹 Nettoyer `PROMPT_REPRISE.adoc`
+. **🆕 Mettre à jour le graphe** (si fichiers modifiés) :
+
+[source,bash]
+----
+/graphify . --update
+----
+
+Cette étape est **optionnelle**. Le hook `--watch` ou le hook git `graphify hook install` peut l'automatiser.
+
+=== Mise à jour du graphe
+
+[cols="2,3", options="header"]
+|===
+| Méthode | Usage
+| `/graphify . --update` | Incrémental — re-extrait uniquement les fichiers modifiés (rapide, peu de tokens)
+| `graphify hook install` | Hook git post-commit et post-checkout — mise à jour automatique
+| `/graphify . --watch` | Watch en arrière-plan — rebuild instantané sur modification de code (AST only, pas de LLM)
+| `/graphify .` | Full rebuild — re-extrait tout (lent, coûteux en tokens)
+|===
+
+[NOTE]
+====
+Les fichiers code (`.kt`, `.java`, `.gradle.kts`) sont extraits localement par tree-sitter, **sans appel LLM**. Seuls les docs (`.adoc`), images et PDFs nécessitent un appel LLM. Donc `--update` sur du code Kotlin est quasi instantané.
+====
+
+***
+
+== Optimisation du contexte
+
+=== Avant : le pipeline de contexte
+
+[plantuml]
+....
+@startuml
+skinparam backgroundColor #FEFEFE
+
+start
+:Utilisateur démarre session;
+:Agent lit PROMPT_REPRISE.adoc\n(EAGER, 200 lignes);
+:Agent lit INDEX.adoc\n(EAGER, 300 lignes);
+:Agent détecte type de session\n(mots-clés dans le prompt);
+
+if (Type détecté ?) then (Oui)
+    :Agent charge méthodologie\n(LAZY, 200-784 lignes);
+else (Non)
+    :Agent agit directement;
+endif
+
+:Agent lit fichiers source\n(grep/read manuel, 100-500 lignes);
+
+:Agent répond / code;
+
+stop
+@enduml
+....
+
+=== Après : le pipeline hybride
+
+[plantuml]
+....
+@startuml
+skinparam backgroundColor #FEFEFE
+
+start
+:Utilisateur démarre session;
+:Agent lit PROMPT_REPRISE.adoc\n(EAGER, 200 lignes);
+:Agent lit INDEX.adoc\n(EAGER, 300 lignes);
+:Agent lit GRAPH_REPORT.adoc\n(EAGER, ~50 lignes);
+
+:Hook graphify injecte :\n"Knowledge graph exists. Read GRAPH_REPORT.adoc\nfor god nodes and community structure.";
+
+:Agent détecte type de session\n(mots-clés dans le prompt);
+
+if (Type détecté ?) then (Oui)
+    :Agent charge méthodologie\n(LAZY, 200-784 lignes);
+else (Non)
+    :Agent agit directement;
+endif
+
+:Fichier(s) source nécessaire(s) ?;
+
+if (Besoin structurel) then (Oui)
+    :graphify query "question"\n(~50 tokens);
+    note right: Remplace grep/read\nde 200-500 lignes
+else (Non)
+    :Pas de query nécessaire;
+endif
+
+:Agent répond / code;
+
+stop
+@enduml
+....
+
+=== Comparaison des tokens consommés
+
+[cols="1,2,2,2", options="header"]
+|===
+| Phase | Avant (EAGER/LAZY seul) | Après (hybride) | Économie
+| **Début de session** | PROMPT_REPRISE (200) + INDEX (300) + ECOSYSTEM (225) + ARCHITECTURE (130) = **855 lignes** | PROMPT_REPRISE (200) + INDEX (300) + GRAPH_REPORT (~50) = **550 lignes** | **-36%**
+| **Question structurelle** | Read ECOSYSTEM + ARCHITECTURE + DECISIONS = **691 lignes** | 1 query graphify = **~50 tokens** | **-93%**
+| **Navigation code** | grep 3-5 fichiers = **200-500 lignes** | 1 query + 1 path = **~100 tokens** | **~-80%**
+| **Chargement_lazy classique** | Méthodologie (784 lignes) si match | Méthodologie (784 lignes) si match | **0%** (pas de changement)
+|===
+
+[IMPORTANT]
+====
+Graphify optimise les phases **structurelles** et **navigationnelles** — les phases **processuelles** (méthodologies, procédures, archives de session) restent gérées par la stratégie EAGER/LAZY et ne changent pas.
+====
+
+=== Réduction du EAGER : ce qui peut être déplacé en LAZY
+
+[cols="2,2,3", options="header"]
+|===
+| Fichier | État actuel | Recommandation hybride
+| `PROMPT_REPRISE.adoc` | EAGER (200 lignes) | **Reste EAGER** — contexte de session, irremplaceable
+| `INDEX.adoc` | EAGER (300 lignes) | **Reste EAGER** — règles absolues + historique récent
+| `*_ESSENTIALS.adoc` | EAGER (50-100 lignes) | **Reste EAGER** — condensé volontaire
+| `ECOSYSTEM_OVERVIEW.adoc` | EAGER (225 lignes) | **Devient LAZY** — remplacé par `GRAPH_REPORT.adoc` (~50 lignes)
+| `ARCHITECTURE.adoc` | EAGER (130 lignes) | **Devient LAZY** — structure auto-déduite par Graphify
+| `DECISIONS_ARCHITECTURE.adoc` | LAZY (336 lignes) | **Reste LAZY** — les décisions ne sont pas dans le code
+| `AGENT_METHODOLOGIES.adoc` | LAZY (784 lignes) | **Reste LAZY** — chargé only sur détection
+|===
+
+[NOTE]
+====
+`ECOSYSTEM_OVERVIEW.adoc` et `ARCHITECTURE.adoc` ne sont pas supprimés. Ils deviennent LAZY — disponibles sur demande mais plus chargés systématiquement. Le `GRAPH_REPORT.adoc` les remplace dans le EAGER.
+====
+
+=== Seuils mis à jour
+
+[cols="1,1,2", options="header"]
+|===
+| Fichier | Ancien seuil | Nouveau seuil (hybride)
+| `PROMPT_REPRISE.adoc` | 200 lignes | 200 lignes (inchangé)
+| `INDEX.adoc` | 300 lignes | 300 lignes (inchangé)
+| `GRAPH_REPORT.adoc` | N/A | **100 lignes** max (rebuild si dépassé)
+| `graph.json` | N/A | Pas de seuil (fichier binaire, query uniquement)
+| `*_ESSENTIALS.adoc` | 50-100 lignes | 50-100 lignes (inchangé)
+|===
+
+***
+
+== Avantages et bénéfices
+
+=== Bénéfices de la stratégie EAGER/LAZY (existant)
+
+[arabic]
+. **Gouvernance** — Règles absolues (pas de commit, pas de tests en fin de session)
+. **Traçabilité** — Archive de chaque session (type, score, fichiers modifiés)
+. **Détection just-in-time** — Méthodologies proposées automatiquement selon le type de session
+. **Limitation du contexte** — Seuils stricts pour éviter la saturation
+. **Continuité** — Reprise de session fluide via `PROMPT_REPRISE.adoc`
+
+=== Bénéfices de Graphify (ajouté)
+
+[arabic]
+. **Compréhension structurelle automatique** — Plus besoin de lire 5 fichiers pour comprendre les dépendances
+. **Requêtes ciblées** — 50 tokens vs 2000 tokens pour une question structurelle
+. **God nodes** — Identification automatique des classes centrales (PlantumlService, ApiKeyPool, etc.)
+. **Communautés auto-détectées** — Regroupements logiques que vous ne pensiez pas à documenter
+. **Connexions surprenantes** — Relations entre modules qui semblent indépendants
+. **Économie de tokens** — 71.5x moins de tokens par requête structurelle
+. **Persistance inter-sessions** — Le graphe survit aux sessions, pas besoin de reconstruire la compréhension
+
+=== Bénéfices du mariage (synergie)
+
+[cols="2,3,3", options="header"]
+|===
+| problème | Stratégie seule | Stratégie + Graphify
+| "Où est la classe qui gère les clés API ?" | Grep `ApiKeyPool`, lecture de 3-4 fichiers | `graphify explain "ApiKeyPool"` — réponse immédiate
+| "Qu'est-ce qui impacte DiagramProcessor ?" | Lire `DiagramProcessor.kt` (500 lignes) + grep des usages | `graphify query "impact de DiagramProcessor"` — 50 tokens
+| "Comment la config YAML arrive au task ?" | Lire `ConfigLoader` + `PlantumlManager` + `ProcessPlantumlPromptsTask` | `graphify path "plantuml-context.yml" "ProcessPlantumlPromptsTask"` — chemin complet
+| Session de debug : "Pourquoi ce test échoue ?" | Charger méthodologie debug + lire fichiers | Charger méthodologie + query graphify pour contexte structurel
+| Nouvelle session : "Reprends où on en était" | Lire `PROMPT_REPRISE.adoc` + `INDEX.adoc` | `PROMPT_REPRISE.adoc` + `INDEX.adoc` + `GRAPH_REPORT.adoc` = vision complète
+| Fin de session | Archiver + mettre à jour | Archiver + mettre à jour + **`/graphify . --update`**
+|===
+
+=== Bénéfices pour le fine-tuning futur
+
+Le projet a un objectif de dataset de fine-tuning (documenté dans `DATASET_FINETUNING_PLAN.adoc` et `DATASET_FINETUNING_MODE_OPERATOIRE.adoc`). Graphify apporte :
+
+[arabic]
+. **`graph.json`** — Structure relationnelle déjà prête pour entraîner un modèle sur les dépendances de code
+. **Confidence scores** — Chaque edge a un tag `EXTRACTED` (certitude 1.0) ou `INFERRED` (score 0.0-1.0), parfait pour filtrer les données d'entraînement
+. **Communautés** — Labels de regroupement qui peuvent servir de tags de classification
+. **God nodes** — Identification des concepts centraux pour pondérer les exemples d'entraînement
+
+***
+
+== Comment tout fonctionne ensemble
+
+=== Flux complet d'une session hybride
+
+[plantuml]
+....
+@startuml
+skinparam backgroundColor #FEFEFE
+skinparam ActivityBackgroundColor #E8F4FD
+skinparam ActivityDiamondBackgroundColor #FFF3CD
+skinparam ActivityBorderColor #2C3E50
+
+start
+
+partition "DÉBUT DE SESSION" {
+    :Utilisateur lance OpenCode;
+    
+    :Lire PROMPT_REPRISE.adoc\n(EAGER, 200 lignes);
+    note right: Contexte de la session\ncourante, objectif, état
+    
+    :Lire INDEX.adoc\n(EAGER, 300 lignes);
+    note right: Historique récent,\nrègles absolues, roadmap
+    
+    :Lire GRAPH_REPORT.adoc\n(EAGER, ~50 lignes);
+    note right: God nodes,\ncommunautés,\nconnexions surprenantes
+    
+    :Hook graphify injecte :\n"Knowledge graph exists.\nRead GRAPH_REPORT.adoc for\ngod nodes and community\nstructure before searching\nraw files.";
+}
+
+partition "PENDANT LA SESSION" {
+    :Utilisateur pose une question\nou donne une instruction;
+    
+    :Détection du type de session\n(mots-clés dans le prompt);
+    
+    if (Type détecté ?) then (Oui)
+        :Proposer méthodologie\n(AGENT_METHODOLOGIES.adoc);
+        note right: Flow existant,\ninchangé
+        
+        if (Utilisateur confirme ?) then (Oui)
+            :Charger méthodologie\n(LAZY);
+        else (Non)
+            :Continuer sans;
+        endif
+    else (Non)
+        :Agir directement;
+    endif
+    
+    :Besoin de comprendre le code ?;
+    
+    if (Question structurelle ?) then (Oui)
+        :Requête Graphify\n(query / path / explain);
+        note right: Remplace grep/read\nde fichiers entiers
+        
+    else (Question procédurale ?) then (Oui)
+        :Lire fichier LAZY\n(méthodologie, procédure);
+        note right: Flow existant,\ninchangé
+        
+    else (Action directe ?) then (Oui)
+        :Agir directement\n(corriger un bug, etc.);
+    endif
+    
+    :Exécuter l'action\n(code, refactoring, etc.);
+}
+
+partition "FIN DE SESSION" {
+    :Procédure existante (5 étapes);
+    note right: Inchangée — Voir\nAGENT_SESSION_MANAGER.adoc
+    
+    :1. Vérifier critères de fin;
+    :2. Générer résumé session;
+    :3. Archiver dans .agents/sessions/;
+    :4. Mettre à jour INDEX.adoc;
+    :5. Nettoyer PROMPT_REPRISE.adoc;
+    
+    partition "Étape optionnelle 6" {
+        :6. Mettre à jour le graphe\n/graphify . --update;
+        note right: Seulement si des fichiers\nont été modifiés
+    }
+}
+
+stop
+@enduml
+....
+
+=== Matrice de décision : quand utiliser quoi
+
+[cols="3,2,2,2", options="header"]
+|===
+| Situation | Stratégie EAGER/LAZY | Graphify | Les deux
+| Début de session, reprise | PROMPT_REPRISE.adoc | | 
+| Question sur l'architecture | ECOSYSTEM_OVERVIEW (maintenant LAZY) | `graphify query` | 
+| Question sur un flux de données | | `graphify path` | 
+| Début de feature/bug | INDEX.adoc + détection type | GRAPH_REPORT.adoc | **X**
+| Debug test fonctionnel | Charger méthodologie | `graphify explain` sur la classe | **X**
+| Où est la classe X ? | | `graphify explain X` | 
+| Pourquoi ce design ? | DECISIONS_ARCHITECTURE.adoc | | 
+| Impact d'un changement | | `graphify query "impact de X"` | 
+| Fin de session (archivage) | Procédure 5 étapes | | 
+| Fine-tuning dataset | DATASET_FINETUNING_PLAN.adoc | `graph.json` structuré | **X**
+|===
+
+=== Interaction avec les hooks OpenCode
+
+.Graphify always-on hook — Ce qui se passe automatiquement
+
+[cols="1,3", options="header"]
+|===
+| Événement | Action du hook
+| Avant chaque appel `bash` | Si `graphify-out/GRAPH_REPORT.adoc` existe, injecter le rappel dans l'output de l'outil
+| Avant chaque appel `glob` | Même rappel
+| Avant chaque appel `grep` | Même rappel
+|===
+
+.Ce que cela signifie concrètement
+
+Quand l'agent lance un `grep` ou `bash` pour chercher du code, le hook lui rappelle : _"Un graphe de connaissances existe. Lis GRAPH_REPORT.adoc pour les god nodes et la structure des communautés avant de chercher dans les fichiers bruts."_
+
+Cela **n'empêche pas** l'agent de faire des grep — cela lui **rappelle** qu'il a une meilleure option. L'agent peut choisir :
+
+* Lire `GRAPH_REPORT.adoc` d'abord (recommandé) puis descendre dans les détails si nécessaire
+* Ignorer le rappel et faire le grep directement (parfois plus rapide pour une recherche précise)
+* Faire une query graphify (plus précis que le grep pour les relations)
+
+***
+
+== Configuration détaillée
+
+=== Structure des fichiers après intégration
+
+[source]
+----
+plantuml-plugin/
+├── .graphifyignore                           # NOUVEAU — fichiers exclus du graphe
+├── graphify-out/                             # NOUVEAU — sorties Graphify
+│   ├── GRAPH_REPORT.adoc                       # NOUVEAU — rapport condensé (committé)
+│   ├── graph.json                             # NOUVEAU — graphe complet (committé)
+│   └── cache/                                # NOUVEAU — cache SHA256 (gitignore)
+├── .opencode/                                # NOUVEAU — config OpenCode
+│   └── plugins/
+│       └── graphify.js                        # NOUVEAU — hook always-on
+├── PROMPT_REPRISE.adoc                         # EXISTANT — EAGER (200 lignes max)
+├── AGENTS.md                                 # MODIFIÉ — section graphify ajoutée
+├── .agents/
+│   ├── INDEX.adoc                              # EXISTANT — EAGER (300 lignes max)
+│   ├── ARCHITECTURE.adoc                        # EXISTANT — DEVIENT LAZY
+│   ├── ECOSYSTEM_OVERVIEW.adoc                 # EXISTANT — DEVIENT LAZY
+│   ├── AGENT_SESSION_MANAGER.adoc              # EXISTANT — LAZY (inchangé)
+│   ├── AGENT_METHODOLOGIES.adoc                # EXISTANT — LAZY (inchangé)
+│   ├── DECISIONS_ARCHITECTURE.adoc             # EXISTANT — LAZY (inchangé)
+│   ├── sessions/                             # EXISTANT — LAZY (inchangé)
+│   └── ...
+└── src/
+    └── ...                                   # EXISTANT — code source (dans le graphe)
+----
+
+=== Modifications à INDEX.adoc
+
+Ajouter une section `## 🔗 Knowledge Graph (Graphify)` :
+
+[source,markdown]
+----
+## 🔗 Knowledge Graph (Graphify)
+
+**Fichiers** :
+- `graphify-out/GRAPH_REPORT.adoc` — Rapport condensé (EAGER, ~50 lignes)
+- `graphify-out/graph.json` — Graphe complet (LAZY, query uniquement)
+
+**Commandes utiles** :
+- `/graphify .` — Reconstruire le graphe complet
+- `/graphify . --update` — Mise à jour incrémentale (fichiers modifiés uniquement)
+- `/graphify query "question"` — Requête sémantique
+- `/graphify path "A" "B"` — Chemin entre deux concepts
+- `/graphify explain "concept"` — Explication en langage naturel
+
+**Règle** : Toujours lire `GRAPH_REPORT.adoc` avant de chercher dans les fichiers source.
+----
+
+=== Modifications à AGENTS.md
+
+Ajouter après la section architecture :
+
+[source,markdown]
+----
+## 🔗 Knowledge Graph
+
+**Fichiers EAGER** :
+- `graphify-out/GRAPH_REPORT.adoc` — God nodes et communautés (lire en premier)
+
+**Fichiers LAZY** :
+- `graphify-out/graph.json` — Graphe complet (query uniquement, pas de lecture directe)
+
+**Règle** : Avant de faire un grep ou lire un fichier source, vérifier si la réponse est dans le knowledge graph.
+
+**Commandes** :
+- `/graphify query "question"` — Pour les questions structurelles
+- `/graphify path "ConceptA" "ConceptB"` — Pour comprendre les flux
+- `/graphify explain "Concept"` — Pour comprendre un concept
+----
+
+=== Modifications à PROMPT_REPRISE.adoc
+
+Ajouter une ligne dans la section contexte :
+
+[source,markdown]
+----
+## Contexte Graphify
+- **Graphe** : `graphify-out/GRAPH_REPORT.adoc` (lire en début de session)
+- **Dernière mise à jour** : [date de la dernière build]
+- **God nodes** : [listés dans GRAPH_REPORT.adoc]
+----
+
+=== Modifications à .gitignore
+
+[source,gitignore]
+----
+# Graphify
+graphify-out/cache/
+
+# Déjà présent — s'assurer que les secrets restent exclus
+*-context.yml
+*-context.example.yml
+*.env
+----
+
+***
+
+== Checklist d'intégration
+
+[cols="1,3,1", options="header"]
+|===
+| # | Étape | Statut
+| 1 | Installer Graphify (`uv tool install graphifyy`) | ☐
+| 2 | Installer le plugin OpenCode (`graphify install --platform opencode`) | ☐
+| 3 | Activer le always-on (`graphify opencode install`) | ☐
+| 4 | Créer `.graphifyignore` (credentiels, archives, build) | ☐
+| 5 | Construire le graphe initial (`/graphify . --no-viz`) | ☐
+| 6 | Vérifier `graphify-out/GRAPH_REPORT.adoc` (god nodes, communautés) | ☐
+| 7 | Ajouter `graphify-out/cache/` au `.gitignore` | ☐
+| 8 | Committer `GRAPH_REPORT.adoc` + `graph.json` | ☐
+| 9 | Ajouter section Graphify à `INDEX.adoc` | ☐
+| 10 | Ajouter section Graphify à `AGENTS.md` | ☐
+| 11 | Ajouter contexte Graphify à `PROMPT_REPRISE.adoc` | ☐
+| 12 | Installer le hook git (`graphify hook install`) — optionnel | ☐
+| 13 | Déplacer `ECOSYSTEM_OVERVIEW.adoc` en LAZY | ☐
+| 14 | Déplacer `ARCHITECTURE.adoc` en LAZY | ☐
+| 15 | Valider l'économie de tokens sur 2-3 sessions | ☐
+|===
+
+***
+
+== Risques et mitigations
+
+[cols="2,3,3", options="header"]
+|===
+| Risque | Description | Mitigation
+| Fuite de credentials | Graphify envoie le contenu des fichiers à l'API LLM | `.graphifyignore` exclus `*-context.yml`, `.env`, `.agents/`
+| Coût en tokens | Extraction sémantique des docs consomme des tokens LLM | Seuls les docs (`.adoc`) nécessitent l'API, le code est extrait localement. Utiliser `--update` pour les rebuilds incrémentaux
+| Sur-dépendance | L'agent pourrait ignorer le grep et toujours query le graphe | Le hook rappelle, il n'oblige pas. Le grep reste pertinent pour les recherches précises
+| Graphe obsolète | Le code change mais le graphe n'est pas reconstruit | Hook git (`graphify hook install`) + `--watch` pour auto-sync
+| Fichiers exclus trop larges | Trop de fichiers dans `.graphifyignore` réduit la valeur du graphe | Commencer par exclure seulement credentials et archives, ajuster ensuite
+| Conflit avec la procédure de fin de session | L'étape 6 optionnelle pourrait ralentir la fin de session | Marquer comme **optionnelle** — ne jamais bloquer la fin de session sur un rebuild du graphe
+|===
+
+***
+
+== Intégration PlantUML : boucle sémantique complète
+
+C'est ici que le projet se boucle : le plugin PlantUML Gradle génère des diagrammes, Graphify extrait la structure du code, et le LLM cloud (Ollama) traduit le graphe en PlantUML. Les diagrammes générés documentent le code — et enrichissent le knowledge graph en retour.
+
+=== Pourquoi ça marche
+
+La traduction Knowledge Graph → PlantUML est **mécanique**. Le graphe extrait par Graphify contient déjà les relations exactes (classes, dépendances, implémentations). Un modèle cloud de dernière génération n'a pas besoin de raisonner profondément — il reformate :
+
+[source]
+----
+# Ce que Graphify produit (graph.json)
+ApiKeyPool --(uses)--> LlmService --(creates)--> ChatModel
+ApiKeyPool --(rotates)--> ApiKeyEntry
+PlantumlService --(orchestrates)--> DiagramProcessor
+
+# Ce qu'on veut (PlantUML)
+@startuml
+class ApiKeyPool {
+  +getNextKey(): ApiKeyEntry
+  +resetCounters()
+}
+class LlmService {
+  +createChatModel(): ChatModel
+}
+ApiKeyPool --> LlmService : uses
+ApiKeyPool --> ApiKeyEntry : rotates
+PlantumlService --> DiagramProcessor : orchestrates
+@enduml
+----
+
+C'est une tâche de **reformatage** structuré — pas de raisonnement créatif. Les modèles cloud (Qwen 3.5/3.6, GLM 5.1) excellent à ça.
+
+=== Configuration Ollama Cloud
+
+Le projet utilise déjà Ollama Cloud (`https://ollama.com/api/chat`) avec des modèles cloud performants. Pas de GPU locale, pas de modèle local.
+
+[cols="1,2,2,2", options="header"]
+|===
+| Modèle | Suffixe cloud | Qualité PlantUML | Recommandation
+| **Qwen 3.5** | `qwen3.5-cloud` | ⭐⭐⭐⭐⭐ | **Recommandé** — excellent sur la syntaxe structurée
+| **Qwen 3.6** | `qwen3.6-cloud` | ⭐⭐⭐⭐⭐ | Dernière génération, même qualité
+| **GLM 5.1** | `glm5.1-cloud` | ⭐⭐⭐⭐ | Très bon, légèrement moins stable sur les flèches UML
+|===
+
+[NOTE]
+====
+La configuration Ollama Cloud est documentée dans `.agents/sessions/118-ollama-cloud-ci-auth.adoc` :
+- Endpoint : `https://ollama.com/api/chat`
+- Auth : Device Key SSH (`id_ed25519`)
+- En local : `OLLAMA_HOST` déjà configuré
+- En CI : clé injectée via GitHub Secrets
+====
+
+=== Le cycle vertueux
+
+[plantuml]
+....
+@startuml
+skinparam backgroundColor #FEFEFE
+skinparam ActivityBackgroundColor #E8F4FD
+
+start
+
+:Graphify extrait le knowledge graph\n(graph.json);
+
+:Query Graphify\nextrait un sous-graphe ciblé\n(ex: "service layer");
+
+:Ollama Cloud\n(Qwen 3.5/3.6 ou GLM 5.1)\ntraduit le sous-graphe\nen syntaxe PlantUML;
+
+:Plugin Gradle PlantUML\nrender le diagramme\n(PNG/SVG);
+
+:Diagramme committé\ndans diagrams/auto/;
+
+if (Diagramme enrichit le graphe ?) then (Oui)
+    :Graphify ingestionne\nle diagramme\n(extraction visuelle PNG/SVG);
+    note right: Boucle de\nrétroaction :
+    la documentation\nenrichit le graphe
+    qui enrichit la\ndocumentation
+else (Non)
+    :Documentation statique\n(committée telle quelle);
+endif
+
+stop
+@enduml
+....
+
+=== Pipeline automatisé
+
+Créer le script `scripts/generate-diagrams.sh` :
+
+[source,bash]
+----
+#!/bin/bash
+# generate-diagrams.sh — Pipeline Graphify → Ollama Cloud → PlantUML
+set -e
+
+SUBGRAPH="${1:-service layer}"  # ex: "service layer", "ApiKeyPool", "config layer"
+MODEL="${2:-qwen3.5-cloud}"     # modèle cloud par défaut
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+GRAPH="$PROJECT_DIR/graphify-out/graph.json"
+OUT_DIR="$PROJECT_DIR/diagrams/auto"
+
+mkdir -p "$OUT_DIR"
+
+# Vérifier que le graphe existe
+if [ ! -f "$GRAPH" ]; then
+    echo "Erreur: graphify-out/graph.json introuvable. Lancer /graphify . d'abord."
+    exit 1
+fi
+
+# 1. Extraire le sous-graphe depuis Graphify
+echo "Extraction du sous-graphe : $SUBGRAPH"
+graphify query "$SUBGRAPH" --graph "$GRAPH" > /tmp/subgraph.txt
+
+# 2. Préparer le prompt PlantUML
+PROMPT="Tu es un expert PlantUML. Convertis la structure suivante en diagramme de classes PlantUML.
+Règles :
+- Utilise les relations exactes du graphe (EXTRACTED uniquement, ignore INFERRED)
+- Classes avec leurs attributs principaux
+- Relations avec labels (-->, ..>, *--, o--)
+- Pas de style, pas de couleur, pas de skinparam
+- Structure uniquement
+- Utilise le français pour les labels si le graphe est en français
+
+Graphe :
+$(cat /tmp/subgraph.txt)"
+
+# 3. Générer le PlantUML via Ollama Cloud
+echo "Génération PlantUML via $MODEL..."
+curl -s https://ollama.com/api/chat -d "$(jq -n \
+    --arg model "$MODEL" \
+    --arg content "$PROMPT" \
+    '{model: $model, messages: [{role: "user", content: $content}], stream: false}')" \
+    | jq -r '.message.content' \
+    | sed -n '/@startuml/,/@enduml/p' \
+    > "$OUT_DIR/auto-${SUBGRAPH// /-}.puml"
+
+# 4. Valider avec le plugin Gradle
+echo "Validation PlantUML..."
+cd "$PROJECT_DIR"
+./gradlew validatePlantumlSyntax --diagram="$OUT_DIR/auto-${SUBGRAPH// /-}.puml" || {
+    echo "Erreur de validation PlantUML. Vérifier le fichier généré."
+    exit 1
+}
+
+# 5. Render via le plugin Gradle
+echo "Rendu du diagramme..."
+./gradlew processPlantumlPrompts
+
+echo "Diagramme généré : $OUT_DIR/auto-${SUBGRAPH// /-}.puml"
+echo "Rendu PNG : $OUT_DIR/auto-${SUBGRAPH// /-}.png"
+----
+
+[NOTE]
+====
+La validation PlantUML utilise la tâche `ValidatePlantumlSyntaxTask` existante du plugin. Si la syntaxe est invalide, le script échoue proprement et l'agent peut relancer avec un prompt correctif.
+====
+
+=== Utilisation dans le workflow EAGER/LAZY
+
+==== Diagrammes auto-générés comme contexte EAGER
+
+Ajouter à `INDEX.adoc` :
+
+[source,markdown]
+----
+## Architecture visuelle (EAGER — ~20 lignes)
+
+- `diagrams/auto-service-layer.puml` — Couche service (PlantumlService, LlmService, DiagramProcessor)
+- `diagrams/auto-config-layer.puml` — Couche config (PlantumlConfig, ApiKeyConfig, ApiKeyPool)
+- `diagrams/auto-task-layer.puml` — Couche tasks (3 tâches Gradle)
+- `diagrams/auto-key-rotation.puml` — Flux de rotation des clés API
+
+**Régénération** : `scripts/generate-diagrams.sh "nom du sous-graphe"` puis `/graphify . --update`
+----
+
+Chaque fichier `.puml` est ~10-30 lignes. L'agent lit les fichiers PlantUML au lieu de lire 5 fichiers Kotlin séparés.
+
+==== Boucle de rétroaction : diagrammes → graphe
+
+Graphify peut ingestionner les diagrammes générés (il supporte PNG/SVG). Cela crée une boucle vertueuse :
+
+[arabic]
+. Code source → Graphify extrait les relations (AST + LLM)
+. Relations → Ollama Cloud génère les diagrammes PlantUML
+. Diagrammes → Plugin Gradle render en PNG
+. PNG → Graphify les ingestionne et enrichit le graphe avec les concepts visuels
+. Graphe enrichi → Meilleurs diagrammes à la session suivante
+
+=== Intégration dans la procédure de fin de session
+
+Ajouter **une étape optionnelle 7** à la procédure existante :
+
+[arabic]
+. ✅ Vérifier critères de fin
+. 📝 Générer résumé session
+. 📦 Archiver dans `.agents/sessions/`
+. 📊 Mettre à jour `INDEX.adoc`
+. 🧹 Nettoyer `PROMPT_REPRISE.adoc`
+. 🆕 Mettre à jour le graphe : `/graphify . --update`
+. 🆕 Régénérer les diagrammes impactés : `scripts/generate-diagrams.sh "sous-graphe modifié"`
+
+=== Avantages concrets pour la documentation
+
+[cols="2,3,2", options="header"]
+|===
+| Avantage | Impact | Effort
+| Documentation toujours à jour | Les diagrammes reflètent le code actuel, pas un snapshot manuel | Script + hook git
+| Réduction de la dette documentaire | Plus besoin de maintenir les diagrammes à la main | Automatisé par Graphify
+| Contexte visuel pour l'agent | L'agent voit les diagrammes avant de coder (EAGER léger) | Ajout dans INDEX.adoc
+| Fine-tuning visuel | Les paires (sous-graphe → diagramme) sont des exemples d'entraînement | Export graph.json + puml
+| Onboarding rapide | Un nouveau développeur comprend l'architecture en 5 diagrammes | Zéro effort
+| Validation automatique | `ValidatePlantumlSyntaxTask` vérifie chaque diagramme généré | Déjà existant
+|===
+
+=== Points d'attention
+
+[cols="2,3", options="header"]
+|===
+| Point | Mitigation
+| Direction des flèches | Les modèles LLM inversent parfois `-->` et `<--`. La tâche `ValidatePlantumlSyntaxTask` catch les erreurs de syntaxe, pas les inversions sémantiques. **Revoir les diagrammes générés avant commit.**
+| Multiplicités UML | Les modèles oublient `1..*` et `0..1`. Ajouter au prompt : "Inclus les multiplicities si connues."
+| Sur-génération | Ne pas générer 50 diagrammes d'un coup. Se limiter aux 5 communautés détectées par Graphify (service layer, config layer, task layer, model layer, RAG).
+| Coût cloud | Chaque génération consomme des tokens cloud. Le prompt est court (~200 tokens) mais le nombre de diagrammes peut augmenter. **Générer seulement quand la structure change.**
+|===
+
+=== Architecture complète du système hybride avec PlantUML
+
+[plantuml]
+....
+@startuml
+skinparam backgroundColor #FEFEFE
+skinparam componentStyle rectangle
+
+package "EAGER\n(toujours chargé)" as eager {
+    [PROMPT_REPRISE.adoc\n(200 lignes)] as pr
+    [INDEX.adoc\n(300 lignes)] as idx
+    [GRAPH_REPORT.adoc\n(~50 lignes)] as graph_rapport
+    [diagrams/auto/*.puml\n(~20 lignes each)] as diagrams
+}
+
+package "LAZY — Stratégie\n(sur demande)" as lazy_strat {
+    [Méthodologies\n(200-784 lignes)] as meth
+    [Sessions archives\n(50-200 each)] as sessions
+    [Décisions architecture\n(336 lignes)] as decid
+}
+
+package "LAZY — Graphify\n(requêtes ciblées)" as lazy_graph {
+    [graph.json\n(graphe complet)] as graph_json
+    [Queries\n(query/path/explain)] as queries
+}
+
+package "Pipeline PlantUML\n(auto-généré)" as puml {
+    [Ollama Cloud\n(Qwen/GLM)] as llm
+    [Gradle Plugin\n(Render + Validate)] as plugin
+}
+
+Agent --> eager : Lit en début de session
+Agent ..> lazy_strat : Charge si type détecté
+Agent ..> lazy_graph : Query si besoin structurel
+queries --> graph_json : Interroge
+llm --> graph_json : Traduit sous-graphe\nen syntaxe PlantUML
+plugin --> llm : Valide et render
+diagrams --> pr : Contexte visuel EAGER
+
+note right of diagrams
+  Auto-générés par le pipeline
+  Graphify → Ollama Cloud
+  → Gradle Plugin
+end note
+....
+
+@enduml
+....
+
+***
+
+== Résumé — Le combo gagnant en 6 principes
+
+[arabic]
+.Principe de gouvernance — La stratégie EAGER/LAZY gère le **quand** et le **comment** : quand charger un fichier, quand archiver, quand proposer une méthodologie. Graphify ne gère pas la gouvernance.
+
+.Principe structurel — Graphify gère le **quoi** et le **où** : quelles classes dépendent de quoi, où trouver l'information, quels sont les concepts centraux. La stratégie ne gère pas la structure du code.
+
+.Principe de token économie — Le EAGER passe de ~855 lignes à ~550 lignes (ECOSYSTEM + ARCHITECTURE remplacés par GRAPH_REPORT à ~50 lignes). Les queries structurelles passent de ~2000 tokens à ~50 tokens.
+
+.Principe de complémentarité — Les queries Graphify remplacent les lectures de fichiers _structurels_, mais les fichiers _processuels_ (méthodologies, procédures, archives de session) restent gérés par la stratégie EAGER/LAZY.
+
+.Principe de non-duplication — Le `GRAPH_REPORT.adoc` condense ce que `ECOSYSTEM_OVERVIEW.adoc` et `ARCHITECTURE.adoc` disaient en 355 lignes en ~50 lignes. Les fichiers originaux deviennent LAZY (disponibles sur demande) mais ne sont pas supprimés.
+
+.Principe de boucle sémantique — Le Knowledge Graph (Graphify) génère des diagrammes PlantUML (Ollama Cloud) qui documentent le code, et les diagrammes enrichissent le Knowledge Graph en retour. Code → Graphe → Diagrammes → Graphe enrichi.
+
+***
+
+== Dogfooding : le plugin se documente lui-même
+
+Le plugin PlantUML Gradle existe pour **transformer des prompts en diagrammes**. Rien n'empêche d'utiliser cette même capability pour générer la documentation du plugin lui-même. C'est du _dogfooding_ : le plugin consomme son propre service pour produire les diagrammes qui documentent son architecture.
+
+=== Pourquoi c'est possible
+
+Les composants existants du plugin couvrent déjà tout le pipeline nécessaire :
+
+[cols="1,2,3", options="header"]
+|===
+| Composant existant | Fonction actuelle | Usage dogfooding
+| `LlmService` | Crée un `ChatModel` (Ollama, OpenAI, Gemini, etc.) | Appelle GLM 5.1 / Qwen 3.5 pour traduire un sous-graphe en syntaxe PlantUML
+| `ApiKeyPool` | Rotation de clés API entre providers | Utilise le pool pour répartir les appels LLM de génération entre les clés disponibles
+| `ProcessPlantumlPromptsTask` | Lit `.prompt` → appelle LLM → génère `.puml` → rendu PNG | Même pipeline, mais l'entrée est un sous-graphe Graphify au lieu d'un prompt manuel
+| `ValidatePlantumlSyntaxTask` | Valide la syntaxe PlantUML d'un fichier | Valide chaque diagramme auto-généré avant commit
+| `ReindexPlantumlRagTask` | Indexe les diagrammes dans un vector store | Indexe les diagrammes auto-générés pour les requêtes RAG futures
+| `ConfigLoader` | Charge `plantuml-context.yml` | Même config, même clés API, même providers
+|===
+
+.Le pipeline existe déjà
+[quote]
+__`processPlantumlPrompts` fait déjà : `.prompt` → LLM → `.puml` → PNG. Le dogfooding fait : `graphify query` → LLM → `.puml` → PNG. C'est le même pipeline, l'entrée change.__
+
+=== Architecture du dogfooding
+
+Le plugin est à la fois **producteur** (il génère des diagrammes pour les utilisateurs) et **consommateur** (il génère ses propres diagrammes de documentation).
+
+[plantuml]
+....
+@startuml
+skinparam backgroundColor #FEFEFE
+skinparam componentStyle rectangle
+
+package "Plugin PlantUML — Utilisation normale" as normal {
+    [Fichier .prompt\n(utilisateur)] as prompt
+    [LlmService\n+ ApiKeyPool] as llm1
+    [ProcessPlantumlPromptsTask] as task1
+    [ValidatePlantumlSyntaxTask] as validate1
+    [Diagramme PNG\n(pour l'utilisateur)] as output1
+
+    prompt --> task1 : lit
+    task1 --> llm1 : appelle
+    llm1 --> task1 : PlantUML code
+    task1 --> validate1 : valide
+    validate1 --> output1 : rend
+}
+
+package "Plugin PlantUML — Dogfooding (auto-documentation)" as dogfood {
+    [Graphify\ngraph.json\n(sous-graphe)] as subgraph
+    [LlmService\n+ ApiKeyPool] as llm2
+    [GenerateDiagramsTask\n(NOUVEAU)] as task2
+    [ValidatePlantumlSyntaxTask] as validate2
+    [Diagramme PNG\n(documentation du plugin)] as output2
+
+    subgraph --> task2 : extrait
+    task2 --> llm2 : appelle (même pool)
+    llm2 --> task2 : PlantUML code
+    task2 --> validate2 : valide (même tâche)
+    validate2 --> output2 : rend
+}
+
+package "Boucle de rétroaction" as feedback {
+    output2 --> [Graphify\n(ingestion PNG)] : enrichit le graphe
+    [Graphify\n(ingestion PNG)] --> subgraph : sous-graphe enrichi
+}
+
+note across : Même LlmService, même ApiKeyPool,
+même ValidatePlantumlSyntaxTask,
+même ConfigLoader — ZÉRO duplication
+
+@enduml
+....
+
+=== Nouvelle tâche Gradle : `generateDiagramDocs`
+
+Créer une tâche Gradle dédiée dans le plugin qui enchaîne les 4 étapes du dogfooding :
+
+[source,kotlin]
+----
+package plantuml.tasks
+
+import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
+import org.gradle.work.DisableCachingByDefault
+import plantuml.service.LlmService
+import plantuml.service.PlantumlService
+import plantuml.PlantumlConfig
+import java.io.File
+
+/**
+ * Gradle task: `generateDiagramDocs`
+ *
+ * Dogfooding task: uses the plugin's own LLM pipeline to auto-generate
+ * PlantUML documentation diagrams from Graphify knowledge graph data.
+ *
+ * **Workflow**:
+ * 1. Reads a subgraph query from Graphify's graph.json
+ * 2. Builds a prompt describing the subgraph structure
+ * 3. Sends the prompt through LlmService (same pool, same providers)
+ * 4. Validates the generated PlantUML syntax
+ * 5. Renders to PNG/SVG
+ * 6. Saves to diagrams/auto/
+ *
+ * **Usage**:
+ * ```bash
+ * # Generate documentation for a specific community
+ * ./gradlew generateDiagramDocs -Pplantuml.diagram.subgraph="service layer"
+ *
+ * # Generate all documentation diagrams
+ * ./gradlew generateDiagramDocs -Pplantuml.diagram.all=true
+ *
+ * # Specify model override
+ * ./gradlew generateDiagramDocs -Pplantuml.diagram.subgraph="config layer" -Pplantuml.langchain4j.model=ollama
+ * ```
+ */
+@DisableCachingByDefault(
+    because = "Documentation diagrams depend on LLM output which is non-deterministic"
+)
+abstract class GenerateDiagramDocsTask : DefaultTask() {
+
+    @get:Input
+    @get:Optional
+    abstract val subgraph: Property<String>
+
+    @get:Input
+    @get:Optional
+    abstract val generateAll: Property<Boolean>
+
+    @TaskAction
+    fun generateDocs() {
+        // 1. Load config (same as ProcessPlantumlPromptsTask)
+        val config = PlantumlManager.Configuration.load(project)
+        val llmService = LlmService(config)
+
+        // 2. Read subgraph from Graphify
+        val graphFile = project.rootDir.resolve("graphify-out/graph.json")
+        if (!graphFile.exists()) {
+            throw GradleException(
+                "graphify-out/graph.json not found. Run /graphify . first."
+            )
+        }
+
+        val subgraphs = if (generateAll.getOrElse(false)) {
+            listOf("service layer", "config layer", "task layer", "model layer", "RAG")
+        } else {
+            listOf(subgraph.getOrElse("service layer"))
+        }
+
+        val outputDir = project.rootDir.resolve("diagrams/auto")
+        outputDir.mkdirs()
+
+        for (name in subgraphs) {
+            logger.lifecycle("Generating documentation diagram: $name")
+
+            // 3. Extract subgraph via graphify query (shell out)
+            val subgraphData = extractSubgraph(name, graphFile)
+
+            // 4. Build prompt
+            val prompt = buildDiagramPrompt(name, subgraphData)
+
+            // 5. Call LLM via LlmService (same pool!)
+            val plantumlCode = llmService.createChatModel()
+                ?.chat(prompt)
+                ?.aiMessage()
+                ?.text()
+                ?: throw GradleException("LLM returned null for subgraph: $name")
+
+            // 6. Extract PlantUML block from LLM response
+            val cleanCode = extractPlantUmlBlock(plantumlCode)
+
+            // 7. Save .puml file
+            val pumlFile = outputDir.resolve("auto-${name.replace(" ", "-")}.puml")
+            pumlFile.writeText(cleanCode)
+
+            // 8. Validate syntax (reuse existing task)
+            val validationResult = PlantumlService.validate(cleanCode)
+            if (validationResult.isInvalid()) {
+                logger.warn("Invalid PlantUML syntax for $name: ${validationResult.error}")
+                continue
+            }
+
+            // 9. Render to PNG (reuse PlantumlService)
+            val imageFile = outputDir.resolve("auto-${name.replace(" ", "-")}.png")
+            PlantumlService.render(cleanCode, imageFile)
+
+            logger.lifecycle("Generated: ${pumlFile.name} + ${imageFile.name}")
+        }
+    }
+
+    private fun extractSubgraph(name: String, graphFile: File): String {
+        val process = ProcessBuilder(
+            "graphify", "query", name,
+            "--graph", graphFile.absolutePath
+        ).start()
+        return process.inputStream.bufferedReader().readText()
+    }
+
+    private fun buildDiagramPrompt(subgraphName: String, subgraphData: String): String {
+        return """
+        You are a PlantUML expert. Convert the following knowledge graph subgraph
+        into a PlantUML class diagram.
+
+        Rules:
+        - Use EXTRACTED relations only (ignore INFERRED)
+        - Include class names with their key attributes
+        - Use proper UML relations: -->, ..>, *--, o--
+        - No style directives, no skinparam, no colors
+        - Structure only
+        - Use French labels where the graph uses French
+
+        Subgraph: $subgraphName
+
+        Graph data:
+        $subgraphData
+        """.trimIndent()
+    }
+
+    private fun extractPlantUmlBlock(response: String): String {
+        val start = response.indexOf("@startuml")
+        val end = response.indexOf("@enduml") + "@enduml".length
+        if (start >= 0 && end > start) {
+            return response.substring(start, end)
+        }
+        return "@startuml\n${response}\n@enduml"
+    }
+}
+----
+
+=== Configuration YAML pour le dogfooding
+
+Ajouter une section `diagramDocs` dans `plantuml-context.yml` :
+
+[source,yaml]
+----
+# plantuml-context.yml — Section documentation auto-générée
+langchain4j:
+  model: ollama
+  ollama:
+    baseUrl: https://ollama.com  # Ollama Cloud
+    model: qwen3.5-cloud          # Modèle pour la génération de diagrams docs
+    pool:
+      - id: "diag-doc-1"
+        identity: "diagram-docs@gmail.com"
+        apiKey: "qwen3.5-cloud-key"
+        quota: 100
+
+# Configuration spécifique pour la documentation auto-générée
+diagramDocs:
+  enabled: true
+  outputDir: "diagrams/auto"
+  subgraphs:
+    - "service layer"
+    - "config layer"
+    - "task layer"
+    - "model layer"
+    - "RAG"
+  model: "qwen3.5-cloud"  # Override model for doc generation
+  validate: true            # Validate syntax before saving
+  render: true              # Render PNG after validation
+----
+
+=== Le cycle complet en pratique
+
+==== Scénario : on ajoute `ApiKeyPool` au projet
+
+[source,plaintext]
+----
+1. Code modifié
+  ApiKeyPool.kt est ajouté au code source
+
+2. Graphify détecte le changement
+	/graphify . --update
+   → graph.json mis à jour avec les nouvelles relations ApiKeyPool
+
+3. Agent OpenCode query le graphe
+	/graphify query "ApiKeyPool" --graph graphify-out/graph.json
+   → Retourne les dépendances, les god nodes impactés
+
+4. Tâche Gradle génère la documentation
+	./gradlew generateDiagramDocs -Pplantuml.diagram.subgraph="config layer"
+   → LlmService (Qwen 3.5 Cloud via ApiKeyPool) traduit le sous-graphe en PlantUML
+   → ValidatePlantumlSyntaxTask valide la syntaxe
+   → PNG rendu dans diagrams/auto/
+
+5. Agent OpenCode lit le diagramme
+	LECTURE: diagrams/auto-config-layer.puml (15 lignes)
+   → L'agent comprend la structure de ApiKeyPool en 15 lignes
+     au lieu de lire ApiKeyPool.kt + ApiKeyEntry.kt + QuotaConfig.kt
+       + QuotaTracker.kt + LlmService.kt = 500+ lignes
+
+6. (Optionnel) Graphify ingestionne le diagramme
+	/graphify add diagrams/auto/config-layer.png
+   → Le graphe est enrichi avec les concepts visuels du diagramme
+
+7. Boucle fermée
+	Le diagramme est committé, le graphe est enrichi,
+	la prochaine session commence avec un contexte plus riche
+----
+
+=== Avantages du dogfooding
+
+[cols="2,3,3", options="header"]
+|===
+| Avantage | Description | Impact
+| **Zéro duplication** | Même `LlmService`, même `ApiKeyPool`, même `ConfigLoader`, même `ValidatePlantumlSyntaxTask` | Pas de nouveau code à maintenir — la tâche réutilise tout
+| **Zéro configuration supplémentaire** | Même `plantuml-context.yml`, mêmes clés API, mêmes providers | Un seul fichier de config, pas de script shell séparé
+| **Rotation des clés** | `ApiKeyPool` répartit les appels entre les clés | Pas de rate limiting, pas de single point of failure
+| **Validation automatique** | `ValidatePlantumlSyntaxTask` vérifie chaque diagramme | Pas de diagramme invalide committé
+| **RAG auto-alimenté** | `ReindexPlantumlRagTask` indexe les diagrammes générés | Les futurs prompts bénéficient de la documentation générée
+| **Convergence produit/docs** | La documentation reflète toujours le code actuel | Plus de dette documentaire
+| **Test en production réelle** | Le plugin teste sa propre capability à chaque génération | Bugs découverts plus tôt
+| **Feedback loop GLM5.1** | GLM 5.1 génère les diagrammes qui documentent son propre usage | Le modèle s'améliore sur les edge cases du plugin
+|===
+
+=== Intégration dans le cycle de vie Gradle
+
+[source,kotlin]
+----
+// build.gradle.kts — Ajout de la dépendance de tâche
+
+tasks.register("generateDiagramDocs") {
+    group = "plantuml"
+    description = "Auto-generate PlantUML documentation diagrams from Graphify knowledge graph"
+    dependsOn("validateGraphify") // vérifie que graph.json existe
+
+    // Dépend de la tâche existante — pas de duplication
+    finalizedBy("validatePlantumlSyntax")
+}
+
+// Cycle de vie complet
+tasks.register("docs") {
+    group = "plantuml"
+    description = "Full documentation generation pipeline"
+    dependsOn("generateDiagramDocs")  // diagrammes auto-générés
+    dependsOn("processPlantumlPrompts")  // diagrammes manuels (.prompt)
+    finalizedBy("reindexPlantumlRag")    // indexation RAG
+}
+
+// Pipeline CI complet
+tasks.register("ciFullPipeline") {
+    group = "plantuml"
+    description = "CI pipeline: test → validate → document → index"
+    dependsOn("test")                    // tests unitaires
+    dependsOn("functionalTest")          // tests fonctionnels
+    dependsOn("generateDiagramDocs")     // documentation auto
+    dependsOn("validatePlantumlSyntax")   // validation syntaxe
+    finalizedBy("reindexPlantumlRag")     // indexation RAG
+}
+----
+
+=== Comparaison : avant vs après dogfooding
+
+[cols="2,3,3", options="header"]
+|===
+| Aspect | Avant (script shell + curl) | Après (tâche Gradle dogfooding)
+| **Appel LLM** | `curl` direct vers Ollama Cloud | `LlmService` avec `ApiKeyPool` (rotation, quota, audit)
+| **Configuration** | Script shell séparé, URL en dur | `plantuml-context.yml` existant
+| **Validation** | `./gradlew validatePlantumlSyntax` en post-traitement | Intégrée dans la tâche, échec propre si invalide
+| **Rendu PNG** | `./gradlew processPlantumlPrompts` en post-traitement | `PlantumlService.render()` intégré dans la tâche
+| **Gestion d'erreurs** | `set -e` dans le script | Exception Gradle avec rollback
+| **Rotation des clés** | Pas de rotation (1 clé dans le curl) | `ApiKeyPool` avec rotation round-robin + fallback
+| **Audit logging** | Pas de log | `QuotaAuditLogger` existant
+| **CI/CD** | Script shell à maintenir | Tâche Gradle intégrée au cycle `./gradlew ciFullPipeline`
+| **RAG** | Pas d'indexation | `ReindexPlantumlRagTask` indexe les diagrammes générés
+|===
+
+=== Exemple concret : diagramme auto-généré
+
+==== Entrée : query Graphify
+
+[source,bash]
+----
+/graphify query "service layer" --graph graphify-out/graph.json
+----
+
+Sortie (sous-graphe) :
+
+[source]
+----
+PlantumlService (degree: 23)
+  EXTRACTED: orchestrates -> DiagramProcessor
+  EXTRACTED: delegates to -> LlmService
+  EXTRACTED: validates with -> PlantumlService.validate()
+  EXTRACTED: configures via -> PlantumlManager
+
+LlmService (degree: 14)
+  EXTRACTED: creates -> ChatModel (Ollama, OpenAI, Gemini, Mistral, Claude, HuggingFace, Groq)
+  EXTRACTED: uses -> ApiKeyPool
+  EXTRACTED: logs to -> QuotaAuditLogger
+
+DiagramProcessor (degree: 11)
+  EXTRACTED: processes -> PlantumlCode
+  EXTRACTED: archives -> AttemptEntry
+  EXTRACTED: tracks -> AttemptHistory
+----
+
+==== Sortie : diagramme PlantUML généré par GLM 5.1
+
+[source,plantuml]
+----
+@startuml service-layer
+
+class PlantumlService {
+  +validate(code: String): SyntaxValidationResult
+  +process(prompt: String): PlantumlDiagram
+}
+
+class LlmService {
+  -config: PlantumlConfig
+  -auditLogger: QuotaAuditLogger
+  +createChatModel(): ChatModel
+  +getNextApiKey(): ApiKeyEntry
+}
+
+class DiagramProcessor {
+  +processPrompt(prompt: String): PlantumlCode
+  +archiveAttempt(entry: AttemptEntry): Unit
+  +trackAttempt(history: AttemptHistory): Unit
+}
+
+class ApiKeyPool {
+  +getNextKey(): ApiKeyEntry
+  +resetCounters(): Unit
+  +rotate(): ApiKeyEntry
+}
+
+class QuotaAuditLogger {
+  +logUsage(entry: ApiKeyEntry): Unit
+  +logRotation(from: ApiKeyEntry, to: ApiKeyEntry): Unit
+}
+
+PlantumlService --> DiagramProcessor : orchestrates
+PlantumlService --> LlmService : delegates to
+LlmService --> ApiKeyPool : uses
+LlmService --> QuotaAuditLogger : logs to
+DiagramProcessor --> AttemptEntry : archives
+DiagramProcessor --> AttemptHistory : tracks
+
+@enduml
+----
+
+==== Résultat : contexte EAGER de 15 lignes
+
+Au lieu de lire `PlantumlService.kt` (200 lignes) + `LlmService.kt` (273 lignes) + `DiagramProcessor.kt` (150 lignes) + `ApiKeyPool.kt` (100 lignes) = **723 lignes**, l'agent lit :
+
+* `diagrams/auto-service-layer.puml` = **15 lignes**
+* `GRAPH_REPORT.adoc` (god nodes) = **50 lignes**
+
+Total : **65 lignes** au lieu de **723 lignes** — **91% d'économie**.
+
+=== Résumé : le trio gagnant
+
+[plantuml]
+....
+@startuml
+skinparam backgroundColor #FEFEFE
+skinparam componentStyle rectangle
+
+rectangle "Stratégie EAGER/LAZY\n(Gouvernance)" as strat {
+    [PROMPT_REPRISE.adoc\nQuand / Comment] as pr
+    [INDEX.adoc\nRègles absolues] as idx
+    [AGENT_METHODOLOGIES.adoc\nDétection just-in-time] as meth
+}
+
+rectangle "Graphify\n(Structure)" as graph {
+    [graph.json\nQuoi / Où] as graph_json
+    [GRAPH_REPORT.adoc\nGod nodes / Communautés] as report
+}
+
+rectangle "Plugin PlantUML\n(Dogfooding)" as plugin {
+    [LlmService\n+ ApiKeyPool] as llm
+    [GenerateDiagramDocs\nTâche Gradle] as gen
+    [ValidatePlantumlSyntax\nTâche Gradle] as validate
+}
+
+rectangle "Ollama Cloud\n(Qwen 3.5/3.6, GLM 5.1)" as cloud {
+    [Modèles cloud] as models
+}
+
+rectangle "Documentation\nauto-générée" as docs {
+    [diagrams/auto/\n*.puml + *.png] as diagrams
+}
+
+pr --> report : Lecture EAGER
+idx --> report : Lecture EAGER
+meth --> graph_json : Query LAZY
+llm --> models : Appels API\n(rotation ApiKeyPool)
+gen --> graph_json : Extrait sous-graphe
+gen --> llm : Utilise
+validate --> diagrams : Valide + rend
+diagrams --> pr : Contexte visuel EAGER
+diagrams --> graph_json : Boucle de rétroaction:\nGraphify ingestionne les PNG
+
+note across : Le plugin se documente lui-même :
+même LlmService, même ApiKeyPool,
+même ValidatePlantumlSyntaxTask,
+même ConfigLoader — ZÉRO duplication
+
+@enduml
+....
+
+***
+
+== Annexe A — Commandes de référence
+
+[source,bash]
+----
+# === Installation ===
+uv tool install graphifyy && graphify install --platform opencode
+graphify opencode install          # always-on hook
+
+# === Construction du graphe ===
+/graphify .                        # build complet
+/graphify . --no-viz                # build sans HTML (plus rapide)
+/graphify . --update                # build incrémental (fichiers modifiés uniquement)
+/graphify . --watch                 # auto-sync en arrière-plan
+/graphify . --directed              # graphe orienté (A→B ≠ B→A)
+
+# === Requêtes ===
+/graphify query "what depends on ApiKeyPool?"
+/graphify path "PlantumlService" "ApiKeyPool"
+/graphify explain "DiagramProcessor"
+/graphify query "show the auth flow" --budget 500
+
+# === Gestion ===
+graphify hook install               # hook git post-commit/checkout
+graphify hook uninstall             # retirer le hook
+graphify hook status                # vérifier l'état du hook
+
+# === Maintenance ===
+/graphify . --cluster-only          # re-clustérer le graphe existant
+/graphify add https://arxiv.org/... # ajouter un papier au corpus
+----
+
+== Annexe B — Fichier .graphifyignore complet
+
+[source,gitignore]
+----
+# === Credentials et secrets — JAMAIS dans le graphe ===
+*-context.yml
+*-context.example.yml
+*.env
+.env
+*secret*
+*password*
+*apikey*
+*token*
+
+# === Archives de sessions — déjà structurées, pas du code ===
+.agents/
+
+# === Fichiers générés ===
+build/
+.gradle/
+out/
+.kotlin/
+.gradle/
+
+# === Fichiers de contexte agent — gérés par EAGER/LAZY ===
+PROMPT_REPRISE.adoc
+AGENT_METHODOLOGIES.adoc
+AGENT_SESSION_MANAGER.adoc
+AGENT_PLAN.adoc
+SESSION_CHECKLIST.adoc
+SESSION_PROCEDURE.adoc
+BACKLOG.adoc
+
+# === Tests fonctionnels — le graphe se concentrerait trop sur les steps ===
+src/functionalTest/
+
+# === IDE ===
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# === Graphify outputs (on régénère) ===
+graphify-out/cache/
+
+# === Docs externes (optionnel — décommenter si trop de bruit) ===
+# *.adoc
+# CHANGELOG.adoc
+# TODO.adoc
+----
+
+== Annexe C — Pipeline PlantUML via Ollama Cloud
+
+=== Commandes
+
+[source,bash]
+----
+# === Générer un diagramme depuis le graphe ===
+scripts/generate-diagrams.sh "service layer"              # Qwen 3.5 (défaut)
+scripts/generate-diagrams.sh "ApiKeyPool" "glm5.1-cloud"   # GLM 5.1
+scripts/generate-diagrams.sh "config layer" "qwen3.6-cloud"  # Qwen 3.6
+
+# === Régénérer tous les diagrammes (5 communautés) ===
+for community in "service layer" "config layer" "task layer" "model layer" "RAG"; do
+    scripts/generate-diagrams.sh "$community"
+done
+----
+
+=== Modèles Ollama Cloud disponibles
+
+[cols="1,2,2,3", options="header"]
+|===
+| Modèle | Suffixe cloud | Qualité PlantUML | Recommandation
+| Qwen 3.5 | `qwen3.5-cloud` | ⭐⭐⭐⭐⭐ | **Défaut** — excellent sur la syntaxe structurée
+| Qwen 3.6 | `qwen3.6-cloud` | ⭐⭐⭐⭐⭐ | Dernière génération
+| GLM 5.1 | `glm5.1-cloud` | ⭐⭐⭐⭐ | Très bon, légèrement moins stable sur les flèches UML
+|===
+
+=== Authentification Ollama Cloud
+
+Voir `.agents/sessions/118-ollama-cloud-ci-auth.adoc` pour la procédure complète.
+
+[cols="1,2", options="header"]
+|===
+| Environnement | Configuration
+| Local | `OLLAMA_HOST` déjà configuré, Device Key SSH dans `~/.ollama/id_ed25519`
+| CI (GitHub Actions) | Device Key dans GitHub Secrets `OLLAMA_DEVICE_PRIVATE_KEY`, script d'injection dans workflow
+| Endpoint | `https://ollama.com/api/chat`
+|===
+
+=== Validation automatique
+
+Chaque diagramme généré est validé par la tâche existante du plugin :
+
+[source,bash]
+----
+./gradlew validatePlantumlSyntax --diagram="diagrams/auto-service-layer.puml"
+----
+
+Si la validation échoue, le script `generate-diagrams.sh` sort en erreur. L'agent peut alors :
+
+[arabic]
+. Corriger le prompt et relancer
+. Relancer avec un modèle cloud différent (`glm5.1-cloud` vs `qwen3.5-cloud`)
+. Corriger manuellement le fichier `.puml` et relancer le render uniquement
+
+***
+
+== Annexe D — Exemple de GRAPH_REPORT.adoc typique
+
+[source,markdown]
+----
+# Graphify Report
+
+**God Nodes** (highest-degree concepts):
+1. PlantumlService (degree: 23) — Central orchestrator
+2. ApiKeyPool (degree: 15) — Key rotation and quota management
+3. LlmService (degree: 14) — LLM provider abstraction
+4. PlantumlManager (degree: 12) — Configuration and task registration
+5. DiagramProcessor (degree: 11) — Diagram generation pipeline
+
+**Communities**:
+- Service Layer: PlantumlService, LlmService, DiagramProcessor
+- Task Layer: ProcessPlantumlPromptsTask, ValidatePlantumlSyntaxTask, ReindexPlantumlRagTask
+- Config Layer: PlantumlConfig, ApiKeyConfig, LangchainConfig, ConfigLoader
+- Model Layer: ApiKeyEntry, QuotaConfig, AttemptEntry, SyntaxValidationResult
+
+**Surprising Connections**:
+1. PlantumlService ↔ QuotaConfig (quota tracking affects service behavior)
+2. ProcessPlantumlPromptsTask ↔ System.getProperty (test mode propagation)
+3. ApiKeyPool ↔ LlmService (rotation strategy impacts provider selection)
+
+**Suggested Questions**:
+1. How does the API key rotation affect diagram generation latency?
+2. What happens when all keys in the pool are exhausted?
+3. How does the lazy/eager loading config pattern propagate through the task layer?
+----

@@ -1,0 +1,391 @@
+= 📜 Reconstruction Historique des Sessions — PlantUML Gradle Plugin
+
+_Document créé_ : 21 avril 2026 (Session 115)  
+_Source_ : Git history + Archives existantes  
+_Période_ : 8 avril 2026 — 21 avril 2026  
+_Total sessions identifiées_ : 115 sessions
+
+'''
+
+== 🎯 Méthodologie de Reconstruction
+
+=== Sources Utilisées
+
+|===
+| Source | Sessions Couvertes | Fiabilité
+| _Git log_ (commits "Session") | 2, 3, 14-17, 46, 54, 62-63, 66, 75-80, 87-95, 97-98, 100-103, 105-110 | ✅ Haute (messages de commit)
+| _`.agents/sessions/`_ | 73-74, 86-87, 90-114 | ✅ Haute (fichiers détaillés)
+| _`.agents/archives/sessions_summaries/`_ | 61-62, 65-67, 69-70, 73-76, 79 | ✅ Moyenne (résumés)
+| _`.agents/archives/prompts_archive/`_ | 65-67, 69, 72, 74-76 | ✅ Moyenne (prompts de reprise)
+| _`SESSIONS_1-72_ARCHIVE.adoc`_ | 1-72 (résumé) | ⚠️ Partielle
+| _`SESSIONS_HISTORY_83-95.adoc`_ | 83-95 (détails) | ✅ Haute
+| _`SESSIONS_96-113.adoc`_ | 96-113 (détails) | ✅ Haute
+| _`HISTORIQUE_COMPLET_1-113.adoc`_ | 1-113 (vue globale) | ✅ Haute
+|===
+
+=== Sessions Manquantes (non tracées dans Git)
+
+_Sessions 1-60_ : Très peu de commits explicites — reconstruction estimée  
+_Sessions 4-13_ : Aucune trace Git — uniquement dans archives  
+_Sessions 18-34_ : Quelques commits — reconstruction partielle  
+_Sessions 35-45_ : Quelques commits — reconstruction partielle  
+_Sessions 47-53_ : Quelques commits — reconstruction partielle  
+_Sessions 55-61_ : Quelques commits — reconstruction partielle  
+_Sessions 81-86_ : Quelques commits — reconstruction partielle  
+
+'''
+
+== 📊 Timeline Complète (Git + Archives)
+
+=== Avril 2026 — Semaine 1 (8-14 avril)
+
+|===
+| Session | Date | Commit Git | Sujet | Preuve
+| _1_ | ~08/04 | ❌ Non trouvé | Initialisation projet | Archive SESSIONS_1-72
+| _2_ | 08/04 | ✅ `e616cee` | Remove 7 redundant tests (Overlap cleanup) | Git log
+| _3_ | 08/04 | ✅ `c4c7a62` | Update PROMPT_REPRISE.adoc | Git log
+| _4-13_ | 08-09/04 | ❌ Non trouvé | Fondation, Architecture initiale | Archive SESSIONS_1-72
+| _14-17_ | 10/04 | ✅ `2c3c651` | Archive Session 14-17: ignore 55 functional tests, rename langchain → langchain4j | Git log
+| _18-34_ | 10-11/04 | ⚠️ Partiel | Tests fonctionnels, WireMock, GradleRunner | Archive SESSIONS_1-72
+| _35-45_ | 11-12/04 | ⚠️ Partiel | Experts virtuels, Mémoire, Stratégie | Archive SESSIONS_1-72
+| _46_ | 13/04 | ✅ `1d4384a` | Update PROMPT_REPRISE.adoc Session 46 | Git log
+| _47-53_ | 13/04 | ⚠️ Partiel | Architecture, Tests de base | Archive SESSIONS_1-72
+| _54_ | 13/04 | ✅ `4aad487` | Update PROMPT_REPRISE.adoc Session 54 | Git log
+| _55-61_ | 13-15/04 | ⚠️ Partiel | Couverture tests, Kover 75% | Archive SESSIONS_1-72 + sessions_summaries
+|===
+
+'''
+
+=== Avril 2026 — Semaine 2 (15-16 avril)
+
+|===
+| Session | Date | Commit Git | Sujet | Preuve
+| _62_ | 15/04 | ✅ `625e5d0` | AGENTS.md: Session 62 completion, EPIC 1 full, Session 63 RAG focus | Git log + sessions_summaries/SESSION_62_SUMMARY.adoc
+| _63_ | 15/04 | ✅ `bb1f87f` | Prompt de reprise Session 63: RAG production PostgreSQL + testcontainers | Git log + sessions_summaries/SESSION_63_SUMMARY.adoc
+| _64_ | 15/04 | ❌ Non trouvé | Story 2.2 — Supprimer Fallbacks | sessions_summaries/SESSION_64_SUMMARY.adoc
+| _65_ | 15/04 | ❌ Non trouvé | Story 2.2 — Déboguer Tests RAG (partiel) | sessions_summaries/SESSION_65_SUMMARY.adoc + prompts_archive/PROMPT_REPRISE_SESSION_65.adoc
+| _66_ | 15/04 | ✅ `c154aef` | Session 66 prompt: debug YAML port mapping + RAG integration test failures | sessions_summaries/SESSION_66_SUMMARY.adoc
+| _67_ | 15/04 | ❌ Non trouvé | Story 2.3 — Tests RAG Avancés | sessions_summaries/SESSION_67_SUMMARY.adoc + prompts_archive/PROMPT_REPRISE_SESSION_67.adoc
+| _68_ | 15/04 | ❌ Non trouvé | Story 4.1 — README Update | Archive SESSIONS_1-72
+| _69_ | 15/04 | ❌ Non trouvé | Story 4.2 — Guide Troubleshooting | sessions_summaries/SESSION_69_SUMMARY.adoc + prompts_archive/PROMPT_REPRISE_SESSION_69.adoc
+| _70_ | 15/04 | ❌ Non trouvé | Guide Contributing FR/EN | sessions_summaries/SESSION_70_SUMMARY.adoc (estimé)
+| _71_ | 15/04 | ❌ Non trouvé | README Truth FR/EN | Archive SESSIONS_1-72
+| _72_ | 15/04 | ❌ Non trouvé | Traduction commentaires FR → EN | prompts_archive/PROMPT_REPRISE_SESSION_72.adoc
+|===
+
+'''
+
+=== Avril 2026 — Semaine 3 (16-17 avril)
+
+|===
+| Session | Date | Commit Git | Sujet | Preuve
+| _73_ | 15/04 | ❌ Non trouvé | Debug crash functionalTest — 38/42 PASS | `.agents/sessions/73-debug-crash-functional-test.adoc` + sessions_summaries/SESSION_73_SUMMARY.adoc
+| _74_ | 16/04 | ❌ Non trouvé | Debug couverture tests — 203/203 PASS | `.agents/sessions/74-debug-couverture-tests.adoc` + sessions_summaries/SESSION_74_SUMMARY.adoc + prompts_archive/PROMPT_REPRISE_SESSION_74.adoc
+| _75_ | 16/04 | ✅ `4287537` `0a5913b` `ea7ba2a` | Fix functional and unit tests — 241/241 PASS | Git log (3 commits) + sessions_summaries/SESSION_75_SUMMARY.adoc + prompts_archive/PROMPT_REPRISE_SESSION_75.adoc
+| _76_ | 16/04 | ✅ `d96bccf` `5388409` `fee5412` | Fix plantuml diagrams in readmes + prepare Session 77 | Git log (3 commits) + sessions_summaries/SESSION_76_SUMMARY.adoc + prompts_archive/PROMPT_REPRISE_SESSION_76.adoc
+| _77_ | 16/04 | ❌ Non trouvé | Roadmap EPIC BDD | Estimé (entre 76 et 78)
+| _78_ | 16/04 | ✅ `f72bf79` `cf10441` | Session 78 completed + prepare Session 79 | Git log (2 commits)
+| _79_ | 17/04 | ✅ `e7c7cf9` `a7c207b` | Session 79 completed: 3 BDD scenarios validated, baseUrl CLI bug fixed | Git log (2 commits) + sessions_summaries/SESSION_79_SUMMARY.adoc
+| _80_ | 17/04 | ✅ `846c209` | Session 80 completed: Cucumber timeouts fixed, 7/7 PASS | Git log
+| _81_ | 17/04 | ❌ Non trouvé | BDD Scenarios 4-6 — 20/20 PASS | Estimé (entre 80 et 82)
+| _82_ | 17/04 | ❌ Non trouvé | Documentation EPIC BDD | Estimé (entre 81 et 83)
+|===
+
+'''
+
+=== Avril 2026 — Semaine 4 (17-18 avril)
+
+|===
+| Session | Date | Commit Git | Sujet | Preuve
+| _83_ | 17/04 | ❌ Non trouvé | Attempt History debut — 3/6 PASS | SESSIONS_HISTORY_83-95.adoc
+| _84_ | 17/04 | ❌ Non trouvé | Consolidation tests — 50/50 PASS | SESSIONS_HISTORY_83-95.adoc
+| _85_ | 17/04 | ❌ Non trouvé | Memory Management — Tests ajoutés | SESSIONS_HISTORY_83-95.adoc
+| _86_ | 17/04 | ❌ Non trouvé | LLM Providers refactoring — Steps consolidés | `.agents/sessions/86-refactor-llm-providers-steps.adoc`
+| _87_ | 17/04 | ✅ `da1f342` | Error Handling Tests — 6/8 PASS (75%) | Git log + `.agents/sessions/87-error-handling-tests.adoc`
+| _88_ | 17/04 | ✅ `2519a4c` | Error Handling Finalisation — 7/8 PASS (87.5%) | Git log
+| _89_ | 17/04 | ✅ `fc47c94` | Correction duplication step + report pgvector issue | Git log
+| _90_ | 17/04 | ✅ `f31397c` `b5182cc` | Error Handling 100% + Memory leak fixes + archival | Git log (2 commits) + `.agents/sessions/90-error-handling-100-percent.adoc`
+| _91_ | 18/04 | ✅ `0aac419` | Validation Memory Leak Fixes + Prepare Session 92 | Git log
+| _92_ | 18/04 | ✅ `acb2655` `44e7ca0` | Error Handling YAML Validation + Mock Server Fixes (57/61 PASS) + archive | Git log (2 commits)
+| _93_ | 18/04 | ✅ `0cf2dde` | Attempt History fixes partiels — 58/61 PASS (95%) | Git log
+| _94_ | 18/04 | ✅ `e4d419f` | Attempt History 100% + Feature 8 Configuration (61/61 PASS) | Git log + `.agents/sessions/94-attempt-history-100-percent.adoc`
+| _95_ | 18/04 | ✅ `5a8c50b` | Feature 8 Configuration 100% + Feature 9 Incremental (68/68 PASS) | Git log + `.agents/sessions/95-feature8-fin-feature9-incremental.adoc`
+|===
+
+'''
+
+=== Avril 2026 — Semaine 5 (18-19 avril)
+
+|===
+| Session | Date | Commit Git | Sujet | Preuve
+| _96_ | 18/04 | ✅ `77af8e2` (partiel) | Feature 10-11 partiel + Context Optimization | `.agents/sessions/96-feature10-11-partiel.adoc` + `.agents/sessions/96-context-optimization.adoc`
+| _97_ | 18/04 | ✅ `77af8e2` | Résolution conflits steps + Validation Features 10-11 | `.agents/sessions/97-conflits-resolus.adoc`
+| _98_ | 18/04 | ✅ `77af8e2` `8124c7e` | Features 10-11 partiel + 13/13 PASS | `.agents/sessions/98-validation-features-10-11.adoc`
+| _99_ | 18/04 | ❌ Non trouvé | Validation complete Features 10-11 — 13/13 PASS | `.agents/sessions/99-validation-complete-features-10-11.adoc`
+| _100_ | 18/04 | ✅ `a13968a` `defc096` | Feature 5 RAG Pipeline validée (4/4 PASS) + INDEX.adoc update | Git log (2 commits) + `.agents/sessions/100-validation-features-5-12-13.adoc`
+| _101_ | 18/04 | ✅ `7956803` `78b9878` | Consolidation tests (46/57 PASS, 81%) | Git log (2 commits) + `.agents/sessions/101-consolidation-tests.adoc`
+| _102_ | 19/04 | ✅ `45b4375` | Correction Feature 7 — 55/57 PASS (96%) | Git log + `.agents/sessions/102-correction-feature-7.adoc`
+| _103_ | 19/04 | ✅ `1f369bd` | Correction Error Handling — 56/57 PASS (98%) | Git log + `.agents/sessions/103-correction-feature-4.adoc`
+| _104_ | 19/04 | ❌ Non trouvé | Correction Archive history — Feature 4 complétée | `.agents/sessions/104-correction-archive-history.adoc`
+| _105_ | 19/04 | ✅ `b6b5770` | Performance tests mockés — 57/57 maintenu | Git log + `.agents/sessions/105-performance-tests-mockes.adoc`
+| _106_ | 19/04 | ✅ `cc2673e` `61796d0` | Correction 6 tests (5 unit + 1 func) + Archivage + Roadmap | Git log (2 commits) + `.agents/sessions/106-correction-tests-unitaires-fonctionnels.adoc`
+| _107_ | 20/04 | ✅ `eba1c1e` `696d90a` | Nettoyage documentation + Suppression CONTEXT_2_NIVEAUX.adoc | Git log (2 commits) + `.agents/sessions/107-nettoyage-clarification.adoc`
+|===
+
+'''
+
+=== Avril 2026 — Semaine 6 (20 avril)
+
+|===
+| Session | Date | Commit Git | Sujet | Preuve
+| _108_ | 20/04 | ✅ `2a42528` | Architecture API Key Pool + préparation Session 109 | Git log + `.agents/sessions/108-api-key-pool-design.adoc`
+| _109_ | 20/04 | ✅ `1769803` | Formalisation LAZY/EAGER + archivage | Git log + `.agents/sessions/109-formalisation-lazy-eager.adoc`
+| _110_ | 20/04 | ✅ `8cccff2` | API Key Pool data models + tests unitaires | Git log + `.agents/sessions/110-data-models-unit-tests.adoc`
+| _111_ | 20/04 | ❌ Non trouvé | Tests fonctionnels TDD ApiKeyPool — 16/16 PASS | `.agents/sessions/111-tests-fonctionnels-api-key-pool.adoc`
+| _112_ | 20/04 | ❌ Non trouvé | LlmService + ConfigLoader avec ApiKeyPool — 17/17 PASS | `.agents/sessions/112-llmservice-configloader-apikeypool.adoc`
+| _113_ | 20/04 | ❌ Non trouvé | Quota Tracker + Reset automatique — 63/63 PASS | `.agents/sessions/113-quota-tracker-reset.adoc`
+|===
+
+'''
+
+=== Avril 2026 — Semaine 7 (21 avril)
+
+|===
+| Session | Date | Commit Git | Sujet | Preuve
+| _114_ | 21/04 | ❌ Non trouvé (session en cours) | Documentation Architecture & Organisation Fichiers | `.agents/sessions/114-documentation-architecture.adoc`
+| _115_ | 21/04 | ❌ Non trouvé (session en cours) | Audit Logger dans LlmService (implémentation) | Session actuelle
+|===
+
+'''
+
+== 📈 Statistiques de Reconstruction
+
+=== Couverture des Sources
+
+|===
+| Source | Sessions Documentées | Pourcentage
+| Git log (commits explicites) | 45 sessions | ~39%
+| `.agents/sessions/` (fichiers individuels) | 29 sessions | ~25%
+| `.agents/archives/sessions_summaries/` | 13 sessions | ~11%
+| `.agents/archives/prompts_archive/` | 8 sessions | ~7%
+| Archives consolidées (SESSIONS_*.adoc) | 115 sessions | 100% (mais résumé pour 1-72)
+|===
+
+=== Sessions par Semaine
+
+|===
+| Semaine | Période | Sessions | Moyenne/jour
+| Semaine 1 | 08-14/04 | 1-61 | ~9 sessions/jour (estimation)
+| Semaine 2 | 15-16/04 | 62-72 | ~5 sessions/jour
+| Semaine 3 | 16-17/04 | 73-82 | ~5 sessions/jour
+| Semaine 4 | 17-18/04 | 83-95 | ~7 sessions/jour
+| Semaine 5 | 18-19/04 | 96-107 | ~6 sessions/jour
+| Semaine 6 | 20/04 | 108-113 | 6 sessions (1 jour)
+| Semaine 7 | 21/04 | 114-115 | 2 sessions (en cours)
+|===
+
+=== Types de Sessions (Git Log Analysis)
+
+|===
+| Type | Count | Pourcentage
+| `test:` | 15 | ~33%
+| `docs:` | 12 | ~27%
+| `fix:` | 8 | ~18%
+| `feat:` | 5 | ~11%
+| `refactor:` | 3 | ~7%
+| `chore:` | 2 | ~4%
+|===
+
+'''
+
+== 🔍 Gaps Identifiés
+
+=== Sessions Sans Trace Git Explicite
+
+_Sessions 1-13_ :
+* Seule la session 2 et 3 ont des commits explicites
+* Sessions 4-13 : uniquement dans `SESSIONS_1-72_ARCHIVE.adoc` (résumé)
+* _Hypothèse_ : Commits non tagués "Session" ou squashés
+
+_Sessions 18-34_ :
+* Aucun commit explicite trouvé
+* _Hypothèse_ : Période de développement intensif sans tagging systématique
+
+_Sessions 35-45_ :
+* Aucun commit explicite trouvé
+* _Hypothèse_ : Idem
+
+_Sessions 47-53_ :
+* Aucun commit explicite trouvé
+* _Hypothèse_ : Idem
+
+_Sessions 55-61_ :
+* Quelques commits mais pas de tagging "Session"
+* _Hypothèse_ : Tagging commencé à partir de session 62
+
+_Sessions 77, 81-82_ :
+* Estimées entre sessions documentées
+* _Hypothèse_ : Sessions courtes non commitées séparément
+
+_Sessions 99, 104, 111-114_ :
+* Fichiers individuels existent mais pas de commits Git
+* _Hypothèse_ : Commits groupés avec sessions adjacentes ou oubliés
+
+'''
+
+== 📁 Fichiers de Référence pour Reconstruction
+
+=== Archives Maîtres
+
+|===
+| Fichier | Sessions | Détail
+| `.agents/archives/SESSIONS_1-72_ARCHIVE.adoc` | 1-72 | Résumé + détails 61-72
+| `.agents/archives/SESSIONS_HISTORY_83-95.adoc` | 83-95 | Détails complets + workarounds
+| `.agents/archives/SESSIONS_96-113.adoc` | 96-113 | Détails complets
+| `.agents/HISTORIQUE_COMPLET_1-113.adoc` | 1-113 | Vue d'ensemble consolidée
+|===
+
+=== Sessions Individuelles (28 fichiers)
+
+[source]
+----
+.agents/sessions/
+├── 73-debug-crash-functional-test.adoc
+├── 74-debug-couverture-tests.adoc
+├── 86-refactor-llm-providers-steps.adoc
+├── 87-error-handling-tests.adoc
+├── 90-error-handling-100-percent.adoc
+├── 91-memory-leak-validation.adoc
+├── 93-attempt-history-fixes-partiel.adoc
+├── 94-attempt-history-100-percent.adoc
+├── 95-feature8-fin-feature9-incremental.adoc
+├── 96-context-optimization.adoc
+├── 96-feature10-11-partiel.adoc
+├── 97-conflits-resolus.adoc
+├── 98-validation-features-10-11.adoc
+├── 99-validation-complete-features-10-11.adoc
+├── 100-validation-features-5-12-13.adoc
+├── 101-consolidation-tests.adoc
+├── 102-correction-feature-7.adoc
+├── 103-correction-feature-4.adoc
+├── 104-correction-archive-history.adoc
+├── 105-performance-tests-mockes.adoc
+├── 106-correction-tests-unitaires-fonctionnels.adoc
+├── 107-nettoyage-clarification.adoc
+├── 108-api-key-pool-design.adoc
+├── 109-formalisation-lazy-eager.adoc
+├── 110-data-models-unit-tests.adoc
+├── 111-tests-fonctionnels-api-key-pool.adoc
+├── 112-llmservice-configloader-apikeypool.adoc
+├── 113-quota-tracker-reset.adoc
+└── 114-documentation-architecture.adoc
+----
+
+=== Résumés de Sessions (13 fichiers)
+
+[source]
+----
+.agents/archives/sessions_summaries/
+├── SESSION_61_SUMMARY.adoc
+├── SESSION_62_SUMMARY.adoc
+├── SESSION_63_SUMMARY.adoc
+├── SESSION_64_SUMMARY.adoc
+├── SESSION_65_SUMMARY.adoc
+├── SESSION_66_SUMMARY.adoc
+├── SESSION_67_SUMMARY.adoc
+├── SESSION_69_SUMMARY.adoc
+├── SESSION_73_SUMMARY.adoc
+├── SESSION_74_SUMMARY.adoc
+├── SESSION_75_SUMMARY.adoc
+├── SESSION_76_SUMMARY.adoc
+└── SESSION_79_SUMMARY.adoc
+----
+
+=== Prompts de Reprise (8 fichiers)
+
+[source]
+----
+.agents/archives/prompts_archive/
+├── PROMPT_REPRISE_SESSION_65.adoc
+├── PROMPT_REPRISE_SESSION_66.adoc
+├── PROMPT_REPRISE_SESSION_67.adoc
+├── PROMPT_REPRISE_SESSION_69.adoc
+├── PROMPT_REPRISE_SESSION_72.adoc
+├── PROMPT_REPRISE_SESSION_74.adoc
+├── PROMPT_REPRISE_SESSION_75.adoc
+└── PROMPT_REPRISE_SESSION_76.adoc
+----
+
+'''
+
+== 🎯 Leçons Apprises
+
+=== Pour le Futur Tracking
+
+. _Taguer systématiquement les commits_ — Format : `type: Session XX — Sujet`
+. _Créer fichier de session AVANT commit_ — Archive immédiate
+. _Commit par session_ — 1 session = 1 commit (ou squash en fin de session)
+. _Prompts de reprise versionnés_ — Toujours dans Git
+. _Historique Git = Source de vérité_ — Les archives complètent, ne remplacent pas
+
+=== Reconstruction Rétrospective
+
+. _Git log prioritaire_ — Commits explicites = preuve haute fidélité
+. _Archives secondaires_ — Détails dans `.agents/sessions/` et `.agents/archives/`
+. _Estimation pour gaps_ — Sessions manquantes interpolées entre sessions connues
+. _Cross-référencement_ — Multiple sources = validation croisée
+
+'''
+
+== 📊 Timeline Visuelle
+
+[source]
+----
+Avril 2026
+08  09  10  11  12  13  14  15  16  17  18  19  20  21
+│   │   │   │   │   │   │   │   │   │   │   │   │   │
+1───2───3───4───5───6───7───8───9───10──11──12──13──14
+                    │               │
+                   46              54
+                                    │
+                15  16  17  18  19  20  21
+                │   │   │   │   │   │   │
+               55──61──62──63──64──65──66──67──68──69──70──71──72
+                            │   │   │   │
+                           73  74  75  76──77──78──79──80
+                                        │   │   │   │
+                                       81  82  83──84──85──86──87──88──89──90──91──92──93──94──95
+                                                        │   │   │   │   │   │
+                                                       96  97  98  99 100 101
+                                                        │   │   │   │   │   │
+                                                       102 103 104 105 106 107
+                                                                    │   │   │   │   │   │
+                                                                   108 109 110 111 112 113
+                                                                                │   │
+                                                                               114 115
+----
+
+'''
+
+== ✅ Validation
+
+=== Sessions Confirmées (Preuve Git)
+
+* ✅ Sessions 2, 3 (08/04)
+* ✅ Sessions 14-17 (10/04)
+* ✅ Session 46 (13/04)
+* ✅ Session 54 (13/04)
+* ✅ Sessions 62, 63, 66 (15/04)
+* ✅ Sessions 75, 76, 78-80, 87-95, 97-98, 100-103, 105-110 (16-20/04)
+
+=== Sessions Estimées (Archives Uniquement)
+
+* ⚠️ Sessions 1, 4-13, 18-34, 35-45, 47-53, 55-61
+* ⚠️ Sessions 64-65, 67-72, 74, 77, 81-86
+* ⚠️ Sessions 96, 99, 104, 111-114
+
+'''
+
+_Document créé_ : 21 avril 2026 (Session 115)  
+_Prochaine mise à jour_ : Après chaque session (commit Git + archive)  
+_Maintenu par_ : Agent OpenCode (procédure de fin de session)

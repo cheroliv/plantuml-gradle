@@ -1,0 +1,348 @@
+= 📝 Décisions Architectures — PlantUML Gradle Plugin
+
+_Dernière mise à jour_ : 21 avril 2026  
+_Session_ : 114  
+_Type_ : LAZY (consultation sur besoin)
+
+'''
+
+== 📁 Decision 001 — Emplacement de `plantuml-test-context.yml`
+
+_Date_ : 21 avril 2026  
+_Statut_ : ✅ ADOPTÉE  
+_Alternative considérée_ : 3 options
+
+=== Contexte
+
+Le plugin PlantUML utilise des fichiers de configuration YAML pour :
+* _Production_ : `plantuml-context.yml` (racine du projet consommateur)
+* _Test_ : `plantuml-test-context.yml` (credentials, mocks, services réels)
+
+_Problème_ : Où placer `plantuml-test-context.yml` pour :
+. ✅ Être accessible aux tests (unitaires, fonctionnels, Cucumber)
+. ✅ Être protégé par `.gitignore`
+. ✅ Pouvoir être injecté par GitHub Secrets en CI
+. ✅ Ne pas modifier le build.gradle.kts (risque de cassure)
+. ✅ Être clairement séparé du consommateur
+
+'''
+
+=== Alternatives Considérées
+
+==== Option 1 : `src/test/resources/`
+[source]
+----
+plantuml-plugin/
+└── src/test/resources/
+    └── plantuml-test-context.yml
+----
+
+_Avantages_ :
+* ✅ Standard Gradle (classpath automatique)
+* ✅ Cohérent avec `ollama-local-smollm-135.yml`
+* ✅ Un seul fichier pour tous les tests
+
+_Inconvénients_ :
+* ❌ Nécessite modification Gradle pour partager avec `functionalTest`
+* ❌ Risque de cassure du build script
+* ❌ `functionalTest` a son propre SourceSet (classpath isolé)
+
+_Code requis_ :
+[source,kotlin]
+----
+// build.gradle.kts — à ajouter après functionalTest SourceSet
+dependencies {
+    add(functionalTest.implementationConfigurationName, sourceSets.test.get().output)
+}
+----
+
+_Verdict_ : ❌ Rejeté — Trop risqué pour le build script
+
+'''
+
+==== Option 2 : `src/functionalTest/resources/`
+[source]
+----
+plantuml-plugin/
+└── src/functionalTest/resources/
+    └── plantuml-test-context.yml
+----
+
+_Avantages_ :
+* ✅ Pas de modification Gradle
+* ✅ Ressources isolées dans functionalTest
+
+_Inconvénients_ :
+* ❌ Tests unitaires ne peuvent pas y accéder
+* ❌ Tests Cucumber ne peuvent pas y accéder
+* ❌ Duplication requise si besoin dans plusieurs SourceSets
+* ❌ Moins cohérent avec `ollama-local-smollm-135.yml`
+
+_Verdict_ : ❌ Rejeté — Ne couvre pas tous les types de tests
+
+'''
+
+==== Option 3 : Racine du plugin (CHOISIE) ✅
+[source]
+----
+plantuml-plugin/
+├── plantuml-test-context.yml  # À la racine du plugin
+├── .gitignore
+└── src/...
+----
+
+_Avantages_ :
+* ✅ Accessible via chemin absolu : `project.rootDir.resolve("plantuml-test-context.yml")`
+* ✅ Protégé par `.gitignore` du plugin
+* ✅ GitHub Secrets peut l'injecter en CI
+* ✅ _Aucune modification Gradle requise_
+* ✅ Clairement séparé du consommateur (racine ≠ racine)
+* ✅ Visible et explicite dans l'arborescence
+
+_Inconvénients_ :
+* ⚠️ Chemin explicite requis dans les tests (mais simple)
+* ⚠️ Pas dans le classpath (mais ce n'est pas nécessaire)
+
+_Verdict_ : ✅ _CHOISI_ — Meilleur compromis
+
+'''
+
+=== Implémentation
+
+==== 1. Fichier déplacé
+[source,bash]
+----
+mv plantuml-test-context.yml plantuml-plugin/
+----
+
+==== 2. `.gitignore` mis à jour
+[source,gitignore]
+----
+# plantuml-plugin/.gitignore
+plantuml-test-context.yml
+----
+
+==== 3. Chargement dans les tests (Kotlin)
+[source,kotlin]
+----
+// Dans un test Gradle TestKit
+val testConfigPath = projectDir.resolve("plantuml-test-context.yml").absolutePath
+
+// Ou via propriété système
+val testConfigPath = System.getProperty("plantuml.test.config")
+    ?: projectDir.resolve("plantuml-test-context.yml").absolutePath
+----
+
+==== 4. Injection GitHub Secrets (CI)
+[source,yaml]
+----
+# .github/workflows/ci.yml
+- name: Inject test credentials
+  run: |
+    cat > plantuml-plugin/plantuml-test-context.yml << 'EOF'
+    ${{ secrets.PLANTUML_TEST_CONTEXT }}
+    EOF
+  working-directory: ${{ github.workspace }}
+----
+
+'''
+
+=== Structure Finale
+
+[source]
+----
+plantuml-gradle/
+├── plantuml-context.yml              # Production (consommateur)
+├── plantuml-context.example.yml      # Exemple (versionné)
+├── plantuml-plugin/
+│   ├── plantuml-test-context.yml     # Test (protégé .gitignore)
+│   ├── .gitignore                    # Contient plantuml-test-context.yml
+│   ├── build.gradle.kts
+│   └── src/
+│       ├── main/
+│       ├── test/
+│       │   └── resources/
+│       │       └── ollama-local-smollm-135.yml  # Mock local
+│       └── functionalTest/
+│           └── resources/
+│               └── wiremock/         # Mocks WireMock
+----
+
+'''
+
+=== Leçons Apprises
+
+. _Ne pas modifier un build.gradle.kts fonctionnel_ — Risque de régressions
+. _Séparer plugin vs consommateur_ — Le plugin a ses propres fichiers de test
+. _`.gitignore` au bon niveau_ — Plugin `.gitignore` protège ses credentials
+. _Chemin absolu > classpath_ — Plus simple pour TestKit et CI
+. _GitHub Secrets injection_ — Fichier à la racine = injection triviale
+
+'''
+
+=== Références
+
+* _Fichier_ : `plantuml-plugin/plantuml-test-context.yml`
+* _`.gitignore`_ : `plantuml-plugin/.gitignore`
+* _Workflow CI_ : `.github/workflows/ci.yml` (à mettre à jour)
+* _Secret GitHub_ : `PLANTUML_TEST_CONTEXT` (à créer)
+
+'''
+
+== 📁 Decision 002 — Structure des Archives de Sessions
+
+_Date_ : 21 avril 2026  
+_Statut_ : ✅ ADOPTÉE
+
+=== Contexte
+
+Le projet a accumulé 113+ sessions depuis mars 2026.  
+_Problème_ : Comment archiver sans perdre l'historique pour future distillation/fine-tuning ?
+
+=== Décision
+
+_3 niveaux d'archives_ :
+
+|===
+| Niveau | Fichier | Sessions | Détail
+| 1 | `SESSIONS_1-72_ARCHIVE.adoc` | 1-72 | Résumé + détails 61-72
+| 2 | `SESSIONS_HISTORY_83-95.adoc` | 83-95 | Détails complets + workarounds
+| 3 | `SESSIONS_96-113.adoc` | 96-113 | Détails complets
+| 4 | `.agents/sessions/*.adoc` | 73-113 (partiel) | 28 fichiers individuels
+| 5 | `HISTORIQUE_COMPLET_1-113.adoc` | 1-113 | Vue d'ensemble consolidée
+|===
+
+=== Rationale
+
+. _Préserver l'historique_ — Sessions 1-72 dans archive unique
+. _Détails progressifs_ — Plus on avance, plus c'est détaillé
+. _Fichiers individuels_ — Sessions récentes (108-113) ont leur fichier
+. _Vue d'ensemble_ : `HISTORIQUE_COMPLET_1-113.adoc` pour navigation rapide
+
+=== Pour Fine-tuning Dataset
+
+_Fichiers prioritaires_ (structurés, métadonnées) :
+. `.agents/sessions/*.adoc` (28 fichiers)
+. `.agents/archives/sessions_summaries/*.adoc` (13 fichiers)
+. `.agents/archives/prompts_archive/*.adoc` (8 fichiers)
+
+_Fichiers secondaires_ (bruts, à parser) :
+. `COMPLETED_TASKS_ARCHIVE_2026-04.adoc` (77k lignes)
+. `CODE_REVIEW_2026-04.adoc` (47k lignes)
+
+'''
+
+== 📁 Decision 003 — Stratégie LAZY/EAGER pour OpenCode
+
+_Date_ : 20 avril 2026 (Session 109)  
+_Statut_ : ✅ ADOPTÉE  
+_Document_ : `AGENT_MODUS_OPERANDI.adoc` (900+ lignes)
+
+=== Contexte
+
+Optimiser l'efficacité d'OpenCode sur des projets complexes (EPIC multi-sessions, 10+ fichiers, 100+ décisions).
+
+=== Décision
+
+_Séparation EAGER/LAZY_ :
+
+|===
+| Type | Fichiers | Taille | Chargement
+| _EAGER_ | `PROMPT_REPRISE.adoc`, `*_ESSENTIALS.adoc`, `.agents/INDEX.adoc` | ≤ 100 lignes | _Toujours_ (début session)
+| _LAZY_ | Archives, références, procédures | Illimité | _Sur demande_ ("Je charge X ?")
+|===
+
+=== Analogie
+
+* _EAGER_ = Tableau de bord de voiture (vitesse, carburant, alertes)
+* _LAZY_ = Manuel du propriétaire (détails techniques, historique)
+
+=== Règles Absolues
+
+. ❌ _Jamais de commit sans permission explicite_
+. ❌ _Jamais de tests en fin de session sans demande_
+. ✅ _Archive systématique_ en fin de session
+. ✅ _1 session = 1 objectif_ (15-30 minutes)
+
+=== Références
+
+* _Document principal_ : `AGENT_MODUS_OPERANDI.adoc`
+* _Essentials_ : `API_KEY_POOL_ESSENTIALS.adoc` (50 lignes)
+* _Procédures_ : `.agents/PROCEDURES.adoc`
+
+'''
+
+== 📁 Decision 004 — Fichier Maître INDEX.adoc Unique
+
+_Date_ : 21 avril 2026  
+_Statut_ : ✅ ADOPTÉE
+
+=== Contexte
+
+Deux fichiers `INDEX.adoc` existaient :
+. `plantuml-plugin/INDEX.adoc` — Obsolète (session 83)
+. `plantuml-plugin/.agents/INDEX.adoc` — Plus récent (session 110)
+
+=== Décision
+
+_Un seul fichier maître_ : `.agents/INDEX.adoc`
+
+_Rationale_ :
+* ✅ Centralise l'information
+* ✅ Mis à jour avec sessions 108-113
+* ✅ Contient règles absolues (commits, tests)
+* ✅ Historique récent (15 dernières sessions)
+
+_Suppression_ : `plantuml-plugin/INDEX.adoc` (restauré car contenait données historiques pour distillation)
+
+_Finalement_ : _Les deux fichiers conservés_ — `INDEX.adoc` racine = vue légère, `.agents/INDEX.adoc` = détail sessions
+
+'''
+
+== 📁 Decision 005 — Historique Complet 1-113
+
+_Date_ : 21 avril 2026  
+_Statut_ : ✅ CRÉÉ
+
+=== Contexte
+
+Besoin d'un historique unique pour :
+* Navigation rapide
+* Dataset fine-tuning
+* Compréhension évolution du projet
+
+=== Décision
+
+_Fichier créé_ : `.agents/HISTORIQUE_COMPLET_1-113.adoc`
+
+_Contenu_ :
+* Vue d'ensemble sessions 1-113
+* Statistiques globales
+* EPICs progression
+* Liens vers toutes les archives
+* Lacunes identifiées (sessions 1-60, 75-82)
+
+_Pour dataset_ :
+* 28 sessions structurées (73-113 partiel)
+* 13 résumés (61-76)
+* 8 prompts de reprise (65-76)
+* 77k lignes d'archive brute à exploiter
+
+'''
+
+== 🔗 Index des Décisions
+
+|===
+| # | Sujet | Fichier | Statut
+| 001 | Emplacement `plantuml-test-context.yml` | Ce document | ✅ ADOPTÉE
+| 002 | Structure des archives | Ce document | ✅ ADOPTÉE
+| 003 | Stratégie LAZY/EAGER | `AGENT_MODUS_OPERANDI.adoc` | ✅ ADOPTÉE
+| 004 | Fichier INDEX.adoc unique | Ce document | ✅ ADOPTÉE (modifié)
+| 005 | Historique complet 1-113 | `HISTORIQUE_COMPLET_1-113.adoc` | ✅ CRÉÉ
+|===
+
+'''
+
+_Document créé_ : 21 avril 2026 (Session 114)  
+_Type_ : LAZY (consultation sur besoin)  
+_Maintenu par_ : Agent OpenCode (fin de session)

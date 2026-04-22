@@ -1,0 +1,38 @@
+= Session 103 — Correction Feature 4
+
+*Date* : 19 avril 2026
+*Statut* : ⚠️ ÉCHEC — Test "Archive history after max iterations" toujours FAIL
+
+== Problème Identifié
+
+Le scénario `Archive history after max iterations with no success` échoue avec :
+* Attendu : 6 entrées dans l'historique (1 initiale + 5 corrections)
+* Réel : Exception levée avant que l'historique ne soit archivé
+
+== Corrections Appliquées
+
+=== 1. CommonSteps.kt
+Mock LLM retourne maintenant une syntaxe vraiment invalide :
+[source,kotlin]
+----
+"code": "actor User"  // Sans @startuml/@enduml
+----
+
+=== 2. DiagramProcessor.kt
+* Modifié la boucle pour permettre 6 itérations (1 initiale + 5 corrections)
+* Ajouté logging détaillé dans `archiveAttemptHistory()`
+
+== Problème Restant
+
+L'archive **n'est pas créée** ou **n'est pas trouvée** par le test.
+Le fichier JSON devrait être dans `generated/diagrams/attempt-history-*.json`
+
+== Prochaines Étapes
+
+. Vérifier que `archiveAttemptHistory()` est bien appelé avant l'exception
+. Vérifier que le fichier JSON est créé au bon endroit
+. Vérifier que `world.projectDir` pointe vers le bon répertoire de test
+
+== Tests Error Handling
+
+Les tests Error Handling passent ✅ (ils attendent un échec de build)

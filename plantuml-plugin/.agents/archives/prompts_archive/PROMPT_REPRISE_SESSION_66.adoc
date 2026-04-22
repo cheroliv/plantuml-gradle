@@ -1,0 +1,242 @@
+= 🔄 Prompt de Reprise — Session 66
+
+_Date_ : 2026-04-15  
+_Session précédente_ : Session 65 (PARTIELLEMENT TERMINÉE)  
+_Prochaine session_ : Session 66 — Debug port YAML + testcontainers
+
+'''
+
+== 🎯 Objectif Session 66
+
+_Story 2.2_ : Supprimer Fallback Simulation (EN COURS)  
+_Problème_ : 5 tests d'intégration RAG échouent (port PostgreSQL non lu depuis YAML)  
+_Critère_ : 198/198 tests unitaires PASS + 5 tests d'intégration RAG PASS
+
+'''
+
+== 📊 État Actuel
+
+=== ✅ Ce qui fonctionne
+* ✅ Code `ReindexPlantumlRagTask.kt` : Fallbacks supprimés, erreurs explicites
+* ✅ `RagConfig` : Paramètre `port: Int = 5432` ajouté
+* ✅ Tests BranchTest : 2 tests corrigés et PASS
+* ✅ Tests fonctionnels : 42 PASS, 6 SKIP (100%)
+
+=== ❌ Ce qui échoue
+* ❌ 5 tests `ReindexPlantumlRagIntegrationTest` échouent
+* ❌ Erreur : `Connection to localhost:5432 refused`
+* ❌ Cause : Port mappé du container (ex: 32779) non lu depuis le YAML
+
+'''
+
+== 🔍 Diagnostic Session 65
+
+=== Symptôme
+[source,yaml]
+----
+# YAML écrit dans le test
+rag:
+  databaseUrl: "localhost"
+  port: 32779  # Port dynamique du container
+  username: "test"
+  password: "test"
+----
+
+[source]
+----
+# Logs d'exécution
+→ Database URL: localhost:5432  ← Devrait être 32779 !
+----
+
+=== Hypothèses
+. _YAML non écrit correctement_ : Interpolation Kotlin `${port}` ne fonctionne pas
+. _ConfigLoader bug_ : Ne parse pas le champ `port` depuis le YAML
+. _RagConfig typage_ : `port: Int` peut être ignoré par Jackson
+. _ConfigMerger_ : Écrase le port YAML avec la valeur par défaut
+
+'''
+
+== 🎯 Tâches Session 66
+
+=== 1. Debug YAML écrit ✅
+[source,kotlin]
+----
+// Dans ReindexPlantumlRagIntegrationTest
+val port = postgresContainer.firstMappedPort
+println("=== PORT DEBUG ===")
+println("Port variable: $port")
+println("YAML content:")
+println(configPath.readText())
+println("==================")
+----
+
+_Vérifier_ :
+* ✅ `postgresContainer.firstMappedPort` est un `Int`
+* ✅ Le YAML contient la bonne valeur de port
+* ✅ Le YAML est valide (pas d'erreur de syntaxe)
+
+=== 2. Debug ConfigLoader ✅
+[source,kotlin]
+----
+// Dans ConfigLoader.kt
+fun load(configFile: File): PlantumlConfig {
+    val yamlContent = configFile.readText()
+    val resolvedYaml = resolveEnvironmentVariables(yamlContent)
+    
+    println("=== YAML DEBUG ===")
+    println("Raw YAML: $yamlContent")
+    println("Resolved YAML: $resolvedYaml")
+    
+    return MAPPER.readValue(resolvedYaml, PlantumlConfig::class.java)
+        .also { 
+            println("Parsed RagConfig:")
+            println("  databaseUrl: ${it.rag.databaseUrl}")
+            println("  port: ${it.rag.port}")
+            println("  username: ${it.rag.username}")
+        }
+}
+----
+
+_Vérifier_ :
+* ✅ Jackson parse correctement le champ `port`
+* ✅ Le typage `Int` est respecté
+* ✅ Pas d'exception silencieuse
+
+=== 3. Debug ConfigMerger ✅
+[source,kotlin]
+----
+// Dans ConfigMerger.kt
+fun merge(project: Project, yamlConfig: PlantumlConfig, cliParams: Map<String, Any?>): PlantumlConfig {
+    // ... existing code ...
+    
+    println("=== CONFIG MERGER DEBUG ===")
+    println("YAML rag.port: ${yamlConfig.rag.port}")
+    println("CLI rag.port: ${cliParams["rag.port"]}")
+    println("Final rag.port: ${finalConfig.rag.port}")
+    println("===========================")
+    
+    return finalConfig
+}
+----
+
+_Vérifier_ :
+* ✅ Le port YAML n'est pas écrasé par une valeur par défaut
+* ✅ La priorité CLI > YAML > gradle.properties > defaults est respectée
+
+=== 4. Corriger le problème ✅
+
+_Si YAML mal écrit_ :
+[source,kotlin]
+----
+// Mauvais : interpolation dans string template
+configPath.writeText("""
+    rag:
+      port: ${postgresContainer.firstMappedPort}
+""".trimIndent())
+
+// Bon : utiliser une variable
+val port = postgresContainer.firstMappedPort
+configPath.writeText("""
+    rag:
+      port: $port
+""".trimIndent())
+----
+
+_Si ConfigLoader bug_ :
+[source,kotlin]
+----
+// Vérifier que Jackson reconnaît le champ port
+// Ajouter @JsonProperty si nécessaire
+data class RagConfig(
+    val databaseUrl: String = "",
+    @JsonProperty("port") val port: Int = 5432,
+    val username: String = "",
+    val password: String = "",
+    val tableName: String = "embeddings"
+)
+----
+
+_Si ConfigMerger écrase_ :
+[source,kotlin]
+----
+// Vérifier la logique de merge
+// Ne pas écraser yamlConfig.port avec default si yamlConfig.port != 5432
+----
+
+=== 5. Tester la correction ✅
+
+[source,bash]
+----
+# Lancer les 5 tests d'intégration
+./gradlew test --tests "ReindexPlantumlRagIntegrationTest"
+
+# Attendre : 5/5 tests PASS
+----
+
+'''
+
+== 📋 Checklist Session 66
+
+* [ ] _Debug YAML_ : Vérifier que le port est correctement écrit
+* [ ] _Debug ConfigLoader_ : Vérifier que le port est correctement parsé
+* [ ] _Debug ConfigMerger_ : Vérifier que le port n'est pas écrasé
+* [ ] _Corriger_ : Appliquer la fix identifiée
+* [ ] _Tester_ : 5/5 tests d'intégration PASS
+* [ ] _Valider_ : 198/198 tests unitaires PASS (100%)
+* [ ] _Documenter_ : Mettre à jour SESSIONS_HISTORY.adoc
+* [ ] _Clôturer_ : Marquer Story 2.2 ✅ TERMINÉ dans ROADMAP.adoc
+
+'''
+
+== 🚀 Commandes Utiles
+
+[source,bash]
+----
+# Lancer un test d'intégration spécifique
+./gradlew test --tests "ReindexPlantumlRagIntegrationTest.should index PlantUML diagrams in DATABASE mode" --info
+
+# Lancer tous les tests d'intégration RAG
+./gradlew test --tests "ReindexPlantumlRagIntegrationTest"
+
+# Lancer tous les tests unitaires
+./gradlew test
+
+# Lancer tests fonctionnels
+./gradlew functionalTest
+
+# Vérifier couverture
+./gradlew koverHtmlReport
+----
+
+'''
+
+== 📁 Fichiers à Modifier
+
+. _`ReindexPlantumlRagIntegrationTest.kt`_ — Debug YAML écrit
+. _`ConfigLoader.kt`_ — Debug parsing YAML
+. _`ConfigMerger.kt`_ — Debug merge config
+. _`models.kt`_ — Si besoin d'ajouter @JsonProperty
+. _`ReindexPlantumlRagTask.kt`_ — Logs de debug supplémentaires
+
+'''
+
+== ⚠️ Pièges à Éviter
+
+* ❌ _Ne pas modifier_ `PlantumlExtension` (nested class de `PlantumlPlugin.kt`)
+* ❌ _Ne pas créer_ de fichiers individuels pour `RagConfig` (déjà dans `models.kt`)
+* ❌ _Ne pas utiliser_ `PlantumlManager` comme une classe (c'est un objet Kotlin)
+* ✅ _Toujours vérifier_ : YAML écrit → YAML parsé → Config mergée → Config utilisée
+
+'''
+
+== 🎯 Critère de Succès Session 66
+
+✅ _198/198 tests unitaires PASS_ (100%)  
+✅ _5/5 tests d'intégration RAG PASS_  
+✅ _42 tests fonctionnels PASS_ (100%)  
+✅ _Story 2.2 marquée ✅ TERMINÉ_ dans ROADMAP.adoc  
+✅ _SESSIONS_HISTORY.adoc mis à jour_ avec Session 66
+
+'''
+
+_Bonne Session 66 !_ 🚀

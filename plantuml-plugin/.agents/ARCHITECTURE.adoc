@@ -1,0 +1,134 @@
+= AGENTS.md — PlantUML Gradle Plugin
+
+____
+_Langue_ : Communication en français, code en anglais.
+____
+
+== 🎯 Contexte
+
+Plugin Gradle qui génère des diagrammes PlantUML via IA (LangChain4j) à partir de fichiers `.prompt`.
+
+* _Plugin ID_ : `com.cheroliv.plantuml`
+* _Package_ : `plantuml`
+* _Stack_ : Kotlin, Gradle, LangChain4j, Cucumber BDD
+
+'''
+
+== ⚠️ Points d'attention (Pièges à éviter)
+
+* _PlantumlExtension_ est une _nested class_ de `PlantumlPlugin.kt` (PAS un fichier séparé)
+* _PlantumlConfig_ + 10 data classes sont dans _`models.kt`_ (pas de fichiers individuels)
+* _PlantumlManager_ est un _objet Kotlin_ (singleton), pas une classe
+* _SyntaxValidationResult_ est une _sealed class nested_ dans `PlantumlService`
+* _AttemptEntry_ est une _data class top-level_ dans `DiagramProcessor.kt`
+
+'''
+
+== 🏗 Architecture
+
+[source]
+----
+plantuml-plugin/src/main/kotlin/plantuml/
+├── 📄 PlantumlPlugin.kt
+│   ├── 🏛️ PlantumlPlugin : Plugin<Project>
+│   └── 📦 PlantumlExtension (nested class)
+│
+├── 📄 models.kt (11 data classes)
+│   ├── PlantumlConfig, InputConfig, OutputConfig, LangchainConfig
+│   ├── GitConfig, OllamaConfig, ApiKeyConfig, RagConfig
+│   └── PlantumlDiagram, PlantumlCode, ValidationFeedback
+│
+├── 📄 PlantumlManager.kt (objet Kotlin / singleton)
+│   ├── Configuration (nested object) — charge config YAML
+│   ├── Tasks (nested object) — registre les 3 tâches
+│   └── Extensions (nested object)
+│
+├── 📁 service/
+│   ├── 📄 PlantumlService.kt
+│   │   └── SyntaxValidationResult (sealed class: Valid | Invalid)
+│   ├── 📄 DiagramProcessor.kt
+│   │   └── AttemptEntry (data class top-level)
+│   └── 📄 LlmService.kt
+│
+└── 📁 tasks/ (héritent de DefaultTask)
+    ├── ProcessPlantumlPromptsTask.kt
+    ├── ValidatePlantumlSyntaxTask.kt
+    └── ReindexPlantumlRagTask.kt
+----
+
+'''
+
+== 📊 État actuel
+
+_Session 62 TERMINÉE_ — EPIC 1 complet ✅
+
+_Résultats Session 62_ :
+* ✅ _198 tests unitaires_ : 198/198 PASS (100%)
+* ✅ _42 tests fonctionnels_ : 36 PASS, 6 SKIP, 0 FAIL (100%)
+* ✅ _Couverture PlantumlManager_ : 98-100% (maximal atteignable)
+* ✅ _EPIC 1_ : 6/6 stories terminées (1.1 ✅, 1.2 ✅, 1.3 ✅, 1.4 ✅, 1.5 ✅, 1.6 ✅)
+* ✅ _Score Roadmap_ : 8.0/10 (EPIC 1 complet)
+
+_Modifications Session 62_ :
+* ✅ `ROADMAP.adoc` : Story 1.6 marquée ✅ TERMINÉ
+* ✅ `SESSIONS_HISTORY.adoc` : Entrée Session 62 ajoutée
+
+_Prochaine session (63)_ : EPIC 2 — Story 2.1 (RAG Production-Ready avec PostgreSQL + testcontainers)
+
+_Voir_ : `SESSIONS_HISTORY.adoc` pour l'historique complet des sessions
+_Voir_ : `COMPLETED_TASKS_ARCHIVE.adoc` pour les tâches terminées
+_Voir_ : `ROADMAP.adoc` pour la roadmap complète
+
+'''
+
+== 🛠 Décisions techniques
+
+_Voir_ : `AGENT_REFERENCE.adoc`
+
+'''
+
+== 🚀 Optimisation des tests
+
+_Voir_ : `AGENT_REFERENCE.adoc`
+
+'''
+
+== 📝 Méthodologie de travail
+
+_Voir_ : `AGENT_REFERENCE.adoc`
+
+'''
+
+== 📚 Références & Procédures
+
+_Voir_ : `SESSION_PROCEDURE.adoc`
+
+'''
+
+== ⚡ Commandes utiles
+
+[source,bash]
+----
+# Lancer les tests fonctionnels (CI - tous les tests)
+./gradlew functionalTest                    # ~30s
+
+# Lancer les tests fonctionnels rapides (dév quotidien)
+./gradlew functionalTest --tests "*quick*"  # ~23s
+
+# Lancer les tests fonctionnels lents (RAG, permissions, network)
+./gradlew functionalTest --tests "*slow*"
+
+# Lancer les tests unitaires
+./gradlew test
+
+# Lancer tous les tests
+./gradlew check
+
+# Avec configuration cache (plus rapide après 1er run)
+./gradlew functionalTest --configuration-cache
+----
+
+_Tags de tests_ :
+* `@Tag("quick")` : 18 tests (< 5s) — dév quotidien
+* `@Tag("slow")` : 18 tests (> 10s) — validation complète
+* `@Disabled` : 6 tests cloud (requièrent credentials)

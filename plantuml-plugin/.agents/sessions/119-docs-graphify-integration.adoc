@@ -1,0 +1,82 @@
+= Session 119 — Documentation : Intégration Graphify + Auto-documentation Plugin
+
+*Date* : 22 avril 2026
+*Type* : docs
+*Score* : 9.0/10
+
+'''
+
+== 🎯 Objectif
+
+Documenter le mariage entre la stratégie de gestion de contexte EAGER/LAZY et le plugin Graphify, puis concevoir l'intégration du plugin plantuml-gradle pour qu'il se documente lui-même (dogfooding).
+
+'''
+
+== ✅ Résultats
+
+* ✅ `GRAPHIFY_INTEGRATION.adoc` (1254+ lignes) — Documentation complète de l'intégration Graphify + stratégie EAGER/LAZY
+* ✅ `PLUGIN_SELF_DOCUMENTATION.adoc` (751 lignes) — Documentation du dogfooding : le plugin se documente lui-même
+* ✅ Analyse de la maturité du plugin (17 fichiers source, 54 tests unitaires, pipeline complet)
+* ✅ Conception de `GraphifyPromptAdapter.kt` — Adaptateur unique de 60 lignes
+* ✅ Conception de `GenerateDiagramDocsTask.kt` — Tâche Gradle de 40 lignes
+* ✅ Plan de généralisation vers bakery-gradle et les autres plugins de l'écosystème
+* ✅ Plan en 4 phases : dogfooding → extraction bakery-gradle → application autres plugins → Spring Boot
+
+'''
+
+== 📊 Modifications
+
+|===
+| Fichier | Action | Impact
+
+| `GRAPHIFY_INTEGRATION.adoc` | ✅ Créé | Documentation mariage stratégie + Graphify (1254 lignes)
+| `PLUGIN_SELF_DOCUMENTATION.adoc` | ✅ Créé | Documentation dogfooding + généralisation écosystème (751 lignes)
+|===
+
+'''
+
+== 🔧 Connaissances clés
+
+. **Graphify** — Plugin OpenCode (32K stars) qui transforme un dossier de code en knowledge graph queryable. Installation : `uv tool install graphifyy && graphify install --platform opencode`
+. **Combo gagnant** — Stratégie gère le **quand/comment** (gouvernance), Graphify gère le **quoi/où** (structure). Les deux sont complémentaires, pas en compétition.
+. **Réduction du EAGER** — ECOSYSTEM_OVERVIEW.adoc (225 lignes) + ARCHITECTURE.adoc (130 lignes) remplacés par GRAPH_REPORT.adoc (~50 lignes). Économie : -36% sur le EAGER, -93% sur les queries structurelles.
+. **Dogfooding** — Le plugin plantuml-gradle consomme son propre service pour générer sa documentation. Même LlmService, même ApiKeyPool, même ValidatePlantumlSyntaxTask. Zéro duplication.
+. **Adaptateur unique** — `GraphifyPromptAdapter.kt` (~60 lignes) convertit un sous-graphe Graphify en fichier `.prompt`. Le pipeline existant traite ce `.prompt` exactement comme un prompt manuel.
+. **Généralisation** — LlmService + ApiKeyPool + ConfigLoader + GraphifyPromptAdapter doivent migrer vers bakery-gradle pour être réutilisés par training-gradle, codebase-gradle, readme-gradle, et les applications Spring Boot.
+. **Modèles cloud** — Ollama Cloud (Qwen 3.5/3.6, GLM 5.1) via endpoint `https://ollama.com/api/chat`. Pas de modèle local. Authentification par Device Key SSH.
+. **Boucle sémantique** — Code → Graphify (knowledge graph) → Adaptateur → Plugin (LLM) → Diagrammes PNG → Graphify (ingestion) → Graphe enrichi. Le système s'améliore itérativement.
+
+'''
+
+== 📋 Leçons apprises
+
+* Graphify envoie le contenu des fichiers docs (`.adoc`) à l'API LLM pour l'extraction sémantique. Les fichiers code sont extraits localement par tree-sitter. Il faut exclure les credentials du `.graphifyignore`.
+* L'always-on hook de Graphify rappelle à l'agent de lire GRAPH_REPORT.adoc avant de faire un grep. Il n'oblige pas — l'agent reste libre de choisir.
+* Le patron de génération est le même pour tous les plugins : GraphifyPromptAdapter → `.prompt` → pipeline existant. Seul le contenu du prompt change.
+* La Phase 1 (dogfooding) ne nécessite que 2 nouveaux fichiers Kotlin (~100 lignes total) et 1 ligne dans PlantumlManager. Aucune modification du code existant.
+
+'''
+
+== 🎯 Prochaine Session (120)
+
+* **Objectif** : Implémenter Phase 1 — dogfooding plantuml-gradle
+* **Tâches** :
+** Créer `GraphifyPromptAdapter.kt`
+** Créer `GenerateDiagramDocsTask.kt`
+** Enregistrer dans `PlantumlManager.Tasks`
+** Configurer `.graphifyignore`
+** Builder le graphe initial
+** Tester `./gradlew generateDiagramDocs`
+** Tester `./gradlew docs`
+** Écrire tests unitaires
+* **Score Roadmap** : 9.0/10
+
+'''
+
+== 🔗 Références
+
+* **Graphify** : https://github.com/safishamsi/graphify (32K stars)
+* **Ollama Cloud CI** : `.agents/sessions/118-ollama-cloud-ci-auth.adoc`
+* **Stratégie EAGER/LAZY** : `AGENT_METHODOLOGIES.adoc`, `AGENT_SESSION_MANAGER.adoc`
+* **Architecture plugin** : `.agents/ARCHITECTURE.adoc`
+* **Écosystème** : `.agents/ECOSYSTEM_OVERVIEW.adoc`

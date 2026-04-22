@@ -1,0 +1,11 @@
+= 📚 Index — PlantUML Gradle Plugin
+
+**Index principal** : `.agents/INDEX.adoc` — Règles absolues, roadmap, sessions, fichiers
+**Architecture** : `.agents/ARCHITECTURE.adoc` — Architecture code, décisions, pièges
+**Mission en cours** : `PROMPT_REPRISE.adoc` — Session 121
+
+'''
+
+Ce fichier est un pointeur. Le contenu à jour se trouve dans `.agents/INDEX.adoc`.
+
+**Voir** : `.agents/INDEX.adoc` pour toutes les informations projet.

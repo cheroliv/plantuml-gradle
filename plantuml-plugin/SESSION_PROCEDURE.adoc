@@ -1,0 +1,281 @@
+= 📝 Procédure de Session — PlantUML Gradle Plugin
+
+____
+**Objectif** : Procédures de mise à jour en fin de session
+____
+
+'''
+
+== 🔄 Mise à jour en fin de session
+
+=== 6 Étapes obligatoires — EXÉCUTION COMPLÈTE SANS EXCEPTION
+
+[IMPORTANT]
+====
+**RÈGLE ABSOLUE** : L'agent DOIT exécuter **TOUTES les 6 étapes** **SANS EXCEPTION et SANS OMISSION**.
+
+L'agent **NE DOIT JAMAIS** :
+
+* ❌ S'arrêter avant d'avoir complété les 6 étapes
+* ❌ Omettre une étape ("je ferai ça plus tard")
+* ❌ Demander "est-ce que je dois faire l'étape X ?" — la réponse est **TOUJOURS oui**
+* ❌ Considérer la procédure comme facultative
+* ❌ Afficher la checklist de confirmation sans avoir VÉRIFIÉ chaque fichier
+====
+
+. **Créer l'archive session** `.agents/sessions/{N}-{titre}.adoc`
+
+. **Mettre à jour `PROMPT_REPRISE.adoc`** pour la session N+1
+
+. **Mettre à jour `SESSIONS_HISTORY.adoc`** avec la session N
+
+. **Mettre à jour `INDEX.adoc`** (session en cours, roadmap, fichiers)
+
+. **Mettre à jour `TEST_COVERAGE_ANALYSIS.adoc`** si des tests ont été ajoutés/modifiés
+
+. **Mettre à jour `COMPLETED_TASKS_ARCHIVE.adoc`** `.agents/archives/COMPLETED_TASKS_ARCHIVE_{YYYY-MM}.adoc` avec les tâches réalisées, résultats et leçons apprises
+
+'''
+
+== ✅ Checklist de Confirmation Finale OBLIGATOIRE
+
+**L'agent DOIT afficher cette checklist APRÈS avoir exécuté les 6 étapes** :
+
+[source]
+----
+✅ Procédure de fin de session exécutée
+📋 Checklist :
+[✅] 1. Archive session N créée → .agents/sessions/{N}-{titre}.adoc
+[✅] 2. PROMPT_REPRISE.adoc mis à jour pour session N+1
+[✅] 3. SESSIONS_HISTORY.adoc mis à jour
+[✅] 4. INDEX.adoc mis à jour
+[✅] 5. TEST_COVERAGE_ANALYSIS.adoc mis à jour (si applicable)
+[✅] 6. COMPLETED_TASKS_ARCHIVE.adoc mis à jour
+----
+
+**AUCUNE étape ne peut être marquée [✅] si le fichier n'a pas été effectivement modifié et vérifié.**
+
+'''
+
+== 🧹 Nettoyage AGENTS.md — Vérification systématique
+
+**Objectif** : Identifier les sections à transférer vers d'autres fichiers pour alléger le contexte
+
+=== Étape 1 : Analyser le contenu actuel de AGENTS.md
+
+**Question** : Y a-t-il des sections trop détaillées ou redondantes ?
+
+|===
+| Section | Taille | Action
+
+| Contexte | ~6 lignes | ✅ Garder (essentiel)
+| Points d'attention | ~6 lignes | ✅ Garder (critique)
+| Architecture | ~28 lignes | ✅ Garder (essentiel)
+| État actuel | ~8 lignes | ✅ Garder (utile)
+| Autres sections | Variable | ⚠️ Vérifier redondance
+|===
+
+=== Étape 2 : Vérifier les transferts possibles
+
+**Fichiers de destination** :
+
+|===
+| Fichier | Rôle | Transferts acceptés
+
+| `AGENT_REFERENCE.adoc` | Commandes, providers, pièges, méthodologie | ✅ Sections techniques détaillées
+| `AGENT_METHODOLOGIES.adoc` | Mécanisme de proposition de méthodologie | ✅ Procédures de détection
+| `METHODOLOGIE_OPTIMISATION_TESTS.adoc` | Techniques d'optimisation | ✅ Exemples d'optimisation
+| `TEST_COVERAGE_ANALYSIS.adoc` | Couverture des tests unitaires | ✅ Statistiques de couverture
+| `EPIC_CONSOLIDATION_TESTS_FONCTIONNELS.adoc` | EPIC tests fonctionnels | ✅ Détails d'EPIC
+| `SESSION_PROCEDURE.adoc` | Procédure de fin de session | ✅ Références, procédures
+| `SESSIONS_HISTORY.adoc` | Historique des sessions | ✅ Détails de sessions
+| `COMPLETED_TASKS_ARCHIVE.adoc` | Archive des tâches | ✅ Résultats de sessions
+|===
+
+=== Étape 3 : Critères de transfert
+
+**Signes qu'un transfert est nécessaire** :
+
+* 🔴 AGENTS.md dépasse 100 lignes
+* 🔴 Sections trop détaillées (commandes, méthodologie, pièges)
+* 🔴 Redondance avec d'autres fichiers de référence
+* 🔴 Contenu qui peut être consulté "sur besoin" (pas "toujours")
+
+**Comment transférer** :
+
+. ✅ Identifier la section redondante dans AGENTS.md
+. ✅ Vérifier si un fichier dédié existe déjà (tableau ci-dessus)
+. ✅ Déplacer le contenu vers le fichier dédié
+. ✅ Remplacer par un renvoi court dans AGENTS.md (ex: "**Voir** : `AGENT_REFERENCE.adoc`")
+. ✅ Mettre à jour ce fichier (SESSION_PROCEDURE.adoc) avec le nouveau transfert
+
+=== Étape 4 : Exemple Session 45
+
+**Transferts effectués** :
+
+|===
+| Section | Fichier destination | Statut
+
+| "🛠 Décisions techniques" | AGENT_REFERENCE.adoc | ✅ Transféré
+| "🚀 Optimisation des tests" | AGENT_REFERENCE.adoc | ✅ Transféré
+| "📝 Méthodologie de travail" | AGENT_REFERENCE.adoc | ✅ Transféré
+| "📚 Références" | SESSION_PROCEDURE.adoc | ✅ Transféré
+| "📝 Mise à jour" | SESSION_PROCEDURE.adoc | ✅ Transféré
+|===
+
+**Résultat** : AGENTS.md 133 → 77 lignes (-42%)
+
+=== Étape 5 : Checklist de fin de vérification
+
+* [ ] AGENTS.md < 100 lignes (si le fichier existe)
+* [ ] Sections essentielles préservées (Contexte, Points d'attention, Architecture, État actuel)
+* [ ] Redondances transférées vers fichiers dédiés
+* [ ] Renvois courts ajoutés pour sections transférées
+* [ ] PROMPT_REPRISE.adoc mis à jour avec nouvelle mission
+
+'''
+
+== 📚 Références — Quand charger chaque fichier
+
+|===
+| Fichier | Rôle | Chargement
+
+| `AGENTS.md` | Architecture, décisions, méthodologie | **Toujours** (si existe)
+| `AGENT_REFERENCE.adoc` | Référence rapide (commandes, providers, pièges) | **Sur besoin**
+| `PROMPT_REPRISE.adoc` | Mission session en cours | **Début session**
+| `SESSIONS_HISTORY.adoc` | Historique complet sessions | **Sur besoin**
+| `COMPLETED_TASKS_ARCHIVE.adoc` | Archive tâches terminées | **Fin session**
+| `SESSION_PROCEDURE.adoc` | Procédure de fin de session | **Fin de session**
+|===
+
+'''
+
+== 🗂️ État des Fichiers de Mémoire
+
+**Objectif** : Permettre le transfert d'éléments depuis `AGENTS.md` vers d'autres fichiers
+
+|===
+| Fichier | Contenu | Taille | Transfert depuis AGENTS.md
+
+| `AGENTS.md` | Contexte, architecture, points d'attention, état actuel | ~77 lignes | **Source**
+| `AGENT_REFERENCE.adoc` | Commandes, providers LLM, méthodologie optimisation, pièges | ~410 lignes | ✅ Sections "Décisions techniques", "Optimisation des tests", "Méthodologie"
+| `SESSION_PROCEDURE.adoc` | Procédure fin de session, tableau des références | ~60 lignes | ✅ Sections "Références", "Mise à jour"
+| `PROMPT_REPRISE.adoc` | Mission session en cours, backlog | ~120 lignes | ❌ Indépendant
+| `SESSIONS_HISTORY.adoc` | Historique complet des sessions | Variable | ❌ Indépendant
+| `COMPLETED_TASKS_ARCHIVE.adoc` | Archive tâches terminées | Variable | ❌ Indépendant
+|===
+
+=== Quand transférer du contenu depuis `AGENTS.md`
+
+**Signes qu'un transfert est nécessaire** :
+
+* 🔴 `AGENTS.md` dépasse 100 lignes
+* 🔴 Sections trop détaillées (commandes, méthodologie, pièges)
+* 🔴 Redondance avec d'autres fichiers de référence
+
+**Comment transférer** :
+
+. ✅ Identifier la section redondante dans `AGENTS.md`
+. ✅ Vérifier si un fichier dédié existe déjà (`AGENT_REFERENCE.adoc`, `SESSION_PROCEDURE.adoc`)
+. ✅ Déplacer le contenu vers le fichier dédié
+. ✅ Remplacer par un renvoi court dans `AGENTS.md` (ex: "**Voir** : `AGENT_REFERENCE.adoc`")
+. ✅ Mettre à jour ce tableau avec le nouveau transfert
+
+'''
+
+== ⚠️ Git — INTERDICTION ABSOLUE
+
+* ❌ Pas de `git add`, `git commit`, `git push`, `git restore`, `git checkout`
+* ✅ C'est l'utilisateur qui gère Git manuellement
+
+'''
+
+== 🚨 Déclencheur de procédure
+
+**Mots-clés** : "nouvelle session", "je quitte", "session terminée", "à plus tard", "on arrête là", "fin de session"
+
+**Règle d'or** :
+
+* ❌ JAMAIS demander "Veux-tu que je...?"
+* ❌ JAMAIS expliquer avant de faire
+* ❌ JAMAIS répondre avant les 6 étapes terminées
+* ✅ FAIRE DIRECTEMENT les 6 étapes une par une
+* ✅ Afficher la checklist de confirmation à la fin
+
+'''
+
+== ⚠️ GARDE-FOU — Mise à jour PROMPT_REPRISE.adoc OBLIGATOIRE
+
+=== Problème identifié (Session 90)
+
+**Cause** : Commit effectué SANS mettre à jour `PROMPT_REPRISE.adoc` pour la session suivante.
+
+**Conséquence** : Fichier de reprise obsolète → confusion au chargement suivant.
+
+=== Nouvelle règle absolue (à vérifier AVANT tout commit de fin de session)
+
+[source]
+----
+✅ CHECKLIST OBLIGATOIRE AVANT COMMIT :
+
+[ ] 1. Archive session N créée dans .agents/sessions/{N}-{titre}.adoc
+[ ] 2. PROMPT_REPRISE.adoc mis à jour pour session N+1
+[ ] 3. Tags @wip retirés des features complétées
+[ ] 4. SESSIONS_HISTORY.adoc mis à jour
+[ ] 5. COMPLETED_TASKS_ARCHIVE.adoc mis à jour
+[ ] 6. INDEX.adoc mis à jour
+
+⚠️ SI [ ] 1 OU [ ] 2 est coché → INTERDICTION DE COMMITTRE
+----
+
+=== Comment appliquer
+
+**En fin de session** (avant `git commit`) :
+
+[source,kotlin]
+----
+// 1. Vérifier que PROMPT_REPRISE.adoc mentionne "Session N+1"
+val promptReprise = readFile("PROMPT_REPRISE.adoc")
+if (!promptReprise.contains("Session ${N+1}")) {
+    throw IllegalStateException("❌ PROMPT_REPRISE.adoc doit être mis à jour pour Session ${N+1} AVANT commit")
+}
+
+// 2. Vérifier que l'archive existe
+val archiveExists = fileExists(".agents/sessions/${N}-${titre}.adoc")
+if (!archiveExists) {
+    throw IllegalStateException("❌ Archive Session ${N} doit être créée AVANT commit")
+}
+
+// 3. Vérifier que COMPLETED_TASKS_ARCHIVE.adoc est à jour
+val archive = readFile(".agents/archives/COMPLETED_TASKS_ARCHIVE_${YYYY-MM}.adoc")
+if (!archive.contains("Session ${N}")) {
+    throw IllegalStateException("❌ COMPLETED_TASKS_ARCHIVE.adoc doit contenir Session ${N}")
+}
+
+// 4. SEULEMENT APRÈS → git commit autorisé
+----
+
+=== Sanction en cas d'oubli
+
+**Si oubli détecté au chargement suivant** :
+
+. ✅ Corriger IMMÉDIATEMENT (créer archive + mettre à jour PROMPT_REPRISE.adoc + COMPLETED_TASKS_ARCHIVE.adoc)
+. ✅ Ajouter un commentaire dans le commit suivant : `fix: complete Session N archival`
+. ✅ Documenter l'oubli dans `.agents/oubli-archivage-{date}.adoc` pour analyse
+
+'''
+
+== 📊 Fichiers à charger EAGERLY en début de session
+
+**Règle** : Ces fichiers DOIVENT être lus systématiquement au début de chaque session :
+
+|===
+| Fichier | Rôle | Priorité
+
+| `PROMPT_REPRISE.adoc` | Mission session en cours | 🔴 **CRITIQUE**
+| `INDEX.adoc` | Vue d'ensemble projet | 🟡 Haute
+| `SESSIONS_HISTORY.adoc` | 5 dernières sessions | 🟡 Haute
+| `COMPLETED_TASKS_ARCHIVE.adoc` | Contexte tâches récentes | 🟢 Moyenne
+|===
+
+**Vérification** : Si `PROMPT_REPRISE.adoc` n'est pas à jour avec la session actuelle → **BLOQUER** et corriger avant toute action.

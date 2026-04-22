@@ -1,0 +1,236 @@
+= 🌐 Écosystème Gradle-SaaS — Vue d'ensemble
+
+_Classification_ : 🟡 _LAZY_ — Ne charger que si le sujet émerge  
+_Dernière mise à jour_ : Session 118 (21 avril 2026)  
+_Statut_ : Document conceptuel (ne pas committer dans les repos publics)
+
+'''
+
+== ⚠️ Règles de Confidentialité
+
+|===
+| Projet | Licence | Visibilité | Documentation
+| _SaaS_ | Propriétaire | 🔒 _Privé_ | Fonctionnalités uniquement (pas d'implémentation)
+| _bakery-gradle_ | Apache 2 | ✅ Public | Complète
+| _slider-gradle_ | Apache 2 | ✅ Public | Complète
+| _plantuml-gradle_ | Apache 2 | ✅ Public | Complète
+| _training-gradle_ | Apache 2 | ✅ Public | Complète
+| _codebase-gradle_ | Apache 2 | ✅ Public | Complète
+| _newpipe-gradle_ | Apache 2 | ✅ Public | Complète
+| _jhipster-gradle-plugins_ | Apache 2 | ✅ Public | Complète
+| _readme-gradle_ | Apache 2 | ✅ Public | Complète
+|===
+
+_Règle_ : Ce document est _interne_ (`.agents/`), ne jamais committer dans les repos open source.
+
+'''
+
+== 🎯 Concept Global
+
+=== Architecture Écosystémique
+
+[source]
+----
+┌─────────────────────────────────────────────────────────────┐
+│                    ÉCOSYSTÈME GRADLE-SAAS                    │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  SaaS (plateforme)                                           │
+│  │                                                           │
+│  └──→ Génère du contenu via plugins Gradle                  │
+│       │                                                       │
+│       └──→ Processing déporté vers CI des utilisateurs       │
+│            │                                                  │
+│            └──→ Utilisateurs apportent :                      │
+│                 - Infrastructure (GitHub Actions)             │
+│                 - Comptes (Gmail, HF, Gemini, Ollama, etc.)  │
+│                 - Quotas (freemium/payants)                   │
+│                 - Clés API                                    │
+│                                                               │
+└─────────────────────────────────────────────────────────────┘
+----
+
+=== Modèle "Bring Your Own Infrastructure" (BYOI)
+
+|===
+| Acteur | Apport | Bénéfice
+| _SaaS_ | Plugins Gradle + orchestration | Coût marginal ~0
+| _Users_ | CI + comptes + quotas | Pas d'infra à gérer
+|===
+
+'''
+
+== Briques Gradle (Open Source)
+
+=== Core / Plateforme
+
+|===
+| Plugin | Rôle | Licence
+| _bakery-gradle_ | Core/plateforme, socle commun | Apache 2
+| _slider-gradle_ | UI/composants, interactions | Apache 2
+|===
+
+=== Fonctionnalités
+
+|===
+| Plugin | Rôle | Licence
+| _plantuml-gradle_ | Génération/validation diagrammes PlantUML | Apache 2
+| _training-gradle_ | Fine-tuning ML, dataset processing | Apache 2
+| _codebase-gradle_ | Analyse de code, metrics | Apache 2
+| _readme-gradle_ | Documentation automatique | Apache 2
+| _newpipe-gradle_ | (à définir) | Apache 2
+| _jhipster-gradle-plugins_ | Génération JHipster | Apache 2
+|===
+
+'''
+
+== 🏗️ Architecture Technique Commune
+
+=== Stack
+
+[source]
+----
+Gradle + Kotlin
+    ├── Langchain4j (abstraction LLM multi-provider)
+    ├── API Key Pool (rotation, quota tracking)
+    ├── R2DBC + PostgreSQL (optionnel, CI parallèle)
+    └── GitHub Actions (processing déporté)
+----
+
+=== Patterns Communs
+
+|===
+| Pattern | Usage
+| _API Key Pool_ | Rotation multi-comptes, quota tracking
+| _YAML → DB_ | Config versionnée → DB éphémère en CI
+| _Lazy/Eager_ | Contexte chargé à la demande
+| _Session Archives_ | `.agents/sessions/` pour traçabilité
+|===
+
+'''
+
+== Modèle Décentralisé
+
+=== Flux de Processing
+
+[source]
+----
+1. User push code → GitHub
+2. GitHub Actions déclenché
+3. Docker PostgreSQL éphémère hydraté (YAML)
+4. Plugin Gradle exécuté (Kotlin + R2DBC)
+5. LLM providers appelés (rotation auto)
+6. Résultats commités/pushés
+7. Docker détruit (pas de state persistant)
+----
+
+=== Avantages
+
+|===
+| Aspect | Bénéfice
+| _Scalabilité_ | N users = N pools indépendants
+| _Coût_ | Utilisateurs paient leurs quotas
+| _Résilience_ | Pas de single point of failure
+| _Confidentialité_ | Clés chez les users, pas centralisées
+|===
+
+'''
+
+== 🔐 Sécurité & Confidentialité
+
+=== SaaS (Plateforme)
+
+* 🔒 _Code source_ : Privé, non commité
+* 🔒 _Algorithmes_ : Secrets métier
+* ✅ _Fonctionnalités_ : Documentables publiquement
+* ✅ _API_ : Endpoints publics (si nécessaire)
+
+=== Plugins Gradle
+
+* ✅ _Code source_ : Apache 2, public
+* ✅ _Communauté_ : Contributions bienvenues
+* ✅ _Fork autorisé_ : Avec attribution
+* ❌ _Usage commercial_ : Possible (Apache 2)
+
+'''
+
+== 📁 Emplacements
+
+|===
+| Projet | Chemin | Visibilité
+| _SaaS_ | Non versionné | 🔒 Privé
+| _bakery-gradle_ | `/bakery-gradle` | ✅ Public
+| _slider-gradle_ | `/slider-gradle` | ✅ Public
+| _plantuml-gradle_ | `/plantuml-gradle` | ✅ Public
+| _training-gradle_ | `/training-gradle` | ✅ Public
+| _codebase-gradle_ | `/codebase-gradle` | ✅ Public
+| _newpipe-gradle_ | `/newpipe-gradle` | ✅ Public
+| _jhipster-gradle-plugins_ | `/jhipster-gradle-plugins` | ✅ Public
+| _readme-gradle_ | `/readme-gradle` | ✅ Public
+|===
+
+'''
+
+== Stratégie Open Source
+
+=== Objectifs
+
+. _Créer une communauté_ autour des plugins
+. _Empêcher le fork commercial_ via licence Apache 2 (attribution requise)
+. _Standardiser_ les formats de processing
+. _Attirer des contributeurs_ pour améliorer les plugins
+
+=== Ce qui est open source
+
+* ✅ Code des plugins Gradle
+* ✅ Documentation technique
+* ✅ Tests et CI
+* ✅ Issues et roadmap publique
+
+=== Ce qui reste privé
+
+* 🔒 SaaS (orchestration)
+* 🔒 Algorithmes métier
+* 🔒 Configuration production
+* 🔒 Clés API centralisées (si existantes)
+
+'''
+
+== 📈 Roadmap Écosystème
+
+|===
+| Phase | Objectif | Statut
+| _1. Plugins individuels_ | Chaque plugin fonctionnel isolément | 🟡 En cours
+| _2. Interopérabilité_ | Plugins communiquent entre eux | ⏳ Pending
+| _3. SaaS_ | Orchestration centralisée | 🔒 Privé
+| _4. Communauté_ | Contributors externes | ⏳ Pending
+| _5. Marketplace_ | Plugins tiers | ⏳ Vision long terme
+|===
+
+'''
+
+== 🔗 Références Internes
+
+* _`.agents/API_KEY_POOL_CONTEXT.adoc`_ — Pool de clés API rotatives
+* _`.agents/sessions/118-ollama-cloud-ci-auth.adoc`_ — Auth Ollama Cloud CI
+* _`.agents/INDEX.adoc`_ — Index des sessions
+* _`PROMPT_REPRISE.adoc`_ — Contexte de session courante
+
+'''
+
+== ⚠️ Notes de Confidentialité
+
+_Ce document_ :
+* 🟡 _LAZY_ : Ne charger que si le sujet émerge
+* 🔒 _Interne_ : Ne pas committer dans les repos publics
+* 📝 _Conceptuel_ : Pas de détails d'implémentation SaaS
+
+_Plugins Gradle_ :
+* ✅ _Public_ : Documentation complète autorisée
+* ✅ _Apache 2_ : Fork, modification, distribution autorisés
+* ✅ _Communauté_ : Contributions encouragées
+
+'''
+
+_Dernière mise à jour_ : Session 118 (21 avril 2026)  
+_Prochaine révision_ : Session 120+ (si écosystème évolue)

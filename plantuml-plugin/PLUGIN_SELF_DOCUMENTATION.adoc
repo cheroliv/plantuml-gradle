@@ -1,0 +1,752 @@
+= Plugin Gradients Intelligents — Patron de Généralisation
+:author: cheroliv
+:date: 2026-04-22
+:version: 1.0
+:lang: fr
+
+**Objectif** : Documenter comment intégrer le pipeline Graphify+OpenCode+LLM directement dans le cycle de développement du plugin `plantuml-gradle`, et comment généraliser ce patron aux autres plugins Gradle et applications Spring Boot de l'écosystème.
+
+***
+
+== Analyse de maturité du plugin plantuml-gradle
+
+.Le plugin est déjà un pipeline complet
+
+[cols="1,2,1", options="header"]
+|===
+| Composant | Ligne de code / Rôle | Testé
+| `LlmService` | Crée un ChatModel (7 providers : Ollama, OpenAI, Gemini, Mistral, Claude, HuggingFace, Groq) | 54 tests unitaires
+| `ApiKeyPool` | Rotation round-robin, least-used, fallback, quota tracking, audit logging | 8+ tests unitaires
+| `ConfigLoader` | Charge `plantuml-context.yml`, résout `${ENV_VARS}` | Testé (YAML parsing + merge)
+| `ConfigMerger` | Fusion CLI > YAML > defaults | Testé (branch coverage)
+| `DiagramProcessor` | Boucle itérative LLM → validation → correction (max 5 itérations) | 3+ tests (retry, error handling)
+| `PlantumlService` | Validation syntaxe (`@startuml/@enduml`), rendu PNG | Testé
+| `ValidatePlantumlSyntaxTask` | Tâche Gradle de validation | Testé
+| `ProcessPlantumlPromptsTask` | Tâche Gradle de génération | Testé
+| `ReindexPlantumlRagTask` | Tâche Gradle RAG (embeddings pgvector) | Testé
+|===
+
+**Bilan** : 17 fichiers source, 54 tests unitaires, 2 tests fonctionnels, 57 scénarios Cucumber. Le plugin est **production-ready**.
+
+=== Ce que le plugin fait déjà (et qu'on peut réutiliser)
+
+```
+Fichier .prompt           ────┐
+                               │
+Graphify subgraph (JSON) ─────┼──▶ LlmService.createChatModel()
+                               │         │
+                               │         ▼
+                               │   DiagramProcessor.processPrompt()
+                               │         │
+                               │         ├── LLM call (Qwen/GLM via ApiKeyPool)
+                               │         ├── PlantumlService.validateSyntax()
+                               │         ├── Retry loop (max 5 iterations)
+                               │         │
+                               │         ▼
+                               │   PlantumlService.generateImage()
+                               │         │
+                               │         ▼
+                               │   PNG/SVG + .puml file
+                               │
+                               │   + AttemptEntry archive (JSON)
+                               │   + RAG indexing (optional)
+                               └────────────────────────────────────┘
+```
+
+Le pipeline **existe déjà**. Il ne manque qu'un adaptateur d'entrée : au lieu de lire un `.prompt` fichier, lire un sous-graphe Graphify.
+
+***
+
+== Le saut conceptuel : de consommateur à producteur-documenté
+
+Le plugin `plantuml-gradle` est un **consommateur** de LLM : il prend un prompt textuel et produit un diagramme. L'intégration Graphify en fait aussi un **producteur-documenté** : le code source est transformé en knowledge graph, puis en diagrammes PlantUML par le plugin lui-même.
+
+[plantuml]
+....
+@startuml
+skinparam backgroundColor #FEFEFE
+skinparam componentStyle rectangle
+
+rectangle "AVANT — Consommateur seul" as before {
+    [Fichier .prompt\n(description textuelle)] as prompt
+    [LlmService\n+ ApiKeyPool] as llm1
+    [DiagramProcessor] as dp1
+    [Diagramme PNG\n(pour l'utilisateur)] as out1
+    prompt --> dp1 : lit
+    dp1 --> llm1 : chat()
+    llm1 --> dp1 : PlantUML code
+    dp1 --> out1 : render
+}
+
+rectangle "APRÈS — Consommateur + Producteur-documenté" as after {
+    [Code source Kotlin\n(le plugin lui-même)] as code
+    [Graphify\n(AST + LLM)] as graph
+    [ sous-graphe ciblé\n(ex: "service layer")] as subgraph
+    [Fichier .prompt\ngénéré automatiquement] as autoprompt
+    [LlmService\n+ ApiKeyPool] as llm2
+    [DiagramProcessor\n(même pipeline)] as dp2
+    [Diagramme PNG\n(documentation auto)] as out2
+
+    code --> graph : extrait
+    graph --> subgraph : query
+    subgraph --> autoprompt : convertit en .prompt
+    autoprompt --> dp2 : lit
+    dp2 --> llm2 : chat()
+    llm2 --> dp2 : PlantUML code
+    dp2 --> out2 : render
+}
+
+note across : Même LlmService, même ApiKeyPool, même DiagramProcessor,
+même ValidatePlantumlSyntaxTask — ZÉRO duplication de code
+
+@enduml
+....
+
+L'adaptateur est minimal : un composant qui convertit un sous-graphe Graphify en `.prompt` fichier. Le reste du pipeline est inchangé.
+
+***
+
+== Architecture : l'adaptateur GraphifyPromptAdapter
+
+=== Composant unique à ajouter
+
+Un seul fichier Kotlin : `GraphifyPromptAdapter.kt`
+
+[source,kotlin]
+----
+package plantuml.service
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import java.io.File
+
+/**
+ * Adapts Graphify knowledge graph subgraphs into .prompt files
+ * consumable by ProcessPlantumlPromptsTask.
+ *
+ * Bridges the gap between structural knowledge (graph.json)
+ * and the LLM prompt format expected by the existing pipeline.
+ */
+class GraphifyPromptAdapter(
+    private val graphFile: File,
+    private val promptsDir: File
+) {
+
+    private val mapper = ObjectMapper()
+
+    data class SubgraphResult(
+        val promptFile: File,
+        val communityName: String,
+        val nodes: List<String>,
+        val edges: List<String>
+    )
+
+    /**
+     * Extract a subgraph by community name and write a .prompt file.
+     *
+     * The prompt follows the same format as manual .prompt files,
+     * so [ProcessPlantumlPromptsTask] processes it identically.
+     */
+    fun generatePrompt(subgraphName: String): SubgraphResult {
+        val graph = mapper.readTree(graphFile)
+
+        // Find community matching subgraphName
+        val communities = graph.get("communities")
+        val community = communities?.find {
+            it.get("name")?.asText()?.contains(subgraphName, ignoreCase = true) == true
+        } ?: communities?.first()
+            ?: throw IllegalArgumentException("No community found for: $subgraphName")
+
+        val communityName = community.get("name").asText()
+        val nodes = community.get("nodes")?.map { it.asText() } ?: emptyList()
+        val edges = community.get("edges")?.map { it.asText() } ?: emptyList()
+
+        // Build .prompt content — same format as manual prompts
+        val promptContent = buildPrompt(communityName, nodes, edges)
+
+        // Write .prompt file to prompts directory
+        val promptFile = promptsDir.resolve("auto-${communityName.replace(" ", "-")}.prompt")
+        promptFile.writeText(promptContent)
+
+        return SubgraphResult(promptFile, communityName, nodes, edges)
+    }
+
+    /**
+     * Generate .prompt files for all communities in the graph.
+     */
+    fun generateAllPrompts(): List<SubgraphResult> {
+        val graph = mapper.readTree(graphFile)
+        val communities = graph.get("communities")
+            ?: throw IllegalArgumentException("No communities in graph")
+
+        return communities.map { community ->
+            val name = community.get("name").asText()
+            generatePrompt(name)
+        }
+    }
+
+    private fun buildPrompt(
+        communityName: String,
+        nodes: List<String>,
+        edges: List<String>
+    ): String {
+        return """
+        |Generate a PlantUML class diagram for the "$communityName" module of the plantuml-gradle plugin.
+        |
+        |Classes and their relationships:
+        |
+        |${nodes.joinToString("\n") { "- $it" }}
+        |
+        |Relationships:
+        |
+        |${edges.ifEmpty { listOf("(no explicit edges — infer from class names)") }.joinToString("\n") { "- $it" }}
+        |
+        |Requirements:
+        |- Use EXTRACTED relations only (ignore INFERRED)
+        |- Include class names with their key attributes
+        |- Use proper UML relations: -->, ..>, *--, o--
+        |- No style directives, no skinparam, no colors
+        |- Structure only, use French for labels where appropriate
+        |""".trimMargin()
+    }
+}
+----
+
+=== Points clés de l'adaptateur
+
+[arabic]
+. **Même format que les `.prompt` manuels** — Le pipeline existant traite les prompts auto-générés exactement comme les prompts manuels. Aucune modification de `ProcessPlantumlPromptsTask`.
+. **Même `LlmService`** — L'appel LLM passe par le même pool de clés API, la même rotation, le même audit. Aucune duplication.
+. **Même `DiagramProcessor`** — La boucle itérative (génération → validation → correction) est la même. Si le LLM génère du PlantUML invalide, il est corrigé automatiquement.
+. **Même `ValidatePlantumlSyntaxTask`** — La validation est la même, que le prompt vienne d'un fichier manuel ou d'un sous-graphe.
+. **Même `PlantumlService`** — Le rendu PNG/SVG est le même.
+
+L'adaptateur ne fait que convertir : `graph.json` → `.prompt` fichier → pipeline existant. **Zéro modification du code existant.**
+
+=== Nouvelle tâche Gradle : `generateDiagramDocs`
+
+[source,kotlin]
+----
+package plantuml.tasks
+
+import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
+import plantuml.service.GraphifyPromptAdapter
+import java.io.File
+
+@DisableCachingByDefault(
+    because = "Depends on Graphify output which may change"
+)
+abstract class GenerateDiagramDocsTask : DefaultTask() {
+
+    init {
+        group = "plantuml"
+        description = "Auto-generate PlantUML documentation diagrams from Graphify knowledge graph"
+    }
+
+    @TaskAction
+    fun generateDocs() {
+        val graphFile = project.rootDir.resolve("graphify-out/graph.json")
+        val promptsDir = project.rootDir.resolve("prompts")
+
+        if (!graphFile.exists()) {
+            throw GradleException(
+                "graphify-out/graph.json not found. Run /graphify . first."
+            )
+        }
+
+        promptsDir.mkdirs()
+
+        val adapter = GraphifyPromptAdapter(graphFile, promptsDir)
+
+        val generateAll = project.findProperty("plantuml.diagram.all")?.toString() == "true"
+        val subgraph = project.findProperty("plantuml.diagram.subgraph")?.toString()
+
+        val results = if (generateAll) {
+            adapter.generateAllPrompts()
+        } else {
+            listOf(adapter.generatePrompt(subgraph ?: "service layer"))
+        }
+
+        results.forEach { result ->
+            logger.lifecycle(
+                "Generated prompt: {} ({} nodes, {} edges)",
+                result.promptFile.name, result.nodes.size, result.edges.size
+            )
+        }
+
+        logger.lifecycle(
+            "Generated {} prompt(s). Run processPlantumlPrompts to render.",
+            results.size
+        )
+    }
+}
+----
+
+=== Enregistrement dans PlantumlManager
+
+Une seule ligne à ajouter :
+
+[source,kotlin]
+----
+object Tasks {
+    fun registerTasks(project: Project) {
+        project.tasks.register("processPlantumlPrompts", ProcessPlantumlPromptsTask::class.java)
+        project.tasks.register("validatePlantumlSyntax", ValidatePlantumlSyntaxTask::class.java)
+        project.tasks.register("reindexPlantumlRag", ReindexPlantumlRagTask::class.java)
+        project.tasks.register("generateDiagramDocs", GenerateDiagramDocsTask::class.java)  // NOUVEAU
+    }
+}
+----
+
+=== Cycle de vie Gradle complet
+
+[source,kotlin]
+----
+// Pipeline de documentation automatique
+tasks.register("docs") {
+    group = "plantuml"
+    description = "Full documentation pipeline: generate prompts + process + validate"
+    dependsOn("generateDiagramDocs")     // 1. graph.json → .prompt
+    dependsOn("processPlantumlPrompts")   // 2. .prompt → .puml → PNG
+    finalizedBy("validatePlantumlSyntax") // 3. validation
+    finalizedBy("reindexPlantumlRag")     // 4. RAG indexing (optionnel)
+}
+
+// Pipeline CI complet
+tasks.register("ciFullPipeline") {
+    group = "plantuml"
+    dependsOn("test")                     // tests unitaires
+    dependsOn("functionalTest")          // tests fonctionnels
+    dependsOn("docs")                     // documentation auto
+}
+----
+
+=== Utilisation en CLI
+
+[source,bash]
+----
+# Générer les prompts pour toutes les communautés
+./gradlew generateDiagramDocs -Pplantuml.diagram.all=true
+
+# Générer pour une communauté spécifique
+./gradlew generateDiagramDocs -Pplantuml.diagram.subgraph="service layer"
+
+# Pipeline complet : prompts → diagrammes → validation → RAG
+./gradlew docs
+
+# CI complet : tests + docs
+./gradlew ciFullPipeline
+----
+
+***
+
+== Le cycle vertueux complet en 7 étapes
+
+[plantuml]
+....
+@startuml
+skinparam backgroundColor #FEFEFE
+
+start
+
+partition "1. Code source (développeur)" {
+    :Écrit/modifie du code Kotlin;
+}
+
+partition "2. Graphify (structure)" {
+    :/graphify . --update\n(extraction AST + LLM);
+    :graph.json mis à jour\n(nouveaux nodes/edges);
+}
+
+partition "3. Adaptateur (pont)" {
+    :GraphifyPromptAdapter\nconvertit sous-graphe en .prompt;
+   note right: ZÉRO modification\ndu pipeline existant
+}
+
+partition "4. Plugin (production)" {
+    :ProcessPlantumlPromptsTask\nlit le .prompt auto-généré;
+    :LlmService + ApiKeyPool\nappelle GLM 5.1 / Qwen 3.5;
+    :DiagramProcessor\nboucle itérative + validation;
+    :PlantumlService\nrendu PNG/SVG;
+}
+
+partition "5. Validation (qualité)" {
+    :ValidatePlantumlSyntaxTask\nvérifie la syntaxe;
+}
+
+partition "6. RAG (capitalisation)" {
+    :ReindexPlantumlRagTask\nindexe les diagrammes\npour les futures requêtes;
+}
+
+partition "7. Feedback (enrichissement)" {
+    :Graphify ingestionne\nles PNG générés\n(extraction visuelle);
+    :Le graphe s'enrichit\navec les concepts du diagramme;
+}
+
+stop
+@enduml
+....
+
+Chaque étape réutilise un composant existant du plugin. Le seul nouveau code est `GraphifyPromptAdapter.kt` (~60 lignes) et `GenerateDiagramDocsTask.kt` (~40 lignes).
+
+***
+
+== Généralisation aux autres plugins Gradle
+
+=== Le patron réutilisable
+
+Chaque plugin Gradle de l'écosystème suit le même pattern :
+
+[cols="1,2,2", options="header"]
+|===
+| Étape | Ce que fait plantuml-gradle | Ce que ferait tout plugin
+| **Entrée** | `.prompt` fichier ou sous-graphe Graphify | Toute donnée structurée (YAML, JSON, DSL)
+| **LLM** | `LlmService` + `ApiKeyPool` (rotation, quota, audit) | **Même chose** — copié ou déplacé dans `bakery-gradle`
+| **Traitement** | `DiagramProcessor` (boucle itérative) | Chaque plugin a son processeur (doc, training, refactoring)
+| **Validation** | `ValidatePlantumlSyntaxTask` | Chaque plugin a sa validation
+| **Sortie** | `.puml` + PNG + JSON | Chaque plugin a ses sorties
+| **RAG** | `ReindexPlantumlRagTask` (pgvector) | **Même chose** — partageable
+|===
+
+=== bakery-gradle : le socle commun
+
+[plantuml]
+....
+@startuml
+skinparam backgroundColor #FEFEFE
+skinparam packageStyle rectangle
+
+package "bakery-gradle (socle)" as bakery {
+    [LlmService\n7 providers] as llm
+    [ApiKeyPool\nrotation + audit] as pool
+    [ConfigLoader\nYAML + env vars] as config
+    [ConfigMerger\nCLI > YAML > defaults] as merge
+    [GraphifyPromptAdapter\nsous-graphe → .prompt] as adapter
+    [DiagramProcessor\nboucle itérative] as diag
+    [QuotaTracker\n+ QuotaResetManager] as tracker
+    [PlantumlService\nvalidation + rendu] as plantuml
+}
+
+package "plantuml-gradle" as puml {
+    [ProcessPlantumlPromptsTask] as task1
+    [ValidatePlantumlSyntaxTask] as val1
+    [ReindexPlantumlRagTask] as rag1
+    [GenerateDiagramDocsTask] as docs1
+}
+
+package "training-gradle" as train {
+    [ProcessTrainingTask] as task2
+    [ValidateDatasetTask] as val2
+    [ReindexTrainingRagTask] as rag2
+    [GenerateDatasetDocsTask] as docs2
+}
+
+package "codebase-gradle" as code {
+    [AnalyzeCodeTask] as task3
+    [ValidateMetricsTask] as val3
+    [ReindexCodeRagTask] as rag3
+    [GenerateArchitectureDocsTask] as docs3
+}
+
+package "readme-gradle" as readme {
+    [GenerateReadmeTask] as task4
+    [ValidateReadmeTask] as val4
+    [ReindexDocsRagTask] as rag4
+    [GenerateReadmeDocsTask] as docs4
+}
+
+llm <-- task1
+llm <-- task2
+llm <-- task3
+llm <-- task4
+pool <-- llm
+config <-- task1
+adapter <-- docs1
+adapter <-- docs2
+adapter <-- docs3
+adapter <-- docs4
+
+note right of bakery
+  Chaque plugin hérite des mêmes
+  capabilities via bakery-gradle :
+  LLM multi-provider, rotation de clés,
+  validation, RAG, auto-documentation
+end note
+
+@enduml
+....
+
+=== Ce qui doit aller dans bakery-gradle
+
+[cols="1,2,1,2", options="header"]
+|===
+| Composant | Description | Actuellement dans | Destination
+| `LlmService` | Création ChatModel multi-provider | `plantuml-gradle/service/` | **bakery-gradle/service/**
+| `ApiKeyPool` | Rotation, quota, fallback, audit | `plantuml-gradle/apikey/` | **bakery-gradle/apikey/**
+| `QuotaTracker` + `QuotaResetManager` | Tracking et reset des quotas | `plantuml-gradle/apikey/` | **bakery-gradle/apikey/**
+| `QuotaAuditLogger` | Logging des rotations | `plantuml-gradle/apikey/` | **bakery-gradle/apikey/**
+| `ConfigLoader` | YAML + env vars | `plantuml-gradle/` | **bakery-gradle/**
+| `ConfigMerger` | CLI > YAML > defaults | `plantuml-gradle/` | **bakery-gradle/**
+| `GraphifyPromptAdapter` | Sous-graphe → .prompt | **NOUVEAU** | **bakery-gradle/service/**
+| `DiagramProcessor` | Boucle itérative LLM | `plantuml-gradle/service/` | **bakery-gradle/service/**
+| `PlantumlService` | Validation + rendu | `plantuml-gradle/service/` | **reste dans plantuml-gradle** (spécifique)
+|===
+
+=== Ce qui reste spécifique à chaque plugin
+
+[cols="1,2,2", options="header"]
+|===
+| Plugin | Composants spécifiques | Auto-documentation
+| **plantuml-gradle** | `PlantumlService`, `ValidatePlantumlSyntaxTask`, `ProcessPlantumlPromptsTask` | Diagrammes d'architecture des services, pool de clés, flux de configuration
+| **training-gradle** | `DatasetProcessor`, `FineTuningTask`, `ValidateDatasetTask` | Pipeline de fine-tuning, structure des datasets, modèles支持
+| **codebase-gradle** | `CodeAnalyzer`, `MetricsTask`, `ValidateMetricsTask` | Métriques de code, structure des modules, dépendances
+| **readme-gradle** | `ReadmeGenerator`, `ValidateReadmeTask` | Structure de la documentation, liens inter-modules
+| **slider-gradle** | Composants UI | Composants, interactions, flux utilisateur
+|===
+
+=== Patron de tâche GenerateXxxDocs
+
+Chaque plugin suit le même patron :
+
+[source,kotlin]
+----
+// Patron réutilisable pour tout plugin
+abstract class GenerateXxxDocsTask : DefaultTask() {
+
+    @TaskAction
+    fun generateDocs() {
+        // 1. Vérifier que graph.json existe
+        val graphFile = project.rootDir.resolve("graphify-out/graph.json")
+
+        // 2. Créer l'adaptateur (bakery-gradle)
+        val adapter = GraphifyPromptAdapter(graphFile, promptsDir)
+
+        // 3. Générer les prompts (patron spécifique)
+        val prompts = adapter.generateAllPrompts()
+
+        // 4. Le pipeline existant traite les prompts
+        //    (aucune modification nécessaire)
+    }
+}
+----
+
+=== Spring Boot : même patron, même socle
+
+Les applications Spring Boot de l'écosystème (le SaaS privé) peuvent réutiliser le même patron :
+
+[cols="1,2,3", options="header"]
+|===
+| Couche | Gradle Plugin | Spring Boot App
+| **Config** | `plantuml-context.yml` + `ConfigLoader` | `application.yml` + `@ConfigurationProperties`
+| **LLM** | `LlmService` + `ApiKeyPool` | **Même code** (bibliothèque partagée)
+| **Validation** | `ValidatePlantumlSyntaxTask` | `@Service` avec même logique
+| **RAG** | `ReindexPlantumlRagTask` (pgvector) | **Même code** (bibliothèque partagée)
+| **Auto-docs** | `GenerateDiagramDocsTask` | Endpoint REST `/api/docs/generate`
+| **Graphify** | CLI `/graphify` | Client HTTP vers service Graphify
+|===
+
+En Spring Boot, le patron devient :
+
+[source,kotlin]
+----
+@RestController
+@RequestMapping("/api/docs")
+class DocsController(
+    private val llmService: LlmService,      // même que plantuml-gradle
+    private val apiKeyPool: ApiKeyPool,        // même rotation
+    private val graphifyAdapter: GraphifyPromptAdapter  // même adaptateur
+) {
+
+    @PostMapping("/generate")
+    fun generateDocs(
+        @RequestParam subgraph: String,
+        @RequestParam model: String = "qwen3.5-cloud"
+    ): DocsResponse {
+        // Même pipeline, même ApiKeyPool, même LlmService
+        val prompt = graphifyAdapter.generatePrompt(subgraph)
+        val result = diagramProcessor.processPrompt(prompt)
+        return DocsResponse(result)
+    }
+}
+----
+
+***
+
+== Plan d'implémentation par phases
+
+=== Phase 1 : Dogfooding plantuml-gradle (session 119-120)
+
+[cols="1,2,3", options="header"]
+|===
+| # | Tâche | Détail
+| 1.1 | Créer `GraphifyPromptAdapter.kt` | 60 lignes, convertit sous-graphe → `.prompt`
+| 1.2 | Créer `GenerateDiagramDocsTask.kt` | 40 lignes, tâche Gradle
+| 1.3 | Enregistrer dans `PlantumlManager.Tasks` | 1 ligne
+| 1.4 | Configurer `.graphifyignore` | Exclure credentials, build, archives
+| 1.5 | Builder le graphe initial | `/graphify . --no-viz`
+| 1.6 | Tester `./gradlew generateDiagramDocs` | Vérifier les `.prompt` générés
+| 1.7 | Tester `./gradlew docs` | Pipeline complet : prompts → diagrammes → validation
+| 1.8 | Écrire tests unitaires pour `GraphifyPromptAdapter` | Mock `graph.json`, vérifier `.prompt` output
+|===
+
+=== Phase 2 : Extraction vers bakery-gradle (session 121-122)
+
+[cols="1,2,3", options="header"]
+|===
+| # | Tâche | Détail
+| 2.1 | Créer le module `bakery-gradle` | Structure Gradle multi-module
+| 2.2 | Déplacer `LlmService` | `plantuml/service/` → `bakery/service/`
+| 2.3 | Déplacer `ApiKeyPool` + `QuotaTracker` + `QuotaResetManager` + `QuotaAuditLogger` | `plantuml/apikey/` → `bakery/apikey/`
+| 2.4 | Déplacer `ConfigLoader` + `ConfigMerger` | `plantuml/` → `bakery/`
+| 2.5 | Déplacer `GraphifyPromptAdapter` | Nouveau → `bakery/service/`
+| 2.6 | Ajouter `bakery-gradle` comme dépendance de `plantuml-gradle` | `build.gradle.kts`
+| 2.7 | Vérifier tous les tests existants passent | 54 tests unitaires + 2 fonctionnels
+| 2.8 | Commit et push | Vérifier que rien n'est cassé
+|===
+
+=== Phase 3 : Application aux autres plugins (session 123+)
+
+[cols="1,2,3", options="header"]
+|===
+| # | Tâche | Détail
+| 3.1 | `training-gradle` : `GenerateDatasetDocsTask` | Même adaptateur, prompts spécifiques au fine-tuning
+| 3.2 | `codebase-gradle` : `GenerateArchitectureDocsTask` | Même adaptateur, prompts spécifiques aux métriques
+| 3.3 | `readme-gradle` : `GenerateReadmeDocsTask` | Même adaptateur, prompts spécifiques à la documentation
+| 3.4 | Chaque plugin : `./gradlew docs` | Pipeline auto-documentation pour chaque plugin
+| 3.5 | Chaque plugin : `.graphifyignore` | Exclure credentials et build
+| 3.6 | Intégration CI : `./gradlew ciFullPipeline` | Tests + docs + RAG dans chaque CI
+|===
+
+=== Phase 4 : Intégration Spring Boot (session 125+)
+
+[cols="1,2,3", options="header"]
+|===
+| # | Tâche | Détail
+| 4.1 | Créer `bakery-spring-boot-starter` | Auto-configuration Spring Boot pour LlmService + ApiKeyPool
+| 4.2 | Créer `DocsController` | REST endpoint pour génération de documentation
+| 4.3 | Intégrer Graphify côté serveur | Client HTTP vers service Graphify (ou CLI local)
+| 4.4 | Swagger/OpenAPI auto-généré | Les diagrammes documentent l'API elle-même
+|===
+
+***
+
+== Avantages de cette généralisation
+
+=== Pour plantuml-gradle (dogfooding immédiat)
+
+[cols="2,3", options="header"]
+|===
+| Avantage | Description
+| **Le plugin se documente lui-même** | Pas de diagramme manuel à maintenir
+| **Test en production réelle** | Chaque génération teste le pipeline LLM + validation + rendu
+| **Boucle de rétroaction** | Diagrammes → Graphify → graphe enrichi → meilleurs diagrammes
+| **ApiKeyPool exercé** | La rotation de clés est testée à chaque génération de docs
+| **91% d'économie de contexte** | L'agent lit 65 lignes (diagrammes + rapport) au lieu de 723 lignes (5 fichiers Kotlin)
+|===
+
+=== Pour l'écosystème (généralisation)
+
+[cols="2,3", options="header"]
+|===
+| Avantage | Description
+| **Socle commun bakery-gradle** | LlmService, ApiKeyPool, ConfigLoader partagés entre tous les plugins
+| **Patron reproductible** | Chaque plugin suit le même pattern : Graphify → Adaptateur → Pipeline existant
+| **Auto-documentation systématique** | Chaque plugin génère sa propre documentation UML
+| **CI/CD intégré** | `./gradlew ciFullPipeline` dans chaque plugin
+| **Spring Boot compatible** | Le même socle compile en bibliothèque Gradle ET en starter Spring Boot
+| **Maintenance centralisée** | Bug fix dans bakery-gradle → tous les plugins bénéficient
+|===
+
+=== Pour le SaaS (future plateforme)
+
+[cols="2,3", options="header"]
+|===
+| Avantage | Description
+| **Modèle BYOI vérifié** | Chaque plugin teste le pool de clés API en production
+| **Orchestration préparée** | Le SaaS orchestre les mêmes tâches Gradle via API REST
+| **RAG intégré** | Les diagrammes documentés sont indexés dans pgvector
+| **Dataset de fine-tuning** | Les paires (sous-graphe → diagramme) sont des données d'entraînement idéales
+|===
+
+***
+
+== Checklist d'implémentation — Phase 1
+
+[cols="1,3,1", options="header"]
+|===
+| # | Tâche | Statut
+| 1 | Installer Graphify + configurer `.graphifyignore` | ☐
+| 2 | Créer `GraphifyPromptAdapter.kt` dans `plantuml/service/` | ☐
+| 3 | Créer `GenerateDiagramDocsTask.kt` dans `plantuml/tasks/` | ☐
+| 4 | Ajouter `registerTasks` dans `PlantumlManager` | ☐
+| 5 | Ajouter configuration `diagramDocs` dans `models.kt` | ☐
+| 6 | Configurer `plantuml-context.yml` pour le modèle Ollama Cloud | ☐
+| 7 | Builder le graphe initial (`/graphify . --no-viz`) | ☐
+| 8 | Tester `./gradlew generateDiagramDocs -Pplantuml.diagram.subgraph="service layer"` | ☐
+| 9 | Tester `./gradlew docs` (pipeline complet) | ☐
+| 10 | Écrire tests unitaires pour `GraphifyPromptAdapter` | ☐
+| 11 | Écrire tests fonctionnels pour `GenerateDiagramDocsTask` | ☐
+| 12 | Vérifier `./gradlew check` (tous les tests passent) | ☐
+| 13 | Committer les diagrammes auto-générés dans `diagrams/auto/` | ☐
+| 14 | Mettre à jour `INDEX.adoc` avec la section architecture visuelle | ☐
+| 15 | Mettre à jour `GRAPHIFY_INTEGRATION.adoc` avec le retour d'expérience | ☐
+|===
+
+***
+
+== Résumé : les 4 couches du système auto-documenté
+
+[plantuml]
+....
+@startuml
+skinparam backgroundColor #FEFEFE
+skinparam packageStyle rectangle
+
+package "Couche 1 — Gouvernance\n(Stratégie EAGER/LAZY)" as couche1 {
+    [PROMPT_REPRISE.adoc] as pr
+    [INDEX.adoc] as idx
+    [AGENT_METHODOLOGIES.adoc] as meth
+}
+
+package "Couche 2 — Structure\n(Graphify)" as couche2 {
+    [graph.json] as graph
+    [GRAPH_REPORT.adoc] as report
+}
+
+package "Couche 3 — Production\n(Plugin plantuml-gradle)" as couche3 {
+    [GraphifyPromptAdapter\n(nouveau)] as adapter
+    [LlmService\n+ ApiKeyPool\n(existant)] as llm
+    [DiagramProcessor\n(existant)] as diag
+    [ValidatePlantumlSyntax\n(existant)] as validate
+}
+
+package "Couche 4 — Documentation\n(auto-générée)" as couche4 {
+    [diagrams/auto/\n*.puml + *.png] as diagrams
+    [RAG pgvector\n(indexé)] as rag
+}
+
+couche1 --> couche2 : Lit EAGER\n(GRAPH_REPORT.adoc)
+couche2 --> couche3 : Query\n(sous-graphe)
+couche3 --> couche4 : Produit\n(pipeline existant)
+couche4 --> couche2 : Feedback\n(Graphify ingestionne PNG)
+couche4 --> couche1 : Contexte visuel\n(EAGER léger)
+
+note right of adapter
+  Seul nouveau composant :
+  60 lignes Kotlin
+  Convertit sous-graphe
+  en .prompt existant
+end note
+
+note left of llm
+  Existant, inchangé :
+  Rotation de clés,
+  7 providers, audit,
+  ZÉRO duplication
+end note
+
+@enduml
+....
+
+**Le plugin se documente lui-même. Les autres plugins feront pareil. Le SaaS orchestrera tout via API.** Un seul adaptateur de 60 lignes, et tout le pipeline existant est réutilisé tel quel.

@@ -1,0 +1,26 @@
+# Credentials and secrets — NEVER in the graph
+*-context.yml
+*-context.example.yml
+*secret*
+*.env
+.env
+
+# Session archives — not code, already structured
+.agents/
+
+# Generated files
+build/
+generated/
+.gradle/
+.kotlin/
+
+# Test and dev artifacts
+test-project/
+dev-tools/
+*.iml
+*.iws
+*.ipr
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,51 @@
+= Changelog
+
+Tous les changements notables apportés à ce projet seront documentés dans ce fichier.
+
+Le format est basé sur link:https://keepachangelog.com/en/1.0.0/[Keep a Changelog],
+et ce projet adhère au versionnage sémantique link:https://semver.org/spec/v2.0.0.html[Semantic Versioning].
+
+== [Non publié]
+
+=== Ajouté
+
+* Support des fournisseurs LLM supplémentaires : Claude, HuggingFace, Groq
+* Configuration complète des fournisseurs LLM via YAML
+* Implémentation du service LlmService pour gérer les différents modèles
+* Tests d'intégration pour le plugin Gradle
+* Documentation complète dans le README.adoc
+* Fichiers de licence et de contribution
+
+=== Modifié
+
+* Amélioration de la tâche ProcessPlantumlPromptsTask avec intégration LangChain4j complète
+* Mise à jour de la tâche ValidatePlantumlSyntaxTask avec gestion d'erreurs
+* Amélioration de la tâche ReindexPlantumlRagTask avec support de base de données vectorielles
+* Refactorisation des services PlantumlService et DiagramProcessor
+* Mise à jour des dépendances Gradle avec support des nouveaux fournisseurs LLM
+
+=== Corrigé
+
+* Gestion améliorée des erreurs de validation de syntaxe PlantUML
+* Correctifs dans la configuration YAML
+* Améliorations de la robustesse des tâches Gradle
+
+== [1.2026.0] - 2026-04-02
+
+=== Ajouté
+
+* Version initiale du plugin PlantUML Gradle
+* Support de base pour Ollama, OpenAI, Gemini et Mistral
+* Tâches Gradle : processPlantumlPrompts, validatePlantumlSyntax, reindexPlantumlRag
+* Intégration LangChain4j de base
+* Support RAG avec indexation des diagrammes valides
+* Configuration via fichier YAML
+* Support Git pour le versioning des diagrammes générés
+
+=== Modifié
+
+* Structure du projet organisée selon les patterns architechturels établis
+* Documentation initiale dans AGENTS.md
+
+link:https://github.com/cheroliv/plantuml-gradle/compare/v1.2026.0...HEAD[Non publié]
+link:https://github.com/cheroliv/plantuml-gradle/releases/tag/v1.2026.0[1.2026.0]

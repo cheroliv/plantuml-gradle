@@ -18,7 +18,8 @@ object ConfigMerger {
             output = mergeOutputConfig(envConfig.output, propertiesConfig.output, yamlConfig.output, cliParams),
             langchain4j = mergeLangchain4jConfig(envConfig.langchain4j, propertiesConfig.langchain4j, yamlConfig.langchain4j, cliParams),
             git = mergeGitConfig(envConfig.git, propertiesConfig.git, yamlConfig.git, cliParams),
-            rag = mergeRagConfig(envConfig.rag, propertiesConfig.rag, yamlConfig.rag, cliParams)
+            rag = mergeRagConfig(envConfig.rag, propertiesConfig.rag, yamlConfig.rag, cliParams),
+            diagramDocs = mergeDiagramDocsConfig(envConfig.diagramDocs, propertiesConfig.diagramDocs, yamlConfig.diagramDocs, cliParams)
         )
     }
 
@@ -31,7 +32,8 @@ object ConfigMerger {
             output = mergeOutputConfig(envConfig.output, propertiesConfig.output, yamlConfig.output, cliParams),
             langchain4j = mergeLangchain4jConfig(envConfig.langchain4j, propertiesConfig.langchain4j, yamlConfig.langchain4j, cliParams),
             git = mergeGitConfig(envConfig.git, propertiesConfig.git, yamlConfig.git, cliParams),
-            rag = mergeRagConfig(envConfig.rag, propertiesConfig.rag, yamlConfig.rag, cliParams)
+            rag = mergeRagConfig(envConfig.rag, propertiesConfig.rag, yamlConfig.rag, cliParams),
+            diagramDocs = mergeDiagramDocsConfig(envConfig.diagramDocs, propertiesConfig.diagramDocs, yamlConfig.diagramDocs, cliParams)
         )
     }
 
@@ -127,6 +129,14 @@ object ConfigMerger {
                 username = env["PLANTUML_RAG_USERNAME"] ?: sysProps["PLANTUML_RAG_USERNAME"] ?: "",
                 password = env["PLANTUML_RAG_PASSWORD"] ?: sysProps["PLANTUML_RAG_PASSWORD"] ?: "",
                 tableName = env["PLANTUML_RAG_TABLE_NAME"] ?: sysProps["PLANTUML_RAG_TABLE_NAME"] ?: "embeddings"
+            ),
+            diagramDocs = DiagramDocsConfig(
+                enabled = env["PLANTUML_DIAGRAM_DOCS_ENABLED"]?.toBoolean() ?: sysProps["PLANTUML_DIAGRAM_DOCS_ENABLED"]?.toBoolean() ?: true,
+                outputDir = env["PLANTUML_DIAGRAM_DOCS_OUTPUT_DIR"] ?: sysProps["PLANTUML_DIAGRAM_DOCS_OUTPUT_DIR"] ?: "diagrams/auto",
+                subgraphs = env["PLANTUML_DIAGRAM_DOCS_SUBGRAPHS"]?.split(",")?.map { it.trim() }
+                    ?: sysProps["PLANTUML_DIAGRAM_DOCS_SUBGRAPHS"]?.split(",")?.map { it.trim() }
+                    ?: listOf("service layer", "config layer", "task layer", "model layer", "RAG"),
+                model = env["PLANTUML_DIAGRAM_DOCS_MODEL"] ?: sysProps["PLANTUML_DIAGRAM_DOCS_MODEL"] ?: "qwen3.5-cloud"
             )
         )
     }
@@ -200,6 +210,15 @@ object ConfigMerger {
                 username = props["plantuml.rag.username"] ?: "",
                 password = props["plantuml.rag.password"] ?: "",
                 tableName = props["plantuml.rag.tableName"] ?: "embeddings"
+            ),
+            diagramDocs = DiagramDocsConfig(
+                enabled = props["plantuml.diagramDocs.enabled"]?.toBoolean() ?: true,
+                outputDir = props["plantuml.diagramDocs.outputDir"] ?: "diagrams/auto",
+                subgraphs = props["plantuml.diagramDocs.subgraphs"]
+                    ?.split(",")
+                    ?.map { it.trim() }
+                    ?: listOf("service layer", "config layer", "task layer", "model layer", "RAG"),
+                model = props["plantuml.diagramDocs.model"] ?: "qwen3.5-cloud"
             )
         )
     }
@@ -283,6 +302,17 @@ object ConfigMerger {
             username = cli["rag.username"]?.toString() ?: (env.username.ifEmpty { yaml.username.ifEmpty { props.username } }),
             password = cli["rag.password"]?.toString() ?: (env.password.ifEmpty { yaml.password.ifEmpty { props.password } }),
             tableName = cli["rag.tableName"]?.toString() ?: (if (env.tableName != "embeddings") env.tableName else (if (yaml.tableName != "embeddings") yaml.tableName else props.tableName))
+        )
+    }
+
+    private val defaultSubgraphs = listOf("service layer", "config layer", "task layer", "model layer", "RAG")
+
+    private fun mergeDiagramDocsConfig(env: DiagramDocsConfig, props: DiagramDocsConfig, yaml: DiagramDocsConfig, cli: Map<String, Any?>): DiagramDocsConfig {
+        return DiagramDocsConfig(
+            enabled = cli["diagramDocs.enabled"]?.toString()?.toBoolean() ?: (if (!env.enabled) env.enabled else (if (!yaml.enabled) yaml.enabled else props.enabled)),
+            outputDir = cli["diagramDocs.outputDir"]?.toString() ?: (if (env.outputDir != "diagrams/auto") env.outputDir else (if (yaml.outputDir != "diagrams/auto") yaml.outputDir else props.outputDir)),
+            subgraphs = (cli["diagramDocs.subgraphs"] as? List<String>) ?: (if (env.subgraphs != defaultSubgraphs) env.subgraphs else (if (yaml.subgraphs != defaultSubgraphs) yaml.subgraphs else props.subgraphs)),
+            model = cli["diagramDocs.model"]?.toString() ?: (if (env.model != "qwen3.5-cloud") env.model else (if (yaml.model != "qwen3.5-cloud") yaml.model else props.model))
         )
     }
 }

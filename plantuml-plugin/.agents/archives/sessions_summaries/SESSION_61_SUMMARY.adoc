@@ -1,0 +1,176 @@
+= Session 61 — Optimisation Tests Fonctionnels (TERMINÉE)
+
+_Date_ : 2026-04-15  
+_Objectif_ : Réduire temps d'exécution des tests fonctionnels pour le développement quotidien
+
+'''
+
+== ✅ Contexte
+
+* _Session 60_ : Couverture 77,10% (stable) — _TERMINÉE_
+* _Problème_ : Tests fonctionnels = 56s (trop lent pour dév quotidien)
+* _Objectif_ : Ajouter tags `@Tag("quick")` et `@Tag("slow")` pour exécution sélective
+
+'''
+
+== ✅ Résultats
+
+* ✅ _42 tests fonctionnels_ : 36 PASS, 6 SKIP, 0 FAIL (100%)
+* ✅ _198 tests unitaires_ : 198/198 PASS (100%)
+* ✅ _Tags ajoutés_ : 36 tests tagués (18 quick + 18 slow)
+* ✅ _Temps d'exécution_ :
+  * _Dév quotidien_ : `./gradlew functionalTest --tests "_quick_"` → _~23s_ (-59%)
+  * _CI/Complete_ : `./gradlew functionalTest` → _~30s_ (-46%)
+
+'''
+
+== 📋 Modifications Session 61
+
+|===
+| Fichier | Action | Impact
+| --------|--------|--------
+| `PlantumlFunctionalSuite.kt` | ✅ Tags `@Tag("quick")` et `@Tag("slow")` ajoutés (36 tests) | Exécution sélective
+| `AGENTS.md` | ✅ Section commandes mises à jour | Documentation dév
+| `build.gradle.kts` | ❌ Parallel tests rejeté (risque OOM) | Non modifié
+|===
+
+---
+
+== 📊 Détail des tags
+
+=== Tests "quick" (18 tests — < 5s chacun)
+
+_PluginLifecycle_ (6 tests) :
+* ✅ should apply plugin successfully
+* ✅ should register all three tasks
+* ✅ should configure extension with yaml file
+* ✅ should expose plantuml extension in properties
+* ✅ help task should succeed with plugin applied
+* ✅ dry-run should list all plantuml tasks without executing them
+
+_LlmProviderConfiguration_ (1 test) :
+* ✅ should handle Ollama configuration correctly via WireMock
+
+_GradleSharedInstance_ (3 tests) :
+* ✅ help task should succeed with shared project
+* ✅ tasks --all should list all plantuml tasks
+* ✅ properties should include plantuml extension
+
+_PluginIntegration_ (5 tests) :
+* ✅ should register all three tasks
+* ✅ dry-run should list all tasks without failing
+* ✅ should validate a correct puml file
+* ✅ should fail on missing diagram file
+* ✅ should handle unicode content in puml files
+
+_LargeFileAndPath_ (2 tests) :
+* ✅ should handle special characters in filename
+* ✅ should handle unicode characters
+
+_NetworkTimeout_ (3 tests) :
+* ✅ should handle connection refused gracefully
+* ✅ should handle DNS resolution failure gracefully
+* ✅ should degrade gracefully with network issues
+
+_Performance_ (1 test) :
+* ✅ should validate syntax extremely quickly
+
+=== Tests "slow" (18 tests — > 10s chacun)
+
+_GradleSharedInstance_ (1 test) :
+* ⏱️ config yaml update should be picked up by subsequent build
+
+_PluginIntegration_ (6 tests) :
+* ⏱️ should succeed with pre-existing rag directory
+* ⏱️ should create rag directory when it does not exist
+* ⏱️ should report correct diagram count
+* ⏱️ should complete in test mode without calling real llm
+* ⏱️ command-line model parameter should override config
+* ⏱️ should handle empty prompts directory gracefully
+
+_FilePermission_ (4 tests) :
+* ⏱️ should handle read permission denied gracefully
+* ⏱️ should handle write permission denied gracefully
+* ⏱️ should handle directory permission denied gracefully
+* ⏱️ should handle nonexistent directory gracefully
+
+_LargeFileAndPath_ (2 tests) :
+* ⏱️ should handle large PlantUML file
+* ⏱️ should handle deeply nested paths
+
+_NetworkTimeout_ (1 test) :
+* ⏱️ should handle network timeout gracefully with slow server
+
+_Performance_ (3 tests) :
+* ⏱️ should process single prompt quickly
+* ⏱️ should validate multiple files quickly
+* ⏱️ should handle concurrent tasks efficiently
+
+=== Tests @Disabled (6 tests — cloud providers)
+
+* ⚠️ should handle Gemini configuration... (Requires real API credentials)
+* ⚠️ should handle Mistral configuration... (Requires real API credentials)
+* ⚠️ should handle OpenAI configuration... (Requires real API credentials)
+* ⚠️ should handle Claude configuration... (Requires real API credentials)
+* ⚠️ should handle HuggingFace configuration... (Requires real API credentials)
+* ⚠️ should handle Groq configuration... (Requires real API credentials)
+
+'''
+
+== 📈 Métriques de performance
+
+|===
+| Métrique | Avant | Après | Gain
+| ----------|-------|-------|------
+| **Temps total (CI)** | 56s | 30s | **-46%**
+| **Dév quotidien (quick)** | 56s | 23s | **-59%**
+| **Nombre de tests** | 42 | 42 | 0% (couverture préservée)
+| **Tests quick** | 0 | 18 | +18 tests rapides
+| **Tests slow** | 0 | 18 | +18 tests complets
+|===
+
+---
+
+== 🎯 Leçons apprises
+
+* ✅ _Tags JUnit5_ = moyen simple pour exécution sélective
+* ✅ _18 tests quick_ = 50% des tests en < 5s chacun
+* ✅ _Parallel tests rejeté_ : Risque OOM avec GradleRunner multiples
+* ✅ _Configuration cache_ : Option supplémentaire (~10s de gain)
+
+'''
+
+== 📝 Commandes utiles (mises à jour dans AGENTS.md)
+
+[source,bash]
+----
+# Dév quotidien — tests rapides
+./gradlew functionalTest --tests "*quick*"     # ~23s
+
+# Validation complète — tous les tests
+./gradlew functionalTest                       # ~30s
+
+# Tests lents uniquement (RAG, permissions, network)
+./gradlew functionalTest --tests "*slow*"      # ~15s
+
+# Avec configuration cache (encore plus rapide)
+./gradlew functionalTest --configuration-cache
+----
+
+'''
+
+== 🎯 Prochaine Session (62)
+
+_Objectif_ : Revenir à l'objectif initial de la Session 61  
+_EPIC_ : 1 — Performance & Stabilité  
+_Story 1.6_ : Tester `PlantumlManager` nested class  
+_Fichier cible_ : `PlantumlManager.kt` + tests unitaires  
+_Critère_ : Couverture méthodes non couvertes = 100%
+
+_Note_ : La Session 61 a été détournée pour optimisation des tests fonctionnels.  
+La Story 1.6 est _toujours à faire_ et sera traitée en Session 62.
+
+'''
+
+_Session 61_ : ✅ TERMINÉE  
+_Prochaine session_ : Session 62 — Story 1.6 (PlantumlManager coverage)

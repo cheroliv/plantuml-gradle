@@ -1,0 +1,603 @@
+= Troubleshooting Guide — PlantUML Gradle Plugin
+
+____
+_Version_: 1.0.0
+_Last Updated_: April 2026
+____
+
+Common issues and solutions for the PlantUML Gradle Plugin.
+
+'''
+
+== Table of Contents
+
+. link:#1-plugin-not-found--how-to-apply-the-plugin["Plugin not found" — How to apply the plugin?]
+. link:#2-task-not-found--why-tasks-dont-appear["Task not found" — Why tasks don't appear?]
+. link:#3-connection-refused--llm-not-responding["Connection refused" — LLM not responding]
+. link:#4-timeout--llm-request-too-slow["Timeout" — LLM request too slow]
+. link:#5-rag-directory-not-found--missing-rag-index["RAG directory not found" — Missing RAG index]
+. link:#6-permission-denied--files-not-readable["Permission denied" — Files not readable]
+. link:#7-json-parsing-error--malformed-prompt["JSON parsing error" — Malformed prompt]
+. link:#8-plantuml-syntax-error--invalid-diagram["PlantUML syntax error" — Invalid diagram]
+. link:#9-out-of-memory--gradle-lacks-memory["Out of memory" — Gradle lacks memory]
+. link:#10-configuration-not-loaded--yamlproperties-ignored["Configuration not loaded" — YAML/properties ignored]
+
+'''
+
+== 1. "Plugin not found" — How to apply the plugin?
+
+=== Symptom
+[source]
+----
+Plugin [id: 'com.cheroliv.plantuml'] was not found in any of the following sources
+----
+
+=== Solution
+
+_Step 1_: Add plugin to `settings.gradle.kts` (recommended):
+[source,kotlin]
+----
+pluginManagement {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+plugins {
+    id("com.cheroliv.plantuml") version "1.0.0"
+}
+----
+
+_Step 2_: Apply in `build.gradle.kts`:
+[source,kotlin]
+----
+plugins {
+    id("com.cheroliv.plantuml") version "1.0.0"
+}
+----
+
+_Alternative_: Apply in `build.gradle` (Groovy):
+[source,groovy]
+----
+plugins {
+    id 'com.cheroliv.plantuml' version '1.0.0'
+}
+----
+
+_Verify_:
+[source,bash]
+----
+./gradlew tasks --all | grep plantuml
+----
+
+'''
+
+== 2. "Task not found" — Why tasks don't appear?
+
+=== Symptom
+[source]
+----
+Task 'processPlantumlPrompts' not found in root project
+----
+
+=== Solution
+
+_Step 1_: Verify plugin is applied:
+[source,bash]
+----
+./gradlew tasks --all | grep plantuml
+----
+
+Expected output:
+[source]
+----
+PlantUML tasks
+    processPlantumlPrompts
+    validatePlantumlSyntax
+    reindexPlantumlRag
+----
+
+_Step 2_: Check `build.gradle.kts`:
+[source,kotlin]
+----
+plugins {
+    id("com.cheroliv.plantuml") version "1.0.0"
+}
+----
+
+_Step 3_: Refresh Gradle:
+[source,bash]
+----
+./gradlew --stop
+./gradlew tasks --all
+----
+
+_Step 4_: Verify configuration:
+[source,kotlin]
+----
+plantuml {
+    prompts {
+        inputDirectory.set(file("prompts"))
+        outputDirectory.set(file("generated"))
+    }
+}
+----
+
+'''
+
+== 3. "Connection refused" — LLM not responding
+
+=== Symptom
+[source]
+----
+java.net.ConnectException: Connection refused
+----
+
+=== Solution
+
+_For Ollama (local)_:
+
+_Step 1_: Check Ollama is running:
+[source,bash]
+----
+ollama list
+----
+
+_Step 2_: Start Ollama if needed:
+[source,bash]
+----
+ollama serve
+----
+
+_Step 3_: Verify model is available:
+[source,bash]
+----
+ollama list | grep <model-name>
+----
+
+_Step 4_: Pull model if missing:
+[source,bash]
+----
+ollama pull <model-name>
+----
+
+_Step 5_: Check configuration (`plantuml-context.yml`):
+[source,yaml]
+----
+langchain:
+  provider: ollama
+  ollama:
+    baseUrl: http://localhost:11434
+    model: llama3.2
+----
+
+_For Cloud Providers_ (OpenAI, Anthropic, etc.):
+
+_Step 1_: Verify API key:
+[source,yaml]
+----
+langchain:
+  apiKey: ${OPENAI_API_KEY}
+----
+
+_Step 2_: Set environment variable:
+[source,bash]
+----
+export OPENAI_API_KEY="your-key-here"
+----
+
+_Step 3_: Test connectivity:
+[source,bash]
+----
+curl https://api.openai.com/v1/models -H "Authorization: Bearer $OPENAI_API_KEY"
+----
+
+'''
+
+== 4. "Timeout" — LLM request too slow
+
+=== Symptom
+[source]
+----
+java.util.concurrent.TimeoutException: Request timed out
+----
+
+=== Solution
+
+_Step 1_: Increase timeout in configuration:
+[source,yaml]
+----
+langchain:
+  timeout: 120  # seconds (default: 60)
+----
+
+_Step 2_: For local LLM (Ollama), use lighter model:
+[source,bash]
+----
+ollama pull llama3.2:1b  # or smollm:135m
+----
+
+_Step 3_: Update config:
+[source,yaml]
+----
+langchain:
+  model: smollm:135m
+  timeout: 180
+----
+
+_Step 4_: Increase Gradle timeout:
+[source,kotlin]
+----
+// gradle.properties
+org.gradle.jvmargs=-Xmx4g -Dorg.gradle.internal.http.connectionTimeout=180000 -Dorg.gradle.internal.http.socketTimeout=180000
+----
+
+_Step 5_: Run with info logging:
+[source,bash]
+----
+./gradlew processPlantumlPrompts --info
+----
+
+'''
+
+== 5. "RAG directory not found" — Missing RAG index
+
+=== Symptom
+[source]
+----
+java.io.FileNotFoundException: RAG directory does not exist
+----
+
+=== Solution
+
+_Step 1_: Create RAG directory:
+[source,bash]
+----
+mkdir -p plantuml-plugin/rag
+----
+
+_Step 2_: Configure in `plantuml-context.yml`:
+[source,yaml]
+----
+rag:
+  enabled: true
+  directory: /absolute/path/to/rag
+----
+
+_Step 3_: Or use relative path in `build.gradle.kts`:
+[source,kotlin]
+----
+plantuml {
+    rag {
+        enabled.set(true)
+        directory.set(file("rag"))
+    }
+}
+----
+
+_Step 4_: Run reindex task:
+[source,bash]
+----
+./gradlew reindexPlantumlRag
+----
+
+_Step 5_: Verify index:
+[source,bash]
+----
+ls -la rag/
+----
+
+'''
+
+== 6. "Permission denied" — Files not readable
+
+=== Symptom
+[source]
+----
+java.nio.file.AccessDeniedException: /path/to/file
+----
+
+=== Solution
+
+_Step 1_: Check file permissions:
+[source,bash]
+----
+ls -la prompts/
+----
+
+_Step 2_: Fix permissions:
+[source,bash]
+----
+chmod 644 prompts/*.prompt
+chmod 755 prompts/
+----
+
+_Step 3_: For output directory:
+[source,bash]
+----
+chmod 755 generated/
+----
+
+_Step 4_: Verify user ownership:
+[source,bash]
+----
+chown -R $USER:$USER prompts/ generated/
+----
+
+_Step 5_: On Windows (PowerShell):
+[source,powershell]
+----
+icacls prompts /grant Users:R /T
+icacls generated /grant Users:RW /T
+----
+
+_Step 6_: Configure in `build.gradle.kts`:
+[source,kotlin]
+----
+plantuml {
+    prompts {
+        inputDirectory.set(file("prompts"))
+        outputDirectory.set(file("generated"))
+    }
+}
+----
+
+Ensure paths are relative to project root.
+
+'''
+
+== 7. "JSON parsing error" — Malformed prompt
+
+=== Symptom
+[source]
+----
+com.fasterxml.jackson.core.JsonParseException: Unexpected character
+----
+
+=== Solution
+
+_Step 1_: Verify prompt format:
+[source,plantuml]
+----
+@startuml
+' JSON: {"context": "description", "requirements": ["list"]}
+class Diagram {
+    +name: String
+}
+@enduml
+----
+
+_Step 2_: Check JSON syntax (must be valid):
+[source,json]
+----
+{
+  "context": "valid description",
+  "requirements": ["item1", "item2"]
+}
+----
+
+_Step 3_: Escape special characters:
+[source,plantuml]
+----
+' JSON: {"context": "description with \"quotes\""}
+----
+
+_Step 4_: Use YAML alternative:
+[source,plantuml]
+----
+@startuml
+' YAML:
+' context: description
+' requirements:
+'   - item1
+'   - item2
+class Diagram { }
+@enduml
+----
+
+_Step 5_: Validate with online tool:
+* https://jsonlint.com/
+
+'''
+
+== 8. "PlantUML syntax error" — Invalid diagram
+
+=== Symptom
+[source]
+----
+PlantUML syntax error: Unexpected token
+----
+
+=== Solution
+
+_Step 1_: Run validation task:
+[source,bash]
+----
+./gradlew validatePlantumlSyntax
+----
+
+_Step 2_: Check common errors:
+* Missing `@startuml` or `@enduml`
+* Unclosed brackets `{ }`
+* Invalid keywords
+
+_Step 3_: Use online validator:
+* https://www.plantuml.com/plantuml/
+
+_Step 4_: Fix syntax:
+[source,plantuml]
+----
+@startuml  ' ✅ Required
+class User {
+    +name: String
+    +email: String
+}  ' ✅ Closing brace
+
+interface Service {
+    +execute(): void
+}
+
+User --> Service  ' ✅ Valid relationship
+@enduml  ' ✅ Required
+----
+
+_Step 5_: Check output logs:
+[source,bash]
+----
+./gradlew processPlantumlPrompts --stacktrace
+----
+
+'''
+
+== 9. "Out of memory" — Gradle lacks memory
+
+=== Symptom
+[source]
+----
+java.lang.OutOfMemoryError: Java heap space
+----
+
+=== Solution
+
+_Step 1_: Increase Gradle heap in `gradle.properties`:
+[source,properties]
+----
+org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g
+----
+
+_Step 2_: For large projects:
+[source,properties]
+----
+org.gradle.jvmargs=-Xmx8g -XX:MaxMetaspaceSize=2g -XX:+HeapDumpOnOutOfMemoryError
+----
+
+_Step 3_: Stop Gradle daemon:
+[source,bash]
+----
+./gradlew --stop
+----
+
+_Step 4_: Restart with new settings:
+[source,bash]
+----
+./gradlew processPlantumlPrompts
+----
+
+_Step 5_: Monitor memory:
+[source,bash]
+----
+./gradlew processPlantumlPrompts --profile
+----
+
+_Step 6_: Reduce batch size (if processing many files):
+[source,kotlin]
+----
+plantuml {
+    processing {
+        batchSize.set(10)  // default: 50
+    }
+}
+----
+
+'''
+
+== 10. "Configuration not loaded" — YAML/properties ignored
+
+=== Symptom
+Plugin uses default settings despite custom configuration.
+
+=== Solution
+
+_Step 1_: Verify file location:
+[source]
+----
+project-root/
+├── plantuml-context.yml      ' ✅ Correct
+├── build.gradle.kts
+└── settings.gradle.kts
+----
+
+_Step 2_: Check file name (exact match required):
+* `plantuml-context.yml` ✅
+* `plantuml-context.yaml` ✅
+* `config.yml` ❌
+
+_Step 3_: Verify YAML syntax:
+[source,yaml]
+----
+langchain:
+  provider: ollama
+  timeout: 60
+----
+
+_Step 4_: Validate with linter:
+[source,bash]
+----
+yamllint plantuml-context.yml
+----
+
+_Step 5_: Use environment variables:
+[source,yaml]
+----
+langchain:
+  apiKey: ${OPENAI_API_KEY}
+----
+
+_Step 6_: Set in shell:
+[source,bash]
+----
+export OPENAI_API_KEY="your-key"
+----
+
+_Step 7_: Override in `build.gradle.kts`:
+[source,kotlin]
+----
+plantuml {
+    langchain {
+        provider.set("ollama")
+        timeout.set(120)
+    }
+}
+----
+
+_Step 8_: Check configuration is loaded:
+[source,bash]
+----
+./gradlew processPlantumlPrompts --info | grep "Loading config"
+----
+
+'''
+
+== Additional Resources
+
+* _Documentation_: `README_truth.adoc`
+* _Examples_: `prompts/` directory
+* _Issues_: https://github.com/anomalyco/plantuml-gradle/issues
+* _Discussions_: https://github.com/anomalyco/plantuml-gradle/discussions
+
+'''
+
+== Getting Help
+
+If your issue is not listed:
+
+. _Check logs_:
+[source,bash]
+----
+   ./gradlew <task> --stacktrace
+   ./gradlew <task> --info
+----
+
+. _Search existing issues_:
+   https://github.com/anomalyco/plantuml-gradle/issues
+
+. _Create new issue_ with:
+   * Gradle version
+   * Plugin version
+   * Configuration (redact secrets)
+   * Full error message
+   * Steps to reproduce
+
+. _Community support_:
+   https://github.com/anomalyco/plantuml-gradle/discussions

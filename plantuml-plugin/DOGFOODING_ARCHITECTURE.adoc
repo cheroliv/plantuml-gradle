@@ -1,0 +1,307 @@
+= Dogfooding Architecture — Phase 1 Implementation
+:author: cheroliv
+:date: 2026-04-22
+:version: 1.0
+:lang: en
+
+**Goal**: Document the architecture and implementation details for Phase 1 — making the `plantuml-gradle` plugin document itself via Graphify.
+
+***
+
+== Overview
+
+The plugin already processes `.prompt` files through a complete LLM pipeline:
+
+```
+.prompt file → LlmService → DiagramProcessor → PlantumlService → PNG + .puml
+```
+
+Phase 1 adds a single adapter (`GraphifyPromptAdapter`) that converts Graphify knowledge graph subgraphs into `.prompt` files, enabling the plugin to document its own code. The existing pipeline is **unchanged**.
+
+[plantuml]
+....
+@startuml
+skinparam backgroundColor #FEFEFE
+skinparam componentStyle rectangle
+
+rectangle "NEW — Graphify Bridge" as bridge {
+    [graph.json\n(Graphify output)] as graph
+    [GraphifyPromptAdapter\n(~60 lines)] as adapter
+}
+
+rectangle "EXISTING — Plugin Pipeline (UNCHANGED)" as pipeline {
+    [.prompt file] as prompt
+    [LlmService\n+ ApiKeyPool] as llm
+    [DiagramProcessor\n(iterative loop)] as dp
+    [PlantumlService\n(validate + render)] as ps
+}
+
+rectangle "Output" as output {
+    [diagrams/auto/\n*.puml + *.png] as out
+    [AttemptEntry\narchive JSON] as archive
+}
+
+graph --> adapter : read communities
+adapter --> prompt : write .prompt
+prompt --> dp : read
+dp --> llm : chat()
+llm --> dp : PlantUML code
+dp --> ps : validate + render
+ps --> out : write
+ps --> archive : write
+
+note right of adapter
+  Only new component:
+  converts subgraph → .prompt
+  ZERO modification of
+  existing pipeline
+end note
+
+@enduml
+....
+
+***
+
+== New Components
+
+=== GraphifyPromptAdapter
+
+*Package*: `plantuml.service`
+*File*: `src/main/kotlin/plantuml/service/GraphifyPromptAdapter.kt`
+*Size*: ~60 lines
+
+Responsibilities:
+
+. Read `graphify-out/graph.json` (Graphify output)
+. Find a community matching a subgraph name (e.g., "service layer")
+. Convert the community's nodes and edges into a `.prompt` file
+. Use the same `.prompt` format that manual prompts use, so `ProcessPlantumlPromptsTask` processes them identically
+
+[cols="1,2", options="header"]
+|===
+| Method | Description
+| `generatePrompt(subgraphName): SubgraphResult` | Extract a single community as `.prompt`
+| `generateAllPrompts(): List<SubgraphResult>` | Generate `.prompt` for all communities
+|===
+
+The adapter reads `graph.json` structure:
+
+[source,json]
+----
+{
+  "communities": [
+    {
+      "name": "service layer",
+      "nodes": ["LlmService", "DiagramProcessor", "PlantumlService"],
+      "edges": ["LlmService --> DiagramProcessor", "..."]
+    }
+  ]
+}
+----
+
+And produces a `.prompt` file:
+
+[source]
+----
+Generate a PlantUML class diagram for the "service layer" module.
+
+Classes and their relationships:
+- LlmService
+- DiagramProcessor
+- PlantumlService
+
+Relationships:
+- LlmService --> DiagramProcessor
+- ...
+
+Requirements:
+- Use EXTRACTED relations only (ignore INFERRED)
+- Include class names with their key attributes
+- Use proper UML relations: -->, ..>, *--, o--
+- No style directives, no skinparam, no colors
+- Structure only
+----
+
+=== GenerateDiagramDocsTask
+
+*Package*: `plantuml.tasks`
+*File*: `src/main/kotlin/plantuml/tasks/GenerateDiagramDocsTask.kt`
+*Size*: ~40 lines
+
+Gradle task that orchestrates the adapter:
+
+. Checks that `graphify-out/graph.json` exists
+. Creates the prompts directory
+. Calls `GraphifyPromptAdapter` based on CLI parameters
+. Reports generated prompts
+
+CLI usage:
+
+[source,bash]
+----
+# Generate for a specific subgraph
+./gradlew generateDiagramDocs -Pplantuml.diagram.subgraph="service layer"
+
+# Generate for all communities
+./gradlew generateDiagramDocs -Pplantuml.diagram.all=true
+----
+
+=== DiagramDocsConfig (in models.kt)
+
+Configuration for the diagram docs feature:
+
+[source,kotlin]
+----
+data class DiagramDocsConfig(
+    val enabled: Boolean = true,
+    val outputDir: String = "diagrams/auto",
+    val subgraphs: List<String> = listOf(
+        "service layer", "config layer", "task layer", "model layer", "RAG"
+    ),
+    val model: String = "qwen3.5-cloud"
+)
+----
+
+This is added to `PlantumlConfig` as a new field:
+
+[source,kotlin]
+----
+data class PlantumlConfig(
+    val input: InputConfig = InputConfig(),
+    val output: OutputConfig = OutputConfig(),
+    val langchain4j: LangchainConfig = LangchainConfig(),
+    val git: GitConfig = GitConfig(),
+    val rag: RagConfig = RagConfig(),
+    val diagramDocs: DiagramDocsConfig = DiagramDocsConfig()  // NEW
+)
+----
+
+=== Registration in PlantumlManager
+
+One line to add:
+
+[source,kotlin]
+----
+project.tasks.register("generateDiagramDocs", GenerateDiagramDocsTask::class.java)
+----
+
+=== Full pipeline lifecycle task
+
+A `docs` task is registered that chains all steps:
+
+[source,kotlin]
+----
+tasks.register("docs") {
+    dependsOn("generateDiagramDocs")
+    dependsOn("processPlantumlPrompts")
+    finalizedBy("validatePlantumlSyntax")
+}
+----
+
+=== .graphifyignore
+
+[source,gitignore]
+----
+# Credentials and secrets — NEVER in the graph
+*-context.yml
+*-context.example.yml
+*secret*
+*.env
+.env
+
+# Session archives — not code, already structured
+.agents/
+
+# Generated files
+build/
+generated/
+.gradle/
+.kotlin/
+----
+
+***
+
+== Test Strategy
+
+=== GraphifyPromptAdapterTest
+
+Unit tests with mocked `graph.json`:
+
+. `should generate prompt for single subgraph` — Mock JSON with one community, verify `.prompt` content
+. `should generate prompts for all communities` — Mock JSON with multiple communities, verify multiple `.prompt` files
+. `should throw when graph.json not found` — Verify exception on missing file
+. `should throw when no community matches` — Verify exception when subgraph name doesn't match
+. `should use first community as fallback` — Verify fallback to first community
+. `should handle empty edges list` — Verify prompt still generated with no edges
+
+=== GenerateDiagramDocsTaskTest
+
+Integration tests using GradleTestKit:
+
+. `should generate prompts from graph.json` — Full task execution
+. `should fail when graph.json missing` — Verify helpful error message
+. `should respect plantuml.diagram.subgraph property` — Verify CLI override
+. `should generate all prompts when plantuml.diagram.all=true` — Verify bulk mode
+
+=== Existing tests
+
+All 54 unit tests + 2 functional tests must continue to pass. No modification to existing code.
+
+***
+
+== File Impact Summary
+
+[cols="1,1,2", options="header"]
+|===
+| Action | File | Detail
+| CREATE | `src/main/kotlin/plantuml/service/GraphifyPromptAdapter.kt` | New adapter (~60 lines)
+| CREATE | `src/main/kotlin/plantuml/tasks/GenerateDiagramDocsTask.kt` | New task (~40 lines)
+| MODIFY | `src/main/kotlin/plantuml/models.kt` | Add `DiagramDocsConfig` + field in `PlantumlConfig`
+| MODIFY | `src/main/kotlin/plantuml/PlantumlManager.kt` | Register `generateDiagramDocs` task
+| MODIFY | `src/main/kotlin/plantuml/PlantumlPlugin.kt` | Register `docs` lifecycle task
+| MODIFY | `src/main/kotlin/plantuml/ConfigMerger.kt` | Merge `DiagramDocsConfig` from CLI/YAML/defaults
+| CREATE | `.graphifyignore` | Graphify exclusion rules
+| CREATE | `src/test/kotlin/plantuml/service/GraphifyPromptAdapterTest.kt` | Unit tests
+| CREATE | `src/test/kotlin/plantuml/GenerateDiagramDocsTaskTest.kt` | Integration tests
+|===
+
+***
+
+== Data Flow
+
+[plantuml]
+....
+@startuml
+skinparam backgroundColor #FEFEFE
+
+start
+
+:Developer writes code;
+:Developer runs `/graphify . --no-viz`;
+note right: Updates graphify-out/graph.json
+
+:Developer runs `./gradlew docs`;
+
+partition "1. generateDiagramDocs" {
+    :Read graphify-out/graph.json;
+    :GraphifyPromptAdapter extracts community;
+    :Write .prompt file to prompts/ dir;
+}
+
+partition "2. processPlantumlPrompts" {
+    :Read .prompt files;
+    :LlmService.createChatModel();
+    :DiagramProcessor.processPrompt();
+    :Validate syntax;
+    :Generate PNG;
+    :Save to diagrams/auto/;
+}
+
+partition "3. validatePlantumlSyntax" {
+    :Validate generated .puml files;
+}
+
+stop
+
+@enduml
+....

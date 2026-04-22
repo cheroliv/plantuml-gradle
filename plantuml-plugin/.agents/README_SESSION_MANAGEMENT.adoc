@@ -1,0 +1,73 @@
+= 📦 Gestion des Sessions — Guide Rapide
+
+== 🎯 Nouveau Système (Session 75+)
+
+=== Structure
+
+[source]
+----
+.agents/
+├── INDEX.adoc                        # Vue d'ensemble (toujours chargé)
+├── PROMPT_REPRISE.adoc               # Session actuelle (racine)
+├── AGENT_SESSION_MANAGER.adoc        # Procédure d'archivage
+├── SESSIONS_HISTORY.adoc             # Historique allégé
+└── sessions/
+    ├── 74-debug-couverture-tests.adoc    # Format: {num}-{type}-{sujet}.adoc
+    ├── 73-debug-crash-functional-test.adoc
+    └── legacy/                         # Ancien format (61-72)
+        └── SESSION_XX_SUMMARY.adoc
+----
+
+'''
+
+== 🔄 Fin de Session (Procédure)
+
+_Quand_ : Utilisateur dit "session terminée", "à plus tard", etc.
+
+_5 étapes_ :
+
+. ✅ _Vérifier_ : Tests pass, tâches complètes
+. 📝 _Résumer_ : Créer `.agents/sessions/{num}-{type}-{sujet}.adoc`
+. 📊 _Indexer_ : Ajouter ligne dans `INDEX.adoc`
+. 🧹 _Nettoyer_ : `PROMPT_REPRISE.adoc` (max 200 lignes)
+. 📋 _Préparer_ : Session N+1 dans `PROMPT_REPRISE.adoc`
+
+'''
+
+== 🏷️ Types de Sessions
+
+|===
+| Type | Mot-clé | Exemple
+| `debug` | corriger, bug, crash | `74-debug-couverture-tests.adoc`
+| `feature` | ajouter, nouvelle | `75-feature-kdoc-generator.adoc`
+| `refactor` | optimiser, nettoyer | `73-refactor-thread-safety.adoc`
+| `test` | test unitaire, couverture | `72-test-migration-mockito.adoc`
+| `docs` | documentation, README | `71-docs-traduction-fr.adoc`
+|===
+
+'''
+
+== 📊 Seuils
+
+|===
+| Fichier | Seuil | Action
+| `PROMPT_REPRISE.adoc` | > 200 lignes | ⚠️ Nettoyer
+| `INDEX.adoc` | > 50 sessions | ⚠️ Archiver mensuel
+| `SESSIONS_HISTORY.adoc` | > 20 lignes | ⚠️ Alléger
+|===
+
+'''
+
+== 🚀 Avantages
+
+|===
+| Avant | Après
+| `SESSIONS_HISTORY.adoc` : 1432 lignes | `SESSIONS_HISTORY.adoc` : 50 lignes
+| Contexte saturé | Contexte léger
+| Archives mélangées | Archives organisées par type
+| Manuel | Semi-automatique
+|===
+
+'''
+
+_Session 75_ : Première session avec ce système ✅
