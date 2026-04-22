@@ -4,7 +4,7 @@
 build
 local.properties
 doc
-TODO.adoc
+
 plantuml-test-context.yml
 # Dossiers de test et scripts de dev
 dev-tools/
