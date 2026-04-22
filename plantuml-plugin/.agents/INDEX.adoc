@@ -1,8 +1,8 @@
 = 📊 Index des Sessions — PlantUML Gradle Plugin
 
 _Dernière mise à jour_ : 2026-04-23  
-_Session en cours_ : 131 — EPIC 10 Intégration Graphify (article blog, diagrammes architecture)  
-_Session terminee_ : 130 (Tests unitaires renderer — 15 tests, 40/40 PASS)
+_Session en cours_ : 132 — Post-EPIC 10 (clôture, améliorations)  
+_Session terminée_ : 131 (Diagrammes architecture + article blog 0105 + message Discord)
 
 '''
 
@@ -82,6 +82,7 @@ _Aucune étape ne peut être marquée [✅] si le fichier n'a pas été effectiv
 
 |===
 | # | Date | Type | Sujet | Fichier | Score
+| 131 | 2026-04-23 | docs | EPIC 10 Diagrammes Architecture + Article Blog 0105 + Discord | `131-epic10-diagrammes-article-blog.adoc` | 8.0/10
 | 130 | 2026-04-23 | test | EPIC 10 Tests Unitaires Renderer (15 tests, 40/40 PASS) | `130-epic10-renderer-unit-tests.adoc` | 8.0/10
 | 129 | 2026-04-23 | chore | Git Commit graphify data (2 commits, 332 fichiers) | `129-chore-git-commit-graphify-data.adoc` | 5.0/10
 | 128 | 2026-04-23 | test+feat+docs | EPIC 10 Tests Fonctionnels + Renderer + Readmes | `128-epic10-functional-tests-renderer-docs.adoc` | 8.5/10
@@ -141,7 +142,7 @@ _Aucune étape ne peut être marquée [✅] si le fichier n'a pas été effectiv
 | EPIC 7 : Dogfooding Plugin | ✅ 100% | 9/10 | ✅ Phase 1 ✅, Phase 2 abandonnée (incohérence archi)
 | EPIC 8 : Migration AsciiDoc | ✅ 100% | 9/10 | ✅ TERMINÉ
 | EPIC 9 : Knowledge Graph Diagram | 🟡 95% | 9/10 | 🟡 Parser adapté format graphify natif, 380/380 tests
-| EPIC 10 : Intégration Graphify (dev cycle) | 🔵 75% | — | 🟡 Session 130 : 15 tests renderer ajoutés (40/40), reste article blog + archi diagrams
+| EPIC 10 : Intégration Graphify (dev cycle) | ✅ 100% | 9/10 | ✅ Session 131 : diagrammes architecture + article blog 0105 + message Discord — TERMINÉE
 |===
 
 '''

@@ -1,5 +1,6 @@
 = Historique des Sessions
 
+_Session 131_ (2026-04-23) : EPIC 10 Diagrammes Architecture + Article Blog (0105) + message Discord + suppression README_fr.adoc obsolète ✅
 _Session 130_ (2026-04-23) : EPIC 10 Tests Unitaires Renderer — 15 tests ajoutés, cleanLabel/isMethodNode/nodeTypes/toString (40/40 PASS) ✅
 _Session 129_ (2026-04-23) : Git Commit graphify data — 2 commits, 332 fichiers (diagrammes + cache + .class) ✅
 _Session 128_ (2026-04-23) : EPIC 10 Tests Fonctionnels + Renderer amélioré + Readmes — 15 func tests, bug mavenLocal fix, 4 readmes ✅

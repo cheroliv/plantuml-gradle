@@ -1,0 +1,65 @@
+= Session 131 — EPIC 10 Diagrammes Architecture + Article Blog
+:toc: left
+:toclevels: 3
+:icons: font
+:sectnums:
+
+== Contexte
+
+**Date** : 23 avril 2026
+**Type** : docs
+**Score** : 8.0/10
+**Précédée de** : Session 130 (Tests unitaires renderer — 40/40 PASS)
+
+== Objectif
+
+Mettre à jour les diagrammes d'architecture dans les READMEs (ajout Knowledge Graph) et écrire un article blog cheroliv.com sur l'intégration Graphify dans un workflow Gradle.
+
+== Tâches réalisées
+
+=== 1. Diagrammes d'architecture mis à jour (4 fichiers)
+
+* `plantuml-plugin/README_truth.adoc` — C4 + hexagonale : ajout KnowledgeGraphParser, KnowledgeGraphRenderer, GraphifyPromptAdapter, graphify-out/graph.json, port Knowledge Graph Data Port
+* `plantuml-plugin/README_truth_fr.adoc` — Interne + C4 + hexagonale : même ajouts + KGDT, GDDT, LlmService dans diagramme interne
+* `README_truth.adoc` (racine git) — Interne mis à jour + ajout C4 complet + ajout hexagonale complet (n'existaient pas)
+* `README_truth_fr.adoc` (racine git) — Interne mis à jour + ajout C4 complet + ajout hexagonale complet
+
+=== 2. Article blog cheroliv.com (0105)
+
+* Fichier : `0105_integrer_graphify_workflow_gradle_post.adoc` (813 lignes)
+* 12 diagrammes PlantUML intégrés
+* Sections : problème, solution, étapes (graphify + plugin), dogfooding, déterminisme, gouvernance EAGER/LAZY, checklist 5 minutes
+* 2 erreurs PlantUML corrigées : `note across` (sequence-only), `]` orphelin
+* Commité dans le repo cheroliv
+
+=== 3. Message Discord
+
+* Fichier : `plantuml-gradle/message.md` (1373 caractères < 2000)
+* Couvre les 5 tâches du plugin avec utilité concrète
+
+=== 4. Nettoyage
+
+* Suppression `README_fr.adoc` (racine git) — vestige du projet slider-gradle, 920 lignes obsolètes sans rapport avec plantuml
+
+== Connaissances clés
+
+* `note across` n'est valide qu'en diagramme de séquence — en component diagram, utiliser `note "texte" as N`
+* Les `]` orphellets dans les packages PlantUML causent des Syntax Error silencieuses
+* Les fichiers `_truth_` sont la source de vérité — les `README.adoc`/`README_fr.adoc` sans suffixe peuvent être des vestiges
+* Les diagrammes C4 et hexagonale n'existaient pas dans les READMEs racine — ajoutés
+
+== Fichiers impliqués
+
+* Modifiés : `plantuml-plugin/README_truth.adoc`, `plantuml-plugin/README_truth_fr.adoc`, `README_truth.adoc`, `README_truth_fr.adoc`
+* Créés : `message.md`, `0105_integrer_graphify_workflow_gradle_post.adoc`
+* Supprimés : `README_fr.adoc`
+
+== Critères d'acceptation EPIC 10
+
+* [x] Diagrammes d'architecture à jour dans les readmes
+* [x] Article blog publié sur l'intégration graphify
+
+== Prochaine session (132)
+
+* EPIC 10 terminée — potentiellement clôturer
+* Améliorations possibles : article sur le Knowledge Graph comme outil de compréhension de codebase

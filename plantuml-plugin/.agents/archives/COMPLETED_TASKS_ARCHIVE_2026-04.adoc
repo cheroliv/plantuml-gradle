@@ -2,6 +2,25 @@
 
 == Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+=== Session 131 — 2026-04-23 : Diagrammes Architecture + Article Blog ✅
+
+==== ✅ Contexte
+* _Session 130_ : Tests unitaires renderer (40/40 PASS)
+* _Objectif_ : Mettre à jour les diagrammes d'architecture (ajout KG) + écrire article blog
+
+==== ✅ Taches realisees
+* ✅ 4 READMEs mis à jour : C4 + hexagonale + interne avec composants KG (KnowledgeGraphParser, KnowledgeGraphRenderer, GraphifyPromptAdapter, KG Data Port)
+* ✅ C4 et hexagonale ajoutés aux READMEs racine (n'existaient pas)
+* ✅ Article blog 0105 : "Intégrer Graphify dans un workflow Gradle" (813 lignes, 12 diagrammes)
+* ✅ Message Discord (1373 caractères < 2000)
+* ✅ Suppression README_fr.adoc obsolète (vestige slider-gradle, 920 lignes)
+* ✅ 2 erreurs PlantUML corrigées dans l'article
+
+==== Notes lecons apprises
+* `note across` = séquence uniquement, `note "text" as N` en component
+* Les diagrammes C4/hexagonale manquaient dans les READMEs racine
+* Fichiers sans suffixe `_truth_` peuvent être des vestiges — toujours vérifier
+
 === Session 130 — 2026-04-23 : Tests Unitaires Renderer ✅
 
 ==== ✅ Contexte

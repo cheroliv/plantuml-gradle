@@ -1,51 +1,52 @@
-= Prompt de reprise — Session 131
+= Prompt de reprise — Session 132
 
 ____
-**EPIC** : EPIC 10 — Intégration Graphify dans le cycle de dev
-**Statut** : Session 130 OK — 15 tests unitaires renderer ajoutés (40/40 PASS)
-**Mission** : Article blog, diagrammes architecture
+**EPIC** : EPIC 10 — Terminée ✅
+**Statut** : Session 131 OK — Diagrammes architecture + article blog (0105) + message Discord
+**Mission** : Clôture EPIC 10, préparer la suite
 ____
 
 '''
 
-== Session 130 — Resume
+== Session 131 — Résumé
 
 **Date** : 23 avril 2026
-**Resultat** : OK — 15 tests unitaires renderer (cleanLabel, isMethodNode, nodeTypes, régression toString)
+**Résultat** : OK — 4 READMEs mis à jour (C4 + hexagonale + KG), article 0105, message Discord, suppression README_fr.adoc obsolète
 
-**Connaissances cles** :
+**Connaissances clés** :
 
-* `cleanLabel()` private → testée indirectement via labels rendus
-* Cache build Gradle peut masquer modifs test → `--rerun-tasks`
-* 40/40 tests PASS sur KnowledgeGraphRendererTest
+* `note across` = séquence uniquement, utiliser `note "text" as N` en component
+* Les `]` orphelins dans les packages PlantUML = Syntax Error
+* Les fichiers `_truth_` sont la seule source de vérité
+* Les READMEs racine n'avaient pas de C4/hexagonale — maintenant ajoutés
 
-**Archive** : `.agents/sessions/130-epic10-renderer-unit-tests.adoc`
-
-'''
-
-== Session 131 — Priorites
-
-**Mission** : EPIC 10 — Intégration Graphify dans le cycle de dev
-
-=== 1. Article cheroliv.com
-
-* "Intégrer Graphify dans un workflow Gradle"
-* Pipeline : `graphify . --no-viz` → `generateKnowledgeGraphDiagram` → diagrammes
-* Diagrammes PlantUML du pipeline
-
-=== 2. Diagrammes d'architecture mis à jour
-
-* Les PlantUML embarqués dans les READMEs sont obsolètes (pas de KG)
-* Mettre à jour les diagrammes d'architecture dans `plantuml-plugin/README_truth.adoc`
-
-=== Criteres d'Acceptation
-
-* [ ] Article blog publié sur l'intégration graphify
-* [ ] Diagrammes d'architecture à jour dans les readmes
+**Archive** : `.agents/sessions/131-epic10-diagrammes-article-blog.adoc`
 
 '''
 
-== Regles
+== Session 132 — Priorités
+
+**Mission** : Post-EPIC 10 — Améliorations et nouvelles directions
+
+=== 1. Article blog supplémentaire (optionnel)
+
+* "Le Knowledge Graph comme outil de compréhension de codebase"
+* Focus sur la valeur pour l'onboarding et la navigation
+
+=== 2. Améliorations possibles
+
+* Diagrammes PlantUML du pipeline dans le README consommateur (pipeline séquence + activité)
+* Vérifier que les diagrammes générés par jbake rendent correctement en HTML
+* Mise à jour BACKLOG.adoc (critères EPIC 10 = ✅)
+
+=== Critères d'Acceptation
+
+* [ ] EPIC 10 officiellement clôturée dans BACKLOG
+* [ ] BACKLOG.adoc à jour
+
+'''
+
+== Règles
 
 * Règle 0 : `publishToMavenLocal` après chaque modif code plugin
 * Jamais de commit sans permission
