@@ -32,6 +32,26 @@ _Procédure obligatoire avant tout commit_ :
 . _Attendre confirmation explicite_ ("oui", "commit", "vas-y")
 . _Seulement après_ : exécuter le commit
 
+=== 1b. FICHIERS DE CONFIGURATION — RÈGLE ABSOLUE DE SÛRETÉ
+
+**PRINCIPE** : Tout fichier de configuration (YAML, JSON, XML, TOML, properties, .env) peut contenir des données sensibles non versionnées. Ne **jamais** mettre en danger l'intégrité du travail du développeur.
+
+**INTERDICTIONS** :
+
+* ❌ **NE JAMAIS écraser** un fichier config avec un `Write` complet quand un `Edit` partiel suffit
+* ❌ **NE JAMAIS remplacer** des valeurs sensibles (tokens, mots de passe, clés API, URLs prod) par des valeurs factices
+* ❌ **NE JAMAIS modifier** sans vérifier `git check-ignore` et `git ls-files` — un fichier non tracké n'a pas de `git restore`
+
+**Procédure OBLIGATOIRE** avant modification :
+
+. `git check-ignore <fichier>` + `git ls-files -- <fichier>`
+. Si non tracké : **CRÉER UNE SAUVEGARDE** (`cp <fichier> <fichier>.bak`)
+. **PRÉSERVER** les valeurs sensibles intactes
+. Privilégier l'**edit partiel** sur l'écriture complète
+. **Vérifier** après modification que les valeurs sensibles sont toujours là
+
+_Leçon Session 2 (bakery-plugin)_ : Écraser un site.yml non versionné a détruit des tokens réels. Sans sauvegarde git (fichier ignoré), restauration impossible sans fallback externe. Le développeur aurait été bloqué définitivement.
+
 === 2. TESTS EN FIN DE SESSION — INTERDICTION FORMELLE
 
 _L'agent NE DOIT JAMAIS_ lancer de tests (`./gradlew test`, `./gradlew cucumberTest`, etc.) lors de la procédure de fin de session _SANS permission explicite de l'utilisateur_.
