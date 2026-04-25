@@ -28,7 +28,7 @@ _Solution_ : Séparer l'information en 2 catégories :
 
 '''
 
-== 📋 Procédure de Fin de Session — 5 Étapes Obligatoires
+== 📋 Procédure de Fin de Session — 6 Étapes Obligatoires
 
 === ÉTAPE 1 : Vérifier l'état des tests (optionnel)
 
@@ -220,7 +220,43 @@ _Contraintes_ :
 
 '''
 
-=== ÉTAPE 4 : Vérifier la cohérence du contexte (si besoin)
+=== ÉTAPE 3 : Mettre à jour SESSIONS_HISTORY.adoc avec la session N
+
+_Ajouter la session N dans le tableau_ : `.agents/SESSIONS_HISTORY.adoc`
+
+_Colonnes obligatoires_ : # | Date | Type | Sujet | Fichier | Score
+
+'''
+
+=== ÉTAPE 4 : Mettre à jour INDEX.adoc (session en cours, roadmap, fichiers)
+
+_Mettre à jour_ :
+
+* `_Session en cours_` → session N+1
+* `_Session terminee_` → session N
+* `Sessions Recentees` → ajouter session N
+* `Roadmap` → mettre à jour progression si nécessaire
+* `Portefeuille de Projets` → mettre à jour si nécessaire
+
+'''
+
+=== ÉTAPE 5 : Mettre à jour TEST_COVERAGE_ANALYSIS.adoc (si des tests ont été ajoutés/modifiés)
+
+_Si des tests ont été modifiés pendant la session_ : mettre à jour le tableau de couverture.
+
+_Si aucun test modifié_ : noter "aucun test modifié" avec la date de session.
+
+'''
+
+=== ÉTAPE 6 : Mettre à jour COMPLETED_TASKS_ARCHIVE_{mois}.adoc
+
+_Ajouter les taches realisees_ dans `.agents/archives/COMPLETED_TASKS_ARCHIVE_{mois}.adoc`.
+
+_Structure_ : Date, contexte, taches (avec [OK]/[EN COURS]), resultats, lecons apprises, prochaine session.
+
+'''
+
+=== ÉTAPE 7 : Vérifier la cohérence du contexte (si besoin)
 
 _Vérifier_ : `AGENT.adoc` dépasse-t-il 200 lignes ?
 
@@ -234,12 +270,16 @@ _Si NON_ : ✅ Ne rien toucher
 
 '''
 
-=== ÉTAPE 5 : Valider la cohérence
+=== ÉTAPE 8 : Valider la cohérence
 
 _Checklist_ :
 
 * [ ] Archive LAZY créée : `.agents/sessions/{N}-{titre}.adoc`
 * [ ] Résumé EAGER mis à jour : `PROMPT_REPRISE.adoc`
+* [ ] SESSIONS_HISTORY.adoc mis à jour
+* [ ] INDEX.adoc mis à jour
+* [ ] TEST_COVERAGE_ANALYSIS.adoc mis à jour (si applicable)
+* [ ] COMPLETED_TASKS_ARCHIVE_{mois}.adoc mis à jour
 * [ ] Référence croisée présente (EAGER → LAZY)
 * [ ] `PROMPT_REPRISE.adoc` < 100 lignes
 * [ ] Commandes session N+1 testables
@@ -285,7 +325,7 @@ _Mots-clés déclencheurs_ :
 * "à plus tard"
 * "on arrête là"
 
-_Action_ : Exécuter les 5 étapes SILENCIEUSEMENT
+_Action_ : Exécuter les 6 étapes SILENCIEUSEMENT
 
 '''
 
@@ -365,8 +405,8 @@ _Action_ : Exécuter les 5 étapes SILENCIEUSEMENT
 
 * ❌ JAMAIS demander "Veux-tu que je...?"
 * ❌ JAMAIS expliquer avant de faire
-* ❌ JAMAIS répondre avant les 5 étapes terminées
-* ✅ FAIRE DIRECTEMENT les 5 étapes SILENCIEUSEMENT
+* ❌ JAMAIS répondre avant les 6 étapes terminées
+* ✅ FAIRE DIRECTEMENT les 6 étapes SILENCIEUSEMENT
 * ✅ Répondre UNIQUEMENT par "✅ Procédure exécutée" + 3 lignes max
 
 '''

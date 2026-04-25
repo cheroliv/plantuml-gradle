@@ -66,7 +66,7 @@ _Raison_ : Les tests prennent 1-3 minutes et ralentissent inutilement la clôtur
 _RÈGLE ABSOLUE_ : Quand l'utilisateur déclenche la fin de session ("fin de session", "session terminée", "je quitte", "à plus tard", "on arrête là"), l'agent DOIT exécuter _TOUTES les étapes_ de la procédure _SANS EXCEPTION et SANS OMISSION_.
 
 _L'agent NE DOIT JAMAIS_ :
-* ❌ S'arrêter avant d'avoir complété les 5 étapes
+* ❌ S'arrêter avant d'avoir complété les 6 étapes
 * ❌ Omettre une étape ("je ferai ça plus tard")
 * ❌ Demander "est-ce que je dois faire l'étape X ?" — la réponse est TOUJOURS oui
 * ❌ Considérer la procédure comme facultative
@@ -193,3 +193,31 @@ _Aucune étape ne peut être marquée [✅] si le fichier n'a pas été effectiv
 '''
 
 _Note_ : Cet index est maintenu automatiquement par l'agent en fin de session.
+
+'''
+
+== 🌐 Portefeuille de Projets
+
+Projets gérant la même méthodologie opencode (EAGER/LAZY, procédure de fin de session 6 étapes, COMPLETED_TASKS_ARCHIVE) :
+
+|===
+| Projet | Répertoire | Session en cours | Étape 5 spécifique | Dernière MAJ
+| magic_stick | `~/workspace/__repositories__/magic_stick` | 013 | SCRIPT_VERIFICATION.adoc | 2026-04-25
+| bakery-gradle | `~/workspace/__repositories__/bakery-gradle/bakery-plugin` | 5 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-23
+| cheroliv.com | `~/workspace/__repositories__/cheroliv.com` | 4 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-25
+| plantuml-gradle | `~/workspace/__repositories__/plantuml-gradle/plantuml-plugin` | 132 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-23
+|===
+
+_Procédure de fin de session commune_ :
+
+. ✅ Créer l'archive `.agents/sessions/{N}-{titre}.adoc`
+. ✅ Mettre à jour `PROMPT_REPRISE.adoc` pour la session N+1
+. ✅ Mettre à jour `SESSIONS_HISTORY.adoc` avec la session N
+. ✅ Mettre à jour `INDEX.adoc` (session en cours, roadmap, fichiers)
+. ✅ Mettre à jour `SCRIPT_VERIFICATION.adoc` ou `TEST_COVERAGE_ANALYSIS.adoc` (selon le projet)
+. ✅ Mettre à jour `COMPLETED_TASKS_ARCHIVE_{mois}.adoc`
+
+_Incohérences détectées (session 012 magic_stick)_ :
+
+* **bakery-gradle** : COMPLETED_TASKS_ARCHIVE en retard (sessions 3-5 manquantes)
+* **plantuml-gradle** : PROCEDURES.adoc décrit 5 étapes vs 6 étapes dans INDEX.adoc ⚠️
