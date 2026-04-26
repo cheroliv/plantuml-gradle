@@ -1,5 +1,7 @@
 = Prompt de reprise — Session 132
 
+_Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
+
 ____
 **EPIC** : EPIC 10 — Terminée ✅
 **Statut** : Session 131 OK — Diagrammes architecture + article blog (0105) + message Discord
