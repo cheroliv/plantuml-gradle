@@ -2,6 +2,24 @@
 
 == Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+=== Session 132 — 2026-04-27 : Clôture EPIC 9/10 + BACKLOG Mis à Jour ✅
+
+==== ✅ Contexte
+* _Session 131_ : Diagrammes architecture + article blog 0105 + message Discord
+* _Objectif_ : Clôturer EPIC 9 et EPIC 10, mettre à jour les fichiers de gouvernance
+
+==== ✅ Tâches réalisées
+* ✅ EPIC 9 (`🟡 EN COURS` → `🟢 TERMINÉ`) : Sessions 125-130, 380/380 tests PASS
+* ✅ EPIC 10 (`🟡 EN COURS` → `🟢 TERMINÉ`) : Sessions 125-131, tous critères acceptation OK
+* ✅ BACKLOG.adoc : date mise à jour (Session 132), EPIC 11 créée (`🔴 À DÉFINIR`)
+* ✅ Archive session 132 créée : `.agents/sessions/132-epic10-cloture-backlog.adoc`
+* ✅ SESSIONS_HISTORY.adoc : entrée Session 132 ajoutée
+* ✅ INDEX.adoc : session en cours = 133, session terminée = 132
+
+==== Notes/Leçons apprises
+* Procédure de fin de session : toujours vérifier les accents (`clôture` vs `clôture`) pour les edits sed
+* Les backups doivent être supprimés avant commit s'ils ne sont pas dans `.gitignore`
+
 === Session 131 — 2026-04-23 : Diagrammes Architecture + Article Blog ✅
 
 ==== ✅ Contexte

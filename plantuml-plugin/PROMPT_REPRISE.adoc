@@ -1,56 +1,58 @@
-= Prompt de reprise — Session 132
+= Prompt de reprise — Session 133
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 ____
-**EPIC** : EPIC 10 — Terminée ✅
-**Statut** : Session 131 OK — Diagrammes architecture + article blog (0105) + message Discord
-**Mission** : Clôture EPIC 10, préparer la suite
+**EPIC** : EPIC 11 — À DÉFINIR
+**Statut** : Session 132 OK — EPIC 9 et EPIC 10 clôturés dans BACKLOG
+**Mission** : Définir et lancer la prochaine EPIC
 ____
 
 '''
 
-== Session 131 — Résumé
+== Session 132 — Résumé
 
-**Date** : 23 avril 2026
-**Résultat** : OK — 4 READMEs mis à jour (C4 + hexagonale + KG), article 0105, message Discord, suppression README_fr.adoc obsolète
+**Date** : 27 avril 2026
+**Resultat** : OK — EPIC 9 (`🟢 TERMINÉ`), EPIC 10 (`🟢 TERMINÉ`), EPIC 11 (`🔴 À DÉFINIR`), BACKLOG à jour, archives session 132 créées
 
 **Connaissances clés** :
 
-* `note across` = séquence uniquement, utiliser `note "text" as N` en component
-* Les `]` orphelins dans les packages PlantUML = Syntax Error
-* Les fichiers `_truth_` sont la seule source de vérité
-* Les READMEs racine n'avaient pas de C4/hexagonale — maintenant ajoutés
+* Procédure de fin de session complète exécutée (BACKLOG, INDEX, SESSIONS_HISTORY, archive)
+* Les backups doivent être nettoyés avant commit s'ils ne sont pas versionnés
+* Les edits `sed` avec caractères accentués nécessitent encodage UTF-8 exact
 
-**Archive** : `.agents/sessions/131-epic10-diagrammes-article-blog.adoc`
+**Archive** : `.agents/sessions/132-epic10-cloture-backlog.adoc`
 
 '''
 
-== Session 132 — Priorités
+== Session 133 — Priorités
 
-**Mission** : Post-EPIC 10 — Améliorations et nouvelles directions
+**Mission** : Définir et lancer EPIC 11
 
-=== 1. Article blog supplémentaire (optionnel)
+=== Options de EPIC 11
 
-* "Le Knowledge Graph comme outil de compréhension de codebase"
-* Focus sur la valeur pour l'onboarding et la navigation
+1. **Tests fonctionnels GradleRunner generateKnowledgeGraphDiagram**
+   * Ajouter des tests fonctionnels GradleRunner pour `generateKnowledgeGraphDiagram`
+   * Recommandé dès Session 128, jamais implémenté
 
-=== 2. Améliorations possibles
+2. **Article blog : Knowledge Graph comme outil de compréhension de codebase**
+   * Focus valeur onboarding et navigation dans un codebase
+   * Optionnel mais à fort impact
 
-* Diagrammes PlantUML du pipeline dans le README consommateur (pipeline séquence + activité)
-* Vérifier que les diagrammes générés par jbake rendent correctement en HTML
-* Mise à jour BACKLOG.adoc (critères EPIC 10 = ✅)
+3. **Vérification HTML JBake des diagrammes PlantUML**
+   * S'assurer que les diagrammes du pipeline rendent correctement en HTML
+   * Qualité documentation consommateur
 
 === Critères d'Acceptation
 
-* [ ] EPIC 10 officiellement clôturée dans BACKLOG
-* [ ] BACKLOG.adoc à jour
+* [ ] EPIC 11 définie avec description, livrables et critères
+* [ ] Première tâche de l'EPIC lancée
 
 '''
 
 == Règles
 
-* Règle 0 : `publishToMavenLocal` après chaque modif code plugin
+* Regle 0 : `publishToMavenLocal` apres chaque modif code plugin
 * Jamais de commit sans permission
 * Racine de travail = `plantuml-plugin/`
 * Archive + PROMPT_REPRISE mis à jour en fin de session

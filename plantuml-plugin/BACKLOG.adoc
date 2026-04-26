@@ -2,112 +2,78 @@
 
 ____
 **Objectif** : Suivi des issues et bugs en cours
-**Dernière mise à jour** : Session 126 (22 avril 2026)
+**Dernière mise à jour** : Session 132 (27 avril 2026)
 ____
 
 '''
 
 == 🔴 EPIC Prioritaire
 
-=== EPIC 9 : Knowledge Graph Diagram — Représentation graphique du Knowledge Graph via PlantUML
+=== EPIC 11 : TBD — Définir la prochaine priorité
 
-**Statut** : 🟡 **EN COURS** — **Session 127 validée**
-**Session** : 125-127 (implémentation + validation + tests)
-
-==== Contexte
-
-Le pipeline actuel lit `graphify-out/graph.json` via `GraphifyPromptAdapter` et produit des **diagrammes de classes UML** par communauté. Ce n'est *pas* une représentation du Knowledge Graph lui-même — on perd la topologie globale, les arêtes croisées entre communautés, les types d'arête (EXTRACTED/INFERRED/AMBIGUOUS), les scores de confiance, les hyperedges, et les liens sémantiques.
-
-==== Progression Session 125
-
-* [x] **Data models** (`kgmodels.kt`) — EdgeType, KnowledgeGraphEdge, KnowledgeGraphNode, KnowledgeGraphCommunity, KnowledgeGraph
-* [x] **KnowledgeGraphParser** (`service/KnowledgeGraphParser.kt`) — Parse `graph.json` : 3 modes (legacy, graphify, flat), ID→label resolution
-* [x] **KnowledgeGraphRenderer** (`service/KnowledgeGraphRenderer.kt`) — Transformation déterministe JSON → PlantUML : packages/rectangles pour communautés, `-->` EXTRACTED, `..>` INFERRED, `--x` AMBIGUOUS, couleurs auto, légende
-* [x] **GenerateKnowledgeGraphDiagramTask** (`tasks/GenerateKnowledgeGraphDiagramTask.kt`) — Tâche Gradle avec filtres CLI
-* [x] **Intégration pipeline** — Task enregistrée dans `PlantumlManager`, lifecycle `docs` mis à jour
-* [x] **Tests unitaires** — KnowledgeGraphRendererTest (25 tests), KnowledgeGraphParserTest (26 tests), GenerateKnowledgeGraphDiagramTaskTest (15 tests)
-* [x] **Tests intégration** — GraphifyIntegrationTest (9 tests, pipeline complet)
-* [x] **Validation end-to-end** — graphify 0.4.29 installé, vrai graph.json parsé, `./gradlew generateKnowledgeGraphDiagram` OK
-* [x] **380/380 tests PASSED** — `./gradlew test` passe sans échec
-* [x] **3 bugs corrigés** — Renderer interpolation, Parser ID→label, Parser confidence asDouble
-
-==== Contexte
-
-Le pipeline actuel lit `graphify-out/graph.json` via `GraphifyPromptAdapter` et produit des **diagrammes de classes UML** par communauté. Ce n'est *pas* une représentation du Knowledge Graph lui-même — on perd la topologie globale, les arêtes croisées entre communautés, les types d'arête (EXTRACTED/INFERRED/AMBIGUOUS), les scores de confiance, les hyperedges, et les liens sémantiques.
-
-==== Ce que j'attends
-
-Une **représentation graphique du Knowledge Graph complet** générée par le plugin Gradle :
-
-- Tous les noeuds du graphe (classes, concepts, fonctions, papiers, images…) comme sommets
-- Les arêtes avec leur **type visible** (EXTRACTED, INFERRED, AMBIGUOUS) et leur **score de confiance**
-- Les communautés comme clusters visuels (packages ou rectangles colorés)
-- Les liens sémantiques croisés entre communautés (les `semantically_similar_to` marqués INFERRED)
-- Les hyperedges (relations groupant 3+ noeuds)
-- La capacité de filtrer par communauté, par type d'arête, ou par intervalle de confiance
-
-==== Approche préconisée
-
-Ajouter une nouvelle tâche Gradle `GenerateKnowledgeGraphDiagramTask` qui :
-
-1. **Parse `graphify-out/graph.json` directement** (pas de prompt LLM — les données sont déjà là)
-2. **Génère du PlantUML natif** en utilisant les primitives de graphe :
-   - `package` ou `rectangle` pour les communautés (clusters visuels)
-   - `node` pour chaque sommet du graphe
-   - `-->` pour les arêtes EXTRACTED (trait plein, noir)
-   - `..>` pour les arêtes INFERRED (trait pointillé, avec label du score de confiance)
-   - `--x` pour les arêtes AMBIGUOUS (trait rouge pointillé)
-   - Couleurs par communauté (palette automatique)
-3. **Propriété de filtre** via CLI :
-   - `-Pplantuml.kg.community="service layer"` — une communauté spécifique
-   - `-Pplantuml.kg.edgeTypes="EXTRACTED,INFERRED"` — filtrer par type d'arête
-   - `-Pplantuml.kg.minConfidence=0.7` — seuil de confiance minimum pour les INFERRED
-   - `-Pplantuml.kg.maxNodes=50` — limiter le nombre de noeuds (pour la lisibilité)
-4. **Pas de LLM** — transformation déterministe JSON > PlantUML, rapide et reproductible
-5. **Intégration dans le pipeline** : la tâche dépend de l'existence de `graphify-out/graph.json`, et le `.puml` généré peut être rendu en PNG par `plantumlService.generateImage()`
-
-**Avantage** : on obtient en une commande Gradle une représentation PlantUML du Knowledge Graph — intégrable dans la documentation AsciiDoc, versionnable dans Git, et consultable hors ligne.
-
-'''
-
-== 🟡 EPIC Prioritaire Suivante
-
-=== EPIC 10 : Intégration Graphify dans le cycle de dev — Tester, documenter, écrire
-
-**Statut** : 🟡 **EN COURS** — **Session 127 accomplie partiellement**
+**Statut** : 🔴 **À DÉFINIR** — Post-EPIC 10
 **Priorité** : 🔴 **HAUTE**
 
- ==== Contexte
+''' == 🟢 EPICs Terminées
 
-EPIC 9 (Knowledge Graph Diagram) est implémenté à 95%. Il reste à ajouter des tests fonctionnels GradleRunner, à documenter l'intégration dans les Readmes, et à écrire des articles blog sur l'intégration dans le cycle de dev.
+=== EPIC 9 : Knowledge Graph Diagram — Représentation graphique du Knowledge Graph via PlantUML
 
-==== Taches
+**Statut** : 🟢 **TERMINÉ** — Session 125-130
+**Session** : 125-130 (implémentation + validation + tests + stable)
 
-. **Tester graphify end-to-end** ✅ Session 127
-  * [x] Installer/configurer graphify sur le projet
-  * [x] Lancer `graphify update .` pour générer `graphify-out/graph.json`
-  * [x] Valider que le JSON est bien structuré pour KnowledgeGraphParser
-  * [x] Tester `./gradlew generateKnowledgeGraphDiagram` avec vrai graph.json
-  * [x] Ajouter tests fonctionnels GradleRunner pour generateKnowledgeGraphDiagram (recommandé Session 128)
+==== Livrables
 
-. **Documenter dans les Readmes**
-  * [ ] Mettre à jour README.adoc avec la procédure graphify
-  * [ ] Documenter la commande `generateKnowledgeGraphDiagram`
-  * [ ] Ajouter des exemples de filtres CLI
+* [x] Data models (`kgmodels.kt`) — EdgeType, KnowledgeGraphEdge, KnowledgeGraphNode, KnowledgeGraphCommunity, KnowledgeGraph
+* [x] KnowledgeGraphParser (`service/KnowledgeGraphParser.kt`) — Parse `graph.json` : 3 modes (legacy, graphify, flat), ID→label resolution
+* [x] KnowledgeGraphRenderer (`service/KnowledgeGraphRenderer.kt`) — Transformation déterministe JSON → PlantUML
+* [x] GenerateKnowledgeGraphDiagramTask (`tasks/GenerateKnowledgeGraphDiagramTask.kt`) — Tâche Gradle avec filtres CLI
+* [x] Intégration pipeline — Task enregistrée dans `PlantumlManager`, lifecycle `docs`
+* [x] Tests unitaires — KnowledgeGraphRendererTest, KnowledgeGraphParserTest, GenerateKnowledgeGraphDiagramTaskTest
+* [x] Tests intégration — GraphifyIntegrationTest (pipeline complet)
+* [x] 380/380 tests PASSED
 
-. **Écrire des articles blog**
-  * [ ] Article cheroliv.com : comment graphify s'intègre dans un workflow Gradle
-  * [ ] Diagrammes PlantUML du pipeline graphify → plugin → documentation
-  * [ ] Article sur le Knowledge Graph comme outil de compréhension de codebase
+''' === EPIC 10 : Intégration Graphify dans le cycle de dev — Tester, documenter, écrire
 
-==== Criteres d'Acceptation
+**Statut** : 🟢 **TERMINÉ** — Session 125-131
+**Priorité** : 🟢 **TERMINÉ**
+
+==== Livrables
+
+. **Tester graphify end-to-end** ✅
+   * [x] Installer/configurer graphify sur le projet
+   * [x] Lancer `graphify update .` pour générer `graphify-out/graph.json`
+   * [x] Valider que le JSON est bien structuré pour KnowledgeGraphParser
+   * [x] Tester `./gradlew generateKnowledgeGraphDiagram` avec vrai graph.json
+
+. **Documenter dans les Readmes** ✅
+   * [x] Mettre à jour README.adoc avec la procédure graphify
+   * [x] Documenter la commande `generateKnowledgeGraphDiagram`
+   * [x] Ajouter des exemples de filtres CLI
+
+. **Diagrammes d'architecture mis à jour** ✅ Session 131
+   * [x] READMEs racine et plugin : C4 + hexagonale + interne avec KG
+   * [x] 4 fichiers `_truth_` mis à jour
+
+. **Écrire des articles blog** ✅ Session 131
+   * [x] Article cheroliv.com : comment graphify s'intègre dans un workflow Gradle (0105)
+   * [x] Diagrammes PlantUML du pipeline (12 diagrammes dans l'article)
+   * [x] Message Discord publié (5 tâches du plugin)
+
+==== Critères d'Acceptation
 
 * [x] graphify installé et fonctionnel
 * [x] `graphify-out/graph.json` généré et valide
 * [x] `./gradlew generateKnowledgeGraphDiagram` fonctionnel avec vrai graph.json
-* [ ] Readmes mis à jour avec procédure graphify
-* [ ] Au moins un article blog publié sur l'intégration
+* [x] Readmes mis à jour avec procédure graphify
+* [x] Au moins un article blog publié sur l'intégration
+* [x] Diagrammes d'architecture à jour (C4, hexagonale, interne)
+* [x] Nettoyage : suppression README_fr.adoc obsolète
 
+''' == 🟡 EPIC Prioritaire Suivante
+
+*Aucune EPIC définie. Définir EPIC 11.*
+
+'
 '''
 
 == 🔴 Issues Critiques
