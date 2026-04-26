@@ -1,0 +1,52 @@
+= Session 133 — EPIC 11 Article Blog Knowledge Graph
+:toc: left
+:toclevels: 3
+:icons: font
+:sectnums:
+
+== Contexte
+
+**Date** : 27 avril 2026
+**Type** : docs
+**Score** : —
+**Précédée de** : Session 132 (Clôture EPIC 9/10 + BACKLOG mis à jour)
+
+== Objectif
+
+Définir et lancer EPIC 11 : "Le Knowledge Graph comme outil de compréhension de codebase" — article blog cheroliv.com.
+
+== Tâches réalisées
+
+=== 1. EPIC 11 définie dans BACKLOG.adoc
+
+* Statut : `🔴 À DÉFINIR` → `🟡 EN COURS`
+* Description : Article blog + vérification HTML JBake optionnelle
+* Livrables et critères d'acceptation définis
+
+=== 2. Article blog 0106 rédigé
+
+* Fichier : `cheroliv.com/site/jbake/content/blog/2026/0106_knowledge_graph_outil_comprehension_codebase_post.adoc`
+* 458 lignes, 10 diagrammes PlantUML
+* Sections : onboarding, 4 niveaux de compréhension, types d'arêtes, scénario Anaïs, pipeline, cas d'usage quotidien
+* Committé et poussé sur cheroliv.com/main (58b16e8)
+
+=== 3. BACKLOG plantuml-plugin mis à jour
+
+* EPIC 11 : `🟡 EN COURS` — Session 133
+* EPIC 9 et EPIC 10 confirmés `🟢 TERMINÉ`
+
+== Fichiers impliqués
+
+* Modifiés : `BACKLOG.adoc` (plantuml-plugin)
+* Créés : `0106_knowledge_graph_outil_comprehension_codebase_post.adoc` (cheroliv.com)
+
+== Critères d'acceptation
+
+* [x] EPIC 11 définie avec description, livrables et critères
+* [x] Première tâche de l'EPIC lancée (article blog)
+* [x] Article rédigé en AsciiDoc, prêt à publier
+
+== Prochaine session (134)
+
+* Option 3 : Vérification HTML JBake des diagrammes PlantUML
+* Ou clôturer EPIC 11 si l'article est suffisant
