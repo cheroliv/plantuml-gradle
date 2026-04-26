@@ -9,10 +9,34 @@ ____
 
 == 🔴 EPIC Prioritaire
 
-=== EPIC 11 : TBD — Définir la prochaine priorité
+=== EPIC 11 : Contenu — Le Knowledge Graph comme outil de compréhension de codebase
 
-**Statut** : 🔴 **À DÉFINIR** — Post-EPIC 10
+**Statut** : 🟡 **EN COURS** — Session 133
 **Priorité** : 🔴 **HAUTE**
+**Session** : 133-
+
+==== Contexte
+
+Après EPIC 10 (intégration graphify), le plugin génère des diagrammes Knowledge Graph à partir de `graphify-out/graph.json`. Cette capacité reste cependant sous-exploitée : la valeur pour l'**onboarding** d'un nouveau développeur et la **navigation** dans un codebase complexe n'est pas encore documentée comme un cas d'usage à part entière.
+
+==== Tâches
+
+. **Article blog cheroliv.com**
+  * [ ] Titre : "Le Knowledge Graph comme outil de compréhension de codebase"
+  * [ ] Focus : onboarding, navigation, contexte métier perdu, découvrabilité
+  * [ ] Minimum 6 diagrammes PlantUML illustratifs
+  * [ ] Lien vers le plugin Gradle + graphify comme stack concrète
+  * [ ] Section "5 minutes pour générer votre propre KG"
+
+. **Vérification HTML JBake (optionnel)**
+  * [ ] Vérifier que les diagrammes PlantUML du pipeline rendent correctement en HTML
+  * [ ] Qualité documentation consommateur
+
+==== Critères d'Acceptation
+
+* [ ] Article rédigé en AsciiDoc, prêt à publier sur cheroliv.com
+* [ ] Diagrammes PlantUML inclus et valides
+* [ ] Message Discord (optionnel)
 
 ''' == 🟢 EPICs Terminées
 
