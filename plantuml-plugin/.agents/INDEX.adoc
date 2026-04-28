@@ -98,6 +98,20 @@ _Confirmation finale OBLIGATOIRE_ : Après avoir exécuté les 6 étapes, l'agen
 
 _Aucune étape ne peut être marquée [✅] si le fichier n'a pas été effectivement modifié et vérifié._
 
+=== 4. FICHIERS PERSONNELS — INTERDICTION DE MODIFIER
+
+_L'agent NE DOIT JAMAIS_ modifier, écraser ou supprimer un fichier personnel de l'utilisateur (`~/.gitconfig`, `~/.bashrc`, `~/.ssh/config`, `~/.zshrc`, etc.) _SANS permission explicite de l'utilisateur_.
+
+**PRINCIPE** : Les fichiers `~/.*` appartiennent à l'utilisateur. Leur modification peut casser le workflow, les credentials, ou les préférences de l'environnement. L'environnement de travail de l'utilisateur est en dehors du scope du projet.
+
+**INTERDICTIONS** :
+
+* **NE JAMAIS** utiliser `Write` ou `Edit` sur un fichier `~/.*` ou `~/*` qui n'est pas dans le répertoire de travail du projet
+* **NE JAMAIS** exécuter de commande touchant `~/.gitconfig`, `~/.bashrc`, `~/.ssh/*`, `~/.zshrc`, etc. même avec l'intention de "réparer" ou "configurer"
+* **Toujours rester dans le working directory** du projet actuel
+
+_Leçon Session 033_ : L'agent a tenté de modifier `/home/cheroliv/.gitconfig` pour changer le `user.name` de `opencode` vers `cheroliv`. Sans permission explicite. Modifier les configs utilisateur hors projet est un comportement catastrophique qui peut corrompre l'environnement de travail.
+
 '''
 
 == 🎯 Sessions Récentes (15 dernières)
