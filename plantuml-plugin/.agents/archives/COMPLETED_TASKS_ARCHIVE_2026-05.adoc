@@ -1,0 +1,22 @@
+= Archive des Tâches Terminées — Mai 2026
+
+== Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
+
+=== Session 134 — 2026-05-01 : EPIC 11 Validation Tests Fonctionnels KG + Clôture ✅
+
+==== ✅ Contexte
+* _Session 133_ : Article blog rédigé (508 lignes, 8 diagrammes)
+* _Objectif_ : Valider les tests fonctionnels GradleRunner `generateKnowledgeGraphDiagram`
+
+==== ✅ Tâches réalisées
+* ✅ publishToMavenLocal
+* ✅ Tests fonctionnels `KnowledgeGraphDiagramFunctionalTest` : 15/15 PASSED
+* ✅ EPIC 11 : 🟢 TERMINÉ (Sessions 133-134)
+* ✅ BACKLOG.adoc : checkboxes EPIC 11 cochées, section "Suivante" nettoyée
+* ✅ PROMPT_REPRISE : Session 135 — prêt pour EPIC 12
+* ✅ Rotation backup : sessions 1-125 déplacées dans `.agents/backup/Y2026-sessions-001-125/`
+* ✅ INDEX, SESSIONS_HISTORY, TEST_COVERAGE_ANALYSIS mis à jour
+
+==== Notes/Leçons
+* Les tests fonctionnels KG existaient déjà depuis la Session 128 — tout passait
+* Aucun nouveau code nécessaire, simple validation

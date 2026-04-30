@@ -1,30 +1,24 @@
-= Prompt de reprise — Session 133
+= Prompt de reprise — Session 135
 
-_Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
+_Règles absolues_ : voir `AGENT.adoc` section "Règles Absolues"
 
 ____
-**EPIC** : EPIC 11 — Contenu — Le Knowledge Graph comme outil de compréhension de codebase
-**Statut** : 🟡 EN COURS — Session 133
-**Mission** : Rédiger l'article blog + livrables EPIC 11
+**EPIC** : Aucune EPIC active. Définir EPIC 12.
+**Statut** : ⚪ EN ATTENTE
+**Mission** : Définir EPIC 12 — consulter BACKLOG pour les pistes
 ____
 
 '''
 
-== Session 133 — Résumé en cours
+== Session 134 — Résumé
 
-**Date** : 27 avril 2026
-**Resultat** : EPIC 11 définie et lancée — Article blog rédigé
+**Date** : 1er mai 2026
+**Résultat** : EPIC 11 clôturée — tests fonctionnels KG validés
 
-**Livrables créés** :
-
-* `doc/knowledge_graph_comprehension_codebase.adoc` — article complet (508 lignes, 8 diagrammes PlantUML)
-* EPIC 11 définie dans BACKLOG (statut 🟡 EN COURS)
-* Conforme : focus onboarding, navigation, contexte métier perdu, découvrabilité
-* Section "5 minutes pour générer votre propre KG" incluse
-* Comparaison avec alternatives + intégration CI/CD
-
-**Tâche suivante** :
-Optionnel — tests fonctionnels GradleRunner `generateKnowledgeGraphDiagram` (recommandé Session 128)
+**Actions** :
+* Tests fonctionnels `KnowledgeGraphDiagramFunctionalTest` : 15/15 PASSED
+* BACKLOG mis à jour : EPIC 11 marquée 🟢 TERMINÉ
+* Prochaine action : définir EPIC 12
 
 '''
 

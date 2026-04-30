@@ -2,9 +2,10 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour_ : 2026-04-27  
-_Session en cours_ : 133 — EPIC 11 : Article Blog Knowledge Graph  
-_Session terminée_ : 132 (Clôture EPIC 9/10, BACKLOG mis à jour)
+_Derniere mise a jour_ : 2026-05-01  
+_Session en cours_ : 135 — Aucune EPIC active. Définir EPIC 12.  
+_Session terminee_ : 134 (Validation Tests Fonctionnels KG, EPIC 11 clôturée)  
+_Audit gouvernance_ : 2026-04-30 ✅ (LAZY_EAGER_ESSENTIALS, encyclopedie, backup tronque, AGENT complet, portefeuille 6 projets)
 
 '''
 
@@ -114,44 +115,23 @@ _Leçon Session 033_ : L'agent a tenté de modifier `/home/cheroliv/.gitconfig` 
 
 '''
 
-== 🎯 Sessions Récentes (15 dernières)
+== 🎯 Sessions Recentes (10 dernieres)
 
 |===
 | # | Date | Type | Sujet | Fichier | Score
-| 131 | 2026-04-23 | docs | EPIC 10 Diagrammes Architecture + Article Blog 0105 + Discord | `131-epic10-diagrammes-article-blog.adoc` | 8.0/10
-| 130 | 2026-04-23 | test | EPIC 10 Tests Unitaires Renderer (15 tests, 40/40 PASS) | `130-epic10-renderer-unit-tests.adoc` | 8.0/10
+| 134 | 2026-05-01 | test | EPIC 11 Validation Tests Fonctionnels KG + Cloture | `134-epic11-kg-functional-tests.adoc` | 9.0/10
+| 133 | 2026-04-27 | docs | EPIC 11 Article Blog Knowledge Graph (0106) | `133-epic11-article-blog-kg.adoc` | 9.0/10
+| 132 | 2026-04-27 | chore | EPIC 10 Cloture + BACKLOG a jour | `132-epic10-cloture-backlog.adoc` | 9.0/10
+| 131 | 2026-04-23 | docs | EPIC 10 Diagrammes Architecture + Article Blog 0105 | `131-epic10-diagrammes-article-blog.adoc` | 8.0/10
+| 130 | 2026-04-23 | test | EPIC 10 Tests Unitaires Renderer (40/40 PASS) | `130-epic10-renderer-unit-tests.adoc` | 8.0/10
 | 129 | 2026-04-23 | chore | Git Commit graphify data (2 commits, 332 fichiers) | `129-chore-git-commit-graphify-data.adoc` | 5.0/10
 | 128 | 2026-04-23 | test+feat+docs | EPIC 10 Tests Fonctionnels + Renderer + Readmes | `128-epic10-functional-tests-renderer-docs.adoc` | 8.5/10
-| 127 | 2026-04-22 | test+fix | EPIC 10 Tests Intégration Graphify (380/380 PASS, 3 bugs) | `127-epic10-graphify-tests.adoc` | 9.0/10
-| 126 | 2026-04-22 | docs | Article blog fg (0104) + réflexion distillation IA | `126-blog-fg-command.adoc` | 9.0/10
-| 125 | 2026-04-22 | feat | EPIC 9 Knowledge Graph Diagram (Parser+Renderer+Task) | `125-epic9-knowledge-graph-diagram.adoc` | 9.0/10
-| 124 | 2026-04-22 | fix | Correction timeout ReindexPlantumlRagIntegrationTest | `124-fix-timeout-integration-test.adoc` | 9.0/10
-| 123 | 2026-04-22 | fix | Correction 9 tests en echec (resolveProvider) | `123-fix-tests-echec.adoc` | 9.0/10
-| 122 | 2026-04-22 | docs | Migration gouvernance vers plantuml-plugin/ | `122-migration-gouvernance-racine.adoc` | 9.0/10
-| 121 | 2026-04-22 | docs | Migration AsciiDoc complète | `121-migration-asciidoc.adoc` | 9.0/10
-| 120 | 2026-04-22 | feat | Implémentation Phase 1 Dogfooding | `120-dogfooding-implementation-phase1.adoc` | 9.0/10
-| 119 | 2026-04-22 | docs | Intégration Graphify + Auto-documentation Plugin | `119-docs-graphify-integration.adoc` | 9.0/10
-| 118 | 2026-04-21 | docs | Authentification Ollama Cloud CI | `118-ollama-cloud-ci-auth.adoc` | 9.0/10
-| 117 | 2026-04-21 | docs | Reconstruction Historique & Dataset Plan | `115-reconstruction-dataset.adoc` | 9.0/10
-| 114 | 2026-04-21 | docs | Documentation Architecture & Organisation | `114-documentation-architecture.adoc` | 9.0/10
-| 113 | 2026-04-20 | feat | Quota Tracker + Reset + Audit | `113-quota-tracker-reset.adoc` | 9.0/10
-| 112 | 2026-04-20 | feat | LlmService + ConfigLoader + ApiKeyPool | `112-llmservice-configloader-apikeypool.adoc` | 9.0/10
-| 111 | 2026-04-20 | test | Tests fonctionnels TDD ApiKeyPool | `111-tests-fonctionnels-api-key-pool.adoc` | 9.0/10
-| 110 | 2026-04-20 | test | Data models unit tests — ApiKeyEntry, QuotaConfig | `110-data-models-unit-tests.adoc` | 9.0/10
-| 109 | 2026-04-20 | docs | Formalisation LAZY/EAGER loading | `109-formalisation-lazy-eager.adoc` | 9.0/10
-| 108 | 2026-04-20 | design | API Key Pool Architecture | `108-api-key-pool-design.adoc` | 9.0/10
-| 107 | 2026-04-19 | docs | Nettoyage documentation | `107-nettoyage-clarification.adoc` | 9.0/10
-| 106 | 2026-04-19 | fix | Correction 6 tests (5 unit + 1 func) | `106-correction-tests-unitaires-fonctionnels.adoc` | 9.0/10
-| 105 | 2026-04-19 | test | Performance tests mockés (57/57) | `105-performance-tests-mockes.adoc` | 9.0/10
-| 104 | 2026-04-19 | test | Feature 7 (55/57 PASS) | `104-feature-7-tests.adoc` | 9.0/10
-| 103 | 2026-04-19 | test | Error Handling (56/57 PASS) | `103-error-handling-tests.adoc` | 9.0/10
-| 102 | 2026-04-18 | test | Consolidation tests (46/57) | `102-consolidation-tests.adoc` | 9.0/10
-| 101 | 2026-04-18 | test | Consolidation tests suite | `101-consolidation-tests-suite.adoc` | 9.0/10
-| 100 | 2026-04-18 | test | Feature 5 RAG Pipeline (4/4 PASS) | `100-validation-features-5-12-13.adoc` | 9.0/10
-| 99 | 2026-04-18 | test | Validation Features 10-11 (13/13 PASS) | `99-validation-complete-features-10-11.adoc` | 9.0/10
+| 127 | 2026-04-22 | test+fix | EPIC 10 Tests Integration Graphify (380/380 PASS) | `127-epic10-graphify-tests.adoc` | 9.0/10
+| 126 | 2026-04-22 | docs | Article blog fg (0104) + reflexion distillation IA | `126-blog-fg-command.adoc` | 9.0/10
+| 125 | 2026-04-22 | feat | EPIC 9 Knowledge Graph Diagram (336/336 PASS) | `125-epic9-knowledge-graph-diagram.adoc` | 9.0/10
 |===
 
-'''
+→ _Sessions 1-125_ : `.agents/backup/Y2026-sessions-001-125/`
 
 == 📈 Statistiques
 
@@ -177,16 +157,18 @@ _Leçon Session 033_ : L'agent a tenté de modifier `/home/cheroliv/.gitconfig` 
 | EPIC 6 : API Key Pool | ✅ 100% | 9/10 | ✅ TERMINÉ
 | EPIC 7 : Dogfooding Plugin | ✅ 100% | 9/10 | ✅ Phase 1 ✅, Phase 2 abandonnée (incohérence archi)
 | EPIC 8 : Migration AsciiDoc | ✅ 100% | 9/10 | ✅ TERMINÉ
-| EPIC 9 : Knowledge Graph Diagram | 🟡 95% | 9/10 | 🟡 Parser adapté format graphify natif, 380/380 tests
+| EPIC 9 : Knowledge Graph Diagram | ✅ 100% | 9/10 | ✅ Sessions 125-130 : 380/380 tests — TERMINÉ
 | EPIC 10 : Intégration Graphify (dev cycle) | ✅ 100% | 9/10 | ✅ Session 131 : diagrammes architecture + article blog 0105 + message Discord — TERMINÉE
+| EPIC 11 : Article Blog KG + Tests | ✅ 100% | 9/10 | ✅ Sessions 133-134 : article rédigé + 15/15 func tests — TERMINÉE
 |===
 
 '''
 
 == 📁 Archives
 
-* _Sessions 1-69_ : `.agents/archives/2026-03.adoc` (à créer)
-* _Sessions 70+_ : Ce fichier
+* _Sessions 1-125_ : `.agents/backup/Y2026-sessions-001-125/` (INDEX, SESSIONS_HISTORY, COMPLETED_TASKS_ARCHIVE, sessions/)
+* _Sessions 126-134_ : Ce fichier + `.agents/sessions/`
+* _Localisation de la vague_ : `.agents/backup/Y2026-sessions-001-125/`
 
 '''
 
@@ -221,7 +203,9 @@ Projets gérant la même méthodologie opencode (EAGER/LAZY, procédure de fin d
 | magic_stick | `~/workspace/__repositories__/magic_stick` | 013 | SCRIPT_VERIFICATION.adoc | 2026-04-25
 | bakery-gradle | `~/workspace/__repositories__/bakery-gradle/bakery-plugin` | 5 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-23
 | cheroliv.com | `~/workspace/__repositories__/cheroliv.com` | 4 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-25
-| plantuml-gradle | `~/workspace/__repositories__/plantuml-gradle/plantuml-plugin` | 132 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-23
+| plantuml-gradle | `~/workspace/__repositories__/plantuml-gradle/plantuml-plugin` | 135 | TEST_COVERAGE_ANALYSIS.adoc | 2026-05-01
+| jhipster-gradle-plugins | `~/workspace/__repositories__/jhipster-gradle-plugins` | 2 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-30
+| openclaw-codingame | `~/workspace/__repositories__/openclaw-codingame/quizz-benchmark-plugin` | Audit session 053 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-30
 |===
 
 _Procédure de fin de session commune_ :
@@ -236,4 +220,5 @@ _Procédure de fin de session commune_ :
 _Incohérences détectées (session 012 magic_stick)_ :
 
 * **bakery-gradle** : COMPLETED_TASKS_ARCHIVE en retard (sessions 3-5 manquantes)
-* **plantuml-gradle** : PROCEDURES.adoc décrit 5 étapes vs 6 étapes dans INDEX.adoc ⚠️
+* **plantuml-gradle** : PROCEDURES.adoc decrit 5 etapes vs 6 etapes dans INDEX.adoc ⚠️
+* **plantuml-gradle** : SESSIONS_HISTORY en format narratif au lieu de table

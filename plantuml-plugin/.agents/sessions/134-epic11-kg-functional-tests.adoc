@@ -1,0 +1,53 @@
+= Session 134 — EPIC 11 : Validation Tests Fonctionnels KG + Clôture
+
+**Date** : 2026-05-01
+**Type** : test
+**EPIC** : 11
+**Score** : 9.0/10
+
+'''
+
+== Contexte
+
+EPIC 11 lancée en Session 133 avec rédaction de l'article blog `doc/knowledge_graph_comprehension_codebase.adoc` (508 lignes, 8 diagrammes). La tâche optionnelle recommandée en Session 128 était de valider les tests fonctionnels GradleRunner pour `generateKnowledgeGraphDiagram`.
+
+'''
+
+== Actions
+
+. **publishToMavenLocal** — Plugin republié en local
+. **Tests fonctionnels KG** — `KnowledgeGraphDiagramFunctionalTest` exécuté
+   * 15/15 PASSED
+   * Couvre : graphify natif, legacy, confidence string, filtres (community/edgeTypes/maxNodes/minConfidence/outputDir/nodeTypes), résolution ID→label, labels propres, PNG, graph vide, JSON corrompu
+
+'''
+
+== Résultat
+
+|===
+| Test | Résultat
+
+| should fail when graphify-out graph json does not exist | ✅ PASSED
+| should generate knowledge graph diagram from graphify native format | ✅ PASSED
+| should render clean node labels without toString pollution | ✅ PASSED
+| should handle confidence as string edge type | ✅ PASSED
+| should resolve numeric IDs to labels in links | ✅ PASSED
+| should apply community filter via Gradle property | ✅ PASSED
+| should apply edgeTypes filter via Gradle property | ✅ PASSED
+| should apply maxNodes filter via Gradle property | ✅ PASSED
+| should apply minConfidence filter via Gradle property | ✅ PASSED
+| should use custom outputDir via Gradle property | ✅ PASSED
+| should generate PNG when PUML is valid | ✅ PASSED
+| should handle empty graph with no nodes and no links | ✅ PASSED
+| should handle legacy format with communities array | ✅ PASSED
+| should fail on corrupted graph json | ✅ PASSED
+| should produce diagram when community filter matches nothing | ✅ PASSED
+|===
+
+'''
+
+== Leçons
+
+* Les tests fonctionnels KG existaient déjà (Session 128) — rien à ajouter
+* EPIC 11 clôturée : article rédigé + tests validés
+* BACKLOG nettoyé : EPIC 11 passée 🟢 TERMINÉ, prêt pour EPIC 12

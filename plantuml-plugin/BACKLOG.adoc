@@ -11,9 +11,9 @@ ____
 
 === EPIC 11 : Contenu — Le Knowledge Graph comme outil de compréhension de codebase
 
-**Statut** : 🟡 **EN COURS** — Session 133
+**Statut** : 🟢 **TERMINÉ** — Sessions 133-134
 **Priorité** : 🔴 **HAUTE**
-**Session** : 133-
+**Session** : 133-134
 
 ==== Contexte
 
@@ -22,21 +22,20 @@ Après EPIC 10 (intégration graphify), le plugin génère des diagrammes Knowle
 ==== Tâches
 
 . **Article blog cheroliv.com**
-  * [ ] Titre : "Le Knowledge Graph comme outil de compréhension de codebase"
-  * [ ] Focus : onboarding, navigation, contexte métier perdu, découvrabilité
-  * [ ] Minimum 6 diagrammes PlantUML illustratifs
-  * [ ] Lien vers le plugin Gradle + graphify comme stack concrète
-  * [ ] Section "5 minutes pour générer votre propre KG"
+  * [x] Titre : "Le Knowledge Graph comme outil de compréhension de codebase"
+  * [x] Focus : onboarding, navigation, contexte métier perdu, découvrabilité
+  * [x] Minimum 6 diagrammes PlantUML illustratifs (8 diagrammes)
+  * [x] Lien vers le plugin Gradle + graphify comme stack concrète
+  * [x] Section "5 minutes pour générer votre propre KG"
 
-. **Vérification HTML JBake (optionnel)**
-  * [ ] Vérifier que les diagrammes PlantUML du pipeline rendent correctement en HTML
-  * [ ] Qualité documentation consommateur
+. **Tests fonctionnels KG**
+  * [x] 15/15 tests PASSED (KnowledgeGraphDiagramFunctionalTest)
 
 ==== Critères d'Acceptation
 
-* [ ] Article rédigé en AsciiDoc, prêt à publier sur cheroliv.com
-* [ ] Diagrammes PlantUML inclus et valides
-* [ ] Message Discord (optionnel)
+* [x] Article rédigé en AsciiDoc, prêt à publier sur cheroliv.com
+* [x] Diagrammes PlantUML inclus et valides
+* [x] Tests fonctionnels validés (15/15 PASS)
 
 ''' == 🟢 EPICs Terminées
 
@@ -95,7 +94,7 @@ Après EPIC 10 (intégration graphify), le plugin génère des diagrammes Knowle
 
 ''' == 🟡 EPIC Prioritaire Suivante
 
-*Aucune EPIC définie. Définir EPIC 11.*
+*Aucune EPIC définie. Définir EPIC 12.*
 
 '
 '''
