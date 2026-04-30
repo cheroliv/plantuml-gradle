@@ -3,50 +3,28 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 ____
-**EPIC** : EPIC 11 — À DÉFINIR
-**Statut** : Session 132 OK — EPIC 9 et EPIC 10 clôturés dans BACKLOG
-**Mission** : Définir et lancer la prochaine EPIC
+**EPIC** : EPIC 11 — Contenu — Le Knowledge Graph comme outil de compréhension de codebase
+**Statut** : 🟡 EN COURS — Session 133
+**Mission** : Rédiger l'article blog + livrables EPIC 11
 ____
 
 '''
 
-== Session 132 — Résumé
+== Session 133 — Résumé en cours
 
 **Date** : 27 avril 2026
-**Resultat** : OK — EPIC 9 (`🟢 TERMINÉ`), EPIC 10 (`🟢 TERMINÉ`), EPIC 11 (`🔴 À DÉFINIR`), BACKLOG à jour, archives session 132 créées
+**Resultat** : EPIC 11 définie et lancée — Article blog rédigé
 
-**Connaissances clés** :
+**Livrables créés** :
 
-* Procédure de fin de session complète exécutée (BACKLOG, INDEX, SESSIONS_HISTORY, archive)
-* Les backups doivent être nettoyés avant commit s'ils ne sont pas versionnés
-* Les edits `sed` avec caractères accentués nécessitent encodage UTF-8 exact
+* `doc/knowledge_graph_comprehension_codebase.adoc` — article complet (508 lignes, 8 diagrammes PlantUML)
+* EPIC 11 définie dans BACKLOG (statut 🟡 EN COURS)
+* Conforme : focus onboarding, navigation, contexte métier perdu, découvrabilité
+* Section "5 minutes pour générer votre propre KG" incluse
+* Comparaison avec alternatives + intégration CI/CD
 
-**Archive** : `.agents/sessions/132-epic10-cloture-backlog.adoc`
-
-'''
-
-== Session 133 — Priorités
-
-**Mission** : Définir et lancer EPIC 11
-
-=== Options de EPIC 11
-
-1. **Tests fonctionnels GradleRunner generateKnowledgeGraphDiagram**
-   * Ajouter des tests fonctionnels GradleRunner pour `generateKnowledgeGraphDiagram`
-   * Recommandé dès Session 128, jamais implémenté
-
-2. **Article blog : Knowledge Graph comme outil de compréhension de codebase**
-   * Focus valeur onboarding et navigation dans un codebase
-   * Optionnel mais à fort impact
-
-3. **Vérification HTML JBake des diagrammes PlantUML**
-   * S'assurer que les diagrammes du pipeline rendent correctement en HTML
-   * Qualité documentation consommateur
-
-=== Critères d'Acceptation
-
-* [ ] EPIC 11 définie avec description, livrables et critères
-* [ ] Première tâche de l'EPIC lancée
+**Tâche suivante** :
+Optionnel — tests fonctionnels GradleRunner `generateKnowledgeGraphDiagram` (recommandé Session 128)
 
 '''
 
@@ -56,3 +34,4 @@ ____
 * Jamais de commit sans permission
 * Racine de travail = `plantuml-plugin/`
 * Archive + PROMPT_REPRISE mis à jour en fin de session
+* `doc/` est gitignored : les fichiers doc ne sont PAS versionnés

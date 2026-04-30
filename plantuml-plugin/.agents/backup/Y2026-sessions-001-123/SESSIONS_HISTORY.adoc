@@ -1,0 +1,43 @@
+= Historique des Sessions
+
+_Session 133_ (2026-04-27) : EPIC 11 Article Blog Knowledge Graph — "Le KG comme outil de compréhension de codebase" (0106, 458 lignes, 10 diagrammes) ✅
+_Session 132_ (2026-04-27) : EPIC 10 Clôture + BACKLOG à jour — EPIC 9 et 10 terminés, EPIC 11 à définir ✅
+_Session 131_ (2026-04-23) : EPIC 10 Diagrammes Architecture + Article Blog (0105) + message Discord + suppression README_fr.adoc obsolète ✅
+_Session 130_ (2026-04-23) : EPIC 10 Tests Unitaires Renderer — 15 tests ajoutés, cleanLabel/isMethodNode/nodeTypes/toString (40/40 PASS) ✅
+_Session 129_ (2026-04-23) : Git Commit graphify data — 2 commits, 332 fichiers (diagrammes + cache + .class) ✅
+_Session 128_ (2026-04-23) : EPIC 10 Tests Fonctionnels + Renderer amélioré + Readmes — 15 func tests, bug mavenLocal fix, 4 readmes ✅
+_Session 127_ (2026-04-22) : EPIC 10 Tests Intégration Graphify — 380/380 PASS, 3 bugs fix, 40+ tests ajoutés ✅
+_Session 126_ (2026-04-22) : Article blog fg (0104) + réflexion distillation IA — 9.0/10 ✅
+_Session 125_ (2026-04-22) : EPIC 9 Knowledge Graph Diagram — GenerateKnowledgeGraphDiagramTask + Parser + Renderer (336/336 tests PASS) ✅
+_Session 124_ (2026-04-22) : Correction timeout ReindexPlantumlRagIntegrationTest — StubEmbeddingModel + mode SIMULATION OK ✅
+_Session 123_ (2026-04-22) : Correction 9 tests en echec — resolveProvider() GEMINI/CLAUDE mapping OK ✅
+_Session 122_ (2026-04-22) : Migration gouvernance vers plantuml-plugin/ — racine git nettoyée, 12 fichiers actifs harmonisés ✅
+_Session 121_ (2026-04-22) : Migration AsciiDoc complète — 100+ fichiers .md → .adoc ✅
+_Session 120_ (2026-04-22) : Implémentation Phase 1 Dogfooding — GraphifyPromptAdapter + GenerateDiagramDocsTask ✅
+_Session 119_ (2026-04-22) : Documentation Graphify + Auto-documentation Plugin — 9.0/10 ✅  
+_Session 118_ (2026-04-21) : Authentification Ollama Cloud CI — 9.0/10 ✅  
+_Session 117_ (2026-04-21) : Fichiers contexte YAML + pool clés API — 30 comptes Gmail ✅  
+_Session 113_ (2026-04-20) : Quota Tracker + Reset + Audit — 63/63 tests PASS ✅  
+_Session 112_ (2026-04-20) : LlmService + ConfigLoader avec ApiKeyPool — 17/17 tests PASS ✅  
+_Session 111_ (2026-04-20) : Tests fonctionnels TDD ApiKeyPool — 16/16 tests PASS ✅  
+_Session 110_ (2026-04-20) : Data models unit tests — ApiKeyEntry, QuotaConfig ✅  
+_Session 109_ (2026-04-20) : Formalisation Lazy/Eager loading — Tests ✅  
+_Session 108_ (2026-04-20) : API Key Pool Design — Architecture rotation ✅  
+_Session 107_ (2026-04-19) : Nettoyage documentation — 153 lignes supprimées ✅  
+_Session 106_ (2026-04-19) : Correction 6 tests — 240/240 PASS (100%) ✅  
+_Session 105_ (2026-04-19) : Tests performance mockés — 57/57 maintenu ✅  
+_Session 104_ (2026-04-19) : Correction Archive history — Feature 4 ✅  
+_Session 103_ (2026-04-19) : Correction Error Handling — Feature 7 ✅  
+_Session 102_ (2026-04-19) : Performance tests optimisés — Feature 7 ✅  
+_Session 101_ (2026-04-18) : Consolidation tests fonctionnels — 57/57 ✅  
+_Session 100_ (2026-04-18) : Validation Features 5, 12, 13 — RAG ✅  
+_Session 96-99_ : Features 10-11 — File edge cases + diagram types ✅  
+_Session 76-95_ : EPIC BDD Cucumber — Features 1-9 ✅  
+_Session 76_ (2026-04-16) : Correction diagrammes PlantUML README ✅  
+_Session 75_ (2026-04-16) : Correction tests échoués — 241/241 PASS ✅  
+_Session 74_ (2026-04-16) : Debug tests unitaires — 203/203 PASS ✅  
+_Session 73_ (2026-04-15) : Debug crash functionalTest — 38/42 PASS ✅
+
+→ _Détails_ : `.agents/sessions/` (sessions 100+)  
+→ _Archives 1-72_ : `.agents/archives/SESSIONS_1-72_ARCHIVE.adoc`  
+→ _Archives 73-105_ : `.agents/archives/SESSIONS_HISTORY_83-95.adoc`

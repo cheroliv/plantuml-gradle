@@ -1,0 +1,73 @@
+= Stratégie LAZY/EAGER — Principes Essentiels
+:jbake-status: EAGER
+
+[abstract]
+Ce fichier définit la stratégie de gestion du contexte agent pour le projet `plantuml-gradle`.
+Chargé automatiquement (EAGER) en début de session.
+Documentation exhaustive dans `.agents/encyclopedies/LAZY_EAGER_ENCYCLOPEDIE.adoc`.
+
+== Principes
+
+[cols="1,1", options="header"]
+|===
+| EAGER | LAZY
+| Tableau de bord | Manuel du propriétaire
+| Chargé automatiquement | Chargé sur demande
+| <= 100 lignes, <= 10k tokens | Illimité, détaillé
+| Règles absolues, mission courante | Archives, historique, références
+|===
+
+== Politique de Chargement
+
+[cols="2,1,2", options="header"]
+|===
+| Fichier | Type | Quand charger
+| `AGENT.adoc` | EAGER | Début session (auto)
+| `LAZY_EAGER_ESSENTIALS.adoc` | EAGER | Début session (auto)
+| `PROMPT_REPRISE.adoc` | EAGER | Début session (auto)
+| `.agents/INDEX.adoc` | EAGER | Début session (auto)
+| `*_ESSENTIALS.adoc` | EAGER | Début session si EPIC active
+| `.agents/SESSIONS_HISTORY.adoc` | EAGER | Début session (auto)
+| `*_REFERENCE.adoc` | LAZY | Sur besoin (détails architecture)
+| `.agents/sessions/N-*.adoc` | LAZY | Sur demande (détails session)
+| `.agents/archives/COMPLETED_TASKS_ARCHIVE_*.adoc` | LAZY | Fin session
+| `.agents/encyclopedies/*.adoc` | COLD | Jamais auto (humain seulement)
+|===
+
+== Début de Session
+
+Chargement automatique :
+. `AGENT.adoc` — directives completes
+. `LAZY_EAGER_ESSENTIALS.adoc` — ce fichier
+. `PROMPT_REPRISE.adoc` — mission session en cours
+. `.agents/INDEX.adoc` — regles executives + etat projet
+. `.agents/SESSIONS_HISTORY.adoc` — tableau recapitulatif
+
+Si besoin de details : charger `*_REFERENCE.adoc` et `sessions/` en LAZY.
+Connaissance froide : `encyclopedies/`, jamais automatique.
+
+== Fin de Session
+
+Mots-cles declencheurs : "nouvelle session", "je quitte", "session terminee", "a plus tard", "on arrete la"
+
+Procedure obligatoire en 6 etapes (+ 1 si backup rotation) :
+. Creer l'archive LAZY : `.agents/sessions/{N}-{type}-{sujet}.adoc`
+. Mettre a jour `PROMPT_REPRISE.adoc` — Mission N+1 (max 70 lignes)
+. Mettre a jour `SESSIONS_HISTORY.adoc`
+. Mettre a jour `INDEX.adoc` — Date, session en cours N+1
+. Mettre a jour `TEST_COVERAGE_ANALYSIS.adoc` (si tests modifies)
+. Mettre a jour `COMPLETED_TASKS_ARCHIVE.adoc`
+. Backup rotation si N%10==0 OU EAGER cumule > 500 lignes
+
+Checklist obligatoire apres execution :
+```
+[OK] 1. Archive session N creee
+[OK] 2. PROMPT_REPRISE.adoc mis a jour pour session N+1
+[OK] 3. SESSIONS_HISTORY.adoc mis a jour
+[OK] 4. INDEX.adoc mis a jour
+[OK] 5. TEST_COVERAGE_ANALYSIS.adoc mis a jour (si applicable)
+[OK] 6. COMPLETED_TASKS_ARCHIVE.adoc mis a jour
+[OK] 7. Backup rote (si applicable)
+```
+
+Aucune etape ne peut etre marquee [OK] si le fichier n'a pas ete effectivement modifie et verifie.

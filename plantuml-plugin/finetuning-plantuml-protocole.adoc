@@ -1,0 +1,631 @@
+= Protocole — Feature Fine-tuning PlantUML
+:author: cheroliv
+:revdate: 2026-04-28
+:revnumber: 0.1.0
+:toc: left
+:toclevels: 3
+:sectnums:
+:icons: font
+:source-highlighter: highlight.js
+:lang: fr
+
+== Contexte et périmètre
+
+Ce document décrit le protocole d'intégration d'une feature de fine-tuning d'un modèle de langage
+pour la génération de diagrammes PlantUML, dans le plugin Gradle existant `com.cheroliv.plantuml`
+(repo `plantuml-gradle`).
+
+Le plugin existant intègre déjà `langchain4j` et `ollama` dans ses dépendances.
+Cette feature étend naturellement cet écosystème en ajoutant la capacité de produire
+et de publier un modèle fine-tuné open source, entraîné à générer tous les types
+principaux de diagrammes PlantUML à partir d'une description en langage naturel.
+
+=== Objectif final
+
+Publier sur Hugging Face un modèle fine-tuné basé sur `gemma-4-E4B-it` (Google DeepMind),
+capable de générer des diagrammes PlantUML valides et corrects syntaxiquement,
+couvrant les types : séquence, classe, activité, flowchart, use case, composant, déploiement.
+
+=== Philosophie d'architecture
+
+Le principe directeur est de **maximaliser la logique dans Gradle** et de laisser
+le notebook Colab aussi mince que possible — idéalement un runner qui délègue
+à des tâches Gradle via l'API GitHub Actions et la CLI `gh`.
+
+Cela garantit :
+
+* la reproductibilité locale (`./gradlew <task>`)
+* la portabilité CI/CD (GitHub Actions)
+* la traçabilité des décisions (versionning Kotlin DSL)
+* la séparation claire entre orchestration (Gradle/JVM) et exécution GPU (Colab/Python)
+
+---
+
+== Architecture générale du pipeline
+
+=== Vue d'ensemble
+
+Le pipeline s'articule autour de trois zones de responsabilité distinctes :
+
+[plantuml]
+----
+@startuml
+skinparam sequenceArrowThickness 2
+skinparam sequenceBoxBorderColor #444
+skinparam sequenceLifeLineBorderColor #888
+skinparam sequenceParticipantBackgroundColor #f5f5f5
+skinparam sequenceParticipantBorderColor #444
+skinparam noteBorderColor #ccaa00
+skinparam noteBackgroundColor #fffbe6
+
+participant "Gradle\n(local / CI)" as G
+participant "GitHub Actions\n(CI/CD)" as GHA
+participant "Google Colab\n(GPU T4)" as COL
+participant "Hugging Face Hub" as HF
+
+G -> G : checkEnvironment\nprepareDataset\npackageTrainingBundle
+G -> GHA : triggerTraining\n(gh workflow run)
+activate GHA
+GHA -> GHA : injection secrets\n(HF_TOKEN, GH_TOKEN)
+GHA -> COL : déclenchement notebook
+activate COL
+COL -> COL : fine-tuning\n(Unsloth + QLoRA)
+COL -> COL : évaluation du modèle
+COL -> HF : push poids + dataset
+COL -> GHA : notification fin de run
+deactivate COL
+GHA -> G : artifacts (métriques, rapport)
+deactivate GHA
+G -> G : fetchTrainingReport\nvalidateModel\ngenerateModelCard
+G -> GHA : publishModel\n(gh workflow run)
+GHA -> HF : publication model card
+@enduml
+----
+
+=== Frontière JVM / Python
+
+Gradle orchestre et valide. Python exécute tout ce qui relève de l'écosystème ML.
+Cette frontière est stricte et non négociable.
+
+[plantuml]
+----
+@startuml
+skinparam componentStyle rectangle
+skinparam componentBackgroundColor #f5f5f5
+skinparam componentBorderColor #444
+skinparam packageBackgroundColor #eef4fb
+skinparam packageBorderColor #3a7abf
+skinparam arrowColor #444
+
+package "JVM / Gradle" {
+  [Orchestration du pipeline]
+  [Validation syntaxique PlantUML]
+  [Assemblage du bundle]
+  [Déclenchement gh CLI]
+  [Génération model card\n(AsciidoctorJ)]
+}
+
+package "Python / Colab" {
+  [Téléchargement datasets\n(HuggingFace)]
+  [Formatage chat Gemma 4]
+  [Entraînement + évaluation\n(Unsloth / QLoRA)]
+  [Export GGUF]
+  [Publication HuggingFace Hub]
+  [Interaction GitHub Actions\n(API REST / PyGithub)]
+}
+
+[Assemblage du bundle] --> [Entraînement + évaluation\n(Unsloth / QLoRA)] : bundle (dataset + config)
+[Validation syntaxique PlantUML] --> [Formatage chat Gemma 4] : dataset validé
+[Déclenchement gh CLI] --> [Interaction GitHub Actions\n(API REST / PyGithub)] : workflow dispatch
+@enduml
+----
+
+---
+
+== Dataset
+
+=== Sources retenues
+
+[cols="2,1,3", options="header"]
+|===
+| Dataset HuggingFace | Taille | Contenu
+
+| `coai/plantuml_generation`
+| ~1 940 exemples
+| Descriptions riches (use cases complets) couvrant plusieurs types de diagrammes
+
+| `ibivibiv/plantuml-training`
+| ~972 exemples
+| Instructions en langage naturel — types variés
+
+| `vinzur/softw-desc-to-plantuml-usecase-diagram`
+| ~172 exemples
+| Use case uniquement — format `input`/`output` propre et homogène
+|===
+
+Total brut : ~3 084 exemples avant nettoyage.
+
+=== Format cible
+
+Format de chat Gemma 4 standard — paire `user` / `assistant`
+où l'assistant produit un bloc `@startuml ... @enduml` syntaxiquement valide.
+
+=== Décisions ouvertes
+
+[IMPORTANT]
+====
+* Seuil minimal d'exemples valides après filtrage syntaxique PlantUML à définir. +
+→ _À trancher avant implémentation._
+====
+
+---
+
+== Modèles à fine-tuner et stack d'entraînement
+
+=== Modèles retenus
+
+Trois modèles sont fine-tunés sur le même dataset, chacun avec ses propres
+contraintes matérielles et sa propre cible de publication.
+
+[cols="2,2,1,3", options="header"]
+|===
+| Modèle | Source | Licence | VRAM fine-tuning (QLoRA/LoRA)
+
+| `google/gemma-4-E2B-it`
+| Google DeepMind
+| Apache 2.0
+| ~8 Go — T4 Colab gratuit ✅
+
+| `google/gemma-4-E4B-it`
+| Google DeepMind
+| Apache 2.0
+| ~10 Go — T4 Colab gratuit ✅
+
+| `Qwen/Qwen3.5-9B`
+| Alibaba Cloud
+| Apache 2.0
+| ~22 Go bf16 LoRA — *T4 insuffisant*, nécessite Colab Pro (A100) ⚠️
+|===
+
+=== Caractéristiques du Qwen3.5-9B
+
+Le Qwen3.5-9B est un modèle dense multimodal (texte + vision) à architecture hybride
+(Gated Delta Networks + Gated Attention), publié en février 2026 par Alibaba Cloud.
+Ses points forts pour cette use-case :
+
+* excellent sur les tâches de génération de code et de raisonnement structuré
+* contexte natif de 262 144 tokens (extensible à 1M)
+* support Unsloth avec notebooks Colab fournis
+* licence Apache 2.0, compatible publication open source
+
+=== Stack d'entraînement
+
+Unsloth + QLoRA 4-bit (Gemma 4 E2B/E4B) et bf16 LoRA (Qwen3.5-9B) + TRL SFTTrainer.
+Les trois modèles partagent le même dataset et le même format de chat cible.
+Les hyperparamètres de départ seront fixés après un premier run exploratoire
+et documentés en décisions arrêtées dans la prochaine révision de ce document.
+
+=== Décisions ouvertes
+
+[IMPORTANT]
+====
+* Hyperparamètres finaux (`learning_rate`, `num_train_epochs`, `batch_size`)
+pour chacun des trois modèles. +
+→ _À documenter après le premier run exploratoire._
+
+* GPU cible pour le Qwen3.5-9B : Colab Pro A100 (40 Go) ou A100 (80 Go).
+Le T4 gratuit est insuffisant pour le bf16 LoRA à 22 Go de VRAM requis. +
+→ _À trancher avant implémentation._
+
+* Mécanisme exact de déclenchement du notebook Colab depuis GitHub Actions. +
+→ _À préciser lors de l'écriture du workflow._
+====
+
+---
+
+== Publication
+
+=== Cible
+
+Hugging Face Hub — repo public sous le compte `cheroliv`.
+
+Le modèle publié comprend les poids LoRA (safetensors), le modèle fusionné
+en GGUF pour usage local via Ollama, la model card générée depuis AsciiDoc,
+et le dataset d'entraînement versionné.
+
+=== Intégration dans le plugin existant
+
+Le modèle GGUF publié sera consommable directement par le plugin `com.cheroliv.plantuml`
+via la dépendance `langchain4j-ollama` déjà présente, sans modification de l'API du plugin.
+
+=== Décisions ouvertes
+
+[IMPORTANT]
+====
+* Export GGUF depuis Colab ou en local après rapatriement des poids. +
+→ _À trancher selon la taille des artefacts._
+
+* Stratégie de versioning du modèle publié par rapport au versioning du plugin. +
+→ _À trancher._
+====
+
+---
+
+== Catalogue des tâches Gradle
+
+=== Chaîne d'exécution
+
+Les tâches s'enchaînent selon les dépendances suivantes :
+
+[plantuml]
+----
+@startuml
+skinparam activityBackgroundColor #f5f5f5
+skinparam activityBorderColor #444
+skinparam activityArrowColor #444
+skinparam activityDiamondBackgroundColor #fffbe6
+skinparam activityDiamondBorderColor #ccaa00
+skinparam swimlaneBackgroundColor #eef4fb
+
+|Gradle|
+start
+:checkEnvironment;
+note right: gh CLI, HF_TOKEN,\nenvironnement Python
+
+:prepareDataset;
+note right: délègue à Python\nvalide via PlantUML lib
+
+:packageTrainingBundle;
+note right: dataset + config\n+ notebook paramétré
+
+:triggerTraining;
+note right: gh workflow run
+
+|GitHub Actions / Colab|
+:fine-tuning + évaluation;
+note right: Unsloth + QLoRA\nT4 GPU Colab
+
+:push poids + artifacts;
+note right: HuggingFace Hub\n+ GitHub Artifacts
+
+|Gradle|
+:fetchTrainingReport;
+note right: métriques, loss,\nrésultats évaluation
+
+:validateModel;
+note right: PlantUML headless\nsur échantillon de sorties
+
+:generateModelCard;
+note right: template AsciiDoc\n→ Markdown via AsciidoctorJ
+
+:publishModel;
+note right: gh workflow run\n→ publication HF Hub
+
+stop
+@enduml
+----
+
+=== Description des tâches
+
+[cols="2,1,4", options="header"]
+|===
+| Tâche | Phase | Responsabilité
+
+| `checkEnvironment`
+| Prérequis
+| Vérifie que `gh` CLI est authentifié, que `HF_TOKEN` est présent,
+et que l'environnement Python est opérationnel avant tout lancement.
+
+| `prepareDataset`
+| Dataset
+| Délègue à Python le téléchargement et la fusion des datasets,
+puis prend le relai pour valider syntaxiquement les blocs PlantUML
+via la lib native déjà présente dans le plugin.
+
+| `packageTrainingBundle`
+| Assemblage
+| Assemble dans un état cohérent et versionné tout ce dont Colab a besoin :
+dataset validé, config d'entraînement, notebook paramétré.
+C'est le livrable que GitHub Actions consomme.
+
+| `triggerTraining`
+| Entraînement
+| Invoque `gh workflow run` pour déclencher le job GitHub Actions
+qui ouvre et exécute le notebook Colab.
+
+| `fetchTrainingReport`
+| Évaluation
+| Récupère via l'API GitHub Actions les artifacts produits par Colab
+(métriques, loss, résultats d'évaluation) et les stocke localement.
+
+| `validateModel`
+| Évaluation
+| Valide les sorties du modèle en local via PlantUML headless
+sur un échantillon extrait du rapport.
+
+| `generateModelCard`
+| Publication
+| Génère la model card depuis un template AsciiDoc versionné dans le repo,
+via AsciidoctorJ, et la convertit en Markdown pour Hugging Face.
+
+| `publishModel`
+| Publication
+| Déclenche via `gh` le workflow GitHub Actions de publication finale
+sur Hugging Face Hub.
+|===
+
+---
+
+== Pipeline de publication du dataset
+
+=== Objectif
+
+Le dataset fusionné et validé est publié publiquement sur Hugging Face Hub
+sous le compte `cheroliv`, de façon à être contributable par la communauté.
+Ce pipeline est indépendant du pipeline modèle mais le précède logiquement —
+le dataset publié sert de référence versionnée pour tout entraînement ultérieur.
+
+=== Séquence avec points d'arrêt
+
+[plantuml]
+----
+@startuml
+skinparam activityBackgroundColor #f5f5f5
+skinparam activityBorderColor #444
+skinparam activityArrowColor #444
+skinparam activityDiamondBackgroundColor #fffbe6
+skinparam activityDiamondBorderColor #ccaa00
+
+start
+
+:prepareDataset;
+note right: fusion des 3 sources\nformatage chat Gemma 4\nvalidation PlantUML
+
+fork
+  :audit manuel du dataset;
+  note right: **POINT D'ARRÊT 1**\nrevue humaine\nde la qualité des exemples
+fork again
+  :statistiques de couverture;
+  note right: distribution par type\nde diagramme
+end fork
+
+:décision de publication;
+note right: **POINT D'ARRÊT 2**\nvalidation explicite\navant push HuggingFace
+
+:publishDataset;
+note right: push sur\ncheroliv/plantuml-dataset\n(public, Apache 2.0)
+
+stop
+@enduml
+----
+
+=== Artefact publié
+
+Hugging Face Hub — repo public `cheroliv/plantuml-dataset` sous licence *Apache 2.0*, contenant :
+
+* le fichier JSONL fusionné au format chat Gemma 4
+* un `README.md` généré depuis AsciiDoc décrivant les sources, la licence et le format
+* les statistiques de couverture par type de diagramme
+* le fichier `LICENSE` Apache 2.0 explicite
+
+=== Nouvelle tâche Gradle
+
+[cols="2,1,4", options="header"]
+|===
+| Tâche | Phase | Responsabilité
+
+| `publishDataset`
+| Publication dataset
+| Déclenche via `gh workflow run` le workflow GitHub Actions de push
+du dataset validé sur Hugging Face Hub sous licence Apache 2.0.
+|===
+
+---
+
+== Pipeline de publication des modèles
+
+=== Objectif
+
+Les deux modèles fine-tunés — `gemma-4-E2B` et `gemma-4-E4B` — sont publiés
+séquentiellement selon trois étapes : Hugging Face Hub, adaptation Ollama,
+puis publication sur ollama.com. Chaque transition est protégée par un point
+d'arrêt manuel. Les deux modèles suivent le même pipeline, exécuté deux fois.
+La licence *Apache 2.0* s'applique uniformément aux deux publications.
+
+=== Séquence avec points d'arrêt
+
+[plantuml]
+----
+@startuml
+skinparam activityBackgroundColor #f5f5f5
+skinparam activityBorderColor #444
+skinparam activityArrowColor #444
+skinparam activityDiamondBackgroundColor #fffbe6
+skinparam activityDiamondBorderColor #ccaa00
+
+start
+
+:validateModel (E2B + E4B);
+note right: PlantUML headless\nsur échantillon de sorties\npour chaque modèle
+
+:revue des métriques;
+note right: **POINT D'ARRÊT 1**\nvalidation humaine\ndes résultats d'évaluation
+
+:generateModelCard (E2B + E4B);
+note right: template AsciiDoc\n→ Markdown HuggingFace\nune model card par modèle
+
+:révision des model cards;
+note right: **POINT D'ARRÊT 2**\nrelecture avant publication publique
+
+:publishModel → HuggingFace Hub;
+note right: cheroliv/gemma-4-E2B-plantuml\ncheroliv/gemma-4-E4B-plantuml\n(Apache 2.0, public)
+
+:vérification sur HuggingFace;
+note right: **POINT D'ARRÊT 3**\nvérification des deux repos publics\navant adaptation Ollama
+
+:adaptation Ollama;
+note right: conversion GGUF\ncréation Modelfile\npour chaque modèle
+
+:vérification de la compatibilité Ollama;
+note right: **POINT D'ARRÊT 4**\ntest local avant push ollama.com
+
+:publishToOllama (E2B + E4B);
+note right: cheroliv/plantuml-e2b\ncheroliv/plantuml-e4b\n(Apache 2.0, public)
+
+stop
+@enduml
+----
+
+=== Destination Hugging Face Hub
+
+Trois repos publics sous licence *Apache 2.0* :
+
+* `cheroliv/gemma-4-E2B-plantuml` — modèle léger, optimisé edge/mobile
+* `cheroliv/gemma-4-E4B-plantuml` — modèle principal Gemma, meilleure qualité
+* `cheroliv/qwen3.5-9B-plantuml` — modèle dense multimodal, capacités de raisonnement étendues
+
+Chaque repo contient les poids LoRA (safetensors), le modèle fusionné en GGUF,
+la model card générée depuis AsciiDoc, et une référence versionnée
+au dataset `cheroliv/plantuml-dataset`.
+
+=== Adaptation Ollama
+
+Avant le push sur ollama.com, chaque modèle GGUF fait l'objet d'une étape
+d'adaptation explicite : création d'un `Modelfile` Ollama définissant
+le prompt système, le format de réponse attendu (bloc `@startuml...@enduml`),
+et les paramètres d'inférence adaptés à la génération PlantUML.
+
+Cette étape est distincte de la simple conversion GGUF —
+c'est elle qui garantit que le modèle se comporte correctement
+une fois tiré depuis ollama.com par un utilisateur final.
+
+=== Destination ollama.com
+
+Trois modèles publics sous licence *Apache 2.0* accessibles sans configuration :
+
+[source]
+----
+ollama pull cheroliv/plantuml-e2b
+ollama pull cheroliv/plantuml-e4b
+ollama pull cheroliv/plantuml-qwen3.5
+----
+
+Consommables en remote depuis le plugin `com.cheroliv.plantuml`
+via `langchain4j-ollama` sans installation locale des poids.
+
+=== Nouvelles tâches Gradle
+
+[cols="2,1,4", options="header"]
+|===
+| Tâche | Phase | Responsabilité
+
+| `publishModel`
+| Publication HF
+| Déclenche via `gh` la publication des deux modèles sur Hugging Face Hub
+sous licence Apache 2.0 — poids LoRA, GGUF et model card.
+
+| `adaptForOllama`
+| Adaptation Ollama
+| Génère le `Modelfile` pour chaque modèle et vérifie la compatibilité
+avec le format attendu par ollama.com avant tout push.
+
+| `publishToOllama`
+| Publication Ollama
+| Déclenche via `gh` le push des deux modèles adaptés sur ollama.com
+sous le namespace `cheroliv`, après validation manuelle.
+|===
+
+---
+
+== Vue d'ensemble des artefacts publiés
+
+[plantuml]
+----
+@startuml
+skinparam nodeBackgroundColor #f5f5f5
+skinparam nodeBorderColor #444
+skinparam databaseBackgroundColor #eef4fb
+skinparam databaseBorderColor #3a7abf
+skinparam arrowColor #444
+skinparam componentBackgroundColor #f5f5f5
+skinparam componentBorderColor #666
+
+node "Hugging Face Hub\n(Apache 2.0, public)" {
+  node "cheroliv/plantuml-dataset" {
+    [dataset JSONL]
+  }
+  node "cheroliv/gemma-4-E2B-plantuml" {
+    [GGUF E2B]
+  }
+  node "cheroliv/gemma-4-E4B-plantuml" {
+    [GGUF E4B]
+  }
+  node "cheroliv/qwen3.5-9B-plantuml" {
+    [GGUF Qwen3.5-9B]
+  }
+}
+
+node "ollama.com\n(Apache 2.0, public)" {
+  [cheroliv/plantuml-e2b]
+  [cheroliv/plantuml-e4b]
+  [cheroliv/plantuml-qwen3.5]
+}
+
+node "plugin com.cheroliv.plantuml" {
+  [langchain4j-ollama]
+}
+
+[GGUF E2B] --> [cheroliv/plantuml-e2b] : adapt + ollama push
+[GGUF E4B] --> [cheroliv/plantuml-e4b] : adapt + ollama push
+[GGUF Qwen3.5-9B] --> [cheroliv/plantuml-qwen3.5] : adapt + ollama push
+[cheroliv/plantuml-e2b] --> [langchain4j-ollama] : remote
+[cheroliv/plantuml-e4b] --> [langchain4j-ollama] : remote
+[cheroliv/plantuml-qwen3.5] --> [langchain4j-ollama] : remote
+[dataset JSONL] --> [GGUF E2B] : source
+[dataset JSONL] --> [GGUF E4B] : source
+[dataset JSONL] --> [GGUF Qwen3.5-9B] : source
+@enduml
+----
+----
+
+---
+
+== Secrets et variables d'environnement
+
+[cols="1,1,2", options="header"]
+|===
+| Clé | Scope | Usage
+
+| `HF_TOKEN`
+| GitHub Actions + Colab
+| Authentification Hugging Face — upload dataset et push modèle
+
+| `GH_TOKEN`
+| Local + Colab
+| Authentification `gh` CLI — déclenchement des workflows depuis Colab
+
+| `OLLAMA_TOKEN`
+| GitHub Actions
+| Authentification ollama.com — push du modèle sous le namespace `cheroliv`
+
+| `COLAB_API_KEY`
+| GitHub Actions
+| Déclenchement programmatique du notebook Colab si nécessaire
+|===
+
+[WARNING]
+====
+Aucun secret ne doit apparaître dans le repo, le dataset, ni la model card.
+La gestion des secrets est exclusivement assurée par GitHub Actions Secrets
+et les variables d'environnement d'exécution Colab.
+====
+
+---
+
+== Références
+
+* Plugin : https://plugins.gradle.org/plugin/com.cheroliv.plantuml
+* Plugin readme : https://plugins.gradle.org/plugin/com.cheroliv.readme
+* Modèle de base : https://huggingface.co/google/gemma-4-E4B-it
+* Unsloth Gemma 4 : https://unsloth.ai/docs/models/gemma-4/train
+* Dataset principal : https://huggingface.co/datasets/coai/plantuml_generation
