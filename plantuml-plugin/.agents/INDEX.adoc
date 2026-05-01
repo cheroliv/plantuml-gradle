@@ -149,7 +149,7 @@ _Leçon Session 033_ : L'agent a tenté de modifier `/home/cheroliv/.gitconfig` 
 
 == 🎯 Roadmap — État Actuel
 
-| EPIC 12 : Consolidation Gouvernance/Tests | 🟢 100% | 9/10 | 🟢 TERMINÉ — Sessions 135-137 (PROCEDURES, Kover 81.19%, tests robustes)
+| EPIC 13 : Multi-provider API Pool (tiers) | 🟡 0% | —/10 | 🟡 EN COURS — Sessions 138-141
 |===
 
 _Historique_ :

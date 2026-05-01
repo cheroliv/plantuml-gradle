@@ -2,42 +2,78 @@
 
 ____
 **Objectif** : Suivi des issues et bugs en cours
-**Dernière mise à jour** : Session 135 (1er mai 2026)
+**Dernière mise à jour** : Session 138 (1er mai 2026)
 ____
 
 '''
 
 == 🔴 EPIC Prioritaire
 
+=== EPIC 13 : Multi-provider API Pool — Rotation par tiers (Enterprise → Pro → Free)
+
+**Statut** : 🟡 EN COURS
+**Priorité** : 🔴 HAUTE
+**Session** : 138-141
+
+==== Contexte
+
+Le pool actuel tourne en round-robin ou least-used, sans notion de coût ou de tier. Les stratégies `WEIGHTED` et `SMART` sont des stubs. `fallbackEnabled` est défini mais inutilisé. L'objectif est d'ajouter une rotation intelligente qui consomme les clés payantes en priorité (Enterprise puis Pro) et garde le freemium comme filet de sécurité.
+
+**Principe** : Une clé `Enterprise` n'a pas de raison d'attendre qu'une clé `Free` soit épuisée. On descend dans les tiers au fur et à mesure que les quotas saturent.
+
+**Ordre de consommation** : `ENTERPRISE` → `PRO` → `FREE`
+
+==== Tâches
+
+[cols="1,4,1"]
+|===
+| Priorité | Tâche | Statut
+
+.2+^.^| 🔴 HIGH
+| **ApiKeyEntry** : Ajouter `tier: KeyTier` (ENTERPRISE=3, PRO=2, FREE=1) + `weight: Double` pour raffinement intra-tier dans `apikey/models.kt`
+| ⬜
+
+| **TieredRotationStrategy** : Nouveau composant — trier les entrées par `tier` décroissant, dans un même tier utiliser le `weight` pour pondérer la sélection
+| ⬜
+
+.2+^.^| 🟡 MEDIUM
+| **ApiKeyPool.getNextKey()** : Intégrer `TieredRotationStrategy` — quand le quota d'une entrée est saturé, passer à l'entrée ou au tier suivant (vers le bas)
+| ⬜
+
+| **fallbackEnabled** : Câbler dans la rotation — quand toutes les entrées Enterprise+Pro sont épuisées, basculer sur FREE (si enabled)
+| ⬜
+
+.2+^.^| 🟢 LOW
+| **YAML schema** : Ajouter `tier` et `weight` dans `ApiKeyPoolEntry`, màj `plantuml-test-context.yml`
+| ⬜
+
+| **Cross-provider** : Un même pool peut mixer Gemini Pro + Mistral Free + Ollama (local), fallback inter-provider quand tous les tiers d'un provider sont épuisés
+| ⬜
+|===
+
+==== Critères d'Acceptation
+
+* [ ] `ApiKeyEntry` supporte `tier` (ENTERPRISE/PRO/FREE) et `weight`
+* [ ] `TieredRotationStrategy` sélectionne Enterprise en priorité, puis Pro, puis Free
+* [ ] `ApiKeyPool.getNextKey()` descend les tiers quand quota saturé
+* [ ] Fallback FREE fonctionne quand `fallbackEnabled=true`
+* [ ] YAML : `pool[].tier` parsé et utilisé
+* [ ] Tests unitaires : stratégie de rotation + fallback entre tiers (≥15 tests)
+* [ ] `./gradlew compileKotlin` OK
+* [ ] `./gradlew test` OK (0 failure)
+
+'''
+== 🟢 EPICs Terminées
+
 === EPIC 11 : Contenu — Le Knowledge Graph comme outil de compréhension de codebase
 
 **Statut** : 🟢 **TERMINÉ** — Sessions 133-134
 **Priorité** : 🔴 **HAUTE**
-**Session** : 133-134
 
-==== Contexte
+==== Livrables
 
-Après EPIC 10 (intégration graphify), le plugin génère des diagrammes Knowledge Graph à partir de `graphify-out/graph.json`. Cette capacité reste cependant sous-exploitée : la valeur pour l'**onboarding** d'un nouveau développeur et la **navigation** dans un codebase complexe n'est pas encore documentée comme un cas d'usage à part entière.
-
-==== Tâches
-
-. **Article blog cheroliv.com**
-  * [x] Titre : "Le Knowledge Graph comme outil de compréhension de codebase"
-  * [x] Focus : onboarding, navigation, contexte métier perdu, découvrabilité
-  * [x] Minimum 6 diagrammes PlantUML illustratifs (8 diagrammes)
-  * [x] Lien vers le plugin Gradle + graphify comme stack concrète
-  * [x] Section "5 minutes pour générer votre propre KG"
-
-. **Tests fonctionnels KG**
-  * [x] 15/15 tests PASSED (KnowledgeGraphDiagramFunctionalTest)
-
-==== Critères d'Acceptation
-
-* [x] Article rédigé en AsciiDoc, prêt à publier sur cheroliv.com
-* [x] Diagrammes PlantUML inclus et valides
-* [x] Tests fonctionnels validés (15/15 PASS)
-
-''' == 🟢 EPICs Terminées
+* [x] Article blog cheroliv.com (0106) : 458 lignes, 8 diagrammes PlantUML
+* [x] Tests fonctionnels KG : 15/15 PASSED (KnowledgeGraphDiagramFunctionalTest)
 
 === EPIC 9 : Knowledge Graph Diagram — Représentation graphique du Knowledge Graph via PlantUML
 
@@ -55,7 +91,8 @@ Après EPIC 10 (intégration graphify), le plugin génère des diagrammes Knowle
 * [x] Tests intégration — GraphifyIntegrationTest (pipeline complet)
 * [x] 380/380 tests PASSED
 
-''' === EPIC 10 : Intégration Graphify dans le cycle de dev — Tester, documenter, écrire
+'''
+=== EPIC 10 : Intégration Graphify dans le cycle de dev — Tester, documenter, écrire
 
 **Statut** : 🟢 **TERMINÉ** — Session 125-131
 **Priorité** : 🟢 **TERMINÉ**
@@ -92,7 +129,7 @@ Après EPIC 10 (intégration graphify), le plugin génère des diagrammes Knowle
 * [x] Diagrammes d'architecture à jour (C4, hexagonale, interne)
 * [x] Nettoyage : suppression README_fr.adoc obsolète
 
-''' ''
+'''
 
 == 🟢 EPICs Terminées (suite)
 
@@ -315,4 +352,4 @@ org.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m -XX:+UseG1GC
 
 '''
 
-**Dernière mise à jour** : Session 135 (1er mai 2026)
+**Dernière mise à jour** : Session 138 (1er mai 2026)
