@@ -1,45 +1,37 @@
-= Prompt de reprise — Session 137
+= Prompt de reprise — Session 138
 
 _Règles absolues_ : voir `AGENT.adoc` section "Règles Absolues"
 
 ____
-**EPIC** : 12 — Consolidation Gouvernance & Tests
-**Statut** : 🟡 EN COURS (clôture)
-**Mission** : Clôturer EPIC 12, nettoyer BACKLOG, corriger incohérence portefeuille INDEX
+**EPIC** : Aucune en cours — Maintenance
+**Statut** : 🟢 Backlog propre (12 EPICs terminées)
+**Mission** : Définir les prochaines priorités, roadmap post-EPICs
 ____
 
 '''
 
-== Session 136 — Résumé
+== Session 137 — Résumé
 
 **Date** : 1er mai 2026
-**Résultat** : ✅ 6/6 tâches EPIC 12 exécutées
+**Résultat** : ✅ EPIC 12 clôturée — BACKLOG + INDEX à jour
 
 | Fichier | Modification |
 |---------|--------------|
-| `.agents/PROCEDURES.adoc` | -31 lignes (double étape 3, 6→8 étapes aligné) |
-| `PlantumlFunctionalSuite.kt` | +6 raisons @Ignore, +2 @Ignore→@Disabled |
-| `LlmServicePrivateMethodsTest.kt` | -47 lignes (imports LangChain4j concrets retirés) |
-| `build/reports/kover/xml/report.xml` | Baseline 81.19% |
+| `BACKLOG.adoc` | EPIC 12 🟢 TERMINÉ (checkboxes cochées, déplacé en section terminée) |
+| `.agents/INDEX.adoc` | Roadmap EPIC 12 🟢, incohérence portefeuille corrigée, session 138 |
 
-**Archive** : `.agents/sessions/136-epic12-consolidation-execution.adoc`
+**Archive** : `.agents/sessions/137-epic12-cloture-backlog-index.adoc`
 
 '''
 
-== Session 137 — Priorités
+== Session 138 — Priorités
 
-1. **BACKLOG.adoc** : EPIC 12 🟢 TERMINÉ, checkboxes cochées, cleanup section "Suivante"
-2. **INDEX.adoc** : incohérence portefeuille — "PROCEDURES.adoc decrit 5 etapes vs 6 etapes" maintenant résolue
+1. **Audit backlog** : 12 EPICs terminées — identifier les prochains axes de travail
+2. **TODO.adoc** : Consolider les idées informelles en pistes concrètes
+3. **Réflexion stratégique** : Plugin mature — quelles features next ?
 
 '''
-
-== Critères d'Acceptation
-
-- [ ] EPIC 12 marquée TERMINÉ dans BACKLOG.adoc
-- [ ] BACKLOG.adoc propre (aucune section périmée)
-- [ ] INDEX.adoc : incohérence portefeuille corrigée
-- [ ] `compileKotlin` OK
 
 ---
 
-**Session 136** ✅ — **Session 137** 🚀
+**Session 137** ✅ — **Session 138** 🚀

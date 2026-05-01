@@ -3,8 +3,8 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-05-01  
-_Session en cours_ : 137 — EPIC 12 : Clôture (BACKLOG + incohérence portefeuille)  
-_Session terminee_ : 136 (Execution EPIC 12 — 6/6 tâches terminées)  
+_Session en cours_ : 138 — Maintenance (12 EPICs terminées, définition prochaines priorités)  
+_Session terminee_ : 137 (EPIC 12 Clôture — BACKLOG + INDEX)  
 _Audit gouvernance_ : 2026-04-30 ✅ (LAZY_EAGER_ESSENTIALS, encyclopedie, backup tronque, AGENT complet, portefeuille 6 projets)
 
 '''
@@ -119,6 +119,7 @@ _Leçon Session 033_ : L'agent a tenté de modifier `/home/cheroliv/.gitconfig` 
 
 |===
 | # | Date | Type | Sujet | Fichier | Score
+.1+^.^| 137 | 2026-05-01 | chore | EPIC 12 Cloture (BACKLOG 🟢 + INDEX incohérence corrigée) | `137-epic12-cloture-backlog-index.adoc` | 9.0/10
 .1+^.^| 136 | 2026-05-01 | chore+test | EPIC 12 Execution (6/6 tâches, PROCEDURES, Kover 81.19%) | `136-epic12-consolidation-execution.adoc` | 9.0/10
 .1+^.^| 135 | 2026-05-01 | chore | EPIC 12 Définition Consolidation (Audit + 6 tâches) | `135-epic12-consolidation-definition.adoc` | 9.0/10
 | 134 | 2026-05-01 | test | EPIC 11 Validation Tests Fonctionnels KG + Cloture | `134-epic11-kg-functional-tests.adoc` | 9.0/10
@@ -148,7 +149,7 @@ _Leçon Session 033_ : L'agent a tenté de modifier `/home/cheroliv/.gitconfig` 
 
 == 🎯 Roadmap — État Actuel
 
-| EPIC 12 : Consolidation Gouvernance/Tests | 🟡 100% | 9/10 | 🟡 EN COURS — Sessions 135-137
+| EPIC 12 : Consolidation Gouvernance/Tests | 🟢 100% | 9/10 | 🟢 TERMINÉ — Sessions 135-137 (PROCEDURES, Kover 81.19%, tests robustes)
 |===
 
 _Historique_ :
@@ -166,6 +167,7 @@ _Historique_ :
 | EPIC 9 : Knowledge Graph Diagram | ✅ 100% | 9/10 | ✅ Sessions 125-130 : 380/380 tests — TERMINÉ
 | EPIC 10 : Intégration Graphify (dev cycle) | ✅ 100% | 9/10 | ✅ Session 131 : diagrammes architecture + article blog 0105 + message Discord — TERMINÉE
 | EPIC 11 : Article Blog KG + Tests | ✅ 100% | 9/10 | ✅ Sessions 133-134 : article rédigé + 15/15 func tests — TERMINÉE
+| EPIC 12 : Consolidation Gouvernance/Tests | ✅ 100% | 9/10 | ✅ Sessions 135-137 : PROCEDURES, @Ignore+raison, Kover 81.19%, Gemini/Claude robuste — TERMINÉE
 |===
 
 '''
@@ -173,7 +175,7 @@ _Historique_ :
 == 📁 Archives
 
 * _Sessions 1-125_ : `.agents/backup/Y2026-sessions-001-125/` (INDEX, SESSIONS_HISTORY, COMPLETED_TASKS_ARCHIVE, sessions/)
-* _Sessions 126-134_ : Ce fichier + `.agents/sessions/`
+* _Sessions 126-137_ : Ce fichier + `.agents/sessions/`
 * _Localisation de la vague_ : `.agents/backup/Y2026-sessions-001-125/`
 
 '''
@@ -209,7 +211,7 @@ Projets gérant la même méthodologie opencode (EAGER/LAZY, procédure de fin d
 | magic_stick | `~/workspace/__repositories__/magic_stick` | 013 | SCRIPT_VERIFICATION.adoc | 2026-04-25
 | bakery-gradle | `~/workspace/__repositories__/bakery-gradle/bakery-plugin` | 5 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-23
 | cheroliv.com | `~/workspace/__repositories__/cheroliv.com` | 4 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-25
-| plantuml-gradle | `~/workspace/__repositories__/plantuml-gradle/plantuml-plugin` | 136 | TEST_COVERAGE_ANALYSIS.adoc | 2026-05-01
+| plantuml-gradle | `~/workspace/__repositories__/plantuml-gradle/plantuml-plugin` | 138 | TEST_COVERAGE_ANALYSIS.adoc | 2026-05-01
 | jhipster-gradle-plugins | `~/workspace/__repositories__/jhipster-gradle-plugins` | 2 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-30
 | openclaw-codingame | `~/workspace/__repositories__/openclaw-codingame/quizz-benchmark-plugin` | Audit session 053 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-30
 |===
@@ -226,5 +228,5 @@ _Procédure de fin de session commune_ :
 _Incohérences détectées (session 012 magic_stick)_ :
 
 * **bakery-gradle** : COMPLETED_TASKS_ARCHIVE en retard (sessions 3-5 manquantes)
-* **plantuml-gradle** : PROCEDURES.adoc decrit 5 etapes vs 6 etapes dans INDEX.adoc ⚠️
-* **plantuml-gradle** : SESSIONS_HISTORY en format narratif au lieu de table
+* ~~**plantuml-gradle** : PROCEDURES.adoc decrit 5 etapes vs 6 etapes dans INDEX.adoc~~ ✅ **Résolu Session 136** (PROCEDURES aligné 8 étapes avec AGENT.adoc)
+* ~~**plantuml-gradle** : SESSIONS_HISTORY en format narratif au lieu de table~~ ✅ **Résolu Session 136** (format table)

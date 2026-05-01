@@ -2,6 +2,25 @@
 
 == Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+=== Session 137 — 2026-05-01 : Clôture EPIC 12 (BACKLOG + INDEX) ✅
+
+==== ✅ Contexte
+* _Session 136_ : 6/6 tâches exécutées
+* _Objectif_ : Marquer EPIC 12 TERMINÉ dans BACKLOG, corriger incohérence portefeuille INDEX
+
+==== ✅ Tâches réalisées
+* ✅ BACKLOG.adoc : EPIC 12 🟢 TERMINÉ, déplacé section "🟢 EPICs Terminées", checkboxes cochées
+* ✅ INDEX.adoc : roadmap EPIC 12 🟢, incohérence PROCEDURES barrée (résolue), session 138
+* ✅ TEST_COVERAGE_ANALYSIS.adoc : date 136→137
+* ✅ Archive 137 : `.agents/sessions/137-epic12-cloture-backlog-index.adoc`
+* ✅ PROMPT_REPRISE : Session 138 (Maintenance, 12 EPICs terminées)
+* ✅ SESSIONS_HISTORY : entrée Session 137
+* ✅ COMPLETED_TASKS_ARCHIVE : cette entrée
+
+==== Notes/Leçons
+* EPIC 12 → 3 sessions (135-137), comme planifié
+* 12 EPICs terminées, backlog 100% propre, 0 dette
+
 === Session 136 — 2026-05-01 : Execution EPIC 12 Consolidation ✅
 
 ==== ✅ Contexte

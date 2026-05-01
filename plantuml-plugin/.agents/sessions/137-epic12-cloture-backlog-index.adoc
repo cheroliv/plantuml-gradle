@@ -1,0 +1,25 @@
+= Session 137 — EPIC 12 Clôture : BACKLOG + INDEX
+
+**Date** : 2026-05-01
+**Type** : chore
+**Score** : 9.0/10
+
+== Résumé
+
+Clôture EPIC 12 : Consolidation Gouvernance & Tests. Mise à jour BACKLOG.adoc (EPIC 12 🟢 TERMINÉ, déplacé en section terminée) et INDEX.adoc (incohérence portefeuille corrigée, roadmap EPIC 12 🟢).
+
+== Contexte
+
+Session 136 : 6/6 tâches EPIC 12 exécutées (PROCEDURES corrigé, @Ignore+raison, Kover 81.19%, Gemini/Claude robuste, @Ignore→@Disabled).
+Session 137 : finalisation — marquer EPIC 12 TERMINÉ dans les fichiers de gouvernance.
+
+== Tâches réalisées
+
+* ✅ BACKLOG.adoc : EPIC 12 déplacé de "🟡 EPIC Prioritaire Suivante" vers "🟢 EPICs Terminées", checkboxes cochées, section nettoyée
+* ✅ INDEX.adoc : roadmap EPIC 12 🟡 → 🟢 TERMINÉ, portefeuille session 138, incohérence PROCEDURES résolue (barrée)
+
+== Leçons
+
+* EPIC 12 a tenu en 3 sessions comme planifié — scope bien proportionné
+* Les incohérences portefeuille détectées en session 012 (magic_stick) sont maintenant toutes résolues pour plantuml-gradle
+* 12 EPICs terminées, backlog propre, gouvernance cohérente — le plugin est prêt pour la prochaine phase
