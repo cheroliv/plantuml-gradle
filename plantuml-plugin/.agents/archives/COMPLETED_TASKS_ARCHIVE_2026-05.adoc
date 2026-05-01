@@ -2,6 +2,26 @@
 
 == Historique des tâches accomplies dans le développement du plugin PlantUML Gradle
 
+=== Session 135 — 2026-05-01 : Définition EPIC 12 Consolidation ✅
+
+==== ✅ Contexte
+* _Session 134_ : EPIC 11 clôturée — 15/15 tests fonctionnels KG PASS
+* _Objectif_ : Définir EPIC 12, mettre à jour BACKLOG + PROMPT_REPRISE
+
+==== ✅ Tâches réalisées
+* ✅ Audit consolidation (subagent explore) : 26 @Ignore/@Disabled, PROCEDURES.adoc double étape 3, tests Gemini/Claude fragiles, pas de Kover
+* ✅ EPIC 12 définie et écrite dans BACKLOG.adoc : 6 tâches (3 HIGH, 2 MEDIUM, 1 LOW) sur 3 sessions
+* ✅ BACKLOG.adoc : dates Session 132→135, section EPIC 12 créée
+* ✅ PROMPT_REPRISE.adoc : session 135 planifiée avec plan 3 sessions
+* ✅ Archive session 135 : `.agents/sessions/135-epic12-consolidation-definition.adoc`
+* ✅ SESSIONS_HISTORY.adoc : entrée Session 135
+* ✅ INDEX.adoc : session en cours=136, roadmap+portefeuille mis à jour
+
+==== Notes/Leçons
+* L'audit automatisé (subagent explore thorough) est exhaustif et rapide
+* Backlog était vraiment propre — 0 dette critique, que de la consolidation légère
+* L'EPIC 12 est volontairement petit (6 tâches, ~3 sessions) — proportionné
+
 === Session 134 — 2026-05-01 : EPIC 11 Validation Tests Fonctionnels KG + Clôture ✅
 
 ==== ✅ Contexte

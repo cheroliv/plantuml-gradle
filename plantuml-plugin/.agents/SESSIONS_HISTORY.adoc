@@ -1,5 +1,6 @@
 = Historique des Sessions
 
+_Session 135_ (2026-05-01) : EPIC 12 Definition Consolidation — Audit + 6 taches planifiees, BACKLOG + PROMPT_REPRISE a jour ✅
 _Session 134_ (2026-05-01) : EPIC 11 Tests Fonctionnels KG + Cloture — 15/15 PASSED, EPIC 11 🟢 TERMINE ✅
 _Session 133_ (2026-04-27) : EPIC 11 Article Blog Knowledge Graph — "Le KG comme outil de comprehension de codebase" (0106, 458 lignes, 10 diagrammes) ✅
 _Session 132_ (2026-04-27) : EPIC 10 Cloture + BACKLOG a jour — EPIC 9 et 10 termines, EPIC 11 a definir ✅
@@ -12,5 +13,5 @@ _Session 126_ (2026-04-22) : Article blog fg (0104) + reflexion distillation IA 
 _Session 125_ (2026-04-22) : EPIC 9 Knowledge Graph Diagram — GenerateKnowledgeGraphDiagramTask + Parser + Renderer (336/336 tests PASS) ✅
 _Session 124_ (2026-04-22) : Correction timeout ReindexPlantumlRagIntegrationTest — StubEmbeddingModel + mode SIMULATION OK ✅
 
-→ _Details_ : `.agents/sessions/` (sessions 124-134)
+→ _Details_ : `.agents/sessions/` (sessions 124-135)
 → _Sessions 1-123_ : `.agents/backup/Y2026-sessions-001-123/`

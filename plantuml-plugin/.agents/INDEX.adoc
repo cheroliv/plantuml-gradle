@@ -3,8 +3,8 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-05-01  
-_Session en cours_ : 135 — Aucune EPIC active. Définir EPIC 12.  
-_Session terminee_ : 134 (Validation Tests Fonctionnels KG, EPIC 11 clôturée)  
+_Session en cours_ : 136 — EPIC 12 : PROCEDURES.adoc + @Ignore nus (tâches HIGH)  
+_Session terminee_ : 135 (Définition EPIC 12 Consolidation, BACKLOG + PROMPT_REPRISE à jour)  
 _Audit gouvernance_ : 2026-04-30 ✅ (LAZY_EAGER_ESSENTIALS, encyclopedie, backup tronque, AGENT complet, portefeuille 6 projets)
 
 '''
@@ -119,6 +119,7 @@ _Leçon Session 033_ : L'agent a tenté de modifier `/home/cheroliv/.gitconfig` 
 
 |===
 | # | Date | Type | Sujet | Fichier | Score
+.1+^.^| 135 | 2026-05-01 | chore | EPIC 12 Définition Consolidation (Audit + 6 tâches) | `135-epic12-consolidation-definition.adoc` | 9.0/10
 | 134 | 2026-05-01 | test | EPIC 11 Validation Tests Fonctionnels KG + Cloture | `134-epic11-kg-functional-tests.adoc` | 9.0/10
 | 133 | 2026-04-27 | docs | EPIC 11 Article Blog Knowledge Graph (0106) | `133-epic11-article-blog-kg.adoc` | 9.0/10
 | 132 | 2026-04-27 | chore | EPIC 10 Cloture + BACKLOG a jour | `132-epic10-cloture-backlog.adoc` | 9.0/10
@@ -146,6 +147,11 @@ _Leçon Session 033_ : L'agent a tenté de modifier `/home/cheroliv/.gitconfig` 
 '''
 
 == 🎯 Roadmap — État Actuel
+
+| EPIC 12 : Consolidation Gouvernance/Tests | 🟡 0% | 9/10 | 🔴 EN COURS — Sessions 135-137
+|===
+
+_Historique_ :
 
 |===
 | EPIC | Progression | Score | Priorité
@@ -203,7 +209,7 @@ Projets gérant la même méthodologie opencode (EAGER/LAZY, procédure de fin d
 | magic_stick | `~/workspace/__repositories__/magic_stick` | 013 | SCRIPT_VERIFICATION.adoc | 2026-04-25
 | bakery-gradle | `~/workspace/__repositories__/bakery-gradle/bakery-plugin` | 5 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-23
 | cheroliv.com | `~/workspace/__repositories__/cheroliv.com` | 4 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-25
-| plantuml-gradle | `~/workspace/__repositories__/plantuml-gradle/plantuml-plugin` | 135 | TEST_COVERAGE_ANALYSIS.adoc | 2026-05-01
+| plantuml-gradle | `~/workspace/__repositories__/plantuml-gradle/plantuml-plugin` | 136 | TEST_COVERAGE_ANALYSIS.adoc | 2026-05-01
 | jhipster-gradle-plugins | `~/workspace/__repositories__/jhipster-gradle-plugins` | 2 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-30
 | openclaw-codingame | `~/workspace/__repositories__/openclaw-codingame/quizz-benchmark-plugin` | Audit session 053 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-30
 |===

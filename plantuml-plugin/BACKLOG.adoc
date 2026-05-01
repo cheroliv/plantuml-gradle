@@ -2,7 +2,7 @@
 
 ____
 **Objectif** : Suivi des issues et bugs en cours
-**Dernière mise à jour** : Session 132 (27 avril 2026)
+**Dernière mise à jour** : Session 135 (1er mai 2026)
 ____
 
 '''
@@ -94,7 +94,52 @@ Après EPIC 10 (intégration graphify), le plugin génère des diagrammes Knowle
 
 ''' == 🟡 EPIC Prioritaire Suivante
 
-*Aucune EPIC définie. Définir EPIC 12.*
+=== EPIC 12 : Consolidation — Gouvernance & Tests
+
+**Statut** : 🟡 EN COURS
+**Priorité** : 🔴 HAUTE
+**Session** : 135-137
+
+==== Contexte
+
+Après 11 EPICs terminées, le plugin est fonctionnellement riche mais présente de la dette légère : gouvernance interne incohérente (PROCEDURES.adoc double étape 3), tests annotés `@Ignore` sans raison, mocks fragiles sur les providers Gemini/Claude, et absence de baseline Kover.
+
+==== Tâches
+
+[cols="1,4,1"]
+|===
+| Priorité | Tâche | Statut
+
+.4+^.^| 🔴 HIGH
+| **PROCEDURES.adoc** : Corriger la numérotation (double "étape 3" lignes 148/223), réconcilier avec AGENT.adoc (6 vs 8 étapes), aligner la spec SESSIONS_HISTORY (table vs narratif)
+| ⬜
+
+| **@Ignore sans raison** : Ajouter une string de raison à 6 annotations dans `PlantumlFunctionalSuite.kt` (lignes 1602, 1609, 1667, 1684, 1738, 1819)
+| ⬜
+
+| **PROCEDURES.adoc référence** : Remplacer "les 6 etapes" par le vrai nombre d'étapes si on garde 8, ou réduire à 6 pour matcher AGENT.adoc
+| ⬜
+
+.2+^.^| 🟡 MEDIUM
+| **Tests Gemini/Claude fragiles** : Remplacer l'instanciation réelle de `GoogleAiGeminiChatModel`/`AnthropicChatModel` par des mocks HTTP (pattern WireMock déjà utilisé par le Cucumber mock server) dans `LlmServicePrivateMethodsTest` + `LlmServiceTest`
+| ⬜
+
+| **Baseline Kover** : Lancer `./gradlew koverXmlReport`, vérifier ≥75%, capturer le rapport
+| ⬜
+
+.1+^.^| 🟢 LOW
+| **Uniformiser @Ignore → @Disabled** : Convertir `@Ignore` en `@Disabled` pour les tests RAG lents (lignes 1808, 1819)
+| ⬜
+|===
+
+==== Critères d'Acceptation
+
+* [ ] PROCEDURES.adoc : numérotation cohérente, pas de doublon, aligné avec AGENT.adoc
+* [ ] PlantumlFunctionalSuite.kt : TOUS les `@Ignore` ont une raison explicite
+* [ ] Tests Gemini/Claude : mocks HTTP au lieu d'instanciation réelle de classes LangChain4j
+* [ ] Kover report généré, couverture ≥75%
+* [ ] `./gradlew compileKotlin` OK
+* [ ] `./gradlew test` OK (0 failure)
 
 '
 '''
@@ -294,4 +339,4 @@ org.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m -XX:+UseG1GC
 
 '''
 
-**Dernière mise à jour** : Session 73 (15 avr. 2026)
+**Dernière mise à jour** : Session 135 (1er mai 2026)

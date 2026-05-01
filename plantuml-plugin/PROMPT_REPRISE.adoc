@@ -3,22 +3,28 @@
 _Règles absolues_ : voir `AGENT.adoc` section "Règles Absolues"
 
 ____
-**EPIC** : Aucune EPIC active. Définir EPIC 12.
-**Statut** : ⚪ EN ATTENTE
-**Mission** : Définir EPIC 12 — consulter BACKLOG pour les pistes
+**EPIC** : 12 — Consolidation Gouvernance & Tests
+**Statut** : 🟡 EN COURS
+**Mission** : Corriger les incohérences de gouvernance + fiabiliser les tests
 ____
 
 '''
 
-== Session 134 — Résumé
+== Session 135 — Plan
 
 **Date** : 1er mai 2026
-**Résultat** : EPIC 11 clôturée — tests fonctionnels KG validés
+**Objectif** : Débuter EPIC 12 — tâches HIGH
 
-**Actions** :
-* Tests fonctionnels `KnowledgeGraphDiagramFunctionalTest` : 15/15 PASSED
-* BACKLOG mis à jour : EPIC 11 marquée 🟢 TERMINÉ
-* Prochaine action : définir EPIC 12
+=== Actions immédiates
+
+. **PROCEDURES.adoc** — Corriger double "étape 3" (lignes 148/223), réconcilier 6 vs 8 étapes, aligner spec SESSIONS_HISTORY
+. **@Ignore sans raison** — Ajouter raison à 6 annotations dans `PlantumlFunctionalSuite.kt` (1602, 1609, 1667, 1684, 1738, 1819)
+. **PROCEDURES.adoc référence** — Remplacer "6 etapes" par le vrai nombre ou réduire à 6
+
+=== Prochaines sessions
+
+* Session 136 : Tests Gemini/Claude fragiles (mocks HTTP) + Baseline Kover
+* Session 137 : @Ignore → @Disabled uniformisation + validation finale
 
 '''
 

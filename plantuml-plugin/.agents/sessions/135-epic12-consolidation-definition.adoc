@@ -1,0 +1,45 @@
+= Session 135 — Définition EPIC 12 Consolidation
+
+_Date_ : 2026-05-01
+_Type_ : chore
+_Résultat_ : ✅ EPIC 12 définie, BACKLOG + PROMPT_REPRISE à jour
+_Score_ : 9.0/10
+
+== Contexte
+
+Session 134 a clôturé EPIC 11. Backlog vide, aucune EPIC active. L'utilisateur demande un topo global puis une consolidation.
+
+== Déroulement
+
+. Audit du backlog → 11 EPICs terminées, backlog propre
+. Audit de consolidation (subagent explore) :
+  * 26 `@Ignore`/`@Disabled` recensés
+  * PROCEDURES.adoc : double "étape 3" + 6 vs 8 étapes
+  * SESSIONS_HISTORY : format narratif vs spec table
+  * Tests Gemini/Claude : instanciation réelle fragile (3 tests)
+  * Pas de rapport Kover existant
+. Proposition EPIC 12 → validée par l'utilisateur
+. BACKLOG.adoc + PROMPT_REPRISE.adoc mis à jour
+
+== EPIC 12 Définition
+
+6 tâches sur 3 sessions (135-137) :
+
+| Session | Priorité | Action
+| 135 | HIGH | PROCEDURES.adoc : dédoublonner étape 3, réconcilier 6↔8 étapes
+| 135 | HIGH | @Ignore nus : ajouter raison à 6 annotations
+| 135 | HIGH | PROCEDURES.adoc "6 étapes" → vrai nombre
+| 136 | MEDIUM | Tests Gemini/Claude : mocks HTTP
+| 136 | MEDIUM | Baseline Kover
+| 137 | LOW | @Ignore → @Disabled uniformisation + validation
+
+== Fichiers modifiés
+
+* `BACKLOG.adoc` — EPIC 12 créée, dates mises à jour
+* `PROMPT_REPRISE.adoc` — Session 135 planifiée
+
+== Leçons
+
+* L'audit automatisé (subagent) est précis et exhaustif
+* Le backlog était vraiment propre : 0 dette critique, que de la consolidation légère
+* L'EPIC 12 est petit (6 tâches, 3 sessions) — proportionné au besoin
