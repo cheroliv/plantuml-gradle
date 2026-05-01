@@ -1,0 +1,64 @@
+= Session 126 — Article Blog fg + Distillation IA
+:toc: left
+:toclevels: 3
+:icons: font
+:sectnums:
+
+== Contexte
+
+**Date** : 22 avril 2026
+**Type** : docs
+**Score** : 9.0/10
+**Precedee de** : Session 125 (EPIC 9 Knowledge Graph Diagram — implémentation 80%)
+
+== Objectif
+
+Écrire un article blog pour https://cheroliv.com sur le super tips de la commande `fg` (suspend/reprendre un processus avec Ctrl+Z/fg), inspiré de l'expérience vécue en session 125 (process opencode suspendu puis récupéré intact).
+
+== Taches realisees
+
+=== 1. Article blog 0104 — commande fg
+
+* Rédaction complète de l'article `0104_fg_command_super_tips_post.adoc`
+* 877 lignes, format jbake/AsciiDoc conforme au style cheroliv.com
+* 12 diagrammes PlantUML intégrés :
+  - `terminal-bloque` — le problème initial
+  - `jobs-lifecycle` — cycle suspend/fg/bg
+  - `scenario-build` — séquence build + Ctrl+Z + git status + fg
+  - `vim-suspend` — séquence vim suspendu + fg
+  - `opencode-fg` — contexte LLM préservé
+  - `multiple-jobs` — gestion multi-jobs
+  - `signals-comparison` — Ctrl+Z vs Ctrl+C vs &
+  - `job-lifecycle-complete` — cycle de vie état complet
+  - `advanced-tips` — fg/kill/disown/nohup
+  - `fg-recap` — résumé visuel
+  - `why-fg-underrated` — pourquoi fg est sous-estimé
+  - `signal-flow` — flux signaux POSIX
+* 4 scénarios concrets : build Gradle, vim, opencode, multi-jobs
+* Comparaison signaux POSIX (SIGTSTP/SIGCONT/SIGINT)
+* Tips avancés (fg %-, kill %n, disown, nohup, reset)
+* Pièges courants documentés
+
+=== 2. Réflexion distillation IA
+
+* Discussion sur la qualité du contenu blog cheroliv.com pour le fine-tuning et la distillation
+* Points forts identifiés : format problème→solution→leçons, récits d'erreur, diagrammes PlantUML, contenu francophone technique
+* Reconnaissance : le style narratif avec sentiments ("combat acharné") est un atout pour les lecteurs humains, pas du bruit
+
+== Connaissances cles
+
+* L'article suit le style cheroliv.com : en-têtes jbake, AsciiDoc, `[plantuml,name,svg]`, tableaux, admonitions, citation finale
+* Numérotation	continue : 0104 après 0103 (VS Code local install)
+* Le contenu technique francophone de qualité est sous-représenté dans les données d'entraînement IA
+* Les diagrammes PlantUML forcent une modélisation explicite — valuable pour la distillation
+
+== Fichiers impliqués
+
+* Créé : `/home/cheroliv/workspace/__repositories__/cheroliv/site/jbake/content/blog/2026/0104_fg_command_super_tips_post.adoc`
+
+== Prochaine session (127)
+
+* Revenir sur l'intégration de graphify
+* Tester graphify end-to-end
+* Documenter dans les Readmes
+* Écrire des articles sur l'intégration dans le cycle de dev

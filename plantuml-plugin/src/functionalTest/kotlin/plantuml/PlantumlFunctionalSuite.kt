@@ -1599,14 +1599,14 @@ class PlantumlFunctionalSuite {
             }
 
             @Test
-            @Ignore
+            @Ignore("Requires Ollama running at configured URL")
             fun `should reach ollama api tags endpoint`() {
                 val conn = create("$ollamaUrl/api/tags").toURL().openConnection() as HttpURLConnection
                 assertEquals(conn.responseCode, 200)
             }
 
             @Test
-            @Ignore
+            @Ignore("Requires real Ollama model configured and running")
             fun `should create chat model without exception`() {
                 val config = PlantumlConfig(
                     langchain4j = LangchainConfig(
@@ -1664,7 +1664,7 @@ class PlantumlFunctionalSuite {
             }
 
             @Test
-            @Ignore
+            @Ignore("Requires real Ollama model for prompt processing")
             fun `should generate a valid puml file from a real prompt`() {
                 val result = runner("processPlantumlPrompts").build()
 
@@ -1681,7 +1681,7 @@ class PlantumlFunctionalSuite {
         inner class NetworkFailure {
 
             @Test
-            @Ignore
+            @Ignore("Tests unreachable LLM endpoint — needs network isolation")
             fun `should fail gracefully when llm endpoint is unreachable`() {
                 val subDir = File(sharedProjectDir, "unreachable-test").also { it.mkdirs() }
                 File(subDir, "settings.gradle.kts").writeText("""rootProject.name = "unreachable"""")
@@ -1735,7 +1735,7 @@ class PlantumlFunctionalSuite {
             }
 
             @Test
-            @Ignore
+            @Ignore("Manipulates file permissions — needs elevated privileges on Unix")
             fun `should handle unreadable puml file gracefully`() {
                 val file = File(sharedProjectDir, "protected.puml")
                 file.writeText("@startuml\nclass Protected\n@enduml")
@@ -1805,7 +1805,7 @@ class PlantumlFunctionalSuite {
 
         @ParameterizedTest
         @ValueSource(strings = ["empty", "invalid_syntax", "subdirs", "empty_files"])
-        @Ignore("Tests too slow - loading ML embedding model")
+        @Disabled("Tests too slow - loading ML embedding model")
         fun `should handle various RAG scenarios`(scenario: String) {
             when (scenario) {
                 "empty" -> testEmptyDirectory()
@@ -1816,7 +1816,7 @@ class PlantumlFunctionalSuite {
         }
 
         @Test
-        @Ignore
+        @Disabled("Requires RAG index and ML embedding model not available in CI")
         fun `should handle moderate number of diagrams gracefully`() {
             createRagDirectory()
 

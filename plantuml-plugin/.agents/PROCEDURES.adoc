@@ -30,20 +30,9 @@ _Solution_ : Séparer l'information en 2 catégories :
 
 == 📋 Procédure de Fin de Session — 6 Étapes Obligatoires
 
-=== ÉTAPE 1 : Vérifier l'état des tests (optionnel)
 
-[source,bash]
-----
-# Seulement si demandé explicitement
-./gradlew test
-./gradlew cucumberTest
-----
 
-⚠️ _Jamais_ exécuter de tests en procédure de fin de session sans demande explicite.
-
-'''
-
-=== ÉTAPE 2 : Créer l'archive LAZY de la session
+=== ÉTAPE 1 : Créer l'archive LAZY de la session
 
 _Fichier_ : `.agents/sessions/{N}-{titre}.adoc`
 
@@ -145,7 +134,7 @@ _Structure obligatoire_ :
 
 '''
 
-=== ÉTAPE 3 : Mettre à jour le résumé EAGER
+=== ÉTAPE 2 : Mettre à jour PROMPT_REPRISE.adoc
 
 _Fichier_ : `PROMPT_REPRISE.adoc`
 
@@ -222,9 +211,9 @@ _Contraintes_ :
 
 === ÉTAPE 3 : Mettre à jour SESSIONS_HISTORY.adoc avec la session N
 
-_Ajouter la session N dans le tableau_ : `.agents/SESSIONS_HISTORY.adoc`
+_Ajouter la session terminee en 1 ligne narrative_ : `.agents/SESSIONS_HISTORY.adoc`
 
-_Colonnes obligatoires_ : # | Date | Type | Sujet | Fichier | Score
+_Format_ : `_Session N_ (date) : EPIC Sujet — Resume 1 ligne ✅`
 
 '''
 
@@ -253,37 +242,6 @@ _Si aucun test modifié_ : noter "aucun test modifié" avec la date de session.
 _Ajouter les taches realisees_ dans `.agents/archives/COMPLETED_TASKS_ARCHIVE_{mois}.adoc`.
 
 _Structure_ : Date, contexte, taches (avec [OK]/[EN COURS]), resultats, lecons apprises, prochaine session.
-
-'''
-
-=== ÉTAPE 7 : Vérifier la cohérence du contexte (si besoin)
-
-_Vérifier_ : `AGENT.adoc` dépasse-t-il 200 lignes ?
-
-_Si OUI_ :
-
-. Identifier sections détaillées (commandes, méthodologie, pièges)
-. Transférer vers `AGENT_REFERENCE.adoc` ou fichier dédié
-. Remplacer par renvoi court : `_Voir_ : `AGENT_REFERENCE.adoc``
-
-_Si NON_ : ✅ Ne rien toucher
-
-'''
-
-=== ÉTAPE 8 : Valider la cohérence
-
-_Checklist_ :
-
-* [ ] Archive LAZY créée : `.agents/sessions/{N}-{titre}.adoc`
-* [ ] Résumé EAGER mis à jour : `PROMPT_REPRISE.adoc`
-* [ ] SESSIONS_HISTORY.adoc mis à jour
-* [ ] INDEX.adoc mis à jour
-* [ ] TEST_COVERAGE_ANALYSIS.adoc mis à jour (si applicable)
-* [ ] COMPLETED_TASKS_ARCHIVE_{mois}.adoc mis à jour
-* [ ] Référence croisée présente (EAGER → LAZY)
-* [ ] `PROMPT_REPRISE.adoc` < 100 lignes
-* [ ] Commandes session N+1 testables
-* [ ] Critères d'acceptation clairs
 
 '''
 

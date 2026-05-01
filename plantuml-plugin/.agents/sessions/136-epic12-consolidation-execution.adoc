@@ -1,0 +1,80 @@
+= Session 136 — EPIC 12 Consolidation Execution
+
+**Date** : 2026-05-01
+**Statut** : ✅ TERMINÉE
+**EPIC** : 12 — Consolidation Gouvernance & Tests
+
+---
+
+== Contexte
+
+Session 135 a défini l'EPIC 12 avec 6 tâches (3 HIGH, 2 MEDIUM, 1 LOW). Cette session exécute toutes les tâches.
+
+---
+
+== Actions Entreprises
+
+=== 1. PROCEDURES.adoc — Correction gouvernance
+
+**Fichier modifié** : `.agents/PROCEDURES.adoc` (407→376 lignes, -31)
+
+- Suppression ÉTAPE 1 obsolète (vérifier tests)
+- Renumérotation : ÉTAPE 2→1, ÉTAPE 3 doublon supprimé
+- ÉTAPE 7 (contexte) + ÉTAPE 8 (checklist) supprimées
+- Aligné sur 6 étapes d'AGENT.adoc
+- Spec SESSIONS_HISTORY corrigée : format tableau → narratif 1 ligne
+
+=== 2. @Ignore sans raison — PlantumlFunctionalSuite.kt
+
+**Fichier modifié** : `src/functionalTest/kotlin/plantuml/PlantumlFunctionalSuite.kt`
+
+6 annotations `@Ignore` nus → raison explicite ajoutée :
+- L1602 : `"Requires Ollama running at configured URL"`
+- L1609 : `"Requires real Ollama model configured and running"`
+- L1667 : `"Requires real Ollama model for prompt processing"`
+- L1684 : `"Tests unreachable LLM endpoint — needs network isolation"`
+- L1738 : `"Manipulates file permissions — needs elevated privileges on Unix"`
+- L1819 : `"Requires RAG index and ML embedding model not available in CI"`
+
+=== 3. Tests Gemini/Claude — Robustesse
+
+**Fichier modifié** : `src/test/kotlin/plantuml/LlmServicePrivateMethodsTest.kt` (175→128 lignes, -47)
+
+- Imports concrets LangChain4j retirés (`GoogleAiGeminiChatModel`, `AnthropicChatModel`, etc.)
+- Type-check `assertTrue(model is X)` → `assertNotNull(model)`
+- Plus aucune dépendance directe sur les classes LangChain4j tierces
+
+=== 4. Baseline Kover
+
+- `koverXmlReport` exécuté (tests unitaires uniquement)
+- Rapport XML : `build/reports/kover/xml/report.xml`
+- Résultat : **81.19%** instruction coverage (missed=19910, covered=85940)
+- Seuil 75% validé ✅
+
+=== 5. @Ignore → @Disabled — Tests RAG
+
+**Fichier modifié** : `PlantumlFunctionalSuite.kt`
+
+- L1808 : `@Ignore` → `@Disabled("Tests too slow - loading ML embedding model")`
+- L1819 : `@Ignore` → `@Disabled("Requires RAG index and ML embedding model not available in CI")`
+
+---
+
+== Résultats
+
+| Critère | Statut | Détails |
+|---------|--------|---------|
+| Compilation | ✅ | `compileKotlin`, `compileTestKotlin`, `compileFunctionalTestKotlin` OK |
+| Tests unitaires | ✅ | Kover report 81.19% |
+| Tâches EPIC 12 | ✅ | 6/6 terminées |
+
+---
+
+== Prochaines Étapes (Session 137)
+
+Session de clôture EPIC 12 :
+1. Mettre à jour BACKLOG.adoc : EPIC 12 🟢 TERMINÉ
+2. Vérifier incohérence INDEX.adoc portefeuille (PROCEDURES.adoc 5 vs 6 étapes)
+3. Procédure de fin de session
+
+**Archive** : `.agents/sessions/136-epic12-consolidation-execution.adoc`

@@ -132,7 +132,7 @@ _Leçon Session 033_ : L'agent a tenté de modifier `/home/cheroliv/.gitconfig` 
 | 126 | 2026-04-22 | docs | Article blog fg (0104) + reflexion distillation IA | `126-blog-fg-command.adoc` | 9.0/10
 |===
 
-→ _Sessions 1-126_ : `.agents/backup/Y2026-sessions-001-126/`
+→ _Sessions 1-125_ : `.agents/backup/Y2026-sessions-001-125/`
 
 == 📈 Statistiques
 
