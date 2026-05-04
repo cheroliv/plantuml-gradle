@@ -230,3 +230,4 @@ _Incohérences détectées (session 012 magic_stick)_ :
 * **bakery-gradle** : COMPLETED_TASKS_ARCHIVE en retard (sessions 3-5 manquantes)
 * ~~**plantuml-gradle** : PROCEDURES.adoc decrit 5 etapes vs 6 etapes dans INDEX.adoc~~ ✅ **Résolu Session 136** (PROCEDURES aligné 8 étapes avec AGENT.adoc)
 * ~~**plantuml-gradle** : SESSIONS_HISTORY en format narratif au lieu de table~~ ✅ **Résolu Session 136** (format table)
+| 139 | 2026-05-04 | governance | Renommage openclaw→quizz-benchmark (gouvernance) | —

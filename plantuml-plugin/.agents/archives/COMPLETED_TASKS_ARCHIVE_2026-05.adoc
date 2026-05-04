@@ -79,3 +79,4 @@
 ==== Notes/Leçons
 * Les tests fonctionnels KG existaient déjà depuis la Session 128 — tout passait
 * Aucun nouveau code nécessaire, simple validation
+| 2026-05-04 | 139 | governance | Renommage openclaw-codingame → quizz-benchmark-gradle (gouvernance) |
