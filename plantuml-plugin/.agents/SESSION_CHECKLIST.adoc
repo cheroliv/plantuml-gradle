@@ -34,6 +34,7 @@ ____
 * [ ] `AGENT.adoc` — Section "État actuel" (mettre à jour)
 * [ ] `COMPLETED_TASKS_ARCHIVE.adoc` — Déplacer les tâches terminées
 * [ ] `PROMPT_REPRISE.adoc` — Mettre à jour la mission si changée
+* [ ] 🔑 *Ségrégation Vision/Opinion* : classifier tout contenu avant dilution / rédaction blog
 
 === 3. Commiter (optionnel mais recommandé) — _Utilisateur uniquement_
 ____
