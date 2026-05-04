@@ -1,5 +1,6 @@
 = Historique des Sessions
 
+_Session 139_ (2026-05-04) : Renommage gouvernance openclaw-codingame → quizz-benchmark-gradle (3 refs) ✅
 _Session 137_ (2026-05-01) : EPIC 12 Cloture — BACKLOG (EPIC 12 🟢 TERMINE) + INDEX (incoherence portefeuille corrigee, roadmap OK) ✅
 _Session 136_ (2026-05-01) : EPIC 12 Execution — 6/6 taches (PROCEDURES corrige, @Ignore+raison, Kover 81.19%, Gemini/Claude robuste, @Ignore→@Disabled) ✅
 _Session 135_ (2026-05-01) : EPIC 12 Definition Consolidation — Audit + 6 taches planifiees, BACKLOG + PROMPT_REPRISE a jour ✅
