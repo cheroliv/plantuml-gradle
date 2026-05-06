@@ -54,7 +54,7 @@
 
 == Fichiers impliqués
 
-* Créé : `/home/cheroliv/workspace/__repositories__/cheroliv/site/jbake/content/blog/2026/0104_fg_command_super_tips_post.adoc`
+* Créé : `/home/cheroliv/workspace/foundry/cheroliv/site/jbake/content/blog/2026/0104_fg_command_super_tips_post.adoc`
 
 == Prochaine session (127)
 

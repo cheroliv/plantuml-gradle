@@ -124,7 +124,7 @@ src/functionalTest/
 
 [source,bash]
 ----
-cd /home/cheroliv/workspace/__repositories__/plantuml-gradle/plantuml-plugin
+cd /home/cheroliv/workspace/foundry/plantuml-gradle/plantuml-plugin
 /graphify . --no-viz
 ----
 

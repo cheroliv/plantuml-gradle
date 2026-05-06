@@ -136,7 +136,7 @@
 * ✅ Réflexion distillation IA : contenu cheroliv.com valuable pour fine-tuning
 
 ==== ✅ Resultats
-* ✅ Article publié dans `/home/cheroliv/workspace/__repositories__/cheroliv/site/jbake/content/blog/2026/`
+* ✅ Article publié dans `/home/cheroliv/workspace/foundry/cheroliv/site/jbake/content/blog/2026/`
 * ✅ Numérotation conforme : 0104 après 0103
 
 ==== Notes lecons apprises
