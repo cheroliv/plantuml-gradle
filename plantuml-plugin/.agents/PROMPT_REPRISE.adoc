@@ -4,7 +4,8 @@
 == Contexte de Reprise
 
 Session 140 suite au renommage gouvernance openclaw-codingame → quizz-benchmark-gradle (session precedente).
-La gouvernance agent globale (`AGENT_GOVERNANCE.adoc`) est a jour.
+Session inter-session 141 : Migration chemins foundry/ → foundry/OSS/ dans INDEX.adoc (granularisation OSS/CSS).
+Commit + push. La gouvernance agent globale (`AGENT_GOVERNANCE.adoc`) est a jour.
 
 == Prochaine etape
 

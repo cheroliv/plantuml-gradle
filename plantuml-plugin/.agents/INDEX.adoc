@@ -2,8 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour_ : 2026-05-01  
+_Derniere mise a jour_ : 2026-05-07  
 _Session en cours_ : 138 — Maintenance (12 EPICs terminées, définition prochaines priorités)  
+_Session inter-session_ : 141 (chore migration chemins foundry/ → foundry/OSS/ dans INDEX.adoc)
 _Session terminee_ : 137 (EPIC 12 Clôture — BACKLOG + INDEX)  
 _Audit gouvernance_ : 2026-04-30 ✅ (LAZY_EAGER_ESSENTIALS, encyclopedie, backup tronque, AGENT complet, portefeuille 6 projets)
 
@@ -131,6 +132,7 @@ _Leçon Session 033_ : L'agent a tenté de modifier `/home/cheroliv/.gitconfig` 
 | 128 | 2026-04-23 | test+feat+docs | EPIC 10 Tests Fonctionnels + Renderer + Readmes | `128-epic10-functional-tests-renderer-docs.adoc` | 8.5/10
 | 127 | 2026-04-22 | test+fix | EPIC 10 Tests Integration Graphify (380/380 PASS) | `127-epic10-graphify-tests.adoc` | 9.0/10
 | 126 | 2026-04-22 | docs | Article blog fg (0104) + reflexion distillation IA | `126-blog-fg-command.adoc` | 9.0/10
+| 141 | 2026-05-07 | chore | Migration chemins foundry/ → foundry/OSS/ (granularisation OSS/CSS) | — | —
 |===
 
 → _Sessions 1-126_ : `.agents/backup/Y2026-sessions-001-126/`
@@ -208,12 +210,12 @@ Projets gérant la même méthodologie opencode (EAGER/LAZY, procédure de fin d
 
 |===
 | Projet | Répertoire | Session en cours | Étape 5 spécifique | Dernière MAJ
-| magic_stick | `~/workspace/foundry/magic_stick` | 013 | SCRIPT_VERIFICATION.adoc | 2026-04-25
-| bakery-gradle | `~/workspace/foundry/bakery-gradle/bakery-plugin` | 5 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-23
-| cheroliv.com | `~/workspace/foundry/cheroliv.com` | 4 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-25
-| plantuml-gradle | `~/workspace/foundry/plantuml-gradle/plantuml-plugin` | 138 | TEST_COVERAGE_ANALYSIS.adoc | 2026-05-01
-| jhipster-gradle-plugins | `~/workspace/foundry/jhipster-gradle-plugins` | 2 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-30
-| quizz-benchmark-gradle | `~/workspace/foundry/quizz-benchmark-gradle/quizz-benchmark-plugin` | Audit session 053 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-30
+| magic_stick | `~/workspace/foundry/OSS/magic_stick` | 013 | SCRIPT_VERIFICATION.adoc | 2026-04-25
+| bakery-gradle | `~/workspace/foundry/OSS/bakery-gradle/bakery-plugin` | 5 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-23
+| cheroliv.com | `~/workspace/foundry/OSS/cheroliv.com` | 4 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-25
+| plantuml-gradle | `~/workspace/foundry/OSS/plantuml-gradle/plantuml-plugin` | 138 | TEST_COVERAGE_ANALYSIS.adoc | 2026-05-01
+| jhipster-gradle-plugins | `~/workspace/foundry/OSS/jhipster-gradle-plugins` | 2 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-30
+| quizz-benchmark-gradle | `~/workspace/foundry/OSS/quizz-benchmark-gradle/quizz-benchmark-plugin` | Audit session 053 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-30
 |===
 
 _Procédure de fin de session commune_ :
@@ -231,3 +233,4 @@ _Incohérences détectées (session 012 magic_stick)_ :
 * ~~**plantuml-gradle** : PROCEDURES.adoc decrit 5 etapes vs 6 etapes dans INDEX.adoc~~ ✅ **Résolu Session 136** (PROCEDURES aligné 8 étapes avec AGENT.adoc)
 * ~~**plantuml-gradle** : SESSIONS_HISTORY en format narratif au lieu de table~~ ✅ **Résolu Session 136** (format table)
 | 139 | 2026-05-04 | governance | Renommage openclaw→quizz-benchmark (gouvernance) | —
+| 141 | 2026-05-07 | chore | Migration chemins foundry/ → foundry/OSS/ dans INDEX.adoc — granularisation OSS/CSS | —
