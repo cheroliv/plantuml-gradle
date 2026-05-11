@@ -2,7 +2,7 @@
 api = "0.0.1"
 kotlin = "2.3.0"
 #langchain4j = "0.36.2"
-langchain4j = "1.0.0-alpha1"
+langchain4j = "1.14.1"
 #langchain4j = "1.0.0-beta1"
 commons-io = "2.13.0"
 jackson = "2.18.3"
